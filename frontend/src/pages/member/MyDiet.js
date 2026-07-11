@@ -34,14 +34,14 @@ function MealCard({ meal, index }) {
         className="w-full flex items-center justify-between p-4 hover:bg-white/5 transition-all"
       >
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-cyan-400/10 text-cyan-400 flex items-center justify-center text-sm font-bold">
-            {index + 1}
-          </div>
-          <div className="text-left">
-            <div className="text-white font-semibold text-sm">{meal.mealName}</div>
-            {meal.time && <div className="text-gray-500 text-xs">{meal.time}</div>}
-          </div>
+        <div className="w-8 h-8 rounded-lg bg-cyan-400/10 text-cyan-400 flex items-center justify-center text-sm font-bold">
+          {index + 1}
         </div>
+        <div className="text-left">
+          <div className="text-white font-semibold text-sm capitalize">{meal.mealType || meal.mealName}</div>
+          {meal.time && <div className="text-gray-500 text-xs">{meal.time}</div>}
+        </div>
+      </div>
         <div className="flex items-center gap-3">
           {meal.calories && (
             <span className="text-xs text-orange-400 bg-orange-400/10 px-2 py-0.5 rounded-full flex items-center gap-1">
@@ -57,7 +57,7 @@ function MealCard({ meal, index }) {
             <div key={i} className="flex items-center justify-between text-sm py-1.5 border-t border-white/5">
               <div className="flex items-center gap-2">
                 <Apple size={13} className="text-cyan-400 flex-shrink-0" />
-                <span className="text-gray-200">{item.food}</span>
+                <span className="text-gray-200">{item.name || item.food}</span>
               </div>
               <div className="flex gap-3 text-gray-500 text-xs">
                 {item.quantity && <span>{item.quantity}</span>}

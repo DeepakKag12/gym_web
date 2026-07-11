@@ -16,8 +16,10 @@ export default function AdminOrders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const load = () => API.get('/orders').then(r => setOrders(r.data)).catch(() => {}).finally(() => setLoading(false));
-  useEffect(load, []);
+  const load = () => {
+    API.get('/orders').then(r => setOrders(r.data)).catch(() => {}).finally(() => setLoading(false));
+  };
+  useEffect(() => { load(); }, []);
 
   const updateStatus = async (id, status) => {
     try { await API.put(`/orders/${id}/status`, { orderStatus: status }); toast.success('Status updated'); load(); }
@@ -63,7 +65,9 @@ export default function AdminOrders() {
                     <td className="px-4 py-3">
                       <select value={o.orderStatus} onChange={e => updateStatus(o._id, e.target.value)}
                         className={`text-xs px-2 py-0.5 rounded-full bg-transparent outline-none cursor-pointer capitalize font-semibold border-0 ${STATUS_COLORS[o.orderStatus] || ''}`}>
-                        {['placed','confirmed','shipped','delivered','cancelled'].map(s => <option key={s} value={s} className="bg-[#0d0d14]">{s}</option>)}
+                        {['placed','confirmed','shipped','delivered','cancelled'].map(s => (
+                          <option key={s} value={s} style={{ background: '#fff', color: '#111' }}>{s}</option>
+                        ))}
                       </select>
                     </td>
                     <td className="px-4 py-3 text-gray-500 text-xs">{new Date(o.createdAt).toLocaleDateString()}</td>

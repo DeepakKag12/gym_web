@@ -116,25 +116,25 @@ export default function AdminNotifications() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-gray-400 text-xs mb-1">Title *</label>
-                <input className="admin-input w-full" placeholder="Notification title" value={form.title}
+                <input className="input-dark w-full" placeholder="Notification title" value={form.title}
                   onChange={e => setForm(p => ({ ...p, title: e.target.value }))} />
               </div>
               <div>
                 <label className="block text-gray-400 text-xs mb-1">Type</label>
-                <select className="admin-input w-full" value={form.type} onChange={e => setForm(p => ({ ...p, type: e.target.value }))}>
-                  {Object.entries(TYPE_META).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
+                <select className="input-dark w-full" value={form.type} onChange={e => setForm(p => ({ ...p, type: e.target.value }))}>
+                  {Object.entries(TYPE_META).map(([k, v]) => <option key={k} value={k} style={{ background: '#fff', color: '#111' }}>{v.label}</option>)}
                 </select>
               </div>
               <div>
                 <label className="block text-gray-400 text-xs mb-1">Send To</label>
-                <select className="admin-input w-full" value={form.memberId} onChange={e => setForm(p => ({ ...p, memberId: e.target.value }))}>
-                  <option value="">All Members (Broadcast)</option>
-                  {members.map(m => <option key={m._id} value={m._id}>{m.name} ({m.email})</option>)}
+                <select className="input-dark w-full" value={form.memberId} onChange={e => setForm(p => ({ ...p, memberId: e.target.value }))}>
+                  <option value="" style={{ background: '#fff', color: '#111' }}>All Members (Broadcast)</option>
+                  {members.map(m => <option key={m._id} value={m._id} style={{ background: '#fff', color: '#111' }}>{m.name} ({m.email})</option>)}
                 </select>
               </div>
               <div>
                 <label className="block text-gray-400 text-xs mb-1">Message *</label>
-                <textarea className="admin-input w-full resize-none" rows={2} placeholder="Notification message"
+                <textarea className="input-dark w-full resize-none" rows={2} placeholder="Notification message"
                   value={form.message} onChange={e => setForm(p => ({ ...p, message: e.target.value }))} />
               </div>
             </div>

@@ -5,7 +5,7 @@ import API from '../../utils/api';
 import AdminLayout from './AdminLayout';
 import toast from 'react-hot-toast';
 
-const MUSCLE_GROUPS = ['chest','back','shoulders','arms','biceps','triceps','legs','glutes','core','abs','cardio','fullbody','other'];
+const MUSCLE_GROUPS = ['chest','back','shoulders','arms','biceps','triceps','legs','glutes','core','abs','cardio','full-body','other'];
 const DIFFS = ['beginner','intermediate','advanced'];
 const DIFF_COLOR = { beginner:'text-emerald-400', intermediate:'text-amber-400', advanced:'text-red-400' };
 
@@ -24,15 +24,13 @@ function ExerciseModal({ editData, members, onClose, onSaved }) {
   const [imageFile, setImageFile] = useState(null);
   const [videoFile, setVideoFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(editData?.image || '');
+  const [videoPreview, setVideoPreview] = useState(editData?.video || '');
   const [saving, setSaving] = useState(false);
   const imgRef = useRef(), vidRef = useRef();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm(p => ({
-      ...p,
-      [name]: name === 'isPublic' ? value === 'true' : value,
-    }));
+    setForm(p => ({ ...p, [name]: name === 'isPublic' ? value === 'true' : value }));
   };
 
   const handleImageFile = (e) => {
@@ -42,18 +40,24 @@ function ExerciseModal({ editData, members, onClose, onSaved }) {
     setImagePreview(URL.createObjectURL(f));
   };
 
+  const handleVideoFile = (e) => {
+    const f = e.target.files[0];
+    if (!f) return;
+    setVideoFile(f);
+    setVideoPreview(f.name);
+  };
+
   const save = async () => {
     if (!form.title || !form.muscleGroup) { toast.error('Title and muscle group are required'); return; }
     setSaving(true);
     try {
       const fd = new FormData();
-      Object.keys(form).forEach(k => {
-        if (k === 'assignedTo') {
-          fd.append(k, form[k] ? JSON.stringify([form[k]]) : JSON.stringify([]));
-        } else {
-          fd.append(k, form[k]);
-        }
+      // append all text fields
+      ['title','description','instructions','muscleGroup','difficulty',
+       'equipmentNeeded','sets','reps','duration','videoUrl','isPublic'].forEach(k => {
+        fd.append(k, form[k] ?? '');
       });
+      fd.append('assignedTo', form.assignedTo ? JSON.stringify([form.assignedTo]) : JSON.stringify([]));
       if (imageFile) fd.append('image', imageFile);
       if (videoFile) fd.append('video', videoFile);
 
@@ -70,113 +74,147 @@ function ExerciseModal({ editData, members, onClose, onSaved }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-start justify-center px-4 py-8 overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-6 overflow-y-auto"
+      style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(6px)' }}>
       <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-        className="bg-[#111318] border border-white/10 rounded-2xl p-6 w-full max-w-2xl">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-white font-bold text-xl">{editData ? 'Edit Exercise' : 'Add Exercise'}</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-white"><X size={20} /></button>
+        className="w-full max-w-lg rounded-2xl p-5 my-auto"
+        style={{ background: 'var(--bg2)', border: '1px solid var(--border)' }}>
+
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-bold text-base" style={{ color: 'var(--text)' }}>
+            {editData ? 'Edit Exercise' : 'Add Exercise'}
+          </h2>
+          <button onClick={onClose} className="icon-btn" style={{ color: 'var(--muted)' }}><X size={18} /></button>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="sm:col-span-2">
-            <label className="text-gray-400 text-xs font-medium block mb-1.5">Exercise Title *</label>
-            <input className="input-dark text-sm" name="title" value={form.title} onChange={handleChange} placeholder="e.g. Barbell Bench Press" />
-          </div>
-          <div>
-            <label className="text-gray-400 text-xs font-medium block mb-1.5">Muscle Group *</label>
-            <select className="input-dark text-sm" name="muscleGroup" value={form.muscleGroup} onChange={handleChange}>
-              {MUSCLE_GROUPS.map(m => <option key={m} value={m} className="capitalize">{m}</option>)}
-            </select>
-          </div>
-          <div>
-            <label className="text-gray-400 text-xs font-medium block mb-1.5">Difficulty</label>
-            <select className="input-dark text-sm" name="difficulty" value={form.difficulty} onChange={handleChange}>
-              {DIFFS.map(d => <option key={d} value={d} className="capitalize">{d}</option>)}
-            </select>
-          </div>
-          <div>
-            <label className="text-gray-400 text-xs font-medium block mb-1.5">Sets</label>
-            <input className="input-dark text-sm" name="sets" value={form.sets} onChange={handleChange} placeholder="3–4" />
-          </div>
-          <div>
-            <label className="text-gray-400 text-xs font-medium block mb-1.5">Reps</label>
-            <input className="input-dark text-sm" name="reps" value={form.reps} onChange={handleChange} placeholder="8–12" />
-          </div>
-          <div>
-            <label className="text-gray-400 text-xs font-medium block mb-1.5">Duration</label>
-            <input className="input-dark text-sm" name="duration" value={form.duration} onChange={handleChange} placeholder="30 sec" />
-          </div>
-          <div>
-            <label className="text-gray-400 text-xs font-medium block mb-1.5">Equipment</label>
-            <input className="input-dark text-sm" name="equipmentNeeded" value={form.equipmentNeeded} onChange={handleChange} placeholder="Barbell, Bench" />
-          </div>
-          <div className="sm:col-span-2">
-            <label className="text-gray-400 text-xs font-medium block mb-1.5">Description</label>
-            <textarea className="input-dark text-sm min-h-[70px] resize-none" name="description" value={form.description} onChange={handleChange}
-              placeholder="Brief description of the exercise..." />
-          </div>
-          <div className="sm:col-span-2">
-            <label className="text-gray-400 text-xs font-medium block mb-1.5">Step-by-step Instructions</label>
-            <textarea className="input-dark text-sm min-h-[90px] resize-none" name="instructions" value={form.instructions} onChange={handleChange}
-              placeholder={"1. Lie flat on the bench...\n2. Grip the barbell...\n3. Lower to chest..."} />
+        <div className="grid grid-cols-2 gap-3">
+          {/* Title — full width */}
+          <div className="col-span-2">
+            <label className="block text-xs mb-1" style={{ color: 'var(--muted)' }}>Title *</label>
+            <input className="input-dark text-sm py-2" name="title" value={form.title} onChange={handleChange} placeholder="e.g. Barbell Bench Press" />
           </div>
 
-          {/* Visibility & assign */}
+          {/* Muscle + Difficulty */}
           <div>
-            <label className="text-gray-400 text-xs font-medium block mb-1.5">Visibility</label>
-            <div className="flex gap-4 h-10 items-center">
-              {[['true','🌐 Public'],['false','🔒 Private']].map(([val, lbl]) => (
-                <label key={val} className="flex items-center gap-1.5 cursor-pointer text-sm text-gray-300">
-                  <input type="radio" name="isPublic" value={val} checked={String(form.isPublic) === val} onChange={handleChange} />
-                  {lbl}
-                </label>
-              ))}
-            </div>
+            <label className="block text-xs mb-1" style={{ color: 'var(--muted)' }}>Muscle Group *</label>
+            <select className="input-dark text-sm py-2" name="muscleGroup" value={form.muscleGroup} onChange={handleChange}>
+              {MUSCLE_GROUPS.map(m => <option key={m} value={m} style={{ background: '#fff', color: '#111' }} className="capitalize">{m}</option>)}
+            </select>
           </div>
+          <div>
+            <label className="block text-xs mb-1" style={{ color: 'var(--muted)' }}>Difficulty</label>
+            <select className="input-dark text-sm py-2" name="difficulty" value={form.difficulty} onChange={handleChange}>
+              {DIFFS.map(d => <option key={d} value={d} style={{ background: '#fff', color: '#111' }} className="capitalize">{d}</option>)}
+            </select>
+          </div>
+
+          {/* Sets + Reps + Duration + Equipment */}
+          <div>
+            <label className="block text-xs mb-1" style={{ color: 'var(--muted)' }}>Sets</label>
+            <input className="input-dark text-sm py-2" name="sets" value={form.sets} onChange={handleChange} placeholder="3-4" />
+          </div>
+          <div>
+            <label className="block text-xs mb-1" style={{ color: 'var(--muted)' }}>Reps</label>
+            <input className="input-dark text-sm py-2" name="reps" value={form.reps} onChange={handleChange} placeholder="8-12" />
+          </div>
+          <div>
+            <label className="block text-xs mb-1" style={{ color: 'var(--muted)' }}>Duration</label>
+            <input className="input-dark text-sm py-2" name="duration" value={form.duration} onChange={handleChange} placeholder="30 sec" />
+          </div>
+          <div>
+            <label className="block text-xs mb-1" style={{ color: 'var(--muted)' }}>Equipment</label>
+            <input className="input-dark text-sm py-2" name="equipmentNeeded" value={form.equipmentNeeded} onChange={handleChange} placeholder="Barbell, Bench" />
+          </div>
+
+          {/* Description */}
+          <div className="col-span-2">
+            <label className="block text-xs mb-1" style={{ color: 'var(--muted)' }}>Description</label>
+            <textarea className="input-dark text-sm py-2 resize-none" rows={2} name="description" value={form.description} onChange={handleChange}
+              placeholder="Brief description..." />
+          </div>
+
+          {/* Instructions */}
+          <div className="col-span-2">
+            <label className="block text-xs mb-1" style={{ color: 'var(--muted)' }}>Instructions</label>
+            <textarea className="input-dark text-sm py-2 resize-none" rows={3} name="instructions" value={form.instructions} onChange={handleChange}
+              placeholder={"1. Starting position...\n2. Movement...\n3. Return..."} />
+          </div>
+
+          {/* Visibility */}
+          <div className="col-span-2 flex items-center gap-4">
+            <span className="text-xs" style={{ color: 'var(--muted)' }}>Visibility:</span>
+            {[['true','🌐 Public'],['false','🔒 Private']].map(([val, lbl]) => (
+              <label key={val} className="flex items-center gap-1.5 cursor-pointer text-sm" style={{ color: 'var(--muted2)' }}>
+                <input type="radio" name="isPublic" value={val} checked={String(form.isPublic) === val} onChange={handleChange} />
+                {lbl}
+              </label>
+            ))}
+          </div>
+
+          {/* Assign member (only if private) */}
           {!form.isPublic && (
-            <div>
-              <label className="text-gray-400 text-xs font-medium block mb-1.5">Assign to Member</label>
-              <select className="input-dark text-sm" name="assignedTo" value={form.assignedTo} onChange={handleChange}>
-                <option value="">— All private members —</option>
-                {members.map(m => <option key={m._id} value={m._id}>{m.name}</option>)}
+            <div className="col-span-2">
+              <label className="block text-xs mb-1" style={{ color: 'var(--muted)' }}>Assign to Member</label>
+              <select className="input-dark text-sm py-2" name="assignedTo" value={form.assignedTo} onChange={handleChange}>
+                <option value="" style={{ background: '#fff', color: '#111' }}>— All private members —</option>
+                {members.map(m => <option key={m._id} value={m._id} style={{ background: '#fff', color: '#111' }}>{m.name}</option>)}
               </select>
             </div>
           )}
 
           {/* Video URL */}
-          <div className="sm:col-span-2">
-            <label className="text-gray-400 text-xs font-medium block mb-1.5">Video URL <span className="text-gray-600">(YouTube / embed link)</span></label>
-            <input className="input-dark text-sm" name="videoUrl" value={form.videoUrl || ''} onChange={handleChange} placeholder="https://youtube.com/watch?v=..." />
+          <div className="col-span-2">
+            <label className="block text-xs mb-1" style={{ color: 'var(--muted)' }}>
+              YouTube / Video URL <span style={{ color: 'var(--muted)', opacity: 0.6 }}>(optional)</span>
+            </label>
+            <input className="input-dark text-sm py-2" name="videoUrl" value={form.videoUrl || ''} onChange={handleChange}
+              placeholder="https://youtube.com/watch?v=..." />
           </div>
 
-          {/* Image upload */}
+          {/* Image + Video upload side by side */}
           <div>
-            <label className="text-gray-400 text-xs font-medium block mb-1.5 flex items-center gap-1"><Upload size={12}/> Thumbnail Image</label>
-            {imagePreview && <img src={imagePreview} alt="preview" className="w-20 h-14 rounded-lg object-cover mb-2 border border-white/10" />}
+            <label className="block text-xs mb-1" style={{ color: 'var(--muted)' }}>Thumbnail Image</label>
+            {imagePreview && (
+              <img src={imagePreview} alt="preview" className="w-full h-16 rounded-lg object-cover mb-1.5" style={{ border: '1px solid var(--border)' }} />
+            )}
             <button type="button" onClick={() => imgRef.current?.click()}
-              className="w-full border border-dashed border-white/15 rounded-xl py-3 text-xs text-gray-500 hover:text-gray-300 hover:border-[#22d3ee]/30 transition-all">
-              Click to upload image
+              className="w-full rounded-xl py-2.5 text-xs transition-all flex items-center justify-center gap-1.5"
+              style={{ border: '1px dashed var(--border)', color: 'var(--muted)' }}>
+              <Upload size={11} /> {imageFile ? imageFile.name.slice(0,18)+'…' : 'Upload Image'}
               <input ref={imgRef} type="file" accept="image/*" className="hidden" onChange={handleImageFile} />
             </button>
           </div>
 
-          {/* Video file upload */}
           <div>
-            <label className="text-gray-400 text-xs font-medium block mb-1.5 flex items-center gap-1"><Video size={12}/> Upload Video File</label>
-            {videoFile && <div className="text-[#22d3ee] text-xs mb-2 truncate">✓ {videoFile.name}</div>}
+            <label className="block text-xs mb-1" style={{ color: 'var(--muted)' }}>
+              Upload Video File <span style={{ color: 'var(--muted)', opacity: 0.6 }}>(mp4/mov)</span>
+            </label>
+            {videoPreview && !videoFile && editData?.video && (
+              <div className="text-xs mb-1.5 flex items-center gap-1" style={{ color: 'var(--cyan)' }}>
+                <Video size={11} /> Current video saved
+              </div>
+            )}
+            {videoFile && (
+              <div className="text-xs mb-1.5 truncate" style={{ color: 'var(--cyan)' }}>✓ {videoFile.name}</div>
+            )}
             <button type="button" onClick={() => vidRef.current?.click()}
-              className="w-full border border-dashed border-white/15 rounded-xl py-3 text-xs text-gray-500 hover:text-gray-300 hover:border-[#22d3ee]/30 transition-all">
-              Click to upload video
-              <input ref={vidRef} type="file" accept="video/*" className="hidden" onChange={e => setVideoFile(e.target.files[0])} />
+              className="w-full rounded-xl py-2.5 text-xs transition-all flex items-center justify-center gap-1.5"
+              style={{ border: '1px dashed var(--border)', color: 'var(--muted)' }}>
+              <Video size={11} /> {videoFile ? 'Change Video' : 'Upload Video'}
+              <input ref={vidRef} type="file" accept="video/*" className="hidden" onChange={handleVideoFile} />
             </button>
           </div>
         </div>
 
-        <div className="flex justify-end gap-3 mt-6">
-          <button onClick={onClose} className="btn-ghost px-5 py-2.5 text-sm">Cancel</button>
-          <button onClick={save} disabled={saving} className="btn-fire px-6 py-2.5 text-sm">
-            {saving ? <span className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" /> : (editData ? 'Update Exercise' : 'Add Exercise')}
+        {/* Footer */}
+        <div className="flex justify-end gap-2 mt-4">
+          <button onClick={onClose} className="btn-ghost px-4 py-2 text-sm">Cancel</button>
+          <button onClick={save} disabled={saving} className="btn-fire px-5 py-2 text-sm">
+            {saving
+              ? <span className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
+              : editData ? 'Update' : 'Add Exercise'
+            }
           </button>
         </div>
       </motion.div>
