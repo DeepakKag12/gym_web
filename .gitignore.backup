@@ -1,0 +1,8 @@
+node_modules/
+.env
+.env.*
+dist/
+.next/
+build/
+coverage/
+uploads/
