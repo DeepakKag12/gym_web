@@ -6,3 +6,5 @@ dist/
 build/
 coverage/
 uploads/
+
+README.md
