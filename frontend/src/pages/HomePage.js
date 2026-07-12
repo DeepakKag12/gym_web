@@ -235,7 +235,7 @@ export default function HomePage() {
         <div className="relative z-10 max-w-7xl mx-auto px-6 w-full pt-16">
           <div className="max-w-2xl">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-              <span className="section-pill">💪 Est. 2014 · Premium Fitness</span>
+              <span className="section-pill">💪 Est. 2026 · Premium Fitness</span>
             </motion.div>
 
             <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}

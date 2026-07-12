@@ -77,7 +77,7 @@ export default function AboutPage() {
 
         <div className="relative z-10 max-w-6xl mx-auto px-6 pb-16 w-full">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
-            <span className="section-pill mb-4 inline-block">Est. 2014</span>
+            <span className="section-pill mb-4 inline-block">Est. 2026</span>
             <h1 className="gym-font text-6xl md:text-8xl text-white leading-none">
               ABOUT <span className="gradient-text">FITNATION</span>
             </h1>
