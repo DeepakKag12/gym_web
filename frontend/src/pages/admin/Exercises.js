@@ -62,90 +62,90 @@ function ExerciseModal({ editData, members, onClose, onSaved }) {
       if (videoFile) fd.append('video', videoFile);
 
       if (editData) {
-        await API.put(`/exercises/${editData._id}`, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+        await API.put(`/exercises/${editData._id}`, fd);
         toast.success('Exercise updated!');
       } else {
-        await API.post('/exercises', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+        await API.post('/exercises', fd);
         toast.success('Exercise added!');
       }
       onSaved();
-    } catch (err) { toast.error(err.response?.data?.message || 'Save failed'); }
+    } catch (err) { toast.error(err.response?.data?.message || err.message || 'Save failed'); }
     finally { setSaving(false); }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-6 overflow-y-auto"
+    <div className="fixed inset-0 z-50 flex items-start justify-center px-3 py-4 overflow-y-auto"
       style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(6px)' }}>
       <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-lg rounded-2xl p-5 my-auto"
+        className="w-full max-w-md rounded-xl p-4 my-auto"
         style={{ background: 'var(--bg2)', border: '1px solid var(--border)' }}>
 
         {/* Header */}
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-bold text-base" style={{ color: 'var(--text)' }}>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="font-semibold text-sm" style={{ color: 'var(--text)' }}>
             {editData ? 'Edit Exercise' : 'Add Exercise'}
           </h2>
-          <button onClick={onClose} className="icon-btn" style={{ color: 'var(--muted)' }}><X size={18} /></button>
+          <button onClick={onClose} className="icon-btn" style={{ color: 'var(--muted)' }}><X size={16} /></button>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-2">
           {/* Title — full width */}
           <div className="col-span-2">
-            <label className="block text-xs mb-1" style={{ color: 'var(--muted)' }}>Title *</label>
-            <input className="input-dark text-sm py-2" name="title" value={form.title} onChange={handleChange} placeholder="e.g. Barbell Bench Press" />
+            <label className="block text-xs mb-0.5" style={{ color: 'var(--muted)' }}>Title *</label>
+            <input className="input-dark text-xs py-1.5" name="title" value={form.title} onChange={handleChange} placeholder="e.g. Barbell Bench Press" />
           </div>
 
           {/* Muscle + Difficulty */}
           <div>
-            <label className="block text-xs mb-1" style={{ color: 'var(--muted)' }}>Muscle Group *</label>
-            <select className="input-dark text-sm py-2" name="muscleGroup" value={form.muscleGroup} onChange={handleChange}>
+            <label className="block text-xs mb-0.5" style={{ color: 'var(--muted)' }}>Muscle *</label>
+            <select className="input-dark text-xs py-1.5" name="muscleGroup" value={form.muscleGroup} onChange={handleChange}>
               {MUSCLE_GROUPS.map(m => <option key={m} value={m} style={{ background: '#fff', color: '#111' }} className="capitalize">{m}</option>)}
             </select>
           </div>
           <div>
-            <label className="block text-xs mb-1" style={{ color: 'var(--muted)' }}>Difficulty</label>
-            <select className="input-dark text-sm py-2" name="difficulty" value={form.difficulty} onChange={handleChange}>
+            <label className="block text-xs mb-0.5" style={{ color: 'var(--muted)' }}>Difficulty</label>
+            <select className="input-dark text-xs py-1.5" name="difficulty" value={form.difficulty} onChange={handleChange}>
               {DIFFS.map(d => <option key={d} value={d} style={{ background: '#fff', color: '#111' }} className="capitalize">{d}</option>)}
             </select>
           </div>
 
-          {/* Sets + Reps + Duration + Equipment */}
+          {/* Sets + Reps + Duration + Equipment — 4 in a row */}
           <div>
-            <label className="block text-xs mb-1" style={{ color: 'var(--muted)' }}>Sets</label>
-            <input className="input-dark text-sm py-2" name="sets" value={form.sets} onChange={handleChange} placeholder="3-4" />
+            <label className="block text-xs mb-0.5" style={{ color: 'var(--muted)' }}>Sets</label>
+            <input className="input-dark text-xs py-1.5" name="sets" value={form.sets} onChange={handleChange} placeholder="3-4" />
           </div>
           <div>
-            <label className="block text-xs mb-1" style={{ color: 'var(--muted)' }}>Reps</label>
-            <input className="input-dark text-sm py-2" name="reps" value={form.reps} onChange={handleChange} placeholder="8-12" />
+            <label className="block text-xs mb-0.5" style={{ color: 'var(--muted)' }}>Reps</label>
+            <input className="input-dark text-xs py-1.5" name="reps" value={form.reps} onChange={handleChange} placeholder="8-12" />
           </div>
           <div>
-            <label className="block text-xs mb-1" style={{ color: 'var(--muted)' }}>Duration</label>
-            <input className="input-dark text-sm py-2" name="duration" value={form.duration} onChange={handleChange} placeholder="30 sec" />
+            <label className="block text-xs mb-0.5" style={{ color: 'var(--muted)' }}>Duration</label>
+            <input className="input-dark text-xs py-1.5" name="duration" value={form.duration} onChange={handleChange} placeholder="30 sec" />
           </div>
           <div>
-            <label className="block text-xs mb-1" style={{ color: 'var(--muted)' }}>Equipment</label>
-            <input className="input-dark text-sm py-2" name="equipmentNeeded" value={form.equipmentNeeded} onChange={handleChange} placeholder="Barbell, Bench" />
+            <label className="block text-xs mb-0.5" style={{ color: 'var(--muted)' }}>Equipment</label>
+            <input className="input-dark text-xs py-1.5" name="equipmentNeeded" value={form.equipmentNeeded} onChange={handleChange} placeholder="Barbell" />
           </div>
 
           {/* Description */}
           <div className="col-span-2">
-            <label className="block text-xs mb-1" style={{ color: 'var(--muted)' }}>Description</label>
-            <textarea className="input-dark text-sm py-2 resize-none" rows={2} name="description" value={form.description} onChange={handleChange}
+            <label className="block text-xs mb-0.5" style={{ color: 'var(--muted)' }}>Description</label>
+            <textarea className="input-dark text-xs py-1.5 resize-none" rows={2} name="description" value={form.description} onChange={handleChange}
               placeholder="Brief description..." />
           </div>
 
           {/* Instructions */}
           <div className="col-span-2">
-            <label className="block text-xs mb-1" style={{ color: 'var(--muted)' }}>Instructions</label>
-            <textarea className="input-dark text-sm py-2 resize-none" rows={3} name="instructions" value={form.instructions} onChange={handleChange}
-              placeholder={"1. Starting position...\n2. Movement...\n3. Return..."} />
+            <label className="block text-xs mb-0.5" style={{ color: 'var(--muted)' }}>Instructions</label>
+            <textarea className="input-dark text-xs py-1.5 resize-none" rows={2} name="instructions" value={form.instructions} onChange={handleChange}
+              placeholder={"1. Starting position...\n2. Movement..."} />
           </div>
 
-          {/* Visibility */}
-          <div className="col-span-2 flex items-center gap-4">
-            <span className="text-xs" style={{ color: 'var(--muted)' }}>Visibility:</span>
+          {/* Visibility + Assign in one row */}
+          <div className="col-span-2 flex items-center gap-3">
+            <span className="text-xs flex-shrink-0" style={{ color: 'var(--muted)' }}>Visibility:</span>
             {[['true','🌐 Public'],['false','🔒 Private']].map(([val, lbl]) => (
-              <label key={val} className="flex items-center gap-1.5 cursor-pointer text-sm" style={{ color: 'var(--muted2)' }}>
+              <label key={val} className="flex items-center gap-1 cursor-pointer text-xs" style={{ color: 'var(--muted2)' }}>
                 <input type="radio" name="isPublic" value={val} checked={String(form.isPublic) === val} onChange={handleChange} />
                 {lbl}
               </label>
@@ -155,8 +155,8 @@ function ExerciseModal({ editData, members, onClose, onSaved }) {
           {/* Assign member (only if private) */}
           {!form.isPublic && (
             <div className="col-span-2">
-              <label className="block text-xs mb-1" style={{ color: 'var(--muted)' }}>Assign to Member</label>
-              <select className="input-dark text-sm py-2" name="assignedTo" value={form.assignedTo} onChange={handleChange}>
+              <label className="block text-xs mb-0.5" style={{ color: 'var(--muted)' }}>Assign to Member</label>
+              <select className="input-dark text-xs py-1.5" name="assignedTo" value={form.assignedTo} onChange={handleChange}>
                 <option value="" style={{ background: '#fff', color: '#111' }}>— All private members —</option>
                 {members.map(m => <option key={m._id} value={m._id} style={{ background: '#fff', color: '#111' }}>{m.name}</option>)}
               </select>
@@ -165,54 +165,50 @@ function ExerciseModal({ editData, members, onClose, onSaved }) {
 
           {/* Video URL */}
           <div className="col-span-2">
-            <label className="block text-xs mb-1" style={{ color: 'var(--muted)' }}>
-              YouTube / Video URL <span style={{ color: 'var(--muted)', opacity: 0.6 }}>(optional)</span>
-            </label>
-            <input className="input-dark text-sm py-2" name="videoUrl" value={form.videoUrl || ''} onChange={handleChange}
+            <label className="block text-xs mb-0.5" style={{ color: 'var(--muted)' }}>YouTube / Video URL <span style={{ opacity: 0.5 }}>(optional)</span></label>
+            <input className="input-dark text-xs py-1.5" name="videoUrl" value={form.videoUrl || ''} onChange={handleChange}
               placeholder="https://youtube.com/watch?v=..." />
           </div>
 
           {/* Image + Video upload side by side */}
           <div>
-            <label className="block text-xs mb-1" style={{ color: 'var(--muted)' }}>Thumbnail Image</label>
+            <label className="block text-xs mb-0.5" style={{ color: 'var(--muted)' }}>Thumbnail</label>
             {imagePreview && (
-              <img src={imagePreview} alt="preview" className="w-full h-16 rounded-lg object-cover mb-1.5" style={{ border: '1px solid var(--border)' }} />
+              <img src={imagePreview} alt="preview" className="w-full h-12 rounded-lg object-cover mb-1" style={{ border: '1px solid var(--border)' }} />
             )}
             <button type="button" onClick={() => imgRef.current?.click()}
-              className="w-full rounded-xl py-2.5 text-xs transition-all flex items-center justify-center gap-1.5"
+              className="w-full rounded-lg py-2 text-xs transition-all flex items-center justify-center gap-1"
               style={{ border: '1px dashed var(--border)', color: 'var(--muted)' }}>
-              <Upload size={11} /> {imageFile ? imageFile.name.slice(0,18)+'…' : 'Upload Image'}
+              <Upload size={10} /> {imageFile ? imageFile.name.slice(0,14)+'…' : 'Image'}
               <input ref={imgRef} type="file" accept="image/*" className="hidden" onChange={handleImageFile} />
             </button>
           </div>
 
           <div>
-            <label className="block text-xs mb-1" style={{ color: 'var(--muted)' }}>
-              Upload Video File <span style={{ color: 'var(--muted)', opacity: 0.6 }}>(mp4/mov)</span>
-            </label>
+            <label className="block text-xs mb-0.5" style={{ color: 'var(--muted)' }}>Video File <span style={{ opacity: 0.5 }}>(mp4)</span></label>
             {videoPreview && !videoFile && editData?.video && (
-              <div className="text-xs mb-1.5 flex items-center gap-1" style={{ color: 'var(--cyan)' }}>
-                <Video size={11} /> Current video saved
+              <div className="text-xs mb-1 flex items-center gap-1" style={{ color: 'var(--cyan)' }}>
+                <Video size={10} /> Saved
               </div>
             )}
             {videoFile && (
-              <div className="text-xs mb-1.5 truncate" style={{ color: 'var(--cyan)' }}>✓ {videoFile.name}</div>
+              <div className="text-xs mb-1 truncate" style={{ color: 'var(--cyan)' }}>✓ {videoFile.name.slice(0,14)}</div>
             )}
             <button type="button" onClick={() => vidRef.current?.click()}
-              className="w-full rounded-xl py-2.5 text-xs transition-all flex items-center justify-center gap-1.5"
+              className="w-full rounded-lg py-2 text-xs transition-all flex items-center justify-center gap-1"
               style={{ border: '1px dashed var(--border)', color: 'var(--muted)' }}>
-              <Video size={11} /> {videoFile ? 'Change Video' : 'Upload Video'}
+              <Video size={10} /> {videoFile ? 'Change' : 'Video'}
               <input ref={vidRef} type="file" accept="video/*" className="hidden" onChange={handleVideoFile} />
             </button>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end gap-2 mt-4">
-          <button onClick={onClose} className="btn-ghost px-4 py-2 text-sm">Cancel</button>
-          <button onClick={save} disabled={saving} className="btn-fire px-5 py-2 text-sm">
+        <div className="flex justify-end gap-2 mt-3">
+          <button onClick={onClose} className="btn-ghost px-3 py-1.5 text-xs">Cancel</button>
+          <button onClick={save} disabled={saving} className="btn-fire px-4 py-1.5 text-xs">
             {saving
-              ? <span className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
+              ? <span className="w-3.5 h-3.5 border-2 border-black border-t-transparent rounded-full animate-spin" />
               : editData ? 'Update' : 'Add Exercise'
             }
           </button>

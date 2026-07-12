@@ -30,15 +30,29 @@ app.use('/api/progress',     require('./routes/progress'));
 app.use('/api/plans',        require('./routes/plans'));
 app.use('/api/splits',       require('./routes/splits'));
 
+// Return JSON 404 for any unmatched /api/* routes (prevents HTML 404 confusing the frontend)
+app.use('/api/*', (req, res) => {
+  res.status(404).json({ message: `API route not found: ${req.originalUrl}` });
+});
+
 // Start cron jobs for fee reminders
 require('./jobs/feeReminder');
 
-// MongoDB connection
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => {
-    console.log('✅ MongoDB connected');
-    app.listen(process.env.PORT || 5000, () =>
-      console.log(`🚀 Server running on port ${process.env.PORT || 5000}`)
-    );
-  })
-  .catch(err => console.error('MongoDB connection error:', err));
+// MongoDB connection — connect once, reuse connection across serverless invocations
+let isConnected = false;
+async function connectDB() {
+  if (isConnected) return;
+  await mongoose.connect(process.env.MONGO_URI);
+  isConnected = true;
+  console.log('✅ MongoDB connected');
+}
+
+connectDB().catch(err => console.error('MongoDB connection error:', err));
+
+// Export for Vercel serverless; also listen locally
+if (process.env.NODE_ENV !== 'production') {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+}
+
+module.exports = app;
