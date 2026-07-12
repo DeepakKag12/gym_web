@@ -1,12 +1,14 @@
 {
   "version": 2,
-  "buildCommand": "cd frontend && npm install && npm run build",
+  "buildCommand": "cd frontend && npm install --legacy-peer-deps && npm run build",
   "outputDirectory": "frontend/build",
   "framework": null,
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ],
-  "env": {
-    "REACT_APP_API_URL": "https://g-ym-backend.vercel.app/api"
+  "build": {
+    "env": {
+      "REACT_APP_API_URL": "https://g-ym-backend.vercel.app/api"
+    }
   }
 }
