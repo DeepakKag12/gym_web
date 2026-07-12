@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingCart, Bell, Menu, X, LogOut, LayoutDashboard, Phone, Instagram } from 'lucide-react';
+import { ShoppingCart, Bell, Menu, X, LogOut, LayoutDashboard, Phone, Instagram, Settings } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import API from '../utils/api';
@@ -142,6 +142,9 @@ export default function Navbar() {
                   <Link to={panelPath} className="btn-fire text-xs px-4 py-2 gap-1.5 min-h-0">
                     <LayoutDashboard size={13} /> Panel
                   </Link>
+                  <Link to="/settings" className="p-2 rounded-xl text-gray-400 hover:text-[#22d3ee] hover:bg-white/5 transition-all min-h-0">
+                    <Settings size={17} />
+                  </Link>
                   <button onClick={handleLogout} className="p-2 rounded-xl text-gray-500 hover:text-red-400 hover:bg-red-500/8 transition-all min-h-0">
                     <LogOut size={17} />
                   </button>
@@ -214,10 +217,13 @@ export default function Navbar() {
                       </div>
                     </div>
                     <Link to={panelPath} className="btn-fire w-full py-3 text-sm flex items-center justify-center gap-2">
-                      <LayoutDashboard size={15} />
-                      {user.role === 'member' ? 'My Dashboard' : `${user.role.charAt(0).toUpperCase() + user.role.slice(1)} Panel`}
-                    </Link>
-                    <button onClick={handleLogout} className="w-full text-left px-4 py-3 text-sm text-red-400 flex items-center gap-2 rounded-xl hover:bg-red-500/8 transition-all">
+                       <LayoutDashboard size={15} />
+                       {user.role === 'member' ? 'My Dashboard' : `${user.role.charAt(0).toUpperCase() + user.role.slice(1)} Panel`}
+                     </Link>
+                     <Link to="/settings" className="w-full flex items-center gap-2 px-4 py-3 text-sm text-gray-300 hover:text-white rounded-xl hover:bg-white/5 transition-all">
+                       <Settings size={15} className="text-gray-400" /> Settings
+                     </Link>
+                     <button onClick={handleLogout} className="w-full text-left px-4 py-3 text-sm text-red-400 flex items-center gap-2 rounded-xl hover:bg-red-500/8 transition-all">
                       <LogOut size={15} /> Sign Out
                     </button>
                   </>

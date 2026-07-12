@@ -20,6 +20,7 @@ import CheckoutPage from './pages/CheckoutPage';
 import TransformationsPage from './pages/TransformationsPage';
 import EnquiryPage from './pages/EnquiryPage';
 import LoginPage from './pages/LoginPage';
+import SettingsPage from './pages/SettingsPage';
 
 // Member Pages
 import MemberDashboard from './pages/member/Dashboard';
@@ -93,6 +94,9 @@ function AppRoutes() {
         <Route path="/transformations"    element={<TransformationsPage />} />
         <Route path="/enquiry"            element={<EnquiryPage />} />
         <Route path="/login"              element={<LoginPage />} />
+
+        {/* Settings — all authenticated roles */}
+        <Route path="/settings"           element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
 
         {/* Member */}
         <Route path="/dashboard"          element={<ProtectedRoute roles={['member']}><MemberDashboard /></ProtectedRoute>} />

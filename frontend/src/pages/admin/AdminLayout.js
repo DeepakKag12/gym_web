@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Users, Dumbbell, Salad, ShoppingBag, TrendingUp,
   MessageSquare, Package, UserCheck, LogOut, ChevronRight,
-  BarChart2, Tag, Calendar, Menu, Bell, X
+  BarChart2, Tag, Calendar, Menu, Bell, X, Settings
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -46,6 +46,7 @@ const adminLinks = [
   { path: '/admin/enquiries',        icon: MessageSquare,   label: 'Enquiries',       roles: ['admin'] },
   { path: '/admin/analytics',        icon: BarChart2,       label: 'Analytics',       roles: ['admin'] },
   { path: '/admin/notifications',    icon: Bell,            label: 'Notifications',   roles: ['admin'] },
+  { path: '/settings',               icon: Settings,        label: 'Settings',        roles: ['admin','trainer'] },
 ];
 
 /* Bottom-nav shows 5 most-used links for the role */
@@ -106,6 +107,13 @@ function SidebarContent({ onLinkClick }) {
             <div className="text-gray-500 text-xs capitalize">{user?.role}</div>
           </div>
         </div>
+        <Link
+          to="/settings"
+          onClick={onLinkClick}
+          className="w-full flex items-center gap-2 text-gray-400 hover:text-white text-sm px-3 py-2 rounded-lg hover:bg-white/5 transition-all mb-1"
+        >
+          <Settings size={16} /> Settings
+        </Link>
         <button
           onClick={() => { logout(); navigate('/'); }}
           className="w-full flex items-center gap-2 text-gray-400 hover:text-red-400 text-sm px-3 py-2 rounded-lg hover:bg-white/5 transition-all"
