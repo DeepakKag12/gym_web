@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Calendar, Dumbbell, ChevronDown, ChevronUp, Star, Zap } from 'lucide-react';
 import API from '../../utils/api';
-import Navbar from '../../components/Navbar';
 
 const DAY_COLORS = {
   Monday:    'from-blue-500/20 to-blue-600/10 border-blue-500/30',
@@ -86,8 +85,7 @@ export default function MyWorkoutSplit() {
   const sortedDays = split?.days?.sort((a, b) => DAYS_ORDER.indexOf(a.day) - DAYS_ORDER.indexOf(b.day)) || [];
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] pt-20">
-      <Navbar />
+    <div className="min-h-screen bg-[#0a0a0f] pt-20 pb-20 lg:pb-8">
       <div className="max-w-2xl mx-auto px-4 py-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
           <h1 className="gym-font text-3xl text-white flex items-center gap-2">

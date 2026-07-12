@@ -74,11 +74,9 @@ function ExerciseModal({ editData, members, onClose, onSaved }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center px-3 py-4 overflow-y-auto"
-      style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(6px)' }}>
+    <div className="admin-modal-overlay">
       <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-md rounded-xl p-4 my-auto"
-        style={{ background: 'var(--bg2)', border: '1px solid var(--border)' }}>
+        className="admin-modal-box" style={{ maxWidth: '520px' }}>
 
         {/* Header */}
         <div className="flex items-center justify-between mb-3">

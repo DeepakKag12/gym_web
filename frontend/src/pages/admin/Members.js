@@ -92,9 +92,9 @@ function MemberModal({ editData, trainers, onClose, onSaved }) {
     ? calcExpiry(form.membershipStart, form.membershipPlan) : '';
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center px-4 py-6 overflow-y-auto">
+    <div className="admin-modal-overlay">
       <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-        className="bg-[#111318] border border-white/10 rounded-2xl p-6 w-full max-w-2xl my-auto">
+        className="admin-modal-box">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-white font-bold text-xl">{editData ? 'Edit Member' : 'Add New Member'}</h2>
           <button onClick={onClose} className="text-gray-500 hover:text-white transition-colors"><X size={20} /></button>
@@ -214,9 +214,9 @@ function NotifModal({ member, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center px-4">
+    <div className="admin-modal-overlay">
       <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-        className="bg-[#111318] border border-white/10 rounded-2xl p-6 w-full max-w-md">
+        className="admin-modal-box" style={{ maxWidth: '480px' }}>
         <div className="flex items-center justify-between mb-5">
           <h2 className="text-white font-bold text-lg flex items-center gap-2">
             <Bell size={18} className="text-[#22d3ee]" /> Send to {member.name}
@@ -273,9 +273,9 @@ function BulkReminderModal({ onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center px-4">
+    <div className="admin-modal-overlay">
       <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-        className="bg-[#111318] border border-white/10 rounded-2xl p-6 w-full max-w-md">
+        className="admin-modal-box" style={{ maxWidth: '480px' }}>
         <div className="flex items-center justify-between mb-5">
           <h2 className="text-white font-bold text-lg flex items-center gap-2">
             <Users size={18} className="text-[#22d3ee]" /> Bulk Reminder
@@ -358,147 +358,126 @@ export default function AdminMembers() {
   return (
     <AdminLayout title="Members">
       {/* Stats strip */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
         {[
-          { label: 'Total Members',  value: stats.total,   color: 'text-[#22d3ee]' },
-          { label: 'Active',         value: stats.active,  color: 'text-emerald-400' },
-          { label: 'Expired',        value: stats.expired, color: 'text-red-400' },
-          { label: 'Expiring (7d)',  value: stats.expiring,color: 'text-amber-400' },
+          { label: 'Total',    value: stats.total,    color: 'text-[#22d3ee]' },
+          { label: 'Active',   value: stats.active,   color: 'text-emerald-400' },
+          { label: 'Expired',  value: stats.expired,  color: 'text-red-400' },
+          { label: 'Expiring', value: stats.expiring, color: 'text-amber-400' },
         ].map((s, i) => (
-          <div key={i} className="glass rounded-xl px-4 py-3 flex items-center gap-3">
-            <span className={`gym-font text-3xl ${s.color}`}>{s.value}</span>
-            <span className="text-gray-500 text-xs">{s.label}</span>
+          <div key={i} className="glass rounded-xl px-3 py-2.5 flex items-center gap-2">
+            <span className={`font-black text-2xl ${s.color}`}>{s.value}</span>
+            <span className="text-gray-500 text-xs leading-tight">{s.label}</span>
           </div>
         ))}
       </div>
 
       {/* Toolbar */}
-      <div className="flex flex-wrap gap-3 mb-5 items-center justify-between">
-        <div className="flex gap-2 flex-wrap">
-          <div className="relative">
-            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
-            <input className="input-dark pl-9 py-2 text-sm w-52" placeholder="Search name, phone, email…"
-              value={search} onChange={e => setSearch(e.target.value)} />
-          </div>
-          <select className="input-dark py-2 text-sm w-36" value={filterStatus} onChange={e => setFilterStatus(e.target.value)}>
-            <option value="all">All Status</option>
+      <div className="flex flex-col sm:flex-row gap-2 mb-4">
+        <div className="relative flex-1">
+          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+          <input className="input-dark pl-9 py-2 text-sm w-full" placeholder="Search name, phone, email…"
+            value={search} onChange={e => setSearch(e.target.value)} />
+        </div>
+        <div className="flex gap-2">
+          <select className="input-dark py-2 text-sm flex-1 sm:w-36" value={filterStatus} onChange={e => setFilterStatus(e.target.value)}>
+            <option value="all">All</option>
             <option value="active">Active</option>
             <option value="expired">Expired</option>
             <option value="pending">Pending</option>
           </select>
-        </div>
-        <div className="flex gap-2">
-          <button onClick={() => setBulkModal(true)}
-            className="btn-ghost text-sm py-2 px-4 gap-2 flex items-center">
-            <Bell size={14} /> Bulk Reminder
+          <button onClick={() => setBulkModal(true)} className="btn-ghost text-sm py-2 px-3 gap-1.5 flex-shrink-0 flex items-center">
+            <Bell size={14} />
+            <span className="hidden sm:inline">Bulk</span>
           </button>
-          <button onClick={() => setMemberModal('new')} className="btn-fire text-sm py-2 px-4 gap-2">
-            <Plus size={15} /> Add Member
+          <button onClick={() => setMemberModal('new')} className="btn-fire text-sm py-2 px-4 gap-1.5 flex-shrink-0">
+            <Plus size={15} /> Add
           </button>
         </div>
       </div>
 
-      {/* Table */}
+      {/* Member cards */}
       {loading ? (
         <div className="flex justify-center py-20">
           <div className="w-8 h-8 border-2 border-[#22d3ee] border-t-transparent rounded-full animate-spin" />
         </div>
+      ) : filtered.length === 0 ? (
+        <div className="glass rounded-2xl p-12 text-center text-gray-600">No members found</div>
       ) : (
-        <div className="glass rounded-2xl overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-white/8 text-gray-500 text-xs uppercase">
-                  {['Member','Phone / WhatsApp','Plan','Joined','Expires','Status','Trainer','Actions'].map(h => (
-                    <th key={h} className="text-left px-4 py-3 font-semibold whitespace-nowrap">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.length === 0 ? (
-                  <tr><td colSpan={8} className="text-center py-14 text-gray-600">No members found</td></tr>
-                ) : filtered.map(m => {
-                  const daysLeft = m.membershipEnd
-                    ? Math.ceil((new Date(m.membershipEnd) - new Date()) / 86400000) : null;
-                  return (
-                    <tr key={m._id} className="border-b border-white/5 hover:bg-white/2 transition-colors">
-                      {/* Name */}
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2.5 min-w-[160px]">
-                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#22d3ee] to-[#818cf8] flex items-center justify-center text-black font-bold text-xs flex-shrink-0">
-                            {m.name?.[0]?.toUpperCase()}
-                          </div>
-                          <div>
-                            <div className="text-white font-medium text-sm">{m.name}</div>
-                            <div className="text-gray-600 text-xs">{m.email}</div>
-                          </div>
-                        </div>
-                      </td>
-                      {/* Phone */}
-                      <td className="px-4 py-3 text-gray-300 text-xs">
-                        <div>{m.phone}</div>
-                        {m.whatsapp && m.whatsapp !== m.phone && (
-                          <div className="text-green-500 text-[10px]">WA: {m.whatsapp}</div>
-                        )}
-                      </td>
-                      {/* Plan */}
-                      <td className="px-4 py-3">
-                        <span className="text-xs bg-white/5 text-gray-300 px-2 py-0.5 rounded-full capitalize">{m.membershipPlan}</span>
-                        {m.feeAmount && <div className="text-[#22d3ee] text-xs font-semibold mt-0.5">₹{m.feeAmount}</div>}
-                      </td>
-                      {/* Joined */}
-                      <td className="px-4 py-3 text-gray-500 text-xs">
-                        {m.membershipStart ? new Date(m.membershipStart).toLocaleDateString('en-IN') : '—'}
-                      </td>
-                      {/* Expires */}
-                      <td className="px-4 py-3 text-xs">
-                        <div className="text-gray-300">
-                          {m.membershipEnd ? new Date(m.membershipEnd).toLocaleDateString('en-IN') : '—'}
-                        </div>
-                        {daysLeft !== null && daysLeft >= 0 && daysLeft <= 7 && (
-                          <div className={`font-bold mt-0.5 ${daysLeft <= 3 ? 'text-red-400' : 'text-amber-400'}`}>
-                            ⏰ {daysLeft}d left
-                          </div>
-                        )}
-                        {daysLeft !== null && daysLeft < 0 && (
-                          <div className="text-red-500 text-[10px] font-bold">Expired</div>
-                        )}
-                      </td>
-                      {/* Status */}
-                      <td className="px-4 py-3"><StatusBadge status={m.membershipStatus} /></td>
-                      {/* Trainer */}
-                      <td className="px-4 py-3 text-gray-500 text-xs">
-                        {m.assignedTrainer?.name || '—'}
-                      </td>
-                      {/* Actions */}
-                      <td className="px-4 py-3">
-                        <div className="flex gap-1">
-                          <button title="Send notification" onClick={() => setNotifTarget(m)}
-                            className="p-1.5 text-[#22d3ee] hover:bg-[#22d3ee]/10 rounded-lg transition-all">
-                            <Bell size={15} />
-                          </button>
-                          <button title="Edit member" onClick={() => setMemberModal(m)}
-                            className="p-1.5 text-amber-400 hover:bg-amber-400/10 rounded-lg transition-all">
-                            <Edit2 size={15} />
-                          </button>
-                          <button title="Delete member" onClick={() => del(m._id)}
-                            className="p-1.5 text-red-400 hover:bg-red-400/10 rounded-lg transition-all">
-                            <Trash2 size={15} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+        <>
+          <div className="space-y-3">
+            {filtered.map(m => {
+              const daysLeft = m.membershipEnd
+                ? Math.ceil((new Date(m.membershipEnd) - new Date()) / 86400000) : null;
+              return (
+                <div key={m._id} className="glass rounded-2xl p-4">
+                  {/* Name + status row */}
+                  <div className="flex items-start gap-3 mb-3">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#22d3ee] to-[#818cf8] flex items-center justify-center text-black font-bold text-sm flex-shrink-0">
+                      {m.name?.[0]?.toUpperCase()}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-white font-semibold text-sm">{m.name}</span>
+                        <StatusBadge status={m.membershipStatus} />
+                      </div>
+                      <div className="text-gray-500 text-xs mt-0.5 truncate">{m.email}</div>
+                    </div>
+                  </div>
+
+                  {/* Details grid */}
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 mb-3 text-xs">
+                    <div>
+                      <span className="text-gray-600">Phone: </span>
+                      <span className="text-gray-300">{m.phone}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-600">Plan: </span>
+                      <span className="text-gray-300 capitalize">{m.membershipPlan}</span>
+                      {m.feeAmount && <span className="text-[#22d3ee] font-semibold ml-1">₹{m.feeAmount}</span>}
+                    </div>
+                    <div>
+                      <span className="text-gray-600">Joined: </span>
+                      <span className="text-gray-300">{m.membershipStart ? new Date(m.membershipStart).toLocaleDateString('en-IN') : '—'}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-600">Expires: </span>
+                      <span className={daysLeft !== null && daysLeft <= 7 && daysLeft >= 0 ? (daysLeft <= 3 ? 'text-red-400 font-bold' : 'text-amber-400 font-bold') : 'text-gray-300'}>
+                        {m.membershipEnd ? new Date(m.membershipEnd).toLocaleDateString('en-IN') : '—'}
+                        {daysLeft !== null && daysLeft >= 0 && daysLeft <= 7 && ` (${daysLeft}d)`}
+                      </span>
+                    </div>
+                    {m.assignedTrainer?.name && (
+                      <div className="col-span-2">
+                        <span className="text-gray-600">Trainer: </span>
+                        <span className="text-gray-300">{m.assignedTrainer.name}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Action buttons */}
+                  <div className="flex gap-2 pt-3 border-t border-white/5">
+                    <button onClick={() => setNotifTarget(m)}
+                      className="flex-1 flex items-center justify-center gap-1.5 text-xs text-[#22d3ee] hover:bg-[#22d3ee]/10 rounded-xl py-2 transition-all border border-[#22d3ee]/20">
+                      <Bell size={13} /> Notify
+                    </button>
+                    <button onClick={() => setMemberModal(m)}
+                      className="flex-1 flex items-center justify-center gap-1.5 text-xs text-amber-400 hover:bg-amber-400/10 rounded-xl py-2 transition-all border border-amber-400/20">
+                      <Edit2 size={13} /> Edit
+                    </button>
+                    <button onClick={() => del(m._id)}
+                      className="flex items-center justify-center gap-1.5 text-xs text-red-400 hover:bg-red-400/10 rounded-xl py-2 px-3 transition-all border border-red-400/20">
+                      <Trash2 size={13} />
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
           </div>
-          {filtered.length > 0 && (
-            <div className="px-4 py-3 border-t border-white/5 text-gray-600 text-xs">
-              Showing {filtered.length} of {members.length} members
-            </div>
-          )}
-        </div>
+          <div className="mt-3 text-gray-600 text-xs text-center">
+            Showing {filtered.length} of {members.length} members
+          </div>
+        </>
       )}
 
       {/* Member modal */}
@@ -520,8 +499,7 @@ export default function AdminMembers() {
       {/* ── Credentials popup ── */}
       <AnimatePresence>
         {credentials && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center px-4"
-            style={{ background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(8px)' }}>
+          <div className="admin-modal-overlay" style={{ background: 'rgba(0,0,0,0.85)' }}>
             <motion.div
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}

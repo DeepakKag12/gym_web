@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Package, Clock, CheckCircle, Truck, XCircle, ChevronRight } from 'lucide-react';
 import API from '../../utils/api';
-import Navbar from '../../components/Navbar';
 
 const STATUS_MAP = {
   placed:     { icon: Clock,         color: 'text-yellow-400 bg-yellow-500/10', label: 'Placed' },
@@ -22,8 +21,7 @@ export default function MyOrders() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] pt-20">
-      <Navbar />
+    <div className="min-h-screen bg-[#0a0a0f] pt-20 pb-20 lg:pb-8">
       <div className="max-w-3xl mx-auto px-4 py-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
           <h1 className="gym-font text-3xl text-white">My Orders</h1>

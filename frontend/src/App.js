@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 
@@ -48,6 +48,9 @@ import AdminNotifications from './pages/admin/Notifications';
 // Trainer Pages
 import TrainerDashboard from './pages/trainer/Dashboard';
 
+// Member bottom nav
+import MemberBottomNav from './components/MemberBottomNav';
+
 const ProtectedRoute = ({ children, roles }) => {
   const { user, loading } = useAuth();
   if (loading) return (
@@ -60,11 +63,22 @@ const ProtectedRoute = ({ children, roles }) => {
   return children;
 };
 
+// Routes that hide the global Navbar + Footer (admin has its own layout)
+const ADMIN_PREFIX = '/admin';
+const TRAINER_PREFIX = '/trainer';
+
 function AppRoutes() {
   const { user } = useAuth();
+  const location = useLocation();
+
+  const isAdminRoute = location.pathname.startsWith(ADMIN_PREFIX) || location.pathname.startsWith(TRAINER_PREFIX);
+  const isMemberRoute = !isAdminRoute && user?.role === 'member';
+
   return (
     <>
-      <Navbar />
+      {/* Global navbar — hidden on admin/trainer panel */}
+      {!isAdminRoute && <Navbar />}
+
       <Routes>
         {/* Public */}
         <Route path="/"                   element={<HomePage />} />
@@ -109,7 +123,12 @@ function AppRoutes() {
 
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
-      <Footer />
+
+      {/* Global footer — hidden on admin/trainer panel */}
+      {!isAdminRoute && <Footer />}
+
+      {/* Member bottom navigation (mobile only) */}
+      {isMemberRoute && <MemberBottomNav />}
     </>
   );
 }

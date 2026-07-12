@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Trash2, X } from 'lucide-react';
+import { Plus, Trash2, X, Edit2, TrendingUp } from 'lucide-react';
 import API from '../../utils/api';
 import AdminLayout from './AdminLayout';
 import toast from 'react-hot-toast';
@@ -12,6 +12,7 @@ export default function AdminTransformations() {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState(false);
+  const [editData, setEditData] = useState(null); // null = add, object = edit
   const [form, setForm] = useState(emptyForm);
   const [beforeFile, setBeforeFile] = useState(null);
   const [afterFile, setAfterFile] = useState(null);
@@ -23,17 +24,32 @@ export default function AdminTransformations() {
   };
   useEffect(load, []);
 
+  const openAdd = () => { setEditData(null); setForm(emptyForm); setBeforeFile(null); setAfterFile(null); setModal(true); };
+  const openEdit = (t) => {
+    setEditData(t);
+    setForm({ title: t.title, description: t.description || '', duration: t.duration || '', weightLost: t.weightLost || '', muscleGained: t.muscleGained || '', isPublic: t.isPublic !== false, member: t.member?._id || '' });
+    setBeforeFile(null); setAfterFile(null);
+    setModal(true);
+  };
+  const closeModal = () => { setModal(false); setEditData(null); setForm(emptyForm); setBeforeFile(null); setAfterFile(null); };
+
   const handleSave = async () => {
-    if (!form.title || !form.member || !beforeFile || !afterFile) { toast.error('Fill all required fields and upload both images'); return; }
+    if (!form.title || !form.member) { toast.error('Title and member are required'); return; }
+    if (!editData && (!beforeFile || !afterFile)) { toast.error('Both before and after photos are required'); return; }
     setSaving(true);
     try {
       const data = new FormData();
       Object.entries(form).forEach(([k, v]) => data.append(k, v));
-      data.append('beforeImage', beforeFile);
-      data.append('afterImage', afterFile);
-      await API.post('/transformations', data, { headers: { 'Content-Type': 'multipart/form-data' } });
-      toast.success('Transformation added!');
-      setModal(false); setForm(emptyForm); setBeforeFile(null); setAfterFile(null); load();
+      if (beforeFile) data.append('beforeImage', beforeFile);
+      if (afterFile)  data.append('afterImage', afterFile);
+      if (editData) {
+        await API.put(`/transformations/${editData._id}`, data, { headers: { 'Content-Type': 'multipart/form-data' } });
+        toast.success('Transformation updated!');
+      } else {
+        await API.post('/transformations', data, { headers: { 'Content-Type': 'multipart/form-data' } });
+        toast.success('Transformation added!');
+      }
+      closeModal(); load();
     } catch { toast.error('Error saving'); }
     finally { setSaving(false); }
   };
@@ -47,7 +63,7 @@ export default function AdminTransformations() {
   return (
     <AdminLayout title="Transformations">
       <div className="flex justify-end mb-6">
-        <button onClick={() => { setModal(true); setForm(emptyForm); }} className="btn-fire flex items-center gap-2 text-sm py-2.5 px-4">
+        <button onClick={openAdd} className="btn-fire flex items-center gap-2 text-sm py-2.5 px-4">
           <Plus size={16} /> Add Transformation
         </button>
       </div>
@@ -64,17 +80,28 @@ export default function AdminTransformations() {
                 <div className="relative"><img src={t.beforeImage} alt="Before" className="w-full h-44 object-cover" /><div className="absolute bottom-1 left-1 text-xs bg-red-500/80 text-white px-2 py-0.5 rounded-full">BEFORE</div></div>
                 <div className="relative"><img src={t.afterImage} alt="After" className="w-full h-44 object-cover" /><div className="absolute bottom-1 right-1 text-xs bg-green-500/80 text-white px-2 py-0.5 rounded-full">AFTER</div></div>
               </div>
-              <div className="p-4 flex items-start justify-between">
-                <div>
-                  <h3 className="text-white font-semibold">{t.title}</h3>
-                  <p className="text-gray-500 text-xs">{t.member?.name}</p>
-                  <div className="flex gap-2 mt-1 text-xs">
-                    {t.duration && <span className="text-gray-400">{t.duration}</span>}
-                    {t.weightLost && <span className="text-red-400">↓ {t.weightLost}</span>}
-                    {t.muscleGained && <span className="text-green-400">↑ {t.muscleGained}</span>}
+              <div className="p-4">
+                <div className="flex items-start justify-between mb-2">
+                  <div>
+                    <h3 className="text-white font-semibold">{t.title}</h3>
+                    <p className="text-gray-500 text-xs">{t.member?.name}</p>
+                    <div className="flex gap-2 mt-1 text-xs">
+                      {t.duration && <span className="text-gray-400">{t.duration}</span>}
+                      {t.weightLost && <span className="text-red-400">↓ {t.weightLost}</span>}
+                      {t.muscleGained && <span className="text-green-400">↑ {t.muscleGained}</span>}
+                    </div>
                   </div>
                 </div>
-                <button onClick={() => handleDelete(t._id)} className="text-red-400 p-1.5 hover:bg-red-400/10 rounded-lg"><Trash2 size={15} /></button>
+                <div className="flex gap-2 pt-2 border-t border-white/5">
+                  <button onClick={() => openEdit(t)}
+                    className="flex-1 flex items-center justify-center gap-1.5 text-xs text-amber-400 hover:bg-amber-400/10 rounded-lg py-1.5 transition-all">
+                    <Edit2 size={13} /> Edit
+                  </button>
+                  <button onClick={() => handleDelete(t._id)}
+                    className="p-1.5 text-red-400 hover:bg-red-400/10 rounded-lg">
+                    <Trash2 size={15} />
+                  </button>
+                </div>
               </div>
             </div>
           ))}
@@ -82,12 +109,12 @@ export default function AdminTransformations() {
       )}
 
       {modal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center px-4">
+        <div className="admin-modal-overlay">
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-            className="bg-[#0d0d14] border border-white/10 rounded-2xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            className="admin-modal-box" style={{ maxWidth: '560px' }}>
             <div className="flex items-center justify-between mb-5">
-              <h2 className="text-white font-bold text-xl">Add Transformation</h2>
-              <button onClick={() => setModal(false)}><X size={20} className="text-gray-400" /></button>
+              <h2 className="text-white font-bold text-xl">{editData ? 'Edit Transformation' : 'Add Transformation'}</h2>
+              <button onClick={closeModal}><X size={20} className="text-gray-400" /></button>
             </div>
             <div className="space-y-4">
               <div>
@@ -121,12 +148,18 @@ export default function AdminTransformations() {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-gray-400 text-xs block mb-1">Before Photo *</label>
-                  <input type="file" accept="image/*" onChange={e => setBeforeFile(e.target.files[0])} className="text-gray-400 text-xs" />
+                  <label className="text-gray-400 text-xs block mb-1">Before Photo {editData ? '(optional: replace)' : '*'}</label>
+                  {editData?.beforeImage && !beforeFile && (
+                    <img src={editData.beforeImage} alt="before" className="w-full h-16 rounded-lg object-cover mb-1" />
+                  )}
+                  <input type="file" accept="image/*" onChange={e => setBeforeFile(e.target.files[0])} className="text-gray-400 text-xs w-full" />
                 </div>
                 <div>
-                  <label className="text-gray-400 text-xs block mb-1">After Photo *</label>
-                  <input type="file" accept="image/*" onChange={e => setAfterFile(e.target.files[0])} className="text-gray-400 text-xs" />
+                  <label className="text-gray-400 text-xs block mb-1">After Photo {editData ? '(optional: replace)' : '*'}</label>
+                  {editData?.afterImage && !afterFile && (
+                    <img src={editData.afterImage} alt="after" className="w-full h-16 rounded-lg object-cover mb-1" />
+                  )}
+                  <input type="file" accept="image/*" onChange={e => setAfterFile(e.target.files[0])} className="text-gray-400 text-xs w-full" />
                 </div>
               </div>
               <label className="flex items-center gap-2 cursor-pointer">
@@ -135,9 +168,9 @@ export default function AdminTransformations() {
               </label>
             </div>
             <div className="flex justify-end gap-3 mt-5">
-              <button onClick={() => setModal(false)} className="px-4 py-2 text-gray-400 border border-white/10 rounded-lg text-sm">Cancel</button>
+              <button onClick={closeModal} className="btn-ghost px-4 py-2 text-sm">Cancel</button>
               <button onClick={handleSave} disabled={saving} className="btn-fire px-5 py-2 text-sm">
-                {saving ? <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin inline-block" /> : 'Save'}
+                {saving ? <span className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin inline-block" /> : (editData ? 'Update' : 'Save')}
               </button>
             </div>
           </motion.div>

@@ -55,9 +55,9 @@ function DietModal({ editData, members, onClose, onSaved }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-start justify-center px-4 py-8 overflow-y-auto">
+    <div className="admin-modal-overlay">
       <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-        className="bg-[#111318] border border-white/10 rounded-2xl p-6 w-full max-w-3xl">
+        className="admin-modal-box" style={{ maxWidth: '780px' }}>
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-white font-bold text-xl">{editData ? 'Edit Diet Plan' : 'Create Diet Plan'}</h2>
           <button onClick={onClose} className="text-gray-500 hover:text-white"><X size={20} /></button>

@@ -38,7 +38,7 @@ export default function MemberDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] pt-20">
+    <div className="min-h-screen bg-[#0a0a0f] pt-20 pb-24 lg:pb-8">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
 
         {/* Header */}

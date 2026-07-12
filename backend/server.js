@@ -14,6 +14,11 @@ app.use(express.urlencoded({ extended: true }));
 app.use(fileUpload({ useTempFiles: true, tempFileDir: '/tmp/' }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// Health check / root route
+app.get('/', (req, res) => {
+  res.json({ status: 'ok', message: 'FitnessByAjeet API is running' });
+});
+
 // Routes
 app.use('/api/auth',         require('./routes/auth'));
 app.use('/api/members',      require('./routes/members'));
@@ -35,8 +40,10 @@ app.use('/api/*', (req, res) => {
   res.status(404).json({ message: `API route not found: ${req.originalUrl}` });
 });
 
-// Start cron jobs for fee reminders
-require('./jobs/feeReminder');
+// Start cron jobs for fee reminders — skip in serverless (Vercel) environment
+if (process.env.VERCEL !== '1') {
+  require('./jobs/feeReminder');
+}
 
 // MongoDB connection — connect once, reuse connection across serverless invocations
 let isConnected = false;
@@ -50,7 +57,7 @@ async function connectDB() {
 connectDB().catch(err => console.error('MongoDB connection error:', err));
 
 // Export for Vercel serverless; also listen locally
-if (process.env.NODE_ENV !== 'production') {
+if (!process.env.VERCEL) {
   const PORT = process.env.PORT || 5000;
   app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
 }

@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Users, Dumbbell, Salad, ShoppingBag, TrendingUp,
   MessageSquare, Package, UserCheck, LogOut, ChevronRight,
-  BarChart2, Tag, Calendar, Menu, Bell
+  BarChart2, Tag, Calendar, Menu, Bell, X
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -46,6 +46,15 @@ const adminLinks = [
   { path: '/admin/enquiries',        icon: MessageSquare,   label: 'Enquiries',       roles: ['admin'] },
   { path: '/admin/analytics',        icon: BarChart2,       label: 'Analytics',       roles: ['admin'] },
   { path: '/admin/notifications',    icon: Bell,            label: 'Notifications',   roles: ['admin'] },
+];
+
+/* Bottom-nav shows 5 most-used links for the role */
+const bottomNavLinks = [
+  { path: '/admin',               icon: LayoutDashboard, label: 'Home',    roles: ['admin','trainer'] },
+  { path: '/admin/members',       icon: Users,           label: 'Members', roles: ['admin'] },
+  { path: '/admin/store',         icon: ShoppingBag,     label: 'Store',   roles: ['admin'] },
+  { path: '/admin/orders',        icon: Package,         label: 'Orders',  roles: ['admin'] },
+  { path: '/admin/exercises',     icon: Dumbbell,        label: 'Exercises', roles: ['admin','trainer'] },
 ];
 
 function SidebarContent({ onLinkClick }) {
@@ -110,6 +119,9 @@ function SidebarContent({ onLinkClick }) {
 
 export default function AdminLayout({ children, title }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { user } = useAuth();
+  const location = useLocation();
+  const filteredBottom = bottomNavLinks.filter(l => l.roles.includes(user?.role));
 
   return (
     <div className="min-h-screen bg-[#0a0a0f] flex relative">
@@ -128,7 +140,13 @@ export default function AdminLayout({ children, title }) {
       </aside>
 
       {/* Mobile Sidebar Drawer */}
-      <aside className={`fixed top-0 left-0 h-full w-64 bg-[#0d0d14] border-r border-white/10 flex flex-col z-50 transform transition-transform duration-300 lg:hidden ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <aside className={`fixed top-0 left-0 h-full w-72 bg-[#0d0d14] border-r border-white/10 flex flex-col z-50 transform transition-transform duration-300 lg:hidden ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        {/* Close button inside drawer */}
+        <div className="absolute top-4 right-4">
+          <button onClick={() => setSidebarOpen(false)} className="text-gray-400 hover:text-white p-2 rounded-lg hover:bg-white/5">
+            <X size={20} />
+          </button>
+        </div>
         <SidebarContent onLinkClick={() => setSidebarOpen(false)} />
       </aside>
 
@@ -138,18 +156,51 @@ export default function AdminLayout({ children, title }) {
         <div className="lg:hidden flex items-center gap-3 px-4 py-3 bg-[#0d0d14] border-b border-white/10 sticky top-0 z-30">
           <button
             onClick={() => setSidebarOpen(true)}
-            className="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-white/5 transition-all"
+            className="text-gray-400 hover:text-white p-1.5 rounded-lg hover:bg-white/5 transition-all"
           >
             <Menu size={22} />
           </button>
-          <span className="text-white font-semibold text-sm">{title || 'Admin Panel'}</span>
+          <span className="text-white font-semibold text-sm flex-1 truncate">{title || 'Admin Panel'}</span>
         </div>
 
-        <div className="p-4 lg:p-8">
+        {/* Page content — extra bottom padding on mobile for the bottom nav */}
+        <div className="p-4 lg:p-8 pb-24 lg:pb-8">
           {title && <h1 className="hidden lg:block text-white font-bold text-2xl mb-6">{title}</h1>}
           {children}
         </div>
       </main>
+
+      {/* ── Mobile Bottom Navigation ── */}
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-[#0d0d14]/95 backdrop-blur-md border-t border-white/10"
+        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+        <div className="flex items-stretch">
+          {filteredBottom.map(link => {
+            const Icon = link.icon;
+            const active = location.pathname === link.path;
+            return (
+              <Link
+                key={link.path}
+                to={link.path}
+                className={`flex-1 flex flex-col items-center justify-center py-2.5 gap-0.5 transition-all ${
+                  active ? 'text-[#22d3ee]' : 'text-gray-500 hover:text-gray-300'
+                }`}
+              >
+                <Icon size={20} strokeWidth={active ? 2.5 : 1.8} />
+                <span className="text-[10px] font-medium leading-tight">{link.label}</span>
+                {active && <span className="absolute bottom-0 w-6 h-0.5 bg-[#22d3ee] rounded-full" />}
+              </Link>
+            );
+          })}
+          {/* More (opens sidebar) */}
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="flex-1 flex flex-col items-center justify-center py-2.5 gap-0.5 text-gray-500 hover:text-gray-300 transition-all"
+          >
+            <Menu size={20} strokeWidth={1.8} />
+            <span className="text-[10px] font-medium leading-tight">More</span>
+          </button>
+        </div>
+      </nav>
     </div>
   );
 }

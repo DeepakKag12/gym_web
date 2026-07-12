@@ -122,13 +122,12 @@ export default function AdminTrainers() {
 
       {/* ── Add / Edit Modal ── */}
       {modal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4"
-          style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(6px)' }}>
+        <div className="admin-modal-overlay">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="w-full max-w-md rounded-2xl p-6"
-            style={{ background: 'var(--bg2)', border: '1px solid var(--border)' }}
+            className="admin-modal-box"
+            style={{ maxWidth: '480px' }}
           >
             {/* Header */}
             <div className="flex items-center justify-between mb-5">

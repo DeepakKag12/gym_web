@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 import { TrendingUp, Plus, Scale, Camera, ChevronDown, ChevronUp, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import API from '../../utils/api';
-import Navbar from '../../components/Navbar';
 
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
@@ -81,8 +80,7 @@ export default function MyProgress() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] pt-20">
-      <Navbar />
+    <div className="min-h-screen bg-[#0a0a0f] pt-20 pb-20 lg:pb-8">
       <div className="max-w-3xl mx-auto px-4 py-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex items-center justify-between mb-6">
           <div>

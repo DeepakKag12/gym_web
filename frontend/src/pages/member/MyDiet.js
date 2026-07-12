@@ -101,7 +101,7 @@ export default function MyDiet() {
   );
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] pt-20 pb-12">
+    <div className="min-h-screen bg-[#0a0a0f] pt-20 pb-24 lg:pb-12">
       <div className="max-w-4xl mx-auto px-4">
         {/* Header */}
         <div className="flex items-center gap-3 mb-8">
@@ -125,28 +125,32 @@ export default function MyDiet() {
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Plan selector */}
-            <div className="space-y-2">
+            {/* Plan selector — horizontal scroll chips on mobile */}
+            <div className="lg:space-y-2">
               <p className="text-gray-500 text-xs font-semibold uppercase tracking-wider mb-3">Your Plans</p>
-              {plans.map(p => (
-                <button
-                  key={p._id}
-                  onClick={() => setSelected(p._id)}
-                  className={`w-full text-left p-3 rounded-xl border transition-all ${
-                    selected === p._id
-                      ? 'border-cyan-500/50 bg-cyan-500/10 text-white'
-                      : 'border-white/10 bg-white/5 text-gray-400 hover:text-white hover:border-white/20'
-                  }`}
-                >
-                  <div className="font-semibold text-sm">{p.title}</div>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className={`text-xs px-2 py-0.5 rounded-full capitalize ${GOAL_COLOR[p.goal] || 'text-gray-400 bg-gray-400/10'}`}>
-                      {(p.goal || 'general').replace('-', ' ')}
-                    </span>
-                    <span className="text-xs text-gray-600">{p.meals?.length || 0} meals</span>
-                  </div>
-                </button>
-              ))}
+              {/* Mobile: horizontal scroll */}
+              <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide lg:flex-col lg:overflow-visible lg:pb-0">
+                {plans.map(p => (
+                  <button
+                    key={p._id}
+                    onClick={() => setSelected(p._id)}
+                    className={`flex-shrink-0 text-left p-3 rounded-xl border transition-all lg:w-full ${
+                      selected === p._id
+                        ? 'border-cyan-500/50 bg-cyan-500/10 text-white'
+                        : 'border-white/10 bg-white/5 text-gray-400 hover:text-white hover:border-white/20'
+                    }`}
+                    style={{ minWidth: '140px' }}
+                  >
+                    <div className="font-semibold text-sm truncate">{p.title}</div>
+                    <div className="flex items-center gap-2 mt-1 flex-wrap">
+                      <span className={`text-xs px-2 py-0.5 rounded-full capitalize ${GOAL_COLOR[p.goal] || 'text-gray-400 bg-gray-400/10'}`}>
+                        {(p.goal || 'general').replace('-', ' ')}
+                      </span>
+                      <span className="text-xs text-gray-600">{p.meals?.length || 0} meals</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Plan detail */}

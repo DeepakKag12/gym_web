@@ -60,9 +60,9 @@ function ProductModal({ editData, onClose, onSaved }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center px-4 py-6 overflow-y-auto">
+    <div className="admin-modal-overlay">
       <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-        className="bg-[#111318] border border-white/10 rounded-2xl p-6 w-full max-w-2xl my-auto">
+        className="admin-modal-box">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-white font-bold text-xl">{editData ? 'Edit Product' : 'Add Product'}</h2>
           <button onClick={onClose} className="text-gray-500 hover:text-white"><X size={20} /></button>

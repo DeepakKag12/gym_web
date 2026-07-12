@@ -24,9 +24,9 @@ function PlanModal({ plan, onClose, onSaved }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
+    <div className="admin-modal-overlay">
       <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-        className="bg-[#0d0d14] border border-white/10 rounded-2xl p-6 w-full max-w-md">
+        className="admin-modal-box" style={{ maxWidth: '480px' }}>
         <h2 className="text-white font-bold text-xl mb-5">{plan ? 'Edit' : 'Add'} Membership Plan</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-3">

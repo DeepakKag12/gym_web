@@ -1,18 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { MessageSquare, CheckCircle, XCircle, Edit2 } from 'lucide-react';
+import { MessageSquare, Trash2, ChevronDown, Phone } from 'lucide-react';
 import API from '../../utils/api';
 import AdminLayout from './AdminLayout';
 import toast from 'react-hot-toast';
 
 const STATUS_COLORS = {
-  new: 'bg-blue-500/20 text-blue-400',
-  contacted: 'bg-yellow-500/20 text-yellow-400',
-  converted: 'bg-green-500/20 text-green-400',
-  closed: 'bg-gray-500/20 text-gray-400',
+  new:       'bg-blue-500/20 text-blue-400 border-blue-500/20',
+  contacted: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/20',
+  converted: 'bg-green-500/20 text-green-400 border-green-500/20',
+  closed:    'bg-gray-500/20 text-gray-400 border-gray-500/20',
 };
 
-const ADMIN_WHATSAPP = '919999999999';
+const STATUSES = ['new','contacted','converted','closed'];
 
 export default function AdminEnquiries() {
   const [enquiries, setEnquiries] = useState([]);
@@ -37,56 +36,90 @@ export default function AdminEnquiries() {
 
   return (
     <AdminLayout title="Enquiries">
-      <div className="flex gap-2 flex-wrap mb-6">
-        {['all','new','contacted','converted','closed'].map(s => (
-          <button key={s} onClick={() => setFilterStatus(s)} className={`px-3 py-1.5 rounded-full text-xs font-medium capitalize transition-all ${filterStatus === s ? 'bg-orange-500 text-white' : 'bg-white/5 text-gray-400 border border-white/10'}`}>{s}</button>
+      {/* Filter pills */}
+      <div className="flex gap-2 flex-wrap mb-5">
+        {['all', ...STATUSES].map(s => (
+          <button key={s} onClick={() => setFilterStatus(s)}
+            className={`px-3 py-1.5 rounded-full text-xs font-semibold capitalize transition-all ${
+              filterStatus === s ? 'bg-orange-500 text-white' : 'bg-white/5 text-gray-400 border border-white/10 hover:border-white/20'
+            }`}>
+            {s}
+            {s !== 'all' && (
+              <span className="ml-1 opacity-60">({enquiries.filter(e => e.status === s).length})</span>
+            )}
+          </button>
         ))}
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-20"><div className="w-10 h-10 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" /></div>
+        <div className="flex justify-center py-20">
+          <div className="w-10 h-10 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
+        </div>
       ) : filtered.length === 0 ? (
         <div className="text-center py-20 text-gray-500">No enquiries found</div>
       ) : (
-        <div className="glass rounded-xl overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="border-b border-white/10">
-                <tr className="text-gray-500 text-xs uppercase">
-                  {['Name','Phone','Interest','Message','Status','Date','Actions'].map(h => (
-                    <th key={h} className="text-left px-4 py-3 font-semibold">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map(e => (
-                  <tr key={e._id} className="border-b border-white/5 hover:bg-white/2">
-                    <td className="px-4 py-3 text-white font-medium">{e.name}</td>
-                    <td className="px-4 py-3">
-                      <a href={`https://wa.me/${ADMIN_WHATSAPP}?text=${encodeURIComponent(`Hi ${e.name}!`)}`} target="_blank" rel="noreferrer"
-                        className="text-green-400 hover:underline text-xs">{e.phone}</a>
-                    </td>
-                    <td className="px-4 py-3 text-gray-300 capitalize text-xs">{e.interest?.replace('-', ' ')}</td>
-                    <td className="px-4 py-3 text-gray-400 text-xs max-w-xs"><span className="line-clamp-2">{e.message}</span></td>
-                    <td className="px-4 py-3">
-                      <select value={e.status} onChange={ev => updateStatus(e._id, ev.target.value)}
-                        className={`text-xs px-2 py-0.5 rounded-full bg-transparent border-0 outline-none cursor-pointer capitalize font-semibold ${STATUS_COLORS[e.status] || ''}`}>
-                        {['new','contacted','converted','closed'].map(s => <option key={s} value={s} className="bg-[#0d0d14] capitalize">{s}</option>)}
-                      </select>
-                    </td>
-                    <td className="px-4 py-3 text-gray-500 text-xs">{new Date(e.createdAt).toLocaleDateString()}</td>
-                    <td className="px-4 py-3">
-                      <div className="flex gap-2">
-                        <a href={`https://wa.me/${e.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`Hi ${e.name}! Thank you for your interest in FitnessByAjeet.`)}`}
-                          target="_blank" rel="noreferrer" className="text-green-400 text-xs border border-green-500/20 px-2 py-1 rounded-lg hover:bg-green-500/10">WhatsApp</a>
-                        <button onClick={() => handleDelete(e._id)} className="text-red-400 text-xs border border-red-500/20 px-2 py-1 rounded-lg hover:bg-red-500/10">Delete</button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+        <div className="space-y-3">
+          {filtered.map(e => (
+            <div key={e._id} className="glass rounded-2xl p-4">
+              {/* Top row: name + date */}
+              <div className="flex items-start justify-between gap-2 mb-2">
+                <div>
+                  <div className="text-white font-semibold text-sm">{e.name}</div>
+                  <div className="text-gray-500 text-xs mt-0.5">
+                    {new Date(e.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                  </div>
+                </div>
+                <span className={`text-xs px-2.5 py-1 rounded-full font-semibold border capitalize ${STATUS_COLORS[e.status] || ''}`}>
+                  {e.status}
+                </span>
+              </div>
+
+              {/* Interest + message */}
+              <div className="mb-3">
+                {e.interest && (
+                  <span className="inline-block text-[10px] bg-orange-500/10 text-orange-400 border border-orange-500/20 rounded-full px-2 py-0.5 mb-1.5 capitalize">
+                    {e.interest.replace('-', ' ')}
+                  </span>
+                )}
+                {e.message && (
+                  <p className="text-gray-400 text-xs leading-relaxed line-clamp-3">{e.message}</p>
+                )}
+              </div>
+
+              {/* Actions row */}
+              <div className="flex items-center gap-2 pt-3 border-t border-white/5">
+                {/* Phone / WhatsApp */}
+                <a
+                  href={`https://wa.me/${e.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`Hi ${e.name}! Thank you for your interest in FitNation.`)}`}
+                  target="_blank" rel="noreferrer"
+                  className="flex items-center gap-1.5 text-xs text-green-400 border border-green-500/20 px-3 py-1.5 rounded-xl hover:bg-green-500/10 transition-all"
+                >
+                  <Phone size={12} /> {e.phone}
+                </a>
+
+                {/* Status dropdown */}
+                <div className="relative flex-1">
+                  <select
+                    value={e.status}
+                    onChange={ev => updateStatus(e._id, ev.target.value)}
+                    className={`w-full text-xs px-3 py-2 rounded-xl border outline-none cursor-pointer font-semibold capitalize appearance-none pr-8 ${STATUS_COLORS[e.status] || 'text-gray-400 bg-white/5 border-white/10'}`}
+                    style={{ background: 'rgba(255,255,255,0.05)' }}
+                  >
+                    {STATUSES.map(s => (
+                      <option key={s} value={s} style={{ background: '#111318', color: '#f1f5f9' }} className="capitalize">{s}</option>
+                    ))}
+                  </select>
+                  <ChevronDown size={12} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
+                </div>
+
+                {/* Delete */}
+                <button onClick={() => handleDelete(e._id)}
+                  className="p-2 text-red-400 hover:bg-red-400/10 rounded-xl transition-all flex-shrink-0">
+                  <Trash2 size={15} />
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </AdminLayout>

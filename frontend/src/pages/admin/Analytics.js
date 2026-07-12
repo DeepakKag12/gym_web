@@ -161,17 +161,19 @@ export default function AdminAnalytics() {
               <TrendingUp size={16} className="text-green-400" />
               <span className="text-white font-semibold text-sm">Membership Plan Distribution</span>
             </div>
-            <div className="flex items-center gap-8">
-              <DonutChart segments={planSegments} size={110} />
-              <div className="space-y-2">
+            <div className="flex flex-col sm:flex-row items-center gap-6">
+              <div className="flex-shrink-0">
+                <DonutChart segments={planSegments} size={110} />
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-1 gap-2 w-full sm:w-auto">
                 {planSegments.map((seg, i) => (
                   <div key={i} className="flex items-center gap-2">
                     <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: seg.color }} />
                     <span className="text-gray-300 text-sm capitalize">{seg.label}</span>
-                    <span className="text-white font-semibold ml-2">{seg.value}</span>
+                    <span className="text-white font-semibold ml-auto sm:ml-2">{seg.value}</span>
                   </div>
                 ))}
-                {planSegments.length === 0 && <div className="text-gray-600 text-sm">No members yet</div>}
+                {planSegments.length === 0 && <div className="text-gray-600 text-sm col-span-2">No members yet</div>}
               </div>
             </div>
           </motion.div>
