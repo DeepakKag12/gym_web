@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Users, Dumbbell, Salad, ShoppingBag, TrendingUp,
   MessageSquare, Package, UserCheck, LogOut, ChevronRight,
-  BarChart2, Tag, Calendar, Menu, Bell, X, Settings
+  BarChart2, Tag, Calendar, Menu, Bell, X, Settings, IndianRupee
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -45,6 +45,7 @@ const adminLinks = [
   { path: '/admin/transformations',  icon: TrendingUp,      label: 'Transformations', roles: ['admin','trainer'] },
   { path: '/admin/enquiries',        icon: MessageSquare,   label: 'Enquiries',       roles: ['admin'] },
   { path: '/admin/analytics',        icon: BarChart2,       label: 'Analytics',       roles: ['admin'] },
+  { path: '/admin/revenue',          icon: IndianRupee,     label: 'Revenue',         roles: ['admin'] },
   { path: '/admin/notifications',    icon: Bell,            label: 'Notifications',   roles: ['admin'] },
   { path: '/settings',               icon: Settings,        label: 'Settings',        roles: ['admin','trainer'] },
 ];

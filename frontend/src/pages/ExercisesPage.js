@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Search, Play, Lock, Dumbbell, Clock, Zap } from 'lucide-react';
+import { Search, Lock, Dumbbell, Zap, Video } from 'lucide-react';
 import API from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 
@@ -23,40 +23,95 @@ const DIFF_MAP = {
   advanced:     { label: 'Advanced',     color: 'text-red-400 bg-red-500/10' },
 };
 
+/** Detect if a URL is a YouTube link */
+function isYouTube(url) {
+  return url && (url.includes('youtube.com') || url.includes('youtu.be'));
+}
+
+/** Extract YouTube video ID from any YouTube URL format */
+function ytId(url) {
+  if (!url) return '';
+  const m = url.match(/(?:v=|youtu\.be\/|embed\/)([A-Za-z0-9_-]{11})/);
+  return m ? m[1] : '';
+}
+
+/**
+ * VideoThumb — card thumbnail that:
+ *   1. Cloudinary/direct mp4  → native <video autoPlay muted loop playsInline>
+ *   2. YouTube link           → <iframe> embed (muted, autoplay, loop)
+ *   3. Image only             → <img>
+ *   4. Nothing                → icon placeholder
+ */
+function VideoThumb({ video, videoUrl, image, title, placeholderIcon }) {
+  const src = video || videoUrl || '';
+  const Icon = placeholderIcon || Dumbbell;
+
+  if (src) {
+    if (isYouTube(src)) {
+      const id = ytId(src);
+      return id ? (
+        <iframe
+          src={`https://www.youtube.com/embed/${id}?autoplay=1&mute=1&loop=1&playlist=${id}&controls=0&modestbranding=1&playsinline=1`}
+          className="absolute inset-0 w-full h-full border-0 pointer-events-none"
+          allow="autoplay; muted"
+          title={title}
+        />
+      ) : null;
+    }
+    // Direct video file (Cloudinary mp4 etc.)
+    return (
+      <video
+        src={src}
+        autoPlay
+        muted
+        loop
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover"
+      />
+    );
+  }
+  if (image) {
+    return <img src={image} alt={title} className="absolute inset-0 w-full h-full object-cover" />;
+  }
+  return (
+    <div className="absolute inset-0 flex items-center justify-center">
+      <Icon size={40} className="text-gray-700" />
+    </div>
+  );
+}
+
 function ExCard({ ex, index }) {
   const diff = DIFF_MAP[ex.difficulty] || DIFF_MAP.beginner;
   return (
     <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.04, duration: 0.4 }}>
       <Link to={`/exercises/${ex._id}`} className="ex-card group block">
-        {/* Image */}
+        {/* Thumbnail */}
         <div className="relative h-44 overflow-hidden bg-[#0f1218]">
-          {ex.image ? (
-            <img src={ex.image} alt={ex.title} className="ex-img" />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <Dumbbell size={40} className="text-gray-700" />
-            </div>
-          )}
-          {/* Overlays */}
-          {ex.videoUrl && (
-            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/40">
-              <div className="w-11 h-11 rounded-full bg-[#22d3ee] flex items-center justify-center shadow-lg shadow-cyan-500/30">
-                <Play size={18} className="text-black ml-0.5" />
+          <VideoThumb
+            video={ex.video}
+            videoUrl={ex.videoUrl}
+            image={ex.image}
+            title={ex.title}
+          />
+          {/* Top-right badges (stacked so they don't overlap) */}
+          <div className="absolute top-2.5 right-2.5 flex flex-col items-end gap-1 z-10 pointer-events-none">
+            {(ex.video || ex.videoUrl) && (
+              <div className="bg-[#22d3ee] rounded-full p-1">
+                <Video size={10} className="text-black" />
               </div>
-            </div>
-          )}
-          <div className="absolute top-2.5 left-2.5">
+            )}
+            {!ex.isPublic && (
+              <div className="flex items-center gap-1 bg-black/60 rounded-full px-2 py-0.5 text-xs text-amber-400">
+                <Lock size={10} /> Members
+              </div>
+            )}
+          </div>
+          <div className="absolute top-2.5 left-2.5 z-10">
             <span className="text-xs bg-black/60 backdrop-blur-sm text-gray-200 px-2 py-1 rounded-full capitalize font-medium">
               {ex.muscleGroup}
             </span>
           </div>
-          {!ex.isPublic && (
-            <div className="absolute top-2.5 right-2.5 flex items-center gap-1 bg-black/60 rounded-full px-2 py-1 text-xs text-amber-400">
-              <Lock size={10} /> Members
-            </div>
-          )}
-          {/* Gradient fade bottom */}
-          <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-[#111318] to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-[#111318] to-transparent pointer-events-none z-10" />
         </div>
 
         {/* Body */}

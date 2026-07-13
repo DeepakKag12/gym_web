@@ -48,10 +48,10 @@ function ProductModal({ editData, onClose, onSaved }) {
       imageFiles.forEach(f => fd.append('images', f));
 
       if (editData) {
-        await API.put(`/store/${editData._id}`, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+        await API.put(`/store/${editData._id}`, fd);
         toast.success('Product updated!');
       } else {
-        await API.post('/store', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+        await API.post('/store', fd);
         toast.success('Product added!');
       }
       onSaved();

@@ -42,6 +42,7 @@ import AdminEnquiries from './pages/admin/Enquiries';
 import AdminOrders from './pages/admin/Orders';
 import AdminTrainers from './pages/admin/Trainers';
 import AdminAnalytics from './pages/admin/Analytics';
+import AdminRevenue from './pages/admin/Revenue';
 import AdminPlans from './pages/admin/Plans';
 import AdminSplits from './pages/admin/Splits';
 import AdminNotifications from './pages/admin/Notifications';
@@ -121,6 +122,7 @@ function AppRoutes() {
         <Route path="/admin/orders"       element={<ProtectedRoute roles={['admin']}><AdminOrders /></ProtectedRoute>} />
         <Route path="/admin/trainers"     element={<ProtectedRoute roles={['admin']}><AdminTrainers /></ProtectedRoute>} />
         <Route path="/admin/analytics"    element={<ProtectedRoute roles={['admin']}><AdminAnalytics /></ProtectedRoute>} />
+        <Route path="/admin/revenue"      element={<ProtectedRoute roles={['admin']}><AdminRevenue /></ProtectedRoute>} />
         <Route path="/admin/plans"        element={<ProtectedRoute roles={['admin']}><AdminPlans /></ProtectedRoute>} />
         <Route path="/admin/splits"       element={<ProtectedRoute roles={['admin','trainer']}><AdminSplits /></ProtectedRoute>} />
         <Route path="/admin/notifications" element={<ProtectedRoute roles={['admin']}><AdminNotifications /></ProtectedRoute>} />

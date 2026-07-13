@@ -1,7 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Dumbbell, Play, BookOpen, Target, Flame, ExternalLink, ChevronDown } from 'lucide-react';
+import { Dumbbell, BookOpen, Target, Flame, ExternalLink, ChevronDown, Video } from 'lucide-react';
 import API from '../../utils/api';
+
+/* ── VideoThumb: native <video> for direct files, <iframe> for YouTube ── */
+function isYouTube(url) { return url && (url.includes('youtube.com') || url.includes('youtu.be')); }
+function ytId(url) {
+  const m = (url || '').match(/(?:v=|youtu\.be\/|embed\/)([A-Za-z0-9_-]{11})/);
+  return m ? m[1] : '';
+}
+function VideoThumb({ video, videoUrl, image, title }) {
+  const src = video || videoUrl || '';
+  if (src) {
+    if (isYouTube(src)) {
+      const id = ytId(src);
+      return id ? (
+        <iframe
+          src={`https://www.youtube.com/embed/${id}?autoplay=1&mute=1&loop=1&playlist=${id}&controls=0&modestbranding=1&playsinline=1`}
+          className="absolute inset-0 w-full h-full border-0 pointer-events-none"
+          allow="autoplay; muted" title={title}
+        />
+      ) : null;
+    }
+    return (
+      <video src={src} autoPlay muted loop playsInline
+        className="absolute inset-0 w-full h-full object-cover" />
+    );
+  }
+  if (image) return <img src={image} alt={title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />;
+  return <div className="absolute inset-0 flex items-center justify-center"><Dumbbell size={48} className="text-gray-700" /></div>;
+}
 
 const DIFF_COLOR = {
   beginner:     'text-green-400 bg-green-400/10',
@@ -20,21 +48,15 @@ function ExCard({ ex }) {
 
   return (
     <div className="glass rounded-2xl overflow-hidden group">
-      {/* Image */}
+      {/* Thumbnail */}
       <div className="relative h-44 bg-[#0d0d14] overflow-hidden">
-        {ex.image ? (
-          <img src={ex.image} alt={ex.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <Dumbbell size={48} className="text-gray-700" />
-          </div>
-        )}
+        <VideoThumb video={ex.video} videoUrl={ex.videoUrl} image={ex.image} title={ex.title} />
         {hasVideo && (
-          <div className="absolute top-3 right-3 bg-cyan-400/20 border border-cyan-400/40 rounded-full p-1.5">
-            <Play size={12} className="text-cyan-400 fill-current" />
+          <div className="absolute top-3 right-3 bg-[#22d3ee] rounded-full p-1 pointer-events-none z-10">
+            <Video size={10} className="text-black" />
           </div>
         )}
-        <span className="absolute bottom-3 left-3 text-xs px-2 py-0.5 rounded-full bg-black/60 text-white capitalize">
+        <span className="absolute bottom-3 left-3 text-xs px-2 py-0.5 rounded-full bg-black/60 text-white capitalize z-10">
           {MUSCLE_EMOJI[ex.muscleGroup] || '💪'} {ex.muscleGroup}
         </span>
       </div>

@@ -5,6 +5,34 @@ import API from '../../utils/api';
 import AdminLayout from './AdminLayout';
 import toast from 'react-hot-toast';
 
+/* ── VideoThumb: native <video> for direct files, <iframe> for YouTube ── */
+function isYouTube(url) { return url && (url.includes('youtube.com') || url.includes('youtu.be')); }
+function ytId(url) {
+  const m = (url || '').match(/(?:v=|youtu\.be\/|embed\/)([A-Za-z0-9_-]{11})/);
+  return m ? m[1] : '';
+}
+function VideoThumb({ video, videoUrl, image, title }) {
+  const src = video || videoUrl || '';
+  if (src) {
+    if (isYouTube(src)) {
+      const id = ytId(src);
+      return id ? (
+        <iframe
+          src={`https://www.youtube.com/embed/${id}?autoplay=1&mute=1&loop=1&playlist=${id}&controls=0&modestbranding=1&playsinline=1`}
+          className="absolute inset-0 w-full h-full border-0 pointer-events-none"
+          allow="autoplay; muted" title={title}
+        />
+      ) : null;
+    }
+    return (
+      <video src={src} autoPlay muted loop playsInline
+        className="absolute inset-0 w-full h-full object-cover" />
+    );
+  }
+  if (image) return <img src={image} alt={title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />;
+  return <div className="absolute inset-0 flex items-center justify-center text-gray-700"><Dumbbell size={36} /></div>;
+}
+
 const MUSCLE_GROUPS = ['chest','back','shoulders','arms','biceps','triceps','legs','glutes','core','abs','cardio','full-body','other'];
 const DIFFS = ['beginner','intermediate','advanced'];
 const DIFF_COLOR = { beginner:'text-emerald-400', intermediate:'text-amber-400', advanced:'text-red-400' };
@@ -270,17 +298,16 @@ export default function AdminExercises() {
             <motion.div key={ex._id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
               className="glass rounded-2xl overflow-hidden group">
               <div className="relative h-40 bg-[#0d0e11] overflow-hidden">
-                {ex.image
-                  ? <img src={ex.image} alt={ex.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                  : <div className="w-full h-full flex items-center justify-center text-gray-700"><Dumbbell size={36} /></div>
-                }
+                <VideoThumb video={ex.video} videoUrl={ex.videoUrl} image={ex.image} title={ex.title} />
                 {(ex.video || ex.videoUrl) && (
-                  <div className="absolute top-2 right-2 bg-[#22d3ee] rounded-full p-1"><Video size={11} className="text-black" /></div>
+                  <div className="absolute top-2 right-2 bg-[#22d3ee] rounded-full p-1 pointer-events-none z-10">
+                    <Video size={11} className="text-black" />
+                  </div>
                 )}
-                <div className="absolute top-2 left-2">
+                <div className="absolute top-2 left-2 z-10">
                   <span className="text-[10px] bg-black/70 text-gray-200 px-1.5 py-0.5 rounded-full capitalize">{ex.muscleGroup}</span>
                 </div>
-                <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-[#111318] to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-[#111318] to-transparent pointer-events-none z-10" />
               </div>
               <div className="p-3.5">
                 <div className="flex items-start justify-between mb-1">

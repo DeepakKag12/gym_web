@@ -1,9 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import ReactPlayer from 'react-player';
-import { ArrowLeft, Dumbbell, Clock, Target, BarChart3, Play } from 'lucide-react';
+import { ArrowLeft, Dumbbell, Clock, Target, BarChart3 } from 'lucide-react';
 import API from '../utils/api';
+
+/* ── Helpers ── */
+function isYouTube(url) { return url && (url.includes('youtube.com') || url.includes('youtu.be')); }
+function ytId(url) {
+  const m = (url || '').match(/(?:v=|youtu\.be\/|embed\/)([A-Za-z0-9_-]{11})/);
+  return m ? m[1] : '';
+}
 
 export default function ExerciseDetailPage() {
   const { id } = useParams();
@@ -37,13 +43,35 @@ export default function ExerciseDetailPage() {
         </Link>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-          {/* Media */}
+          {/* Media — uploaded video > YouTube URL > image > placeholder */}
           <div>
-            {ex.video ? (
-              <div className="rounded-xl overflow-hidden border border-white/10">
-                <ReactPlayer url={ex.video} controls width="100%" />
-              </div>
-            ) : ex.image ? (
+            {(ex.video || ex.videoUrl) ? (() => {
+              const src = ex.video || ex.videoUrl;
+              if (isYouTube(src)) {
+                const id = ytId(src);
+                return id ? (
+                  <div className="rounded-xl overflow-hidden border border-white/10 relative" style={{ paddingBottom: '56.25%' }}>
+                    <iframe
+                      src={`https://www.youtube.com/embed/${id}?loop=1&playlist=${id}&controls=1&modestbranding=1&rel=0`}
+                      className="absolute inset-0 w-full h-full border-0"
+                      allowFullScreen
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      title={ex.title}
+                    />
+                  </div>
+                ) : null;
+              }
+              // Direct video (Cloudinary mp4)
+              return (
+                <video
+                  src={src}
+                  controls
+                  loop
+                  playsInline
+                  className="w-full rounded-xl border border-white/10 max-h-80 object-cover bg-black"
+                />
+              );
+            })() : ex.image ? (
               <img src={ex.image} alt={ex.title} className="w-full rounded-xl border border-white/10 object-cover max-h-80" />
             ) : (
               <div className="w-full h-64 bg-white/5 rounded-xl flex items-center justify-center">
