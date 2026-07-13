@@ -54,6 +54,7 @@ function ExerciseModal({ editData, members, onClose, onSaved }) {
   const [imagePreview, setImagePreview] = useState(editData?.image || '');
   const [videoPreview, setVideoPreview] = useState(editData?.video || '');
   const [saving, setSaving] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState('');
   const imgRef = useRef(), vidRef = useRef();
 
   const handleChange = (e) => {
@@ -64,6 +65,7 @@ function ExerciseModal({ editData, members, onClose, onSaved }) {
   const handleImageFile = (e) => {
     const f = e.target.files[0];
     if (!f) return;
+    if (f.size > 4 * 1024 * 1024) { toast.error('Image must be under 4 MB'); return; }
     setImageFile(f);
     setImagePreview(URL.createObjectURL(f));
   };
@@ -75,19 +77,75 @@ function ExerciseModal({ editData, members, onClose, onSaved }) {
     setVideoPreview(f.name);
   };
 
+  // Upload a file directly from the browser to Cloudinary using a signed request.
+  // This bypasses Vercel's 4.5 MB function payload limit entirely.
+  const uploadDirectToCloudinary = async (file, resourceType = 'video') => {
+    const folder = resourceType === 'video' ? 'exercises/videos' : 'exercises';
+    // 1. Get a signature from our backend
+    const { data: sig } = await API.post('/exercises/sign-upload', { folder, resource_type: resourceType });
+    // 2. Upload directly to Cloudinary Upload API
+    const fd = new FormData();
+    fd.append('file', file);
+    fd.append('api_key', sig.api_key);
+    fd.append('timestamp', sig.timestamp);
+    fd.append('signature', sig.signature);
+    fd.append('folder', sig.folder);
+    if (resourceType === 'video') {
+      fd.append('video_codec', 'auto');
+      fd.append('quality', 'auto');
+    }
+    const uploadUrl = `https://api.cloudinary.com/v1_1/${sig.cloud_name}/${resourceType}/upload`;
+    const xhr = new XMLHttpRequest();
+    return new Promise((resolve, reject) => {
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) {
+          const pct = Math.round((e.loaded / e.total) * 100);
+          setUploadProgress(`Uploading ${resourceType}… ${pct}%`);
+        }
+      };
+      xhr.onload = () => {
+        setUploadProgress('');
+        if (xhr.status === 200) resolve(JSON.parse(xhr.responseText));
+        else reject(new Error(`Cloudinary upload failed: ${xhr.responseText}`));
+      };
+      xhr.onerror = () => { setUploadProgress(''); reject(new Error('Network error during upload')); };
+      xhr.open('POST', uploadUrl);
+      xhr.send(fd);
+    });
+  };
+
   const save = async () => {
     if (!form.title || !form.muscleGroup) { toast.error('Title and muscle group are required'); return; }
     setSaving(true);
     try {
+      let imageUrl = editData?.image || '';
+      let videoUrl = editData?.video || '';
+      let videoPublicId = editData?.videoPublicId || '';
+
+      // Upload image directly to Cloudinary if a new file was selected
+      if (imageFile) {
+        setUploadProgress('Uploading image…');
+        const result = await uploadDirectToCloudinary(imageFile, 'image');
+        imageUrl = result.secure_url;
+        setUploadProgress('');
+      }
+
+      // Upload video directly to Cloudinary (bypasses Vercel 4.5 MB limit)
+      if (videoFile) {
+        const result = await uploadDirectToCloudinary(videoFile, 'video');
+        videoUrl = result.secure_url;
+        videoPublicId = result.public_id;
+      }
+
       const fd = new FormData();
-      // append all text fields
       ['title','description','instructions','muscleGroup','difficulty',
        'equipmentNeeded','sets','reps','duration','videoUrl','isPublic'].forEach(k => {
         fd.append(k, form[k] ?? '');
       });
       fd.append('assignedTo', form.assignedTo ? JSON.stringify([form.assignedTo]) : JSON.stringify([]));
-      if (imageFile) fd.append('image', imageFile);
-      if (videoFile) fd.append('video', videoFile);
+      // Pass already-uploaded Cloudinary URLs; no file blobs sent to Vercel
+      if (imageFile) fd.append('imageUrl', imageUrl);
+      if (videoFile) { fd.append('uploadedVideoUrl', videoUrl); fd.append('uploadedVideoPublicId', videoPublicId); }
 
       if (editData) {
         await API.put(`/exercises/${editData._id}`, fd);
@@ -98,7 +156,7 @@ function ExerciseModal({ editData, members, onClose, onSaved }) {
       }
       onSaved();
     } catch (err) { toast.error(err.response?.data?.message || err.message || 'Save failed'); }
-    finally { setSaving(false); }
+    finally { setSaving(false); setUploadProgress(''); }
   };
 
   return (
@@ -211,7 +269,7 @@ function ExerciseModal({ editData, members, onClose, onSaved }) {
           </div>
 
           <div>
-            <label className="block text-xs mb-0.5" style={{ color: 'var(--muted)' }}>Video File <span style={{ opacity: 0.5 }}>(mp4)</span></label>
+            <label className="block text-xs mb-0.5" style={{ color: 'var(--muted)' }}>Video File <span style={{ opacity: 0.5 }}>(mp4, any size)</span></label>
             {videoPreview && !videoFile && editData?.video && (
               <div className="text-xs mb-1 flex items-center gap-1" style={{ color: 'var(--cyan)' }}>
                 <Video size={10} /> Saved
@@ -229,9 +287,17 @@ function ExerciseModal({ editData, members, onClose, onSaved }) {
           </div>
         </div>
 
+        {/* Upload progress bar */}
+        {uploadProgress && (
+          <div className="mt-2 text-xs rounded-lg px-3 py-2 flex items-center gap-2" style={{ background: 'rgba(34,211,238,0.08)', color: 'var(--cyan)', border: '1px solid rgba(34,211,238,0.2)' }}>
+            <span className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin flex-shrink-0" />
+            {uploadProgress}
+          </div>
+        )}
+
         {/* Footer */}
         <div className="flex justify-end gap-2 mt-3">
-          <button onClick={onClose} className="btn-ghost px-3 py-1.5 text-xs">Cancel</button>
+          <button onClick={onClose} disabled={saving} className="btn-ghost px-3 py-1.5 text-xs">Cancel</button>
           <button onClick={save} disabled={saving} className="btn-fire px-4 py-1.5 text-xs">
             {saving
               ? <span className="w-3.5 h-3.5 border-2 border-black border-t-transparent rounded-full animate-spin" />
