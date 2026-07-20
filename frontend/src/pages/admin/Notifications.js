@@ -124,14 +124,14 @@ export default function AdminNotifications() {
               <div>
                 <label className="block text-gray-400 text-xs mb-1">Type</label>
                 <select className="input-dark w-full" value={form.type} onChange={e => setForm(p => ({ ...p, type: e.target.value }))}>
-                  {Object.entries(TYPE_META).map(([k, v]) => <option key={k} value={k} style={{ background: '#fff', color: '#111' }}>{v.label}</option>)}
+                  {Object.entries(TYPE_META).map(([k, v]) => <option key={k} value={k} style={{ background: '#111318', color: '#f1f5f9' }}>{v.label}</option>)}
                 </select>
               </div>
               <div>
                 <label className="block text-gray-400 text-xs mb-1">Send To</label>
                 <select className="input-dark w-full" value={form.memberId} onChange={e => setForm(p => ({ ...p, memberId: e.target.value }))}>
-                  <option value="" style={{ background: '#fff', color: '#111' }}>All Members (Broadcast)</option>
-                  {members.map(m => <option key={m._id} value={m._id} style={{ background: '#fff', color: '#111' }}>{m.name} ({m.email})</option>)}
+                  <option value="" style={{ background: '#111318', color: '#f1f5f9' }}>All Members (Broadcast)</option>
+                  {members.map(m => <option key={m._id} value={m._id} style={{ background: '#111318', color: '#f1f5f9' }}>{m.name} ({m.email})</option>)}
                 </select>
               </div>
               <div>

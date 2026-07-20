@@ -186,13 +186,13 @@ function ExerciseModal({ editData, members, onClose, onSaved }) {
           <div>
             <label className="block text-xs mb-0.5" style={{ color: 'var(--muted)' }}>Muscle *</label>
             <select className="input-dark text-xs py-1.5" name="muscleGroup" value={form.muscleGroup} onChange={handleChange}>
-              {MUSCLE_GROUPS.map(m => <option key={m} value={m} style={{ background: '#fff', color: '#111' }} className="capitalize">{m}</option>)}
+              {MUSCLE_GROUPS.map(m => <option key={m} value={m} style={{ background: '#111318', color: '#f1f5f9' }} className="capitalize">{m}</option>)}
             </select>
           </div>
           <div>
             <label className="block text-xs mb-0.5" style={{ color: 'var(--muted)' }}>Difficulty</label>
             <select className="input-dark text-xs py-1.5" name="difficulty" value={form.difficulty} onChange={handleChange}>
-              {DIFFS.map(d => <option key={d} value={d} style={{ background: '#fff', color: '#111' }} className="capitalize">{d}</option>)}
+              {DIFFS.map(d => <option key={d} value={d} style={{ background: '#111318', color: '#f1f5f9' }} className="capitalize">{d}</option>)}
             </select>
           </div>
 
@@ -244,8 +244,8 @@ function ExerciseModal({ editData, members, onClose, onSaved }) {
             <div className="col-span-2">
               <label className="block text-xs mb-0.5" style={{ color: 'var(--muted)' }}>Assign to Member</label>
               <select className="input-dark text-xs py-1.5" name="assignedTo" value={form.assignedTo} onChange={handleChange}>
-                <option value="" style={{ background: '#fff', color: '#111' }}>— All private members —</option>
-                {members.map(m => <option key={m._id} value={m._id} style={{ background: '#fff', color: '#111' }}>{m.name}</option>)}
+                <option value="" style={{ background: '#111318', color: '#f1f5f9' }}>— All private members —</option>
+                {members.map(m => <option key={m._id} value={m._id} style={{ background: '#111318', color: '#f1f5f9' }}>{m.name}</option>)}
               </select>
             </div>
           )}

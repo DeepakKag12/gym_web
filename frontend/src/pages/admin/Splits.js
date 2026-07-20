@@ -266,7 +266,7 @@ function SplitModal({ split, exercises, onClose, onSaved }) {
                 onChange={e => setForm(p => ({ ...p, goal: e.target.value }))}
                 className="input-dark w-full text-sm capitalize"
               >
-                {GOALS.map(g => <option key={g} value={g} style={{ background: '#111', color: '#fff' }}>{g.replace('_', ' ')}</option>)}
+                {GOALS.map(g => <option key={g} value={g} style={{ background: '#111318', color: '#f1f5f9' }}>{g.replace('_', ' ')}</option>)}
               </select>
             </div>
             <div>
@@ -276,8 +276,8 @@ function SplitModal({ split, exercises, onClose, onSaved }) {
                 onChange={e => setForm(p => ({ ...p, member: e.target.value, isDefault: e.target.value ? false : p.isDefault }))}
                 className="input-dark w-full text-sm"
               >
-                <option value="" style={{ background: '#111', color: '#fff' }}>— Default (all members) —</option>
-                {members.map(m => <option key={m._id} value={m._id} style={{ background: '#111', color: '#fff' }}>{m.name}</option>)}
+                <option value="" style={{ background: '#111318', color: '#f1f5f9' }}>— Default (all members) —</option>
+                {members.map(m => <option key={m._id} value={m._id} style={{ background: '#111318', color: '#f1f5f9' }}>{m.name}</option>)}
               </select>
             </div>
             <div className="flex items-end pb-1">

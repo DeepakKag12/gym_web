@@ -286,11 +286,11 @@ export default function StorePage() {
             className="input-dark h-11 px-4 text-sm"
             style={{ width: 'auto' }}
           >
-            <option value="default"    style={{ background: '#fff', color: '#111' }}>Sort: Default</option>
-            <option value="price-asc"  style={{ background: '#fff', color: '#111' }}>Price: Low → High</option>
-            <option value="price-desc" style={{ background: '#fff', color: '#111' }}>Price: High → Low</option>
-            <option value="rating"     style={{ background: '#fff', color: '#111' }}>Top Rated</option>
-            <option value="discount"   style={{ background: '#fff', color: '#111' }}>Best Discount</option>
+            <option value="default"    style={{ background: '#111318', color: '#f1f5f9' }}>Sort: Default</option>
+            <option value="price-asc"  style={{ background: '#111318', color: '#f1f5f9' }}>Price: Low → High</option>
+            <option value="price-desc" style={{ background: '#111318', color: '#f1f5f9' }}>Price: High → Low</option>
+            <option value="rating"     style={{ background: '#111318', color: '#f1f5f9' }}>Top Rated</option>
+            <option value="discount"   style={{ background: '#111318', color: '#f1f5f9' }}>Best Discount</option>
           </select>
 
           {/* Cart */}

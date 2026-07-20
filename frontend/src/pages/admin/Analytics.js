@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { TrendingUp, Users, Package, IndianRupee, Activity, BarChart2, UserCheck, Clock } from 'lucide-react';
-import { cachedGet } from '../../utils/api';
+import { TrendingUp, Users, Package, IndianRupee, Activity, BarChart2, UserCheck, Clock, RefreshCw } from 'lucide-react';
+import { cachedGet, bustCache, freshGet } from '../../utils/api';
 import AdminLayout from './AdminLayout';
 
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -54,25 +54,42 @@ function DonutChart({ segments, size = 100 }) {
 const PLAN_COLORS = { monthly: '#38bdf8', quarterly: '#a78bfa', 'half-yearly': '#34d399', yearly: '#fb923c' };
 
 export default function AdminAnalytics() {
-  const [summary, setSummary] = useState(null);
+  const [summary,        setSummary]        = useState(null);
   const [revenueMonthly, setRevenueMonthly] = useState([]);
-  const [membershipStats, setMembershipStats] = useState([]);
-  const [newMembers, setNewMembers] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [membershipStats,setMembershipStats] = useState([]);
+  const [newMembers,     setNewMembers]      = useState([]);
+  const [loading,        setLoading]         = useState(true);
+  const [refreshing,     setRefreshing]      = useState(false);
 
-  useEffect(() => {
-    Promise.all([
-      cachedGet('/analytics/summary', { cache: 120 }),
-      cachedGet('/analytics/revenue-monthly', { cache: 180 }),
-      cachedGet('/analytics/membership-stats', { cache: 180 }),
-      cachedGet('/analytics/new-members-monthly', { cache: 180 }),
-    ]).then(([s, r, m, n]) => {
+  const loadData = useCallback(async (fresh = false) => {
+    const getter = fresh ? freshGet : cachedGet;
+    if (fresh) setRefreshing(true); else setLoading(true);
+    try {
+      const [s, r, m, n] = await Promise.all([
+        getter('/analytics/summary',           { cache: 120 }),
+        getter('/analytics/revenue-monthly',   { cache: 180 }),
+        getter('/analytics/membership-stats',  { cache: 180 }),
+        getter('/analytics/new-members-monthly',{ cache: 180 }),
+      ]);
       setSummary(s.data);
       setRevenueMonthly(r.data);
       setMembershipStats(m.data);
       setNewMembers(n.data);
-    }).catch(() => {}).finally(() => setLoading(false));
+    } catch (e) {
+      // keep existing data on error
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
   }, []);
+
+  useEffect(() => { loadData(false); }, [loadData]);
+
+  const handleRefresh = () => {
+    bustCache('analytics');
+    bustCache('members');
+    loadData(true);
+  };
 
   const revData = revenueMonthly.map(d => ({ ...d, revenue: d.revenue || 0 }));
   const memData = newMembers.map(d => ({ ...d, count: d.count || 0 }));
@@ -83,6 +100,18 @@ export default function AdminAnalytics() {
 
   return (
     <AdminLayout title="Analytics & Revenue">
+      {/* Refresh button */}
+      <div className="flex justify-end mb-5">
+        <button
+          onClick={handleRefresh}
+          disabled={refreshing}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-gray-400 text-xs hover:border-white/20 hover:text-white transition-all disabled:opacity-50"
+        >
+          <RefreshCw size={12} className={refreshing ? 'animate-spin' : ''} />
+          {refreshing ? 'Refreshing…' : 'Refresh Data'}
+        </button>
+      </div>
+
       {loading ? (
         <div className="flex justify-center py-20"><div className="w-10 h-10 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" /></div>
       ) : (

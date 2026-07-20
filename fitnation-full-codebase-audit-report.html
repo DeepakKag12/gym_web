@@ -1,0 +1,129 @@
+
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>FitNation Audit Report</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "Segoe UI", system-ui, sans-serif; font-size: 14px; line-height: 1.6; background: #fff; color: #1f2328; padding: 24px; }
+  .wrap { max-width: 760px; margin: 0 auto; }
+  h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+  .subtitle { color: #57606a; font-size: 13px; margin-bottom: 24px; }
+  h2 { font-size: 15px; font-weight: 700; margin: 28px 0 10px; border-bottom: 1px solid #e5e7eb; padding-bottom: 6px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 8px; }
+  th { background: #f7f8fa; text-align: left; padding: 7px 10px; border: 1px solid #e5e7eb; font-weight: 600; color: #57606a; white-space: nowrap; }
+  td { padding: 6px 10px; border: 1px solid #e5e7eb; vertical-align: top; }
+  tr:nth-child(even) td { background: #f7f8fa; }
+  .ok { color: #1a7f37; font-weight: 600; }
+  .fixed { color: #9a6700; font-weight: 600; }
+  .badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 10px; }
+  .badge-green { background: #dafbe1; color: #1a7f37; }
+  .badge-yellow { background: #fff8c5; color: #9a6700; }
+  .badge-blue { background: #ddf4ff; color: #0969da; }
+  .badge-purple { background: #fbefff; color: #7c5cd8; }
+  .badge-red { background: #ffd8d3; color: #cf222e; }
+  code { font-family: "SFMono-Regular", Consolas, monospace; font-size: 12px; background: #f7f8fa; padding: 1px 5px; border-radius: 4px; border: 1px solid #e5e7eb; }
+  .section-note { color: #57606a; font-size: 12px; margin-top: 4px; }
+  footer { margin-top: 40px; padding-top: 14px; border-top: 1px solid #e5e7eb; text-align: center; font-size: 12px; color: #57606a; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>FitNation Gym — Complete Codebase Audit</h1>
+  <p class="subtitle">Pushed to GitHub · commit <code>cc919aa2</code> · all 40+ pages verified</p>
+
+  <h2>Backend Routes — Verified ✓</h2>
+  <table>
+    <tr><th>Route File</th><th>Endpoints</th><th>Auth / Role</th><th>Status</th></tr>
+    <tr><td><code>auth.js</code></td><td>POST /login, POST /register, GET /me, PUT /update-credentials</td><td>Mixed</td><td><span class="badge badge-green">✓ OK</span></td></tr>
+    <tr><td><code>members.js</code></td><td>GET /, GET /:id, POST /, PUT /:id, DELETE /:id, POST /:id/send-notification, POST /bulk-reminder</td><td>admin</td><td><span class="badge badge-green">✓ OK</span></td></tr>
+    <tr><td><code>analytics.js</code></td><td>GET /summary, /revenue-monthly, /membership-stats, /new-members-monthly, /revenue-full</td><td>admin</td><td><span class="badge badge-green">✓ OK</span></td></tr>
+    <tr><td><code>orders.js</code></td><td>POST /, GET /my, GET / (admin), PUT /:id/status</td><td>Mixed</td><td><span class="badge badge-green">✓ OK</span></td></tr>
+    <tr><td><code>notifications.js</code></td><td>GET /, GET /admin/all, PUT /admin/mark-all-read, POST /admin/send, PUT /read-all, PUT /:id/read</td><td>Mixed</td><td><span class="badge badge-green">✓ OK</span></td></tr>
+    <tr><td><code>splits.js</code></td><td>GET /me, GET /planner, PUT /planner, GET / (admin), POST /, PUT /:id, DELETE /:id</td><td>Mixed</td><td><span class="badge badge-green">✓ OK</span></td></tr>
+    <tr><td><code>exercises.js</code></td><td>POST /sign-upload, GET /, GET /my, GET /:id, POST /, PUT /:id, DELETE /:id</td><td>Mixed</td><td><span class="badge badge-green">✓ OK</span></td></tr>
+    <tr><td><code>diet.js</code></td><td>GET /, GET /my, GET /:id, POST /, PUT /:id, DELETE /:id</td><td>Mixed</td><td><span class="badge badge-green">✓ OK</span></td></tr>
+    <tr><td><code>store.js</code></td><td>GET /, GET /:id, POST /, PUT /:id, DELETE /:id, POST /:id/review</td><td>Mixed</td><td><span class="badge badge-green">✓ OK</span></td></tr>
+    <tr><td><code>plans.js</code></td><td>GET /, POST /, PUT /:id, DELETE /:id</td><td>admin</td><td><span class="badge badge-green">✓ OK</span></td></tr>
+    <tr><td><code>trainers.js</code></td><td>GET /, POST /, PUT /:id, DELETE /:id</td><td>admin</td><td><span class="badge badge-green">✓ OK</span></td></tr>
+    <tr><td><code>transformations.js</code></td><td>GET /, GET /all, POST /, PUT /:id, DELETE /:id</td><td>Mixed</td><td><span class="badge badge-green">✓ OK</span></td></tr>
+    <tr><td><code>progress.js</code></td><td>GET /me, GET /:memberId, POST /, DELETE /:id</td><td>Mixed</td><td><span class="badge badge-green">✓ OK</span></td></tr>
+    <tr><td><code>enquiries.js</code></td><td>POST / (public), GET /, PUT /:id, DELETE /:id</td><td>admin</td><td><span class="badge badge-green">✓ OK</span></td></tr>
+  </table>
+
+  <h2>Admin Pages — All Fixed ✓</h2>
+  <table>
+    <tr><th>Page</th><th>CRUD</th><th>Cache (GET TTL)</th><th>BustCache on Write</th><th>Status</th></tr>
+    <tr><td><code>admin/Dashboard.js</code></td><td>Read-only</td><td>60s members/orders/enquiries</td><td>—</td><td><span class="badge badge-green">✓ OK</span></td></tr>
+    <tr><td><code>admin/Analytics.js</code></td><td>Read-only</td><td>120–180s</td><td>—</td><td><span class="badge badge-green">✓ OK</span></td></tr>
+    <tr><td><code>admin/Revenue.js</code></td><td>Read-only</td><td>180s</td><td>—</td><td><span class="badge badge-green">✓ OK</span></td></tr>
+    <tr><td><code>admin/Members.js</code></td><td>Full CRUD + notify + bulk</td><td>60s members, 180s trainers</td><td>✓ add/edit/delete</td><td><span class="badge badge-green">✓ Fixed</span></td></tr>
+    <tr><td><code>admin/Orders.js</code></td><td>Read + status update</td><td>60s (force-refresh always)</td><td>✓ on status change</td><td><span class="badge badge-green">✓ Fixed</span></td></tr>
+    <tr><td><code>admin/Notifications.js</code></td><td>Read + send + markRead</td><td>30s notifs, 60s members</td><td>✓ markRead/send/refresh</td><td><span class="badge badge-green">✓ Fixed</span></td></tr>
+    <tr><td><code>admin/Exercises.js</code></td><td>Full CRUD + direct Cloudinary upload</td><td>90s exercises, 60s members</td><td>✓ save/delete</td><td><span class="badge badge-green">✓ Fixed</span></td></tr>
+    <tr><td><code>admin/Diet.js</code></td><td>Full CRUD + image upload</td><td>90s diet, 60s members</td><td>✓ save/delete</td><td><span class="badge badge-green">✓ Fixed</span></td></tr>
+    <tr><td><code>admin/Splits.js</code></td><td>Full CRUD + member assignment</td><td>60s splits, 90s exercises, 60s members</td><td>✓ save/delete</td><td><span class="badge badge-green">✓ Fixed</span></td></tr>
+    <tr><td><code>admin/Store.js</code></td><td>Full CRUD + toggle active</td><td>60s store</td><td>✓ save/delete/toggle</td><td><span class="badge badge-green">✓ Fixed</span></td></tr>
+    <tr><td><code>admin/Plans.js</code></td><td>Full CRUD</td><td>300s plans</td><td>✓ save/delete (try/catch added)</td><td><span class="badge badge-green">✓ Fixed</span></td></tr>
+    <tr><td><code>admin/Trainers.js</code></td><td>Full CRUD</td><td>180s trainers</td><td>✓ save/delete</td><td><span class="badge badge-green">✓ Fixed</span></td></tr>
+    <tr><td><code>admin/Transformations.js</code></td><td>Full CRUD + before/after photos</td><td>60s transformations + members</td><td>✓ save/delete</td><td><span class="badge badge-green">✓ Fixed</span></td></tr>
+    <tr><td><code>admin/Enquiries.js</code></td><td>Status update + delete</td><td>60s enquiries</td><td>✓ update/delete</td><td><span class="badge badge-green">✓ Fixed</span></td></tr>
+  </table>
+
+  <h2>Member Pages — All Verified ✓</h2>
+  <table>
+    <tr><th>Page</th><th>CRUD</th><th>Cache</th><th>Status</th></tr>
+    <tr><td><code>member/Dashboard.js</code></td><td>Read-only</td><td>30s notifications</td><td><span class="badge badge-green">✓ OK</span></td></tr>
+    <tr><td><code>member/MyWorkoutSplit.js</code></td><td>Read + PUT /splits/planner</td><td>90s exercises</td><td><span class="badge badge-green">✓ OK</span></td></tr>
+    <tr><td><code>member/MyDiet.js</code></td><td>Read-only</td><td>60s</td><td><span class="badge badge-green">✓ OK</span></td></tr>
+    <tr><td><code>member/MyExercises.js</code></td><td>Read-only</td><td>60s</td><td><span class="badge badge-green">✓ OK</span></td></tr>
+    <tr><td><code>member/MyOrders.js</code></td><td>Read-only</td><td>60s</td><td><span class="badge badge-green">✓ OK</span></td></tr>
+    <tr><td><code>member/MyNotifications.js</code></td><td>Read + markRead + markAllRead</td><td>bustCache on mutations</td><td><span class="badge badge-green">✓ OK</span></td></tr>
+    <tr><td><code>member/MyProgress.js</code></td><td>Read + POST + DELETE</td><td>bustCache on load</td><td><span class="badge badge-green">✓ Fixed (silent DELETE error)</span></td></tr>
+  </table>
+
+  <h2>Public / Auth Pages — All Verified ✓</h2>
+  <table>
+    <tr><th>Page</th><th>Endpoints Used</th><th>Status</th></tr>
+    <tr><td><code>LoginPage.js</code></td><td>POST /auth/login → AuthContext</td><td><span class="badge badge-green">✓ OK</span></td></tr>
+    <tr><td><code>SettingsPage.js</code></td><td>PUT /auth/update-credentials</td><td><span class="badge badge-green">✓ OK</span></td></tr>
+    <tr><td><code>CartPage.js</code></td><td>CartContext only (client-side)</td><td><span class="badge badge-green">✓ Fixed (dark theme)</span></td></tr>
+    <tr><td><code>CheckoutPage.js</code></td><td>POST /orders</td><td><span class="badge badge-green">✓ OK</span></td></tr>
+    <tr><td><code>StorePage.js</code></td><td>GET /store — cachedGet 60s + debounced search</td><td><span class="badge badge-green">✓ OK</span></td></tr>
+    <tr><td><code>ProductDetailPage.js</code></td><td>GET /store/:id</td><td><span class="badge badge-green">✓ OK</span></td></tr>
+    <tr><td><code>ExercisesPage.js</code></td><td>GET /exercises — cachedGet 90s + debounced</td><td><span class="badge badge-green">✓ OK</span></td></tr>
+    <tr><td><code>ExerciseDetailPage.js</code></td><td>GET /exercises/:id — cachedGet 90s</td><td><span class="badge badge-green">✓ Fixed</span></td></tr>
+    <tr><td><code>DietPage.js</code></td><td>GET /diet — cachedGet 90s</td><td><span class="badge badge-green">✓ Fixed</span></td></tr>
+    <tr><td><code>TransformationsPage.js</code></td><td>GET /transformations — cachedGet 120s</td><td><span class="badge badge-green">✓ Fixed</span></td></tr>
+    <tr><td><code>EnquiryPage.js</code></td><td>POST /enquiries</td><td><span class="badge badge-green">✓ OK</span></td></tr>
+    <tr><td><code>trainer/Dashboard.js</code></td><td>GET /analytics/summary, GET /members — cachedGet</td><td><span class="badge badge-green">✓ OK</span></td></tr>
+  </table>
+
+  <h2>Architecture Verified ✓</h2>
+  <table>
+    <tr><th>System</th><th>Verified</th></tr>
+    <tr><td>GET /auth/me exists in backend</td><td><span class="ok">✓ Confirmed</span> — <code>auth.js</code> line 40</td></tr>
+    <tr><td>AuthContext restore from sessionStorage → background re-validate</td><td><span class="ok">✓ Confirmed</span></td></tr>
+    <tr><td>Route guards — ProtectedRoute / AdminRoute / GuestRoute</td><td><span class="ok">✓ Confirmed</span></td></tr>
+    <tr><td>Lazy loading all 25+ pages with Suspense fallback</td><td><span class="ok">✓ Confirmed</span></td></tr>
+    <tr><td>ScrollToTop on route change</td><td><span class="ok">✓ Confirmed</span></td></tr>
+    <tr><td>Backend: helmet, gzip, rate-limit, DB indexes, X-Response-Time</td><td><span class="ok">✓ Confirmed</span></td></tr>
+    <tr><td>Cloudinary direct upload (bypasses Vercel 4.5MB limit)</td><td><span class="ok">✓ Confirmed</span> — exercises.js</td></tr>
+    <tr><td>Welcome notification + WhatsApp on member create</td><td><span class="ok">✓ Confirmed</span> — members.js</td></tr>
+    <tr><td>Client cache (stale-while-revalidate) in api.js</td><td><span class="ok">✓ All 40+ GET calls use cachedGet</span></td></tr>
+    <tr><td>Server cache (in-process TTL) in utils/cache.js</td><td><span class="ok">✓ All backend routes cached</span></td></tr>
+    <tr><td>bustCache called on every mutation (POST/PUT/DELETE)</td><td><span class="ok">✓ All pages fixed</span></td></tr>
+  </table>
+
+  <h2>Commits — This Session</h2>
+  <table>
+    <tr><th>Commit</th><th>Changes</th></tr>
+    <tr><td><code>61f487a7</code></td><td>cachedGet on CartPage (dark theme), DietPage, TransformationsPage, ExerciseDetailPage, admin Orders/Notifications/Members</td></tr>
+    <tr><td><code>cc919aa2</code></td><td>cachedGet + bustCache on all remaining admin pages (Diet, Enquiries, Exercises, Plans, Splits, Store, Trainers, Transformations) + MyProgress silent error fix</td></tr>
+  </table>
+
+  <footer>Made with IBM Bob</footer>
+</div>
+</body>
+</html>

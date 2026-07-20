@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Package, ChevronDown, MapPin, Phone, User } from 'lucide-react';
+import { Package, ChevronDown, MapPin, Phone, User, IndianRupee } from 'lucide-react';
 import API, { cachedGet, bustCache, freshGet } from '../../utils/api';
 import AdminLayout from './AdminLayout';
 import toast from 'react-hot-toast';
@@ -15,9 +15,15 @@ const STATUS_META = {
   cancelled: { label: 'Cancelled',           color: 'text-red-400 bg-red-400/10 border-red-400/20' },
 };
 
+const PAYMENT_META = {
+  paid:    { label: 'Paid',    color: 'text-green-400 bg-green-400/10 border-green-400/20' },
+  pending: { label: 'Pending', color: 'text-orange-400 bg-orange-400/10 border-orange-400/20' },
+  failed:  { label: 'Failed',  color: 'text-red-400 bg-red-400/10 border-red-400/20' },
+};
+
 export default function AdminOrders() {
-  const [orders, setOrders]           = useState([]);
-  const [loading, setLoading]         = useState(true);
+  const [orders,       setOrders]       = useState([]);
+  const [loading,      setLoading]      = useState(true);
   const [filterStatus, setFilterStatus] = useState('all');
 
   const load = (force = false) => {
@@ -27,13 +33,23 @@ export default function AdminOrders() {
   };
   useEffect(() => { load(); }, []);
 
-  const updateStatus = async (id, status) => {
+  const updateOrderStatus = async (id, orderStatus) => {
     try {
-      await API.put(`/orders/${id}/status`, { orderStatus: status });
-      setOrders(prev => prev.map(o => o._id === id ? { ...o, orderStatus: status } : o));
+      await API.put(`/orders/${id}/status`, { orderStatus });
+      setOrders(prev => prev.map(o => o._id === id ? { ...o, orderStatus } : o));
       bustCache('/orders');
       toast.success('Order status updated');
     } catch { toast.error('Error updating status'); }
+  };
+
+  const updatePaymentStatus = async (id, paymentStatus) => {
+    try {
+      await API.put(`/orders/${id}/status`, { paymentStatus });
+      setOrders(prev => prev.map(o => o._id === id ? { ...o, paymentStatus } : o));
+      bustCache('/orders');
+      bustCache('analytics');
+      toast.success('Payment status updated');
+    } catch { toast.error('Error updating payment'); }
   };
 
   const filtered = filterStatus === 'all' ? orders : orders.filter(o => o.orderStatus === filterStatus);
@@ -82,6 +98,7 @@ export default function AdminOrders() {
         <div className="space-y-3">
           {filtered.map(o => {
             const meta = STATUS_META[o.orderStatus] || STATUS_META.placed;
+            const pmeta = PAYMENT_META[o.paymentStatus] || PAYMENT_META.pending;
             return (
               <div key={o._id} className="glass rounded-2xl p-4">
 
@@ -100,8 +117,9 @@ export default function AdminOrders() {
                   </div>
                   <div className="text-right">
                     <div className="text-[#22d3ee] font-bold text-base">₹{o.totalAmount}</div>
-                    <div className="flex items-center gap-1 justify-end mt-0.5">
-                      <span className="text-xs text-orange-400 font-semibold">💵 COD</span>
+                    {/* Payment method pill */}
+                    <div className="text-xs text-orange-400 font-semibold mt-0.5 uppercase">
+                      {o.paymentMethod || 'COD'}
                     </div>
                   </div>
                 </div>
@@ -142,25 +160,52 @@ export default function AdminOrders() {
                   ))}
                 </div>
 
-                {/* Status selector */}
-                <div className="flex items-center gap-2">
-                  <span className="text-gray-500 text-xs flex-shrink-0">Status:</span>
-                  <div className={`text-[10px] px-2 py-0.5 rounded-full border font-semibold flex-shrink-0 ${meta.color}`}>
-                    {meta.label}
+                {/* ── Status controls ── */}
+                <div className="space-y-2">
+                  {/* Order status row */}
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-500 text-xs flex-shrink-0 w-24">Order Status:</span>
+                    <div className={`text-[10px] px-2 py-0.5 rounded-full border font-semibold flex-shrink-0 ${meta.color}`}>
+                      {meta.label}
+                    </div>
+                    <div className="relative flex-1">
+                      <select
+                        value={o.orderStatus}
+                        onChange={e => updateOrderStatus(o._id, e.target.value)}
+                        className="w-full text-xs px-3 py-2 rounded-xl border border-white/10 outline-none cursor-pointer bg-white/5 text-gray-300 appearance-none pr-7"
+                      >
+                        {STATUSES.map(s => (
+                          <option key={s} value={s} style={{ background: '#111318', color: '#f1f5f9' }}>
+                            {STATUS_META[s]?.label}
+                          </option>
+                        ))}
+                      </select>
+                      <ChevronDown size={12} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
+                    </div>
                   </div>
-                  <div className="relative flex-1">
-                    <select
-                      value={o.orderStatus}
-                      onChange={e => updateStatus(o._id, e.target.value)}
-                      className="w-full text-xs px-3 py-2 rounded-xl border border-white/10 outline-none cursor-pointer bg-white/5 text-gray-300 appearance-none pr-7"
-                    >
-                      {STATUSES.map(s => (
-                        <option key={s} value={s} style={{ background: '#111318', color: '#f1f5f9' }}>
-                          {STATUS_META[s]?.label}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown size={12} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
+
+                  {/* Payment status row */}
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-500 text-xs flex-shrink-0 w-24 flex items-center gap-1">
+                      <IndianRupee size={10} /> Payment:
+                    </span>
+                    <div className={`text-[10px] px-2 py-0.5 rounded-full border font-semibold flex-shrink-0 ${pmeta.color}`}>
+                      {pmeta.label}
+                    </div>
+                    <div className="relative flex-1">
+                      <select
+                        value={o.paymentStatus}
+                        onChange={e => updatePaymentStatus(o._id, e.target.value)}
+                        className="w-full text-xs px-3 py-2 rounded-xl border border-white/10 outline-none cursor-pointer bg-white/5 text-gray-300 appearance-none pr-7"
+                      >
+                        {Object.entries(PAYMENT_META).map(([k, v]) => (
+                          <option key={k} value={k} style={{ background: '#111318', color: '#f1f5f9' }}>
+                            {v.label}
+                          </option>
+                        ))}
+                      </select>
+                      <ChevronDown size={12} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
+                    </div>
                   </div>
                 </div>
 

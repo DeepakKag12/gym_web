@@ -71,7 +71,7 @@ function DietModal({ editData, members, onClose, onSaved }) {
           <div>
             <label className="text-gray-400 text-xs font-medium block mb-1.5">Goal</label>
             <select className="input-dark text-sm" value={form.goal} onChange={e => setForm(p => ({ ...p, goal: e.target.value }))}>
-              {GOALS.map(g => <option key={g} value={g} style={{ background: '#fff', color: '#111' }}>{g.replace(/-/g,' ')}</option>)}
+              {GOALS.map(g => <option key={g} value={g} style={{ background: '#111318', color: '#f1f5f9' }}>{g.replace(/-/g,' ')}</option>)}
             </select>
           </div>
           <div>
@@ -89,8 +89,8 @@ function DietModal({ editData, members, onClose, onSaved }) {
             <div>
               <label className="text-gray-400 text-xs font-medium block mb-1.5 flex items-center gap-1.5"><Users size={12}/> Assign to Member</label>
               <select className="input-dark text-sm" value={form.assignedTo} onChange={e => setForm(p => ({ ...p, assignedTo: e.target.value }))}>
-                <option value="" style={{ background: '#fff', color: '#111' }}>— All private members —</option>
-                {members.map(m => <option key={m._id} value={m._id} style={{ background: '#fff', color: '#111' }}>{m.name}</option>)}
+                <option value="" style={{ background: '#111318', color: '#f1f5f9' }}>— All private members —</option>
+                {members.map(m => <option key={m._id} value={m._id} style={{ background: '#111318', color: '#f1f5f9' }}>{m.name}</option>)}
               </select>
             </div>
           )}
@@ -125,7 +125,7 @@ function DietModal({ editData, members, onClose, onSaved }) {
               <div key={mi} className="bg-white/3 border border-white/6 rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <select className="input-dark text-xs py-1.5 flex-1" value={meal.mealType} onChange={e => updateMeal(mi, 'mealType', e.target.value)}>
-                    {MEAL_TYPES.map(t => <option key={t} value={t} style={{ background: '#fff', color: '#111' }} className="capitalize">{t}</option>)}
+                    {MEAL_TYPES.map(t => <option key={t} value={t} style={{ background: '#111318', color: '#f1f5f9' }} className="capitalize">{t}</option>)}
                   </select>
                   <input className="input-dark text-xs py-1.5 w-24" placeholder="Time e.g. 8 AM" value={meal.time} onChange={e => updateMeal(mi, 'time', e.target.value)} />
                   <button onClick={() => removeMeal(mi)} className="text-red-400 hover:text-red-300 p-1 flex-shrink-0 transition-colors"><X size={14} /></button>

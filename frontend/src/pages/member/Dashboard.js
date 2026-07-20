@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Bell, Dumbbell, Salad, ShoppingBag, CheckCircle, AlertCircle, TrendingUp, Package, Calendar } from 'lucide-react';
+import { Bell, Dumbbell, Salad, ShoppingBag, CheckCircle, AlertCircle, TrendingUp, Package, Calendar, Settings } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { cachedGet } from '../../utils/api';
 
@@ -12,6 +12,7 @@ const QUICK_ACTIONS = [
   { icon: <ShoppingBag size={22} className="text-purple-400" />,label: 'Store',       sub: 'Supplements',     path: '/store',        border: 'hover:border-purple-500/30' },
   { icon: <Package size={22} className="text-amber-400" />,    label: 'My Orders',    sub: 'Order history',   path: '/my-orders',    border: 'hover:border-amber-500/30' },
   { icon: <Calendar size={22} className="text-pink-400" />,    label: 'My Exercises', sub: 'Assigned to me',  path: '/my-exercises', border: 'hover:border-pink-500/30' },
+  { icon: <Settings size={22} className="text-orange-400" />,  label: 'Settings',     sub: 'Edit profile',    path: '/settings',     border: 'hover:border-orange-500/30' },
 ];
 
 export default function MemberDashboard() {

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Lock, Mail, Eye, EyeOff, CheckCircle, AlertCircle, Settings } from 'lucide-react';
+import { Lock, Mail, Eye, EyeOff, CheckCircle, AlertCircle, Settings, User } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import API from '../utils/api';
 import AdminLayout from './admin/AdminLayout';
@@ -17,21 +17,65 @@ function Section({ title, icon, children }) {
   );
 }
 
+function Msg({ msg }) {
+  if (!msg) return null;
+  return (
+    <div className={`flex items-center gap-2 text-sm rounded-lg px-3 py-2 ${
+      msg.type === 'success'
+        ? 'bg-green-500/10 text-green-400 border border-green-500/20'
+        : 'bg-red-500/10 text-red-400 border border-red-500/20'
+    }`}>
+      {msg.type === 'success' ? <CheckCircle size={14} /> : <AlertCircle size={14} />}
+      {msg.text}
+    </div>
+  );
+}
+
 export default function SettingsPage() {
   const { user, updateUser } = useAuth();
 
-  // Change Email state
+  // ── Profile (name / phone / etc.) ─────────────────────────────────────────
+  const [profileForm, setProfileForm] = useState({
+    name:     user?.name     || '',
+    phone:    user?.phone    || '',
+    whatsapp: user?.whatsapp || '',
+    address:  user?.address  || '',
+    dob:      user?.dob      ? new Date(user.dob).toISOString().split('T')[0] : '',
+    gender:   user?.gender   || '',
+  });
+  const [profileLoading, setProfileLoading] = useState(false);
+  const [profileMsg,     setProfileMsg]     = useState(null);
+
+  // ── Change Email ───────────────────────────────────────────────────────────
   const [emailForm, setEmailForm] = useState({ currentPassword: '', newEmail: '' });
   const [emailLoading, setEmailLoading] = useState(false);
-  const [emailMsg, setEmailMsg] = useState(null); // { type: 'success'|'error', text }
+  const [emailMsg, setEmailMsg] = useState(null);
 
-  // Change Password state
+  // ── Change Password ────────────────────────────────────────────────────────
   const [pwForm, setPwForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
   const [pwLoading, setPwLoading] = useState(false);
   const [pwMsg, setPwMsg] = useState(null);
   const [showCurrent, setShowCurrent] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+
+  // ── handlers ──────────────────────────────────────────────────────────────
+  const handleProfileSubmit = async (e) => {
+    e.preventDefault();
+    setProfileMsg(null);
+    if (!profileForm.name.trim()) return setProfileMsg({ type: 'error', text: 'Name is required' });
+    if (!profileForm.phone.trim()) return setProfileMsg({ type: 'error', text: 'Phone is required' });
+    setProfileLoading(true);
+    try {
+      const res = await API.put('/auth/update-profile', profileForm);
+      updateUser(res.data.user);
+      setProfileMsg({ type: 'success', text: 'Profile updated successfully!' });
+    } catch (err) {
+      setProfileMsg({ type: 'error', text: err.response?.data?.message || 'Failed to update profile' });
+    } finally {
+      setProfileLoading(false);
+    }
+  };
 
   const handleEmailSubmit = async (e) => {
     e.preventDefault();
@@ -78,36 +122,114 @@ export default function SettingsPage() {
   };
 
   const inputCls = 'w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-orange-500/50 transition-all';
-
   const isAdminOrTrainer = user?.role === 'admin' || user?.role === 'trainer';
 
   const content = (
     <div className={isAdminOrTrainer ? '' : 'min-h-screen bg-[#0a0a0f] pt-20 pb-24 lg:pb-8'}>
       <div className="max-w-xl mx-auto px-4 sm:px-6 py-8">
+
         {!isAdminOrTrainer && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
             <h1 className="gym-font text-3xl text-white mb-1 flex items-center gap-2">
               <Settings size={26} className="text-orange-400" /> Account Settings
             </h1>
-            <p className="text-gray-400 text-sm">Manage your email and password</p>
+            <p className="text-gray-400 text-sm">Manage your profile, email and password</p>
           </motion.div>
         )}
 
         {/* Current info card */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
           className="glass rounded-xl p-4 mb-5 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
             {user?.name?.[0]?.toUpperCase()}
           </div>
-          <div>
-            <div className="text-white font-semibold text-sm">{user?.name}</div>
+          <div className="flex-1 min-w-0">
+            <div className="text-white font-semibold">{user?.name}</div>
             <div className="text-gray-400 text-xs">{user?.email}</div>
             <div className="text-orange-400 text-xs capitalize">{user?.role}</div>
           </div>
         </motion.div>
 
-        {/* Change Email */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+        {/* ── Edit Profile ── */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}>
+          <Section title="Edit Profile" icon={<User size={16} className="text-orange-400" />}>
+            <form onSubmit={handleProfileSubmit} className="space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-gray-400 text-xs mb-1 block">Full Name *</label>
+                  <input
+                    type="text"
+                    placeholder="Your full name"
+                    value={profileForm.name}
+                    onChange={e => setProfileForm(f => ({ ...f, name: e.target.value }))}
+                    className={inputCls}
+                  />
+                </div>
+                <div>
+                  <label className="text-gray-400 text-xs mb-1 block">Phone *</label>
+                  <input
+                    type="tel"
+                    placeholder="10-digit mobile"
+                    value={profileForm.phone}
+                    onChange={e => setProfileForm(f => ({ ...f, phone: e.target.value }))}
+                    className={inputCls}
+                  />
+                </div>
+                <div>
+                  <label className="text-gray-400 text-xs mb-1 block">WhatsApp Number</label>
+                  <input
+                    type="tel"
+                    placeholder="If different from phone"
+                    value={profileForm.whatsapp}
+                    onChange={e => setProfileForm(f => ({ ...f, whatsapp: e.target.value }))}
+                    className={inputCls}
+                  />
+                </div>
+                <div>
+                  <label className="text-gray-400 text-xs mb-1 block">Date of Birth</label>
+                  <input
+                    type="date"
+                    value={profileForm.dob}
+                    onChange={e => setProfileForm(f => ({ ...f, dob: e.target.value }))}
+                    className={inputCls}
+                    style={{ colorScheme: 'dark' }}
+                  />
+                </div>
+                <div>
+                  <label className="text-gray-400 text-xs mb-1 block">Gender</label>
+                  <select
+                    value={profileForm.gender}
+                    onChange={e => setProfileForm(f => ({ ...f, gender: e.target.value }))}
+                    className={inputCls}
+                  >
+                    <option value="" style={{ background: '#111318', color: '#f1f5f9' }}>Select gender</option>
+                    <option value="male"   style={{ background: '#111318', color: '#f1f5f9' }}>Male</option>
+                    <option value="female" style={{ background: '#111318', color: '#f1f5f9' }}>Female</option>
+                    <option value="other"  style={{ background: '#111318', color: '#f1f5f9' }}>Other</option>
+                  </select>
+                </div>
+                <div className="sm:col-span-2">
+                  <label className="text-gray-400 text-xs mb-1 block">Address</label>
+                  <input
+                    type="text"
+                    placeholder="Your home address"
+                    value={profileForm.address}
+                    onChange={e => setProfileForm(f => ({ ...f, address: e.target.value }))}
+                    className={inputCls}
+                  />
+                </div>
+              </div>
+              <Msg msg={profileMsg} />
+              <button type="submit" disabled={profileLoading}
+                className="btn-fire px-5 py-2 text-sm w-full disabled:opacity-60">
+                {profileLoading ? 'Saving…' : 'Save Profile'}
+              </button>
+            </form>
+          </Section>
+        </motion.div>
+
+        {/* ── Change Email ── */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }}>
           <Section title="Change Email" icon={<Mail size={16} className="text-blue-400" />}>
             <form onSubmit={handleEmailSubmit} className="space-y-3">
               <div>
@@ -130,14 +252,7 @@ export default function SettingsPage() {
                   className={inputCls}
                 />
               </div>
-              {emailMsg && (
-                <div className={`flex items-center gap-2 text-sm rounded-lg px-3 py-2 ${
-                  emailMsg.type === 'success' ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'
-                }`}>
-                  {emailMsg.type === 'success' ? <CheckCircle size={14} /> : <AlertCircle size={14} />}
-                  {emailMsg.text}
-                </div>
-              )}
+              <Msg msg={emailMsg} />
               <button type="submit" disabled={emailLoading}
                 className="btn-fire px-5 py-2 text-sm w-full disabled:opacity-60">
                 {emailLoading ? 'Updating...' : 'Update Email'}
@@ -146,66 +261,33 @@ export default function SettingsPage() {
           </Section>
         </motion.div>
 
-        {/* Change Password */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+        {/* ── Change Password ── */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16 }}>
           <Section title="Change Password" icon={<Lock size={16} className="text-purple-400" />}>
             <form onSubmit={handlePasswordSubmit} className="space-y-3">
-              <div>
-                <label className="text-gray-400 text-xs mb-1 block">Current Password</label>
-                <div className="relative">
-                  <input
-                    type={showCurrent ? 'text' : 'password'}
-                    placeholder="Enter current password"
-                    value={pwForm.currentPassword}
-                    onChange={e => setPwForm(f => ({ ...f, currentPassword: e.target.value }))}
-                    className={inputCls + ' pr-10'}
-                  />
-                  <button type="button" onClick={() => setShowCurrent(v => !v)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300">
-                    {showCurrent ? <EyeOff size={15} /> : <Eye size={15} />}
-                  </button>
+              {[
+                { label: 'Current Password', key: 'currentPassword', show: showCurrent, toggle: () => setShowCurrent(v => !v), placeholder: 'Enter current password' },
+                { label: 'New Password',      key: 'newPassword',     show: showNew,     toggle: () => setShowNew(v => !v),     placeholder: 'At least 6 characters' },
+                { label: 'Confirm New Password', key: 'confirmPassword', show: showConfirm, toggle: () => setShowConfirm(v => !v), placeholder: 'Repeat new password' },
+              ].map(f => (
+                <div key={f.key}>
+                  <label className="text-gray-400 text-xs mb-1 block">{f.label}</label>
+                  <div className="relative">
+                    <input
+                      type={f.show ? 'text' : 'password'}
+                      placeholder={f.placeholder}
+                      value={pwForm[f.key]}
+                      onChange={e => setPwForm(p => ({ ...p, [f.key]: e.target.value }))}
+                      className={inputCls + ' pr-10'}
+                    />
+                    <button type="button" onClick={f.toggle}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300">
+                      {f.show ? <EyeOff size={15} /> : <Eye size={15} />}
+                    </button>
+                  </div>
                 </div>
-              </div>
-              <div>
-                <label className="text-gray-400 text-xs mb-1 block">New Password</label>
-                <div className="relative">
-                  <input
-                    type={showNew ? 'text' : 'password'}
-                    placeholder="At least 6 characters"
-                    value={pwForm.newPassword}
-                    onChange={e => setPwForm(f => ({ ...f, newPassword: e.target.value }))}
-                    className={inputCls + ' pr-10'}
-                  />
-                  <button type="button" onClick={() => setShowNew(v => !v)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300">
-                    {showNew ? <EyeOff size={15} /> : <Eye size={15} />}
-                  </button>
-                </div>
-              </div>
-              <div>
-                <label className="text-gray-400 text-xs mb-1 block">Confirm New Password</label>
-                <div className="relative">
-                  <input
-                    type={showConfirm ? 'text' : 'password'}
-                    placeholder="Repeat new password"
-                    value={pwForm.confirmPassword}
-                    onChange={e => setPwForm(f => ({ ...f, confirmPassword: e.target.value }))}
-                    className={inputCls + ' pr-10'}
-                  />
-                  <button type="button" onClick={() => setShowConfirm(v => !v)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300">
-                    {showConfirm ? <EyeOff size={15} /> : <Eye size={15} />}
-                  </button>
-                </div>
-              </div>
-              {pwMsg && (
-                <div className={`flex items-center gap-2 text-sm rounded-lg px-3 py-2 ${
-                  pwMsg.type === 'success' ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'
-                }`}>
-                  {pwMsg.type === 'success' ? <CheckCircle size={14} /> : <AlertCircle size={14} />}
-                  {pwMsg.text}
-                </div>
-              )}
+              ))}
+              <Msg msg={pwMsg} />
               <button type="submit" disabled={pwLoading}
                 className="btn-fire px-5 py-2 text-sm w-full disabled:opacity-60">
                 {pwLoading ? 'Updating...' : 'Update Password'}
@@ -213,6 +295,7 @@ export default function SettingsPage() {
             </form>
           </Section>
         </motion.div>
+
       </div>
     </div>
   );

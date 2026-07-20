@@ -224,6 +224,26 @@ select.admin-input {
 }
 
 /* ─────────────────────────────────────────────────────
+   GLOBAL SELECT / OPTION  — always dark
+   The browser renders <option> in the OS native picker,
+   so we must style it here (inline styles on <option>
+   are ignored by many browsers on macOS/iOS).
+───────────────────────────────────────────────────── */
+select {
+  color-scheme: dark;
+}
+select option {
+  background-color: #111318 !important;
+  color: #f1f5f9 !important;
+}
+/* Webkit (Chrome/Edge/Safari) native picker */
+select:not([multiple]) option:checked,
+select:not([multiple]) option:hover {
+  background-color: #1e2533 !important;
+  color: #22d3ee !important;
+}
+
+/* ─────────────────────────────────────────────────────
    NAV
 ───────────────────────────────────────────────────── */
 .nav-float {
