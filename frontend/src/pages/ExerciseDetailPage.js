@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Dumbbell, Clock, Target, BarChart3 } from 'lucide-react';
-import API from '../utils/api';
+import { cachedGet } from '../utils/api';
 
 /* ── Helpers ── */
 function isYouTube(url) { return url && (url.includes('youtube.com') || url.includes('youtu.be')); }
@@ -17,7 +17,7 @@ export default function ExerciseDetailPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    API.get(`/exercises/${id}`)
+    cachedGet(`/exercises/${id}`, { cache: 90 })
       .then(res => setEx(res.data))
       .catch(() => {})
       .finally(() => setLoading(false));

@@ -4,7 +4,7 @@ import {
   Plus, Search, Edit2, Trash2, Bell, X,
   CheckCircle, AlertCircle, MessageSquare, Send, Users, Clock
 } from 'lucide-react';
-import API from '../../utils/api';
+import API, { cachedGet, bustCache } from '../../utils/api';
 import AdminLayout from './AdminLayout';
 import toast from 'react-hot-toast';
 
@@ -322,9 +322,10 @@ export default function AdminMembers() {
   const [bulkModal, setBulkModal]       = useState(false);
   const [credentials, setCredentials]   = useState(null); // { name, email, password, phone }
 
-  const load = useCallback(() => {
+  const load = useCallback((force = false) => {
+    if (force) { bustCache('/members'); bustCache('/trainers'); }
     setLoading(true);
-    Promise.all([API.get('/members'), API.get('/trainers')])
+    Promise.all([cachedGet('/members', { cache: 60 }), cachedGet('/trainers', { cache: 180 })])
       .then(([m, t]) => { setMembers(m.data); setTrainers(t.data); })
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -333,7 +334,7 @@ export default function AdminMembers() {
 
   const del = async (id) => {
     if (!window.confirm('Delete this member? This cannot be undone.')) return;
-    try { await API.delete(`/members/${id}`); toast.success('Deleted'); load(); }
+    try { await API.delete(`/members/${id}`); bustCache('/members'); toast.success('Deleted'); load(true); }
     catch { toast.error('Error deleting'); }
   };
 
@@ -489,7 +490,7 @@ export default function AdminMembers() {
             onClose={() => setMemberModal(null)}
             onSaved={(creds) => {
               setMemberModal(null);
-              load();
+              load(true);
               if (creds) setCredentials(creds); // show credentials popup for new member
             }}
           />

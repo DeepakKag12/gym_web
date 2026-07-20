@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Salad, Globe, Lock, ChevronDown, ChevronUp } from 'lucide-react';
-import API from '../utils/api';
+import { cachedGet } from '../utils/api';
 
 const GOAL_COLORS = {
   'weight-loss': 'text-red-400 bg-red-400/10',
@@ -76,7 +76,7 @@ export default function DietPage() {
   const [filter, setFilter] = useState('all');
 
   useEffect(() => {
-    API.get('/diet').then(res => setPlans(res.data)).catch(() => {}).finally(() => setLoading(false));
+    cachedGet('/diet', { cache: 90 }).then(res => setPlans(res.data)).catch(() => {}).finally(() => setLoading(false));
   }, []);
 
   const goals = ['all', 'weight-loss', 'muscle-gain', 'maintenance', 'endurance', 'general'];

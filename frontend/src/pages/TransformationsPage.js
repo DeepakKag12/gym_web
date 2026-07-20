@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
-import API from '../utils/api';
+import { cachedGet } from '../utils/api';
 
 export default function TransformationsPage() {
   const [transformations, setTransformations] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    API.get('/transformations').then(res => setTransformations(res.data)).catch(() => {}).finally(() => setLoading(false));
+    cachedGet('/transformations', { cache: 120 }).then(res => setTransformations(res.data)).catch(() => {}).finally(() => setLoading(false));
   }, []);
 
   return (

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import AdminLayout from './AdminLayout';
 import { Bell, CheckCheck, RefreshCw, User, MessageSquare, AlertCircle, Info, Gift } from 'lucide-react';
-import API from '../../utils/api';
+import API, { cachedGet, bustCache } from '../../utils/api';
 
 const TYPE_META = {
   fee_reminder:  { icon: AlertCircle, color: 'text-yellow-400', bg: 'bg-yellow-400/10', label: 'Fee Reminder' },
@@ -34,12 +34,13 @@ export default function AdminNotifications() {
   const [members, setMembers] = useState([]);
   const [showCompose, setShowCompose] = useState(false);
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (force = false) => {
+    if (force) { bustCache('/notifications/admin/all'); bustCache('/members'); }
     setLoading(true);
     try {
       const [nr, mr] = await Promise.all([
-        API.get('/notifications/admin/all'),
-        API.get('/members'),
+        cachedGet('/notifications/admin/all', { cache: 30 }),
+        cachedGet('/members', { cache: 60 }),
       ]);
       setNotifs(nr.data);
       setMembers(mr.data);
@@ -57,11 +58,13 @@ export default function AdminNotifications() {
 
   const markRead = async (id) => {
     await API.put(`/notifications/${id}/read`);
+    bustCache('/notifications/admin/all');
     setNotifs(prev => prev.map(n => n._id === id ? { ...n, isRead: true } : n));
   };
 
   const markAllRead = async () => {
     await API.put('/notifications/admin/mark-all-read');
+    bustCache('/notifications/admin/all');
     setNotifs(prev => prev.map(n => ({ ...n, isRead: true })));
   };
 
@@ -70,9 +73,10 @@ export default function AdminNotifications() {
     setSending(true);
     try {
       await API.post('/notifications/admin/send', form);
+      bustCache('/notifications/admin/all');
       setForm({ title: '', message: '', type: 'announcement', memberId: '' });
       setShowCompose(false);
-      load();
+      load(true);
     } catch {}
     setSending(false);
   };
@@ -95,7 +99,7 @@ export default function AdminNotifications() {
             <p className="text-gray-500 text-sm mt-0.5">View and manage all member notifications</p>
           </div>
           <div className="flex gap-2 flex-wrap">
-            <button onClick={load} className="flex items-center gap-2 text-sm text-gray-400 hover:text-white px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 transition-all">
+            <button onClick={() => load(true)} className="flex items-center gap-2 text-sm text-gray-400 hover:text-white px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 transition-all">
               <RefreshCw size={15} /> Refresh
             </button>
             {unreadCount > 0 && (

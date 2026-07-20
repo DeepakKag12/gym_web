@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Package, ChevronDown } from 'lucide-react';
-import API from '../../utils/api';
+import API, { cachedGet, bustCache } from '../../utils/api';
 import AdminLayout from './AdminLayout';
 import toast from 'react-hot-toast';
 
@@ -20,13 +20,18 @@ export default function AdminOrders() {
   const [filterStatus, setFilterStatus] = useState('all');
 
   const load = () => {
-    API.get('/orders').then(r => setOrders(r.data)).catch(() => {}).finally(() => setLoading(false));
+    bustCache('/orders');
+    cachedGet('/orders', { cache: 60 }).then(r => setOrders(r.data)).catch(() => {}).finally(() => setLoading(false));
   };
   useEffect(() => { load(); }, []);
 
   const updateStatus = async (id, status) => {
-    try { await API.put(`/orders/${id}/status`, { orderStatus: status }); toast.success('Status updated'); load(); }
-    catch { toast.error('Error'); }
+    try {
+      await API.put(`/orders/${id}/status`, { orderStatus: status });
+      bustCache('/orders');
+      toast.success('Status updated');
+      load();
+    } catch { toast.error('Error'); }
   };
 
   const filtered = filterStatus === 'all' ? orders : orders.filter(o => o.orderStatus === filterStatus);
