@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { MessageSquare, Trash2, ChevronDown, Phone } from 'lucide-react';
-import API from '../../utils/api';
+import API, { cachedGet, bustCache } from '../../utils/api';
 import AdminLayout from './AdminLayout';
 import toast from 'react-hot-toast';
 
@@ -18,17 +18,20 @@ export default function AdminEnquiries() {
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState('all');
 
-  const load = () => API.get('/enquiries').then(r => setEnquiries(r.data)).catch(() => {}).finally(() => setLoading(false));
+  const load = (force = false) => {
+    if (force) bustCache('/enquiries');
+    cachedGet('/enquiries', { cache: 60 }).then(r => setEnquiries(r.data)).catch(() => {}).finally(() => setLoading(false));
+  };
   useEffect(load, []);
 
   const updateStatus = async (id, status) => {
-    try { await API.put(`/enquiries/${id}`, { status }); toast.success('Status updated'); load(); }
+    try { await API.put(`/enquiries/${id}`, { status }); bustCache('/enquiries'); toast.success('Status updated'); load(true); }
     catch { toast.error('Error'); }
   };
 
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this enquiry?')) return;
-    try { await API.delete(`/enquiries/${id}`); toast.success('Deleted'); load(); }
+    try { await API.delete(`/enquiries/${id}`); bustCache('/enquiries'); toast.success('Deleted'); load(true); }
     catch { toast.error('Error'); }
   };
 

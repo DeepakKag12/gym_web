@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Trash2, X, Upload, Video, Edit2, Globe, Lock, Dumbbell } from 'lucide-react';
-import API from '../../utils/api';
+import API, { cachedGet, bustCache } from '../../utils/api';
 import AdminLayout from './AdminLayout';
 import toast from 'react-hot-toast';
 
@@ -349,16 +349,17 @@ export default function AdminExercises() {
   const [modal, setModal]           = useState(null); // null | 'new' | exercise
   const [filterMuscle, setFilterMuscle] = useState('all');
 
-  const load = () => {
+  const load = (force = false) => {
+    if (force) bustCache('/exercises');
     const q = filterMuscle !== 'all' ? `?muscleGroup=${filterMuscle}` : '';
-    API.get(`/exercises${q}`).then(r => setExercises(r.data)).catch(() => {}).finally(() => setLoading(false));
-    API.get('/members').then(r => setMembers(r.data)).catch(() => {});
+    cachedGet(`/exercises${q}`, { cache: 90 }).then(r => setExercises(r.data)).catch(() => {}).finally(() => setLoading(false));
+    cachedGet('/members', { cache: 60 }).then(r => setMembers(r.data)).catch(() => {});
   };
   useEffect(load, [filterMuscle]);
 
   const del = async (id) => {
     if (!window.confirm('Delete this exercise?')) return;
-    try { await API.delete(`/exercises/${id}`); toast.success('Deleted'); load(); }
+    try { await API.delete(`/exercises/${id}`); bustCache('/exercises'); toast.success('Deleted'); load(true); }
     catch { toast.error('Error'); }
   };
 
@@ -436,7 +437,7 @@ export default function AdminExercises() {
             editData={modal === 'new' ? null : modal}
             members={members}
             onClose={() => setModal(null)}
-            onSaved={() => { setModal(null); load(); }}
+            onSaved={() => { bustCache('/exercises'); setModal(null); load(true); }}
           />
         )}
       </AnimatePresence>

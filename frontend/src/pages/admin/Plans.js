@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Plus, Edit2, Trash2, Tag, CheckCircle, Star } from 'lucide-react';
 import toast from 'react-hot-toast';
-import API from '../../utils/api';
+import API, { cachedGet, bustCache } from '../../utils/api';
 import AdminLayout from './AdminLayout';
 
 function PlanModal({ plan, onClose, onSaved }) {
@@ -76,17 +76,21 @@ export default function AdminPlans() {
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState(null);
 
-  const fetchPlans = () => {
+  const fetchPlans = (force = false) => {
+    if (force) bustCache('/plans');
     setLoading(true);
-    API.get('/plans').then(r => setPlans(r.data)).catch(() => {}).finally(() => setLoading(false));
+    cachedGet('/plans', { cache: 300 }).then(r => setPlans(r.data)).catch(() => {}).finally(() => setLoading(false));
   };
   useEffect(fetchPlans, []);
 
   const deletePlan = async (id) => {
     if (!window.confirm('Delete this plan?')) return;
-    await API.delete(`/plans/${id}`);
-    setPlans(prev => prev.filter(p => p._id !== id));
-    toast.success('Deleted');
+    try {
+      await API.delete(`/plans/${id}`);
+      bustCache('/plans');
+      setPlans(prev => prev.filter(p => p._id !== id));
+      toast.success('Deleted');
+    } catch { toast.error('Delete failed'); }
   };
 
   return (
@@ -146,7 +150,7 @@ export default function AdminPlans() {
       )}
 
       {modal && (
-        <PlanModal plan={modal === 'new' ? null : modal} onClose={() => setModal(null)} onSaved={() => { setModal(null); fetchPlans(); }} />
+        <PlanModal plan={modal === 'new' ? null : modal} onClose={() => setModal(null)} onSaved={() => { bustCache('/plans'); setModal(null); fetchPlans(true); }} />
       )}
     </AdminLayout>
   );

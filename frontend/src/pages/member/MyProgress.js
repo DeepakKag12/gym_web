@@ -75,9 +75,11 @@ export default function MyProgress() {
 
   const deleteEntry = async (id) => {
     if (!window.confirm('Delete this entry?')) return;
-    await API.delete(`/progress/${id}`);
-    setEntries(prev => prev.filter(e => e._id !== id));
-    toast.success('Deleted');
+    try {
+      await API.delete(`/progress/${id}`);
+      setEntries(prev => prev.filter(e => e._id !== id));
+      toast.success('Deleted');
+    } catch { toast.error('Failed to delete entry'); }
   };
 
   return (

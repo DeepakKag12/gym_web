@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Trash2, X, Package, Edit2, Upload, ImageIcon, Star, ToggleLeft, ToggleRight } from 'lucide-react';
-import API from '../../utils/api';
+import API, { cachedGet, bustCache } from '../../utils/api';
 import AdminLayout from './AdminLayout';
 import toast from 'react-hot-toast';
 
@@ -162,23 +162,25 @@ export default function AdminStore() {
   const [search, setSearch]     = useState('');
   const [catFilter, setCatFilter] = useState('all');
 
-  const load = () => {
+  const load = (force = false) => {
+    if (force) bustCache('/store');
     setLoading(true);
-    API.get('/store').then(r => setProducts(r.data)).catch(() => {}).finally(() => setLoading(false));
+    cachedGet('/store', { cache: 60 }).then(r => setProducts(r.data)).catch(() => {}).finally(() => setLoading(false));
   };
   useEffect(load, []);
 
   const del = async (id) => {
     if (!window.confirm('Delete this product?')) return;
-    try { await API.delete(`/store/${id}`); toast.success('Product deleted'); load(); }
+    try { await API.delete(`/store/${id}`); bustCache('/store'); toast.success('Product deleted'); load(true); }
     catch { toast.error('Error'); }
   };
 
   const toggleActive = async (p) => {
     try {
       await API.put(`/store/${p._id}`, { isActive: !p.isActive });
+      bustCache('/store');
       toast.success(p.isActive ? 'Product hidden' : 'Product active');
-      load();
+      load(true);
     } catch { toast.error('Update failed'); }
   };
 
@@ -298,7 +300,7 @@ export default function AdminStore() {
           <ProductModal
             editData={modal === 'new' ? null : modal}
             onClose={() => setModal(null)}
-            onSaved={() => { setModal(null); load(); }}
+            onSaved={() => { bustCache('/store'); setModal(null); load(true); }}
           />
         )}
       </AnimatePresence>

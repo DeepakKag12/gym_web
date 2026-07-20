@@ -5,7 +5,7 @@ import {
   Search, ChevronDown, ChevronUp, Play, CheckSquare, Square
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import API from '../../utils/api';
+import API, { cachedGet, bustCache } from '../../utils/api';
 import AdminLayout from './AdminLayout';
 
 const DAYS  = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
@@ -181,7 +181,7 @@ function SplitModal({ split, exercises, onClose, onSaved }) {
   const [activeDay, setActiveDay] = useState(null); // null = show all days collapsed
 
   useEffect(() => {
-    API.get('/members').then(r => setMembers(r.data)).catch(() => {});
+    cachedGet('/members', { cache: 60 }).then(r => setMembers(r.data)).catch(() => {});
   }, []);
 
   const updateDayExercises = (dayName, ids) => {
@@ -327,9 +327,10 @@ export default function AdminSplits() {
   const [loading, setLoading]   = useState(true);
   const [modal, setModal]       = useState(null); // null | 'new' | split-object
 
-  const fetchAll = useCallback(() => {
+  const fetchAll = useCallback((force = false) => {
+    if (force) { bustCache('/splits'); bustCache('/exercises'); }
     setLoading(true);
-    Promise.all([API.get('/splits'), API.get('/exercises')])
+    Promise.all([cachedGet('/splits', { cache: 60 }), cachedGet('/exercises', { cache: 90 })])
       .then(([s, e]) => { setSplits(s.data); setExercises(e.data); })
       .catch(() => toast.error('Failed to load data'))
       .finally(() => setLoading(false));
@@ -340,6 +341,7 @@ export default function AdminSplits() {
     if (!window.confirm('Delete this split?')) return;
     try {
       await API.delete(`/splits/${id}`);
+      bustCache('/splits');
       setSplits(prev => prev.filter(s => s._id !== id));
       toast.success('Deleted');
     } catch { toast.error('Delete failed'); }
@@ -446,7 +448,7 @@ export default function AdminSplits() {
             split={modal === 'new' ? null : modal}
             exercises={exercises}
             onClose={() => setModal(null)}
-            onSaved={() => { setModal(null); fetchAll(); }}
+            onSaved={() => { bustCache('/splits'); setModal(null); fetchAll(true); }}
           />
         )}
       </AnimatePresence>
