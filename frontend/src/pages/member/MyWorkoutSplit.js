@@ -320,67 +320,109 @@ function ExercisePicker({ day, existingIds, onAdd, onClose }) {
 }
 
 /* ──────────────────────────────────────────
-   Single exercise row (inside a day card)
+   Inline video thumbnail — same style as ExercisesPage card
+   Auto-plays muted in the card; tap the ▶ button to open full modal
+────────────────────────────────────────── */
+function ExerciseVideoThumb({ vid, image, title }) {
+  if (!vid && !image) return (
+    <div className="absolute inset-0 flex items-center justify-center">
+      <Dumbbell size={22} className="text-gray-700" />
+    </div>
+  );
+  if (vid) {
+    if (isYouTube(vid)) {
+      const id = ytId(vid);
+      return id ? (
+        <iframe
+          src={`https://www.youtube.com/embed/${id}?autoplay=1&mute=1&loop=1&playlist=${id}&controls=0&modestbranding=1&playsinline=1`}
+          className="absolute inset-0 w-full h-full border-0 pointer-events-none"
+          allow="autoplay; muted"
+          title={title}
+        />
+      ) : null;
+    }
+    return (
+      <video
+        src={vid}
+        autoPlay muted loop playsInline
+        className="absolute inset-0 w-full h-full object-cover"
+      />
+    );
+  }
+  return <img src={image} alt={title} className="absolute inset-0 w-full h-full object-cover" />;
+}
+
+/* ──────────────────────────────────────────
+   Single exercise card (inside a day card)
+   — shows video/thumbnail like ExercisesPage
 ────────────────────────────────────────── */
 function ExerciseRow({ ex, index, editable, onRemove }) {
   const [showVideo, setShowVideo] = useState(false);
   const vid = getVideoUrl(ex);
-  const thumb = isYouTube(vid) ? ytThumb(vid) : (ex.image || '');
 
   return (
     <>
-      <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-black/25 border border-white/5 group">
-        {/* Thumbnail / number */}
-        <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden bg-white/5 border border-white/8">
-          {thumb ? (
-            <img src={thumb} alt={ex.title} className="w-full h-full object-cover" />
-          ) : (
-            <span className="text-xs text-gray-500 font-bold">{index + 1}</span>
+      <div className="rounded-xl bg-black/30 border border-white/8 overflow-hidden group">
+        {/* ── Video / image thumbnail ── */}
+        <div className="relative overflow-hidden bg-[#0f1218]" style={{ paddingBottom: '52%' }}>
+          <ExerciseVideoThumb vid={vid} image={ex.image} title={ex.title} />
+          {/* gradient overlay */}
+          <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-black/60 to-transparent pointer-events-none z-10" />
+          {/* video badge */}
+          {vid && (
+            <div className="absolute top-1.5 right-1.5 z-10 bg-[#22d3ee] rounded-full p-0.5">
+              <Video size={9} className="text-black" />
+            </div>
           )}
-        </div>
-
-        {/* Info */}
-        <div className="flex-1 min-w-0">
-          <div className="text-white text-xs font-semibold truncate">{ex.title}</div>
-          <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
-            <span className={`text-[9px] px-1 py-0.5 rounded-full capitalize ${MG_COLORS[ex.muscleGroup] || MG_COLORS.other}`}>
+          {/* muscle group badge */}
+          <div className="absolute top-1.5 left-1.5 z-10">
+            <span className={`text-[9px] px-1.5 py-0.5 rounded-full capitalize ${MG_COLORS[ex.muscleGroup] || MG_COLORS.other}`}>
               {ex.muscleGroup}
             </span>
-            {ex.sets && (
-              <span className="text-[9px] text-gray-600">{ex.sets}×{ex.reps || '?'}</span>
-            )}
-            {ex.difficulty && (
-              <span className={`text-[9px] px-1 py-0.5 rounded-full capitalize ${DIFF_COLORS[ex.difficulty] || ''}`}>
-                {ex.difficulty}
-              </span>
-            )}
           </div>
         </div>
 
-        {/* Video button */}
-        {vid && (
-          <button
-            onClick={() => setShowVideo(true)}
-            className="p-1.5 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-all flex-shrink-0 min-h-0"
-            title="Watch exercise video"
-          >
-            <Play size={11} />
-          </button>
-        )}
+        {/* ── Info row ── */}
+        <div className="flex items-center gap-2 px-2.5 py-2">
+          <div className="flex-1 min-w-0">
+            <div className="text-white text-xs font-semibold truncate">{ex.title}</div>
+            <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+              {ex.sets && (
+                <span className="text-[9px] text-gray-500">{ex.sets}×{ex.reps || '?'}</span>
+              )}
+              {ex.difficulty && (
+                <span className={`text-[9px] px-1 py-0.5 rounded-full capitalize ${DIFF_COLORS[ex.difficulty] || ''}`}>
+                  {ex.difficulty}
+                </span>
+              )}
+            </div>
+          </div>
 
-        {/* Remove (editable only) */}
-        {editable && (
-          <button
-            onClick={() => onRemove(ex._id || ex)}
-            className="p-1.5 rounded-lg text-gray-700 hover:text-red-400 hover:bg-red-500/10 transition-all flex-shrink-0 min-h-0"
-            title="Remove from this day"
-          >
-            <Trash2 size={12} />
-          </button>
-        )}
+          {/* Play button (opens full video modal) */}
+          {vid && (
+            <button
+              onClick={() => setShowVideo(true)}
+              className="p-1.5 rounded-lg bg-[#22d3ee]/10 text-[#22d3ee] hover:bg-[#22d3ee]/25 transition-all flex-shrink-0 min-h-0"
+              title="Watch exercise video"
+            >
+              <Play size={11} />
+            </button>
+          )}
+
+          {/* Remove (editable only) */}
+          {editable && (
+            <button
+              onClick={() => onRemove(ex._id || ex)}
+              className="p-1.5 rounded-lg text-gray-700 hover:text-red-400 hover:bg-red-500/10 transition-all flex-shrink-0 min-h-0"
+              title="Remove from this day"
+            >
+              <Trash2 size={12} />
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* Video modal */}
+      {/* Full video modal */}
       <AnimatePresence>
         {showVideo && (
           <VideoModal url={vid} title={ex.title} onClose={() => setShowVideo(false)} />

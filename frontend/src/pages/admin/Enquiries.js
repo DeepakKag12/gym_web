@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { MessageSquare, Trash2, ChevronDown, Phone } from 'lucide-react';
-import API, { cachedGet, bustCache } from '../../utils/api';
+import API, { cachedGet, bustCache, freshGet } from '../../utils/api';
 import AdminLayout from './AdminLayout';
 import toast from 'react-hot-toast';
 
@@ -19,20 +19,29 @@ export default function AdminEnquiries() {
   const [filterStatus, setFilterStatus] = useState('all');
 
   const load = (force = false) => {
-    if (force) bustCache('/enquiries');
-    cachedGet('/enquiries', { cache: 60 }).then(r => setEnquiries(r.data)).catch(() => {}).finally(() => setLoading(false));
+    setLoading(true);
+    const fetcher = force ? freshGet('/enquiries', { cache: 60 }) : cachedGet('/enquiries', { cache: 60 });
+    fetcher.then(r => setEnquiries(r.data)).catch(() => {}).finally(() => setLoading(false));
   };
   useEffect(load, []);
 
   const updateStatus = async (id, status) => {
-    try { await API.put(`/enquiries/${id}`, { status }); bustCache('/enquiries'); toast.success('Status updated'); load(true); }
-    catch { toast.error('Error'); }
+    try {
+      await API.put(`/enquiries/${id}`, { status });
+      setEnquiries(prev => prev.map(e => e._id === id ? { ...e, status } : e));
+      bustCache('/enquiries');
+      toast.success('Status updated');
+    } catch { toast.error('Error'); }
   };
 
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this enquiry?')) return;
-    try { await API.delete(`/enquiries/${id}`); bustCache('/enquiries'); toast.success('Deleted'); load(true); }
-    catch { toast.error('Error'); }
+    try {
+      await API.delete(`/enquiries/${id}`);
+      setEnquiries(prev => prev.filter(e => e._id !== id));
+      bustCache('/enquiries');
+      toast.success('Deleted');
+    } catch { toast.error('Error'); }
   };
 
   const filtered = filterStatus === 'all' ? enquiries : enquiries.filter(e => e.status === filterStatus);

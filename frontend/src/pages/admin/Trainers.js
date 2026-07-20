@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Plus, Edit2, Trash2, X } from 'lucide-react';
-import API, { cachedGet, bustCache } from '../../utils/api';
+import API, { cachedGet, bustCache, freshGet } from '../../utils/api';
 import AdminLayout from './AdminLayout';
 import toast from 'react-hot-toast';
 
@@ -16,11 +16,9 @@ export default function AdminTrainers() {
   const [saving, setSaving]     = useState(false);
 
   const load = (force = false) => {
-    if (force) bustCache('/trainers');
-    cachedGet('/trainers', { cache: 180 })
-      .then(r => setTrainers(r.data))
-      .catch(() => {})
-      .finally(() => setLoading(false));
+    setLoading(true);
+    const fetcher = force ? freshGet('/trainers', { cache: 180 }) : cachedGet('/trainers', { cache: 180 });
+    fetcher.then(r => setTrainers(r.data)).catch(() => {}).finally(() => setLoading(false));
   };
 
   useEffect(() => { load(); }, []);
@@ -62,9 +60,9 @@ export default function AdminTrainers() {
     if (!window.confirm('Delete this trainer?')) return;
     try {
       await API.delete(`/trainers/${id}`);
+      setTrainers(prev => prev.filter(t => t._id !== id));
       bustCache('/trainers');
       toast.success('Trainer deleted');
-      load(true);
     } catch {
       toast.error('Error deleting trainer');
     }

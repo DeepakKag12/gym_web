@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Trash2, X, Package, Edit2, Upload, ImageIcon, Star, ToggleLeft, ToggleRight } from 'lucide-react';
-import API, { cachedGet, bustCache } from '../../utils/api';
+import API, { cachedGet, bustCache, freshGet } from '../../utils/api';
 import AdminLayout from './AdminLayout';
 import toast from 'react-hot-toast';
 
@@ -168,10 +168,8 @@ export default function AdminStore() {
 
   const load = (force = false) => {
     setLoading(true);
-    // Always bypass client cache when force=true (after add/edit/delete)
-    const fetcher = force ? API.get('/store') : cachedGet('/store', { cache: 60 });
+    const fetcher = force ? freshGet('/store', { cache: 60 }) : cachedGet('/store', { cache: 60 });
     fetcher.then(r => setProducts(r.data)).catch(() => {}).finally(() => setLoading(false));
-    if (force) bustCache('/store');
   };
   useEffect(load, []);
 
@@ -189,9 +187,9 @@ export default function AdminStore() {
   const toggleActive = async (p) => {
     try {
       await API.put(`/store/${p._id}`, { isActive: !p.isActive });
+      setProducts(prev => prev.map(x => x._id === p._id ? { ...x, isActive: !p.isActive } : x));
       bustCache('/store');
       toast.success(p.isActive ? 'Product hidden' : 'Product active');
-      load(true);
     } catch { toast.error('Update failed'); }
   };
 

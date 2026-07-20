@@ -5,7 +5,7 @@ import {
   Search, ChevronDown, ChevronUp, Play, CheckSquare, Square
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import API, { cachedGet, bustCache } from '../../utils/api';
+import API, { cachedGet, bustCache, freshGet } from '../../utils/api';
 import AdminLayout from './AdminLayout';
 
 const DAYS  = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
@@ -328,9 +328,10 @@ export default function AdminSplits() {
   const [modal, setModal]       = useState(null); // null | 'new' | split-object
 
   const fetchAll = useCallback((force = false) => {
-    if (force) { bustCache('/splits'); bustCache('/exercises'); }
     setLoading(true);
-    Promise.all([cachedGet('/splits', { cache: 60 }), cachedGet('/exercises', { cache: 90 })])
+    const sf = force ? freshGet('/splits', { cache: 60 })    : cachedGet('/splits', { cache: 60 });
+    const ef = force ? freshGet('/exercises', { cache: 90 }) : cachedGet('/exercises', { cache: 90 });
+    Promise.all([sf, ef])
       .then(([s, e]) => { setSplits(s.data); setExercises(e.data); })
       .catch(() => toast.error('Failed to load data'))
       .finally(() => setLoading(false));

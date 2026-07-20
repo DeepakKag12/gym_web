@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Plus, Trash2, X, Edit2, TrendingUp } from 'lucide-react';
-import API, { cachedGet, bustCache } from '../../utils/api';
+import API, { cachedGet, bustCache, freshGet } from '../../utils/api';
 import AdminLayout from './AdminLayout';
 import toast from 'react-hot-toast';
 
@@ -19,8 +19,9 @@ export default function AdminTransformations() {
   const [saving, setSaving] = useState(false);
 
   const load = (force = false) => {
-    if (force) { bustCache('/transformations'); bustCache('/members'); }
-    cachedGet('/transformations/all', { cache: 60 }).then(r => setTransformations(r.data)).catch(() => {}).finally(() => setLoading(false));
+    setLoading(true);
+    const tf = force ? freshGet('/transformations/all', { cache: 60 }) : cachedGet('/transformations/all', { cache: 60 });
+    tf.then(r => setTransformations(r.data)).catch(() => {}).finally(() => setLoading(false));
     cachedGet('/members', { cache: 60 }).then(r => setMembers(r.data)).catch(() => {});
   };
   useEffect(load, []);
@@ -50,14 +51,19 @@ export default function AdminTransformations() {
         await API.post('/transformations', data, { headers: { 'Content-Type': 'multipart/form-data' } });
         toast.success('Transformation added!');
       }
-      bustCache('/transformations'); closeModal(); load(true);
+      bustCache('/transformations'); closeModal(); load(force = true);
     } catch { toast.error('Error saving'); }
     finally { setSaving(false); }
   };
 
   const handleDelete = async (id) => {
     if (!window.confirm('Delete?')) return;
-    try { await API.delete(`/transformations/${id}`); bustCache('/transformations'); toast.success('Deleted'); load(true); }
+    try {
+      await API.delete(`/transformations/${id}`);
+      setTransformations(prev => prev.filter(t => t._id !== id));
+      bustCache('/transformations');
+      toast.success('Deleted');
+    }
     catch { toast.error('Error'); }
   };
 

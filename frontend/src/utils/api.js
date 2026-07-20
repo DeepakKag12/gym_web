@@ -36,49 +36,66 @@ API.interceptors.response.use(
 );
 
 // ── Client-side in-memory cache ────────────────────────────────────────────────
-// Only caches safe GET requests. Keyed by full URL + token presence.
-// TTL defaults to 60 s; callers can override via { cache: ttlSeconds } in config.
+// Keyed by full URL + token presence. TTL defaults to 60 s.
+// bustCache() immediately expires all matching keys so the very next
+// cachedGet() skips the cache and fetches fresh from the network.
 const _clientCache = new Map();
 
-function _cacheKey(config) {
+function _cacheKey(url) {
   const auth = localStorage.getItem('token') ? '1' : '0';
-  return `${config.method || 'get'}:${config.url}:${JSON.stringify(config.params || {})}:${auth}`;
-}
-
-function _isCacheable(config) {
-  return (config.method || 'get').toLowerCase() === 'get' && config.cache !== false;
+  return `get:${url}:${auth}`;
 }
 
 /**
  * cachedGet(url, config)
- * Like API.get() but returns a stale-while-revalidate promise.
- * config.cache = TTL in seconds (default 60). Set to false to skip cache.
+ * Returns cached data if still fresh, otherwise fetches from network.
+ * config.cache = TTL in seconds (default 60). Set cache:0 to always fetch fresh.
  */
 export async function cachedGet(url, config = {}) {
-  if (!_isCacheable({ ...config, method: 'get' })) {
-    return API.get(url, config);
-  }
   const ttl = typeof config.cache === 'number' ? config.cache : 60;
-  const key = _cacheKey({ ...config, method: 'get', url });
+  if (ttl === 0) return API.get(url, config);
+
+  const key   = _cacheKey(url);
   const entry = _clientCache.get(key);
-  const now = Date.now();
+  const now   = Date.now();
 
   if (entry && now < entry.expiresAt) {
     return entry.promise;
   }
-  // Kick off fresh request and cache the promise
+  // Kick off fresh request and store it
   const promise = API.get(url, config);
   _clientCache.set(key, { promise, expiresAt: now + ttl * 1000 });
-  // On error remove from cache so the next call retries
+  // On error: remove so the next call retries
   promise.catch(() => _clientCache.delete(key));
   return promise;
 }
 
-/** Purge all client-side cache entries whose key contains the given pattern. */
+/**
+ * bustCache(pattern)
+ * Immediately expires all cache entries whose key contains `pattern`.
+ * The next cachedGet() for those URLs will always hit the network.
+ */
 export function bustCache(pattern) {
-  for (const key of _clientCache.keys()) {
-    if (key.includes(pattern)) _clientCache.delete(key);
+  for (const [key, entry] of _clientCache.entries()) {
+    if (key.includes(pattern)) {
+      // Expire immediately — don't delete so in-flight promises still resolve
+      entry.expiresAt = 0;
+    }
   }
+}
+
+/**
+ * freshGet(url, config)
+ * Always bypasses cache and fetches from network (for use after mutations).
+ * Also busts any existing cache entry for this URL.
+ */
+export async function freshGet(url, config = {}) {
+  bustCache(url);
+  const promise = API.get(url, config);
+  const key = _cacheKey(url);
+  _clientCache.set(key, { promise, expiresAt: Date.now() + ((config.cache ?? 60) * 1000) });
+  promise.catch(() => _clientCache.delete(key));
+  return promise;
 }
 
 export default API;

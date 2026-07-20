@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import AdminLayout from './AdminLayout';
 import { Bell, CheckCheck, RefreshCw, User, MessageSquare, AlertCircle, Info, Gift } from 'lucide-react';
-import API, { cachedGet, bustCache } from '../../utils/api';
+import API, { cachedGet, bustCache, freshGet } from '../../utils/api';
 
 const TYPE_META = {
   fee_reminder:  { icon: AlertCircle, color: 'text-yellow-400', bg: 'bg-yellow-400/10', label: 'Fee Reminder' },
@@ -35,13 +35,11 @@ export default function AdminNotifications() {
   const [showCompose, setShowCompose] = useState(false);
 
   const load = useCallback(async (force = false) => {
-    if (force) { bustCache('/notifications/admin/all'); bustCache('/members'); }
     setLoading(true);
     try {
-      const [nr, mr] = await Promise.all([
-        cachedGet('/notifications/admin/all', { cache: 30 }),
-        cachedGet('/members', { cache: 60 }),
-      ]);
+      const nf = force ? freshGet('/notifications/admin/all', { cache: 30 }) : cachedGet('/notifications/admin/all', { cache: 30 });
+      const mf = cachedGet('/members', { cache: 60 });
+      const [nr, mr] = await Promise.all([nf, mf]);
       setNotifs(nr.data);
       setMembers(mr.data);
     } catch {}

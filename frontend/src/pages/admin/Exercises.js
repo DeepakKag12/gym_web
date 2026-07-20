@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Trash2, X, Upload, Video, Edit2, Globe, Lock, Dumbbell } from 'lucide-react';
-import API, { cachedGet, bustCache } from '../../utils/api';
+import API, { cachedGet, bustCache, freshGet } from '../../utils/api';
 import AdminLayout from './AdminLayout';
 import toast from 'react-hot-toast';
 
@@ -350,17 +350,23 @@ export default function AdminExercises() {
   const [filterMuscle, setFilterMuscle] = useState('all');
 
   const load = (force = false) => {
-    if (force) bustCache('/exercises');
+    setLoading(true);
     const q = filterMuscle !== 'all' ? `?muscleGroup=${filterMuscle}` : '';
-    cachedGet(`/exercises${q}`, { cache: 90 }).then(r => setExercises(r.data)).catch(() => {}).finally(() => setLoading(false));
+    const exUrl = `/exercises${q}`;
+    const ef = force ? freshGet(exUrl, { cache: 90 }) : cachedGet(exUrl, { cache: 90 });
+    ef.then(r => setExercises(r.data)).catch(() => {}).finally(() => setLoading(false));
     cachedGet('/members', { cache: 60 }).then(r => setMembers(r.data)).catch(() => {});
   };
   useEffect(load, [filterMuscle]);
 
   const del = async (id) => {
     if (!window.confirm('Delete this exercise?')) return;
-    try { await API.delete(`/exercises/${id}`); bustCache('/exercises'); toast.success('Deleted'); load(true); }
-    catch { toast.error('Error'); }
+    try {
+      await API.delete(`/exercises/${id}`);
+      setExercises(prev => prev.filter(e => e._id !== id));
+      bustCache('/exercises');
+      toast.success('Deleted');
+    } catch { toast.error('Error'); }
   };
 
   return (

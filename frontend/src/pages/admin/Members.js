@@ -4,7 +4,7 @@ import {
   Plus, Search, Edit2, Trash2, Bell, X,
   CheckCircle, AlertCircle, MessageSquare, Send, Users, Clock
 } from 'lucide-react';
-import API, { cachedGet, bustCache } from '../../utils/api';
+import API, { cachedGet, bustCache, freshGet } from '../../utils/api';
 import AdminLayout from './AdminLayout';
 import toast from 'react-hot-toast';
 
@@ -323,9 +323,10 @@ export default function AdminMembers() {
   const [credentials, setCredentials]   = useState(null); // { name, email, password, phone }
 
   const load = useCallback((force = false) => {
-    if (force) { bustCache('/members'); bustCache('/trainers'); }
     setLoading(true);
-    Promise.all([cachedGet('/members', { cache: 60 }), cachedGet('/trainers', { cache: 180 })])
+    const mf = force ? freshGet('/members', { cache: 60 })   : cachedGet('/members', { cache: 60 });
+    const tf = force ? freshGet('/trainers', { cache: 180 }) : cachedGet('/trainers', { cache: 180 });
+    Promise.all([mf, tf])
       .then(([m, t]) => { setMembers(m.data); setTrainers(t.data); })
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -334,8 +335,12 @@ export default function AdminMembers() {
 
   const del = async (id) => {
     if (!window.confirm('Delete this member? This cannot be undone.')) return;
-    try { await API.delete(`/members/${id}`); bustCache('/members'); toast.success('Deleted'); load(true); }
-    catch { toast.error('Error deleting'); }
+    try {
+      await API.delete(`/members/${id}`);
+      setMembers(prev => prev.filter(m => m._id !== id));
+      bustCache('/members');
+      toast.success('Deleted');
+    } catch { toast.error('Error deleting'); }
   };
 
   const filtered = members.filter(m => {

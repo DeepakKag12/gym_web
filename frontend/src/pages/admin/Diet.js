@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Trash2, X, Edit2, Salad, Users } from 'lucide-react';
-import API, { cachedGet, bustCache } from '../../utils/api';
+import API, { cachedGet, bustCache, freshGet } from '../../utils/api';
 import AdminLayout from './AdminLayout';
 import toast from 'react-hot-toast';
 
@@ -170,9 +170,9 @@ export default function AdminDiet() {
   const [modal, setModal]   = useState(null); // null | 'new' | plan
 
   const load = (force = false) => {
-    if (force) { bustCache('/diet'); bustCache('/members'); }
     setLoading(true);
-    Promise.all([cachedGet('/diet', { cache: 90 }), cachedGet('/members', { cache: 60 })])
+    const df = force ? freshGet('/diet', { cache: 90 }) : cachedGet('/diet', { cache: 90 });
+    Promise.all([df, cachedGet('/members', { cache: 60 })])
       .then(([d, m]) => { setPlans(d.data); setMembers(m.data); })
       .catch(() => {}).finally(() => setLoading(false));
   };
@@ -180,8 +180,12 @@ export default function AdminDiet() {
 
   const del = async (id) => {
     if (!window.confirm('Delete this plan?')) return;
-    try { await API.delete(`/diet/${id}`); bustCache('/diet'); toast.success('Deleted'); load(true); }
-    catch { toast.error('Error'); }
+    try {
+      await API.delete(`/diet/${id}`);
+      setPlans(prev => prev.filter(p => p._id !== id));
+      bustCache('/diet');
+      toast.success('Deleted');
+    } catch { toast.error('Error'); }
   };
 
   return (
