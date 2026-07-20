@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Package, Clock, CheckCircle, Truck, XCircle, ChevronRight } from 'lucide-react';
-import API from '../../utils/api';
+import { cachedGet } from '../../utils/api';
 
 const STATUS_MAP = {
   placed:     { icon: Clock,         color: 'text-yellow-400 bg-yellow-500/10', label: 'Placed' },
@@ -17,7 +17,10 @@ export default function MyOrders() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    API.get('/orders/my').then(r => setOrders(r.data)).catch(() => {}).finally(() => setLoading(false));
+    cachedGet('/orders/my', { cache: 60 })
+      .then(r => setOrders(r.data))
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
   return (

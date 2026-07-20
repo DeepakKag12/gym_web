@@ -5,7 +5,7 @@ import {
   Users, Dumbbell, Salad, TrendingUp, Calendar,
   UserCheck, ChevronRight, Activity
 } from 'lucide-react';
-import API from '../../utils/api';
+import { cachedGet } from '../../utils/api';
 import { useAuth } from '../../context/AuthContext';
 
 function StatCard({ icon: Icon, label, value, color = 'text-cyan-400', bg = 'bg-cyan-400/10' }) {
@@ -30,8 +30,8 @@ export default function TrainerDashboard() {
 
   useEffect(() => {
     Promise.all([
-      API.get('/analytics/summary'),
-      API.get('/members?limit=5'),
+      cachedGet('/analytics/summary', { cache: 120 }),
+      cachedGet('/members', { cache: 60 }),
     ]).then(([sr, mr]) => {
       setStats(sr.data);
       setRecentMembers((mr.data || []).slice(0, 5));

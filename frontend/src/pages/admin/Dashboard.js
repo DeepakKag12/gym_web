@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Users, ShoppingBag, MessageSquare, Package, TrendingUp, Bell, AlertCircle, CheckCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import API from '../../utils/api';
+import { cachedGet } from '../../utils/api';
 import AdminLayout from './AdminLayout';
 
 const StatCard = ({ icon, label, value, color, link }) => (
@@ -25,9 +25,9 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     Promise.all([
-      API.get('/members'),
-      API.get('/orders'),
-      API.get('/enquiries'),
+      cachedGet('/members', { cache: 60 }),
+      cachedGet('/orders', { cache: 60 }),
+      cachedGet('/enquiries', { cache: 60 }),
     ]).then(([m, o, e]) => {
       const members = m.data;
       const now = new Date();

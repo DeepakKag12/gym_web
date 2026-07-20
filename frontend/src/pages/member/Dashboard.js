@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Bell, Dumbbell, Salad, ShoppingBag, CheckCircle, AlertCircle, TrendingUp, Package, Calendar } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import API from '../../utils/api';
+import { cachedGet } from '../../utils/api';
 
 const QUICK_ACTIONS = [
   { icon: <Dumbbell size={22} className="text-cyan-400" />,    label: 'My Workout',   sub: 'Planner + split', path: '/my-workout',   border: 'hover:border-cyan-500/30' },
@@ -20,7 +20,7 @@ export default function MemberDashboard() {
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
-    API.get('/notifications').then(r => {
+    cachedGet('/notifications', { cache: 30 }).then(r => {
       setNotifications(r.data.slice(0, 5));
       setUnreadCount(r.data.filter(n => !n.isRead).length);
     }).catch(() => {});

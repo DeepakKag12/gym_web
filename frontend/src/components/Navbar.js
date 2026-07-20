@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingCart, Bell, Menu, X, LogOut, LayoutDashboard, Phone, Instagram, Settings } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
-import API from '../utils/api';
+import { cachedGet } from '../utils/api';
 
 const GYM_PHONE     = '9589730151';
 const GYM_WA        = '919589730151';
@@ -61,7 +61,9 @@ export default function Navbar() {
 
   useEffect(() => {
     if (user) {
-      API.get('/notifications').then(r => setUnread(r.data.filter(n => !n.isRead).length)).catch(() => {});
+      cachedGet('/notifications', { cache: 30 })
+        .then(r => setUnread(r.data.filter(n => !n.isRead).length))
+        .catch(() => {});
     }
   }, [user, location.pathname]);
 

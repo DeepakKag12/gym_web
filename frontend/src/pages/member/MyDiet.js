@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Salad, ChevronRight, Flame, Target, Apple, Info } from 'lucide-react';
-import API from '../../utils/api';
+import { cachedGet } from '../../utils/api';
 
 const GOAL_COLOR = {
   'weight-loss':   'text-orange-400 bg-orange-400/10',
@@ -83,7 +83,7 @@ export default function MyDiet() {
   const [selected, setSelected] = useState(null);
 
   useEffect(() => {
-    API.get('/diet/my')
+    cachedGet('/diet/my', { cache: 60 })
       .then(r => {
         setPlans(r.data);
         if (r.data.length > 0) setSelected(r.data[0]._id);

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { TrendingUp, Users, Package, IndianRupee, Activity, BarChart2, UserCheck, Clock } from 'lucide-react';
-import API from '../../utils/api';
+import { cachedGet } from '../../utils/api';
 import AdminLayout from './AdminLayout';
 
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -62,10 +62,10 @@ export default function AdminAnalytics() {
 
   useEffect(() => {
     Promise.all([
-      API.get('/analytics/summary'),
-      API.get('/analytics/revenue-monthly'),
-      API.get('/analytics/membership-stats'),
-      API.get('/analytics/new-members-monthly'),
+      cachedGet('/analytics/summary', { cache: 120 }),
+      cachedGet('/analytics/revenue-monthly', { cache: 180 }),
+      cachedGet('/analytics/membership-stats', { cache: 180 }),
+      cachedGet('/analytics/new-members-monthly', { cache: 180 }),
     ]).then(([s, r, m, n]) => {
       setSummary(s.data);
       setRevenueMonthly(r.data);

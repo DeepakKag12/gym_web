@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { TrendingUp, Plus, Scale, Camera, ChevronDown, ChevronUp, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import API from '../../utils/api';
+import API, { bustCache } from '../../utils/api';
 
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
@@ -51,6 +51,7 @@ export default function MyProgress() {
 
   const fetchEntries = () => {
     setLoading(true);
+    bustCache('/progress/me');
     API.get('/progress/me').then(r => setEntries(r.data)).catch(() => {}).finally(() => setLoading(false));
   };
   useEffect(fetchEntries, []);

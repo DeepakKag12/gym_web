@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, Salad, TrendingUp, Bell, Dumbbell } from 'lucide-react';
-import API from '../utils/api';
+import { cachedGet } from '../utils/api';
 
 // 5 primary tabs a member needs most on mobile
 const MEMBER_NAV = [
@@ -17,7 +17,7 @@ export default function MemberBottomNav() {
   const [unread, setUnread] = useState(0);
 
   useEffect(() => {
-    API.get('/notifications')
+    cachedGet('/notifications', { cache: 30 })
       .then(r => setUnread(r.data.filter(n => !n.isRead).length))
       .catch(() => {});
   }, [location.pathname]);

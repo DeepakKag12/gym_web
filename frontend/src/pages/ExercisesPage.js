@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Search, Lock, Dumbbell, Zap, Video } from 'lucide-react';
-import API from '../utils/api';
+import { cachedGet } from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 
 const MUSCLE_GROUPS = [
@@ -132,22 +132,39 @@ function ExCard({ ex, index }) {
   );
 }
 
+// Simple debounce hook
+function useDebounce(value, delay) {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const timer = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(timer);
+  }, [value, delay]);
+  return debounced;
+}
+
 export default function ExercisesPage() {
   const [exercises, setExercises] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [searchParams] = useSearchParams();
   const [activeMuscle, setActiveMuscle] = useState(searchParams.get('muscle') || 'all');
+  const debouncedSearch = useDebounce(search, 200);
 
   useEffect(() => {
     setLoading(true);
     const params = activeMuscle !== 'all' ? `?muscleGroup=${activeMuscle}` : '';
-    API.get(`/exercises${params}`).then(r => setExercises(r.data)).catch(() => setExercises([])).finally(() => setLoading(false));
+    cachedGet(`/exercises${params}`, { cache: 90 })
+      .then(r => setExercises(r.data))
+      .catch(() => setExercises([]))
+      .finally(() => setLoading(false));
   }, [activeMuscle]);
 
-  const filtered = exercises.filter(e =>
-    e.title?.toLowerCase().includes(search.toLowerCase()) ||
-    e.muscleGroup?.toLowerCase().includes(search.toLowerCase())
+  const filtered = useMemo(() =>
+    exercises.filter(e =>
+      e.title?.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+      e.muscleGroup?.toLowerCase().includes(debouncedSearch.toLowerCase())
+    ),
+    [exercises, debouncedSearch]
   );
 
   return (

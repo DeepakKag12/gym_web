@@ -1,10 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Star, ShoppingCart, ShoppingBag, X, Zap, Shield, Truck, RotateCcw } from 'lucide-react';
-import API from '../utils/api';
+import { cachedGet } from '../utils/api';
 import { useCart } from '../context/CartContext';
 import toast from 'react-hot-toast';
+
+function useDebounce(value, delay) {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const timer = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(timer);
+  }, [value, delay]);
+  return debounced;
+}
 
 const CATEGORIES = [
   { key: 'all',          label: 'All Products',  icon: '🏪' },
@@ -179,11 +188,12 @@ export default function StorePage() {
   const [category, setCategory] = useState(searchParams.get('category') || 'all');
   const [sort, setSort]         = useState('default');
   const { addToCart, count }    = useCart();
+  const debouncedSearch         = useDebounce(search, 250);
 
   useEffect(() => {
     setLoading(true);
     const q = category !== 'all' ? `?category=${category}` : '';
-    API.get(`/store${q}`)
+    cachedGet(`/store${q}`, { cache: 60 })
       .then(r => setProducts(r.data))
       .catch(() => setProducts([]))
       .finally(() => setLoading(false));
@@ -192,23 +202,25 @@ export default function StorePage() {
   const handleAdd = (product) => {
     addToCart(product, 1);
     toast.success(`${product.name} added!`, {
-      style: { background: 'var(--bg2)', color: 'var(--text)', border: '1px solid var(--border-cyan)' },
       iconTheme: { primary: '#22d3ee', secondary: '#000' },
     });
   };
 
-  let filtered = products.filter(p =>
-    p.name.toLowerCase().includes(search.toLowerCase()) ||
-    (p.brand || '').toLowerCase().includes(search.toLowerCase())
-  );
-  if (sort === 'price-asc')  filtered = [...filtered].sort((a,b) => (a.discountPrice||a.price) - (b.discountPrice||b.price));
-  if (sort === 'price-desc') filtered = [...filtered].sort((a,b) => (b.discountPrice||b.price) - (a.discountPrice||a.price));
-  if (sort === 'rating')     filtered = [...filtered].sort((a,b) => b.rating - a.rating);
-  if (sort === 'discount')   filtered = [...filtered].sort((a,b) => {
-    const da = a.discountPrice ? Math.round(((a.price-a.discountPrice)/a.price)*100) : 0;
-    const db = b.discountPrice ? Math.round(((b.price-b.discountPrice)/b.price)*100) : 0;
-    return db - da;
-  });
+  const filtered = useMemo(() => {
+    let result = products.filter(p =>
+      p.name.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+      (p.brand || '').toLowerCase().includes(debouncedSearch.toLowerCase())
+    );
+    if (sort === 'price-asc')  result = [...result].sort((a,b) => (a.discountPrice||a.price) - (b.discountPrice||b.price));
+    if (sort === 'price-desc') result = [...result].sort((a,b) => (b.discountPrice||b.price) - (a.discountPrice||a.price));
+    if (sort === 'rating')     result = [...result].sort((a,b) => b.rating - a.rating);
+    if (sort === 'discount')   result = [...result].sort((a,b) => {
+      const da = a.discountPrice ? Math.round(((a.price-a.discountPrice)/a.price)*100) : 0;
+      const db = b.discountPrice ? Math.round(((b.price-b.discountPrice)/b.price)*100) : 0;
+      return db - da;
+    });
+    return result;
+  }, [products, debouncedSearch, sort]);
 
   const activeLabel = CATEGORIES.find(c => c.key === category)?.label || 'All';
 

@@ -9,10 +9,31 @@ root.render(
   <React.StrictMode>
     <Toaster
       position="top-right"
+      gutter={8}
+      containerStyle={{ top: 20, right: 16 }}
       toastOptions={{
-        style: { background: '#1a1a2e', color: '#fff', border: '1px solid rgba(249,115,22,0.3)' },
-        success: { iconTheme: { primary: '#f97316', secondary: '#fff' } },
-        error: { iconTheme: { primary: '#e94560', secondary: '#fff' } },
+        duration: 3500,
+        style: {
+          background: '#111318',
+          color: '#f1f5f9',
+          border: '1px solid rgba(34,211,238,0.18)',
+          borderRadius: '12px',
+          fontSize: '14px',
+          padding: '12px 16px',
+          maxWidth: '380px',
+        },
+        success: {
+          iconTheme: { primary: '#22d3ee', secondary: '#000' },
+        },
+        error: {
+          iconTheme: { primary: '#f43f5e', secondary: '#fff' },
+          style: {
+            background: '#111318',
+            color: '#f1f5f9',
+            border: '1px solid rgba(244,63,94,0.25)',
+            borderRadius: '12px',
+          },
+        },
       }}
     />
     <App />

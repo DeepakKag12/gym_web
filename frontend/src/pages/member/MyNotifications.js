@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Bell, Check, CheckCheck } from 'lucide-react';
-import API from '../../utils/api';
+import API, { bustCache } from '../../utils/api';
 import toast from 'react-hot-toast';
 
 const TYPE_COLORS = {
@@ -20,13 +20,20 @@ export default function MyNotifications() {
   useEffect(load, []);
 
   const markRead = async (id) => {
-    try { await API.put(`/notifications/${id}/read`); setNotifications(prev => prev.map(n => n._id === id ? { ...n, isRead: true } : n)); }
-    catch { toast.error('Error'); }
+    try {
+      await API.put(`/notifications/${id}/read`);
+      bustCache('notifications');
+      setNotifications(prev => prev.map(n => n._id === id ? { ...n, isRead: true } : n));
+    } catch { toast.error('Error'); }
   };
 
   const markAllRead = async () => {
-    try { await API.put('/notifications/read-all'); setNotifications(prev => prev.map(n => ({ ...n, isRead: true }))); toast.success('All marked as read'); }
-    catch { toast.error('Error'); }
+    try {
+      await API.put('/notifications/read-all');
+      bustCache('notifications');
+      setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+      toast.success('All marked as read');
+    } catch { toast.error('Error'); }
   };
 
   const unread = notifications.filter(n => !n.isRead).length;

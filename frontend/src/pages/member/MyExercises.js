@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Dumbbell, BookOpen, Target, Flame, ExternalLink, ChevronDown, Video } from 'lucide-react';
-import API from '../../utils/api';
+import { cachedGet } from '../../utils/api';
 
 /* ── VideoThumb: native <video> for direct files, <iframe> for YouTube ── */
 function isYouTube(url) { return url && (url.includes('youtube.com') || url.includes('youtu.be')); }
@@ -109,7 +109,7 @@ export default function MyExercises() {
   const [muscle, setMuscle]       = useState('all');
 
   useEffect(() => {
-    API.get('/exercises/my')
+    cachedGet('/exercises/my', { cache: 60 })
       .then(r => setExercises(r.data))
       .catch(() => {})
       .finally(() => setLoading(false));

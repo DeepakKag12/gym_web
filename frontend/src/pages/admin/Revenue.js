@@ -4,7 +4,7 @@ import {
   IndianRupee, TrendingUp, TrendingDown, ShoppingBag, Users,
   AlertCircle, CreditCard, Package, CheckCircle2, Clock,
 } from 'lucide-react';
-import API from '../../utils/api';
+import { cachedGet } from '../../utils/api';
 import AdminLayout from './AdminLayout';
 
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -138,8 +138,8 @@ export default function AdminRevenue() {
 
   useEffect(() => {
     Promise.all([
-      API.get('/analytics/revenue-full'),
-      API.get('/analytics/summary'),
+      cachedGet('/analytics/revenue-full', { cache: 180 }),
+      cachedGet('/analytics/summary', { cache: 120 }),
     ]).then(([r, s]) => {
       setData(r.data);
       setSummary(s.data);
