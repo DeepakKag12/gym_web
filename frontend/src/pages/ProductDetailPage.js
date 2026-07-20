@@ -14,8 +14,8 @@ function StarRating({ rating, count, size = 16 }) {
           <Star key={s} size={size} className={s <= Math.round(rating) ? 'star-filled' : 'star-empty'} fill={s <= Math.round(rating) ? '#f59e0b' : 'none'} />
         ))}
       </div>
-      <span className="text-gray-500 text-sm font-medium">{rating.toFixed(1)}</span>
-      {count !== undefined && <span className="text-gray-400 text-sm">({count} reviews)</span>}
+      <span className="text-gray-400 text-sm font-medium">{rating.toFixed(1)}</span>
+      {count !== undefined && <span className="text-gray-500 text-sm">({count} reviews)</span>}
     </div>
   );
 }
@@ -43,18 +43,18 @@ export default function ProductDetailPage() {
   }, [id]);
 
   if (loading) return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center pt-16">
+    <div className="min-h-screen bg-[#0d0d14] flex items-center justify-center pt-16">
       <div className="flex flex-col items-center gap-3">
-        <div className="w-10 h-10 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+        <div className="w-10 h-10 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
         <p className="text-gray-400 text-sm">Loading product…</p>
       </div>
     </div>
   );
 
   if (!product) return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center gap-4 pt-16">
-      <Package size={48} className="text-gray-300" />
-      <p className="text-gray-500 font-medium">Product not found</p>
+    <div className="min-h-screen bg-[#0d0d14] flex flex-col items-center justify-center gap-4 pt-16">
+      <Package size={48} className="text-gray-600" />
+      <p className="text-gray-400 font-medium">Product not found</p>
       <Link to="/store" className="btn-fire text-sm px-5 py-2.5">← Back to Store</Link>
     </div>
   );
@@ -72,22 +72,22 @@ export default function ProductDetailPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-16">
+    <div className="min-h-screen bg-[#0d0d14] pt-16">
 
       {/* ── Breadcrumb ── */}
-      <div className="bg-white border-b border-gray-100">
+      <div className="bg-[#111318] border-b border-white/8">
         <div className="max-w-6xl mx-auto px-6 py-3 flex items-center gap-2 text-sm text-gray-500">
-          <Link to="/" className="hover:text-blue-600 transition-colors">Home</Link>
-          <ChevronRight size={14} className="text-gray-300" />
-          <Link to="/store" className="hover:text-blue-600 transition-colors">Store</Link>
-          <ChevronRight size={14} className="text-gray-300" />
+          <Link to="/" className="hover:text-blue-400 transition-colors">Home</Link>
+          <ChevronRight size={14} className="text-gray-700" />
+          <Link to="/store" className="hover:text-blue-400 transition-colors">Store</Link>
+          <ChevronRight size={14} className="text-gray-700" />
           {product.category && (
             <>
-              <Link to={`/store?category=${product.category}`} className="hover:text-blue-600 capitalize transition-colors">{product.category}</Link>
-              <ChevronRight size={14} className="text-gray-300" />
+              <Link to={`/store?category=${product.category}`} className="hover:text-blue-400 capitalize transition-colors">{product.category}</Link>
+              <ChevronRight size={14} className="text-gray-700" />
             </>
           )}
-          <span className="text-gray-800 font-medium line-clamp-1 max-w-xs">{product.name}</span>
+          <span className="text-gray-300 font-medium line-clamp-1 max-w-xs">{product.name}</span>
         </div>
       </div>
 
@@ -97,7 +97,7 @@ export default function ProductDetailPage() {
           {/* ── Images panel ── */}
           <div>
             {/* Main image */}
-            <div className="relative bg-white rounded-2xl overflow-hidden border border-gray-100 mb-3"
+            <div className="relative bg-[#1a1b23] rounded-2xl overflow-hidden border border-white/10 mb-3"
                  style={{ aspectRatio: '1/1' }}>
               {product.images?.[activeImg] ? (
                 <motion.img
@@ -110,8 +110,8 @@ export default function ProductDetailPage() {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50">
-                  <Package size={80} className="text-blue-100" />
+                <div className="w-full h-full flex items-center justify-center bg-[#1a1b23]">
+                  <Package size={80} className="text-gray-700" />
                 </div>
               )}
               {discount > 0 && (
@@ -129,7 +129,7 @@ export default function ProductDetailPage() {
                     key={i}
                     onClick={() => setActiveImg(i)}
                     className={`flex-shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition-all ${
-                      activeImg === i ? 'border-blue-600 shadow-md shadow-blue-100' : 'border-gray-100 hover:border-blue-200'
+                      activeImg === i ? 'border-blue-500 shadow-md shadow-blue-900/30' : 'border-white/10 hover:border-blue-500/40'
                     }`}
                   >
                     <img src={img} alt="" className="w-full h-full object-cover" />
@@ -145,20 +145,20 @@ export default function ProductDetailPage() {
             {/* Brand + badges */}
             <div className="flex items-center gap-2 mb-2 flex-wrap">
               {product.brand && (
-                <span className="text-blue-600 text-xs font-bold uppercase tracking-wider bg-blue-50 px-2.5 py-1 rounded-full">
+                <span className="text-blue-400 text-xs font-bold uppercase tracking-wider bg-blue-500/10 border border-blue-500/20 px-2.5 py-1 rounded-full">
                   {product.brand}
                 </span>
               )}
               {product.isFeatured && (
-                <span className="text-yellow-700 text-xs font-bold bg-yellow-50 border border-yellow-200 px-2.5 py-1 rounded-full">★ Featured</span>
+                <span className="text-yellow-400 text-xs font-bold bg-yellow-500/10 border border-yellow-500/20 px-2.5 py-1 rounded-full">★ Featured</span>
               )}
               {product.stock > 0
-                ? <span className="text-green-700 text-xs font-semibold bg-green-50 border border-green-200 px-2.5 py-1 rounded-full flex items-center gap-1"><CheckCircle size={11} /> In Stock</span>
-                : <span className="text-red-600 text-xs font-semibold bg-red-50 border border-red-200 px-2.5 py-1 rounded-full">Out of Stock</span>
+                ? <span className="text-green-400 text-xs font-semibold bg-green-500/10 border border-green-500/20 px-2.5 py-1 rounded-full flex items-center gap-1"><CheckCircle size={11} /> In Stock</span>
+                : <span className="text-red-400 text-xs font-semibold bg-red-500/10 border border-red-500/20 px-2.5 py-1 rounded-full">Out of Stock</span>
               }
             </div>
 
-            <h1 className="text-gray-900 font-bold text-2xl sm:text-3xl leading-tight mb-3">{product.name}</h1>
+            <h1 className="text-white font-bold text-2xl sm:text-3xl leading-tight mb-3">{product.name}</h1>
 
             {product.rating > 0 && (
               <div className="mb-4">
@@ -167,12 +167,12 @@ export default function ProductDetailPage() {
             )}
 
             {/* Price block */}
-            <div className="flex items-center gap-3 mb-5 pb-5 border-b border-gray-100">
-              <span className="text-gray-900 font-bold text-4xl">₹{product.discountPrice || product.price}</span>
+            <div className="flex items-center gap-3 mb-5 pb-5 border-b border-white/10">
+              <span className="text-white font-bold text-4xl">₹{product.discountPrice || product.price}</span>
               {product.discountPrice && (
                 <>
-                  <span className="text-gray-400 line-through text-xl">₹{product.price}</span>
-                  <span className="bg-green-100 text-green-700 text-sm font-bold px-2.5 py-1 rounded-lg">
+                  <span className="text-gray-600 line-through text-xl">₹{product.price}</span>
+                  <span className="bg-green-500/15 text-green-400 text-sm font-bold px-2.5 py-1 rounded-lg border border-green-500/20">
                     Save ₹{product.price - product.discountPrice}
                   </span>
                 </>
@@ -182,8 +182,8 @@ export default function ProductDetailPage() {
             {/* Flavor */}
             {product.flavors?.length > 0 && (
               <div className="mb-4">
-                <div className="text-gray-700 text-sm font-semibold mb-2">
-                  Flavor: <span className="text-blue-600">{flavor}</span>
+                <div className="text-gray-300 text-sm font-semibold mb-2">
+                  Flavor: <span className="text-blue-400">{flavor}</span>
                 </div>
                 <div className="flex gap-2 flex-wrap">
                   {product.flavors.map(f => (
@@ -192,8 +192,8 @@ export default function ProductDetailPage() {
                       onClick={() => setFlavor(f)}
                       className={`px-3 py-1.5 rounded-lg text-sm font-medium border-2 transition-all ${
                         flavor === f
-                          ? 'border-blue-600 bg-blue-50 text-blue-600'
-                          : 'border-gray-200 text-gray-600 hover:border-blue-300 bg-white'
+                          ? 'border-blue-500 bg-blue-500/15 text-blue-400'
+                          : 'border-white/10 text-gray-400 hover:border-blue-500/40 bg-white/5'
                       }`}
                     >
                       {f}
@@ -206,8 +206,8 @@ export default function ProductDetailPage() {
             {/* Weight/size */}
             {product.weights?.length > 0 && (
               <div className="mb-5">
-                <div className="text-gray-700 text-sm font-semibold mb-2">
-                  Size: <span className="text-blue-600">{weight}</span>
+                <div className="text-gray-300 text-sm font-semibold mb-2">
+                  Size: <span className="text-blue-400">{weight}</span>
                 </div>
                 <div className="flex gap-2 flex-wrap">
                   {product.weights.map(w => (
@@ -216,8 +216,8 @@ export default function ProductDetailPage() {
                       onClick={() => setWeight(w)}
                       className={`px-4 py-2 rounded-lg text-sm font-semibold border-2 transition-all ${
                         weight === w
-                          ? 'border-blue-600 bg-blue-600 text-white'
-                          : 'border-gray-200 text-gray-600 hover:border-blue-300 bg-white'
+                          ? 'border-blue-500 bg-blue-500 text-white'
+                          : 'border-white/10 text-gray-400 hover:border-blue-500/40 bg-white/5'
                       }`}
                     >
                       {w}
@@ -229,33 +229,33 @@ export default function ProductDetailPage() {
 
             {/* Qty + CTA */}
             <div className="flex items-center gap-3 mb-4">
-              <div className="flex items-center border-2 border-gray-200 rounded-xl overflow-hidden">
+              <div className="flex items-center border-2 border-white/10 rounded-xl overflow-hidden bg-white/5">
                 <button
                   onClick={() => setQty(q => Math.max(1, q - 1))}
-                  className="w-10 h-11 flex items-center justify-center text-gray-500 hover:bg-gray-50 transition-colors"
+                  className="w-10 h-11 flex items-center justify-center text-gray-400 hover:bg-white/10 transition-colors"
                 >
                   <Minus size={16} />
                 </button>
-                <span className="w-10 text-center text-gray-900 font-bold text-base">{qty}</span>
+                <span className="w-10 text-center text-white font-bold text-base">{qty}</span>
                 <button
                   onClick={() => setQty(q => q + 1)}
-                  className="w-10 h-11 flex items-center justify-center text-gray-500 hover:bg-gray-50 transition-colors"
+                  className="w-10 h-11 flex items-center justify-center text-gray-400 hover:bg-white/10 transition-colors"
                 >
                   <Plus size={16} />
                 </button>
               </div>
-              <span className="text-gray-400 text-sm">{product.stock > 0 ? `${product.stock} units left` : ''}</span>
+              <span className="text-gray-500 text-sm">{product.stock > 0 ? `${product.stock} units left` : ''}</span>
             </div>
 
             {product.stock > 0 ? (
               <button
                 onClick={handleAdd}
-                className="w-full flex items-center justify-center gap-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-base py-4 rounded-2xl transition-all hover:-translate-y-0.5 hover:shadow-xl hover:shadow-blue-200 mb-3"
+                className="w-full flex items-center justify-center gap-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-base py-4 rounded-2xl transition-all hover:-translate-y-0.5 hover:shadow-xl hover:shadow-blue-900/30 mb-3"
               >
                 <ShoppingCart size={20} /> Add {qty} to Cart · ₹{((product.discountPrice || product.price) * qty).toFixed(0)}
               </button>
             ) : (
-              <div className="w-full text-center text-gray-500 font-semibold py-4 rounded-2xl border-2 border-gray-200 bg-gray-50 mb-3">
+              <div className="w-full text-center text-gray-500 font-semibold py-4 rounded-2xl border-2 border-white/10 bg-white/5 mb-3">
                 Out of Stock
               </div>
             )}
@@ -263,14 +263,14 @@ export default function ProductDetailPage() {
             {/* Trust badges */}
             <div className="grid grid-cols-3 gap-2 mt-1">
               {[
-                { icon: <Truck size={16} className="text-blue-600" />, label: 'Free Delivery', sub: 'On orders ₹999+' },
-                { icon: <Shield size={16} className="text-green-600" />, label: 'Authentic', sub: '100% genuine' },
-                { icon: <RotateCcw size={16} className="text-orange-500" />, label: 'Easy Returns', sub: '7-day policy' },
+                { icon: <Truck size={16} className="text-blue-400" />, label: 'Free Delivery', sub: 'On orders ₹999+' },
+                { icon: <Shield size={16} className="text-green-400" />, label: 'Authentic', sub: '100% genuine' },
+                { icon: <RotateCcw size={16} className="text-orange-400" />, label: 'Easy Returns', sub: '7-day policy' },
               ].map((b, i) => (
-                <div key={i} className="flex flex-col items-center text-center bg-gray-50 rounded-xl p-2.5 border border-gray-100">
+                <div key={i} className="flex flex-col items-center text-center bg-white/5 rounded-xl p-2.5 border border-white/10">
                   {b.icon}
-                  <div className="text-gray-800 text-xs font-semibold mt-1">{b.label}</div>
-                  <div className="text-gray-400 text-[10px]">{b.sub}</div>
+                  <div className="text-gray-300 text-xs font-semibold mt-1">{b.label}</div>
+                  <div className="text-gray-500 text-[10px]">{b.sub}</div>
                 </div>
               ))}
             </div>
@@ -278,17 +278,17 @@ export default function ProductDetailPage() {
         </div>
 
         {/* ── Tabs: Description / Reviews ── */}
-        <div className="mt-12 bg-white rounded-2xl border border-gray-100 overflow-hidden">
+        <div className="mt-12 bg-[#111318] rounded-2xl border border-white/10 overflow-hidden">
           {/* Tab bar */}
-          <div className="flex border-b border-gray-100">
+          <div className="flex border-b border-white/10">
             {['description', 'reviews'].map(t => (
               <button
                 key={t}
                 onClick={() => setTab(t)}
                 className={`px-6 py-4 text-sm font-semibold capitalize transition-all border-b-2 -mb-px ${
                   tab === t
-                    ? 'border-blue-600 text-blue-600 bg-blue-50/50'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                    ? 'border-blue-500 text-blue-400 bg-blue-500/8'
+                    : 'border-transparent text-gray-500 hover:text-gray-300'
                 }`}
               >
                 {t === 'reviews' ? `Reviews (${product.reviewCount || 0})` : 'Description'}
@@ -300,9 +300,9 @@ export default function ProductDetailPage() {
             {tab === 'description' ? (
               <div>
                 {product.description ? (
-                  <p className="text-gray-600 leading-relaxed">{product.description}</p>
+                  <p className="text-gray-300 leading-relaxed">{product.description}</p>
                 ) : (
-                  <p className="text-gray-400 italic text-sm">No description available.</p>
+                  <p className="text-gray-600 italic text-sm">No description available.</p>
                 )}
               </div>
             ) : (
@@ -310,27 +310,27 @@ export default function ProductDetailPage() {
                 {product.reviews?.length > 0 ? (
                   <div className="space-y-4">
                     {product.reviews.map((r, i) => (
-                      <div key={i} className="border border-gray-100 rounded-xl p-4">
+                      <div key={i} className="border border-white/10 rounded-xl p-4 bg-white/5">
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-3">
                             <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white font-bold text-sm">
                               {r.name?.[0]?.toUpperCase()}
                             </div>
                             <div>
-                              <div className="text-gray-900 font-semibold text-sm">{r.name}</div>
-                              <div className="text-gray-400 text-xs">{new Date(r.date).toLocaleDateString()}</div>
+                              <div className="text-white font-semibold text-sm">{r.name}</div>
+                              <div className="text-gray-500 text-xs">{new Date(r.date).toLocaleDateString()}</div>
                             </div>
                           </div>
                           <StarRating rating={r.rating} size={13} />
                         </div>
-                        <p className="text-gray-600 text-sm leading-relaxed">{r.comment}</p>
+                        <p className="text-gray-400 text-sm leading-relaxed">{r.comment}</p>
                       </div>
                     ))}
                   </div>
                 ) : (
                   <div className="text-center py-8">
-                    <Star size={36} className="text-gray-200 mx-auto mb-3" />
-                    <p className="text-gray-400 text-sm">No reviews yet. Be the first to review!</p>
+                    <Star size={36} className="text-gray-700 mx-auto mb-3" />
+                    <p className="text-gray-500 text-sm">No reviews yet. Be the first to review!</p>
                   </div>
                 )}
               </div>
