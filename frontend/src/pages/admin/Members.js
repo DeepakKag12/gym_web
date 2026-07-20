@@ -495,6 +495,9 @@ export default function AdminMembers() {
             onClose={() => setMemberModal(null)}
             onSaved={(creds) => {
               setMemberModal(null);
+              // Bust analytics + members cache so Revenue/Analytics pages show fresh numbers
+              bustCache('analytics');
+              bustCache('orders');
               load(true);
               if (creds) setCredentials(creds); // show credentials popup for new member
             }}

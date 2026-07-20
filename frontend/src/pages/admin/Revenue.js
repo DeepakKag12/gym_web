@@ -5,7 +5,7 @@ import {
   AlertCircle, CreditCard, Package, CheckCircle2, Clock,
   RefreshCw, Trash2, X, Filter,
 } from 'lucide-react';
-import { cachedGet, bustCache, freshGet } from '../../utils/api';
+import { bustCache, freshGet } from '../../utils/api';
 import API from '../../utils/api';
 import AdminLayout from './AdminLayout';
 
@@ -273,13 +273,13 @@ export default function AdminRevenue() {
   const [showClearModal, setShowClearModal] = useState(false);
 
   const loadData = useCallback(async (fresh = false) => {
-    const getter = fresh ? freshGet : cachedGet;
+    // Always fetch fresh from network — revenue must reflect latest members/orders
     if (fresh) setRefreshing(true);
     else setLoading(true);
     try {
       const [r, s] = await Promise.all([
-        getter('/analytics/revenue-full',  { cache: 180 }),
-        getter('/analytics/summary',        { cache: 120 }),
+        freshGet('/analytics/revenue-full', { cache: 60 }),
+        freshGet('/analytics/summary',      { cache: 60 }),
       ]);
       setData(r.data);
       setSummary(s.data);

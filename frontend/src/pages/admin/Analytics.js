@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { TrendingUp, Users, Package, IndianRupee, Activity, BarChart2, UserCheck, Clock, RefreshCw } from 'lucide-react';
-import { cachedGet, bustCache, freshGet } from '../../utils/api';
+import { bustCache, freshGet } from '../../utils/api';
 import AdminLayout from './AdminLayout';
 
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -62,14 +62,15 @@ export default function AdminAnalytics() {
   const [refreshing,     setRefreshing]      = useState(false);
 
   const loadData = useCallback(async (fresh = false) => {
-    const getter = fresh ? freshGet : cachedGet;
+    // Always treat as fresh on initial load — client cache must not serve stale analytics
+    const getter = fresh ? freshGet : freshGet;
     if (fresh) setRefreshing(true); else setLoading(true);
     try {
       const [s, r, m, n] = await Promise.all([
-        getter('/analytics/summary',           { cache: 120 }),
-        getter('/analytics/revenue-monthly',   { cache: 180 }),
-        getter('/analytics/membership-stats',  { cache: 180 }),
-        getter('/analytics/new-members-monthly',{ cache: 180 }),
+        getter('/analytics/summary',            { cache: 60 }),
+        getter('/analytics/revenue-monthly',    { cache: 60 }),
+        getter('/analytics/membership-stats',   { cache: 60 }),
+        getter('/analytics/new-members-monthly',{ cache: 60 }),
       ]);
       setSummary(s.data);
       setRevenueMonthly(r.data);
