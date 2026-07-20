@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { TrendingUp, Plus, Scale, Camera, ChevronDown, ChevronUp, Trash2 } from 'lucide-react';
+import { TrendingUp, Plus, Scale, Camera, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import API, { bustCache } from '../../utils/api';
 
-const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
 function LineChart({ entries, field, label, color }) {
   if (!entries || entries.length < 2) return null;

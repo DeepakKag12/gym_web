@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Phone, Instagram, MapPin, Clock, Award, Users, Target, Heart,
+  Phone, Instagram, MapPin, Clock, Award, Target, Heart,
   Dumbbell, MessageCircle, CheckCircle, Sun, Moon, AlertCircle,
   ChevronRight, ArrowRight
 } from 'lucide-react';
@@ -10,7 +10,7 @@ import {
 const GYM_PHONE     = '9589730151';
 const GYM_WA        = '919589730151';
 const GYM_INSTAGRAM = 'fitnation.by.ajeet';
-const GYM_ADDRESS   = 'FITNATION BY AJEET, Your City, India';
+// GYM_ADDRESS removed (unused)
 
 /* ── Sliding hero gallery ───────────────── */
 const HERO_IMGS = [

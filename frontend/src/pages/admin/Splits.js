@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Plus, Edit2, Trash2, Dumbbell, Users, Calendar, X,
-  Search, ChevronDown, ChevronUp, Play, CheckSquare, Square
+  Search, ChevronDown, ChevronUp, Play
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import API, { cachedGet, bustCache, freshGet } from '../../utils/api';
@@ -178,7 +178,7 @@ function SplitModal({ split, exercises, onClose, onSaved }) {
 
   const [saving, setSaving] = useState(false);
   const [members, setMembers] = useState([]);
-  const [activeDay, setActiveDay] = useState(null); // null = show all days collapsed
+  // activeDay/setActiveDay removed — reserved for future collapse UI
 
   useEffect(() => {
     cachedGet('/members', { cache: 60 }).then(r => setMembers(r.data)).catch(() => {});
@@ -191,6 +191,7 @@ function SplitModal({ split, exercises, onClose, onSaved }) {
     }));
   };
 
+  // eslint-disable-next-line no-unused-vars
   const updateDayField = (dayName, field, value) => {
     setForm(prev => ({
       ...prev,

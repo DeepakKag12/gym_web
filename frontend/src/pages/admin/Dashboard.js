@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Users, ShoppingBag, MessageSquare, Package, TrendingUp, Bell, AlertCircle, CheckCircle } from 'lucide-react';
+import { Users, MessageSquare, Package, Bell, AlertCircle, CheckCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { cachedGet } from '../../utils/api';
 import AdminLayout from './AdminLayout';

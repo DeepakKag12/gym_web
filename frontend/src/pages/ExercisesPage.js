@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Search, Lock, Dumbbell, Zap, Video } from 'lucide-react';
 import { cachedGet } from '../utils/api';
-import { useAuth } from '../context/AuthContext';
 
 const MUSCLE_GROUPS = [
   { key: 'all',       label: 'All',        emoji: '🏋️' },

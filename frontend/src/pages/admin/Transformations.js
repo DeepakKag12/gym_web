@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Trash2, X, Edit2, TrendingUp } from 'lucide-react';
+import { Plus, Trash2, X, Edit2 } from 'lucide-react';
 import API, { cachedGet, bustCache, freshGet } from '../../utils/api';
 import AdminLayout from './AdminLayout';
 import toast from 'react-hot-toast';
@@ -51,7 +51,7 @@ export default function AdminTransformations() {
         await API.post('/transformations', data, { headers: { 'Content-Type': 'multipart/form-data' } });
         toast.success('Transformation added!');
       }
-      bustCache('/transformations'); closeModal(); load(force = true);
+      bustCache('/transformations'); closeModal(); load(true);
     } catch { toast.error('Error saving'); }
     finally { setSaving(false); }
   };

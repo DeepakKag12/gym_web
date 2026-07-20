@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Salad, Globe, Lock, ChevronDown, ChevronUp } from 'lucide-react';
+import { Salad, Lock, ChevronDown, ChevronUp } from 'lucide-react';
 import { cachedGet } from '../utils/api';
 
 const GOAL_COLORS = {

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Instagram, Phone, MapPin, MessageCircle, Clock } from 'lucide-react';
+import { Instagram, Phone, MessageCircle, Clock } from 'lucide-react';
 
 const GYM_PHONE     = '9589730151';
 const GYM_WA        = '919589730151';

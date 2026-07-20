@@ -52,6 +52,7 @@ function ExerciseModal({ editData, members, onClose, onSaved }) {
   const [imageFile, setImageFile] = useState(null);
   const [videoFile, setVideoFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(editData?.image || '');
+  // eslint-disable-next-line no-unused-vars
   const [videoPreview, setVideoPreview] = useState(editData?.video || '');
   const [removeVideo, setRemoveVideo] = useState(false); // flag to clear existing video
   const [saving, setSaving] = useState(false);

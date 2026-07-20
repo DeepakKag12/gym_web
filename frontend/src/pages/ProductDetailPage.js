@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Star, ShoppingCart, Package, CheckCircle, Truck, Shield, RotateCcw, ChevronRight, Minus, Plus } from 'lucide-react';
+import { Star, ShoppingCart, Package, CheckCircle, Truck, Shield, RotateCcw, ChevronRight, Minus, Plus } from 'lucide-react';
 import API from '../utils/api';
 import { useCart } from '../context/CartContext';
 import toast from 'react-hot-toast';

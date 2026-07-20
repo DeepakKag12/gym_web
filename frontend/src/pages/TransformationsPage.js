@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight } from 'lucide-react';
+// ArrowRight removed (unused)
 import { cachedGet } from '../utils/api';
 
 export default function TransformationsPage() {

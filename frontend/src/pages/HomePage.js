@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useInView, useScroll, useTransform, animate, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Play, Dumbbell, Salad, ShoppingBag, MessageCircle, ChevronRight, Phone, Instagram, MapPin } from 'lucide-react';
+import { ArrowRight, Play, Dumbbell, Salad, ShoppingBag, MessageCircle, ChevronRight, Phone, Instagram } from 'lucide-react';
 
 const GYM_PHONE     = '9589730151';
 const GYM_WA        = '919589730151';
