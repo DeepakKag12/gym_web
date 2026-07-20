@@ -26,7 +26,17 @@
    RESET & BASE
 ───────────────────────────────────────────────────── */
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  /* Prevent iOS rubber-band showing white/black gap behind the page */
+  background: var(--bg);
+  /* Prevent pull-to-refresh native gesture from showing white gap */
+  overscroll-behavior-y: none;
+  /* Ensure the whole viewport stays dark */
+  min-height: 100%;
+}
 
 body {
   font-family: 'Inter', system-ui, sans-serif;
@@ -34,9 +44,21 @@ body {
   color: var(--text);
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Prevent iOS bounce scroll showing wrong background */
+  overscroll-behavior-y: none;
+  min-height: 100vh;
+  min-height: 100dvh; /* dynamic viewport for mobile browsers with address bar */
   /* safe area for notch phones */
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
+}
+
+/* Keep dark bg visible during page transitions / lazy load */
+#root {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--bg);
 }
 
 /* ── Tap target minimum ── */

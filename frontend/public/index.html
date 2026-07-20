@@ -1,17 +1,39 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" style="background:#0b0c0e;">
   <head>
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#2563eb" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <!-- Match app background so status bar + address bar blend in on mobile -->
+    <meta name="theme-color" content="#0b0c0e" />
+    <meta name="theme-color" content="#0b0c0e" media="(prefers-color-scheme: dark)" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="description" content="FitNation By Ajeet — Uniting a Healthier World. Workouts, Diet Plans, Supplements & More." />
     <title>FitNation By Ajeet – Uniting a Healthier World</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Inline critical CSS: paint the correct background colour before ANY JS/CSS loads.
+         This is what prevents the white/black flash on mobile refresh. -->
+    <style>
+      html, body, #root {
+        background: #0b0c0e;
+        min-height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      /* Loading skeleton shown before React mounts */
+      #root:empty::after {
+        content: '';
+        display: block;
+        position: fixed;
+        inset: 0;
+        background: #0b0c0e;
+      }
+    </style>
   </head>
-  <body>
+  <body style="background:#0b0c0e; margin:0;">
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
   </body>

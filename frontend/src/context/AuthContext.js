@@ -14,19 +14,23 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
       return;
     }
-    // Try to restore from sessionStorage first (survives page refresh, cleared on tab close)
+
+    // ── Step 1: Restore instantly from sessionStorage (survives refresh, cleared on tab close)
     const cached = sessionStorage.getItem('auth_user');
     if (cached) {
       try {
-        setUser(JSON.parse(cached));
-        setLoading(false);
-        // Re-validate in the background without blocking the UI
+        const parsed = JSON.parse(cached);
+        setUser(parsed);
+        setLoading(false); // ← UI renders immediately, no black screen
+
+        // ── Step 2: Silently re-validate token in background
         API.get('/auth/me')
           .then(res => {
             setUser(res.data);
             sessionStorage.setItem('auth_user', JSON.stringify(res.data));
           })
           .catch(() => {
+            // Token expired or revoked — log out cleanly
             localStorage.removeItem('token');
             sessionStorage.removeItem('auth_user');
             setUser(null);
@@ -36,6 +40,10 @@ export const AuthProvider = ({ children }) => {
         sessionStorage.removeItem('auth_user');
       }
     }
+
+    // ── Step 3: No cache — must call API (only on very first load after login on new device)
+    // Set a 5s timeout so mobile users on bad networks don't get stuck on black screen forever
+    const timeout = setTimeout(() => setLoading(false), 5000);
     API.get('/auth/me')
       .then(res => {
         setUser(res.data);
@@ -45,7 +53,10 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem('token');
         sessionStorage.removeItem('auth_user');
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        clearTimeout(timeout);
+        setLoading(false);
+      });
   }, []);
 
   const login = useCallback(async (email, password) => {

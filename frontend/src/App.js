@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useEffect } from 'react';
+import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
@@ -62,12 +62,31 @@ function ScrollToTop() {
 }
 
 // ── Full-screen loading spinner (shown while lazy chunks load) ─────────────────
+// Uses a delayed fade-in so fast loads don't flash the spinner at all.
 function PageSpinner() {
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    // Only show spinner if loading takes longer than 120ms — prevents flash on fast loads
+    const t = setTimeout(() => setVisible(true), 120);
+    return () => clearTimeout(t);
+  }, []);
+
   return (
-    <div className="flex items-center justify-center h-screen bg-[#0a0a0f]">
-      <div className="flex flex-col items-center gap-3">
-        <div className="w-10 h-10 border-2 border-[#22d3ee] border-t-transparent rounded-full animate-spin" />
-        <span className="text-gray-600 text-xs">Loading…</span>
+    <div
+      className="flex items-center justify-center h-screen"
+      style={{
+        background: '#0b0c0e',
+        opacity: visible ? 1 : 0,
+        transition: 'opacity 0.2s ease',
+      }}
+    >
+      <div className="flex flex-col items-center gap-4">
+        {/* Logo mark */}
+        <div className="w-12 h-12 rounded-2xl bg-[#22d3ee]/10 border border-[#22d3ee]/20 flex items-center justify-center">
+          <span className="text-[#22d3ee] font-black text-xl" style={{ fontFamily: 'system-ui' }}>F</span>
+        </div>
+        <div className="w-8 h-8 border-2 border-[#22d3ee] border-t-transparent rounded-full animate-spin" />
+        <span className="text-gray-600 text-xs tracking-wide">Loading…</span>
       </div>
     </div>
   );
