@@ -9,7 +9,7 @@ const CATEGORIES = ['protein','creatine','pre-workout','vitamins','weight-gainer
 
 const emptyForm = {
   name: '', description: '', category: 'protein', brand: '', price: '', discountPrice: '',
-  stock: '', flavors: '', weights: '', isFeatured: false, isActive: true,
+  stock: '', flavors: '', weights: '', video: '', isFeatured: false, isActive: true,
 };
 
 function ProductModal({ editData, onClose, onSaved }) {
@@ -104,6 +104,10 @@ function ProductModal({ editData, onClose, onSaved }) {
             <input className="input-dark text-sm" name="weights" value={form.weights} onChange={handleChange} placeholder="1kg, 2kg, 4kg" />
           </div>
           <div className="sm:col-span-2">
+            <label className="text-gray-400 text-xs font-medium block mb-1.5">Product Video <span className="text-gray-600">(YouTube URL or Cloudinary mp4 link — optional)</span></label>
+            <input className="input-dark text-sm" name="video" value={form.video || ''} onChange={handleChange} placeholder="https://youtu.be/... or https://res.cloudinary.com/.../video.mp4" />
+          </div>
+          <div className="sm:col-span-2">
             <label className="text-gray-400 text-xs font-medium block mb-1.5">Description</label>
             <textarea className="input-dark text-sm min-h-[80px] resize-none" name="description" value={form.description} onChange={handleChange}
               placeholder="Describe the product — ingredients, benefits, usage..." />
@@ -163,16 +167,23 @@ export default function AdminStore() {
   const [catFilter, setCatFilter] = useState('all');
 
   const load = (force = false) => {
-    if (force) bustCache('/store');
     setLoading(true);
-    cachedGet('/store', { cache: 60 }).then(r => setProducts(r.data)).catch(() => {}).finally(() => setLoading(false));
+    // Always bypass client cache when force=true (after add/edit/delete)
+    const fetcher = force ? API.get('/store') : cachedGet('/store', { cache: 60 });
+    fetcher.then(r => setProducts(r.data)).catch(() => {}).finally(() => setLoading(false));
+    if (force) bustCache('/store');
   };
   useEffect(load, []);
 
   const del = async (id) => {
     if (!window.confirm('Delete this product?')) return;
-    try { await API.delete(`/store/${id}`); bustCache('/store'); toast.success('Product deleted'); load(true); }
-    catch { toast.error('Error'); }
+    try {
+      await API.delete(`/store/${id}`);
+      // Optimistically remove from UI immediately — no waiting for re-fetch
+      setProducts(prev => prev.filter(p => p._id !== id));
+      bustCache('/store');
+      toast.success('Product deleted');
+    } catch { toast.error('Delete failed'); }
   };
 
   const toggleActive = async (p) => {

@@ -1,10 +1,58 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Star, ShoppingCart, ShoppingBag, X, Zap, Shield, Truck, RotateCcw } from 'lucide-react';
+import { Search, Star, ShoppingCart, ShoppingBag, X, Zap, Shield, Truck, RotateCcw, Video } from 'lucide-react';
 import { cachedGet } from '../utils/api';
 import { useCart } from '../context/CartContext';
 import toast from 'react-hot-toast';
+
+/** Detect YouTube URL */
+function isYouTube(url) {
+  return url && (url.includes('youtube.com') || url.includes('youtu.be'));
+}
+/** Extract YouTube video ID */
+function ytId(url) {
+  if (!url) return '';
+  const m = url.match(/(?:v=|youtu\.be\/|embed\/)([A-Za-z0-9_-]{11})/);
+  return m ? m[1] : '';
+}
+/**
+ * VideoThumb — same as ExercisesPage:
+ *   YouTube   → muted autoplay iframe
+ *   mp4/video → muted autoplay <video>
+ *   image     → <img>
+ *   nothing   → ShoppingBag icon placeholder
+ */
+function VideoThumb({ video, image, title }) {
+  const src = video || '';
+  if (src) {
+    if (isYouTube(src)) {
+      const id = ytId(src);
+      return id ? (
+        <iframe
+          src={`https://www.youtube.com/embed/${id}?autoplay=1&mute=1&loop=1&playlist=${id}&controls=0&modestbranding=1&playsinline=1`}
+          className="absolute inset-0 w-full h-full border-0 pointer-events-none"
+          allow="autoplay; muted"
+          title={title}
+        />
+      ) : null;
+    }
+    return (
+      <video
+        src={src}
+        autoPlay muted loop playsInline
+        className="absolute inset-0 w-full h-full object-cover"
+      />
+    );
+  }
+  if (image) return <img src={image} alt={title} className="absolute inset-0 w-full h-full object-cover product-img" loading="lazy" />;
+  return (
+    <div className="absolute inset-0 flex flex-col items-center justify-center gap-2" style={{ background: 'var(--bg3)' }}>
+      <ShoppingBag size={36} style={{ color: 'var(--border)' }} />
+      <span className="text-xs" style={{ color: 'var(--muted)' }}>No image</span>
+    </div>
+  );
+}
 
 function useDebounce(value, delay) {
   const [debounced, setDebounced] = useState(value);
@@ -58,23 +106,10 @@ function ProductCard({ product, onAdd }) {
 
   return (
     <div className="product-card flex flex-col h-full">
-      {/* ── Square image area ── */}
+      {/* ── Square media area (video or image) ── */}
       <Link to={`/store/${product._id}`} className="block relative overflow-hidden flex-shrink-0" style={{ paddingBottom: '100%' }}>
-        <div className="absolute inset-0">
-          {product.images?.[0] ? (
-            <img
-              src={product.images[0]}
-              alt={product.name}
-              className="product-img w-full h-full object-cover"
-              loading="lazy"
-            />
-          ) : (
-            <div className="w-full h-full flex flex-col items-center justify-center gap-2"
-              style={{ background: 'var(--bg3)' }}>
-              <ShoppingBag size={36} style={{ color: 'var(--border)' }} />
-              <span className="text-xs" style={{ color: 'var(--muted)' }}>No image</span>
-            </div>
-          )}
+        <div className="absolute inset-0 bg-[#0f1218]">
+          <VideoThumb video={product.video} image={product.images?.[0]} title={product.name} />
         </div>
         {/* Overlay gradient at bottom */}
         <div className="absolute inset-x-0 bottom-0 h-12 pointer-events-none"
@@ -82,8 +117,14 @@ function ProductCard({ product, onAdd }) {
         {/* Badges */}
         {discount > 0 && <span className="badge-discount">{discount}% OFF</span>}
         {product.isFeatured && <span className="badge-new">★ Featured</span>}
+        {/* Video indicator badge */}
+        {product.video && (
+          <div className="absolute top-2 right-2 z-10 bg-[#22d3ee] rounded-full p-1">
+            <Video size={10} className="text-black" />
+          </div>
+        )}
         {product.stock === 0 && (
-          <div className="absolute inset-0 flex items-center justify-center"
+          <div className="absolute inset-0 flex items-center justify-center z-10"
             style={{ background: 'rgba(11,12,14,0.7)' }}>
             <span className="text-sm font-semibold px-3 py-1 rounded-full"
               style={{ color: 'var(--muted2)', border: '1px solid var(--border)', background: 'var(--bg2)' }}>
