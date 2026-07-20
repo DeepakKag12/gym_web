@@ -30,7 +30,6 @@ import MyProgress from './pages/member/MyProgress';
 import MyWorkoutSplit from './pages/member/MyWorkoutSplit';
 import MyExercises from './pages/member/MyExercises';
 import MyDiet from './pages/member/MyDiet';
-import WeeklyPlanner from './pages/member/WeeklyPlanner';
 
 // Admin Pages
 import AdminDashboard from './pages/admin/Dashboard';
@@ -147,9 +146,9 @@ function AppRoutes() {
         <Route path="/my-orders"          element={<ProtectedRoute roles={['member']}><MyOrders /></ProtectedRoute>} />
         <Route path="/my-progress"        element={<ProtectedRoute roles={['member']}><MyProgress /></ProtectedRoute>} />
         <Route path="/my-workout"         element={<ProtectedRoute roles={['member']}><MyWorkoutSplit /></ProtectedRoute>} />
+        <Route path="/my-planner"         element={<Navigate to="/my-workout" replace />} />
         <Route path="/my-exercises"       element={<ProtectedRoute roles={['member']}><MyExercises /></ProtectedRoute>} />
         <Route path="/my-diet"            element={<ProtectedRoute roles={['member']}><MyDiet /></ProtectedRoute>} />
-        <Route path="/my-planner"         element={<ProtectedRoute roles={['member']}><WeeklyPlanner /></ProtectedRoute>} />
 
         {/* ── Trainer ── */}
         <Route path="/trainer"            element={<ProtectedRoute roles={['trainer']}><TrainerDashboard /></ProtectedRoute>} />

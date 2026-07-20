@@ -53,6 +53,7 @@ function ExerciseModal({ editData, members, onClose, onSaved }) {
   const [videoFile, setVideoFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(editData?.image || '');
   const [videoPreview, setVideoPreview] = useState(editData?.video || '');
+  const [removeVideo, setRemoveVideo] = useState(false); // flag to clear existing video
   const [saving, setSaving] = useState(false);
   const [uploadProgress, setUploadProgress] = useState('');
   const imgRef = useRef(), vidRef = useRef();
@@ -119,8 +120,8 @@ function ExerciseModal({ editData, members, onClose, onSaved }) {
     setSaving(true);
     try {
       let imageUrl = editData?.image || '';
-      let videoUrl = editData?.video || '';
-      let videoPublicId = editData?.videoPublicId || '';
+      let videoUrl = removeVideo ? '' : (editData?.video || '');
+      let videoPublicId = removeVideo ? '' : (editData?.videoPublicId || '');
 
       // Upload image directly to Cloudinary if a new file was selected
       if (imageFile) {
@@ -145,7 +146,9 @@ function ExerciseModal({ editData, members, onClose, onSaved }) {
       fd.append('assignedTo', form.assignedTo ? JSON.stringify([form.assignedTo]) : JSON.stringify([]));
       // Pass already-uploaded Cloudinary URLs; no file blobs sent to Vercel
       if (imageFile) fd.append('imageUrl', imageUrl);
-      if (videoFile) { fd.append('uploadedVideoUrl', videoUrl); fd.append('uploadedVideoPublicId', videoPublicId); }
+      // Always send video state so backend can clear it if removeVideo
+      fd.append('uploadedVideoUrl', videoUrl);
+      if (videoPublicId) fd.append('uploadedVideoPublicId', videoPublicId);
 
       if (editData) {
         await API.put(`/exercises/${editData._id}`, fd);
@@ -269,20 +272,49 @@ function ExerciseModal({ editData, members, onClose, onSaved }) {
           </div>
 
           <div>
-            <label className="block text-xs mb-0.5" style={{ color: 'var(--muted)' }}>Video File <span style={{ opacity: 0.5 }}>(mp4, any size)</span></label>
-            {videoPreview && !videoFile && editData?.video && (
-              <div className="text-xs mb-1 flex items-center gap-1" style={{ color: 'var(--cyan)' }}>
-                <Video size={10} /> Saved
+            <label className="block text-xs mb-0.5" style={{ color: 'var(--muted)' }}>
+              Video File <span style={{ opacity: 0.5 }}>(mp4, any size)</span>
+            </label>
+
+            {/* Existing video state */}
+            {editData?.video && !videoFile && !removeVideo && (
+              <div className="flex items-center gap-1.5 mb-1">
+                <a href={editData.video} target="_blank" rel="noreferrer"
+                  className="text-xs flex items-center gap-1 flex-1 truncate"
+                  style={{ color: 'var(--cyan)' }}>
+                  <Video size={10} /> Saved video
+                </a>
+                <button type="button"
+                  onClick={() => { setRemoveVideo(true); setVideoPreview(''); }}
+                  className="text-xs px-1.5 py-0.5 rounded-lg transition-all"
+                  style={{ color: '#f87171', background: 'rgba(248,113,113,0.1)', border: '1px solid rgba(248,113,113,0.2)' }}>
+                  Remove
+                </button>
+              </div>
+            )}
+            {removeVideo && !videoFile && (
+              <div className="text-xs mb-1 flex items-center gap-1.5" style={{ color: '#f87171' }}>
+                <span>Video will be removed</span>
+                <button type="button" onClick={() => { setRemoveVideo(false); setVideoPreview(editData?.video || ''); }}
+                  className="underline" style={{ color: 'var(--muted)' }}>Undo</button>
               </div>
             )}
             {videoFile && (
-              <div className="text-xs mb-1 truncate" style={{ color: 'var(--cyan)' }}>✓ {videoFile.name.slice(0,14)}</div>
+              <div className="flex items-center gap-1.5 mb-1">
+                <span className="text-xs truncate flex-1" style={{ color: 'var(--cyan)' }}>✓ {videoFile.name.slice(0,16)}</span>
+                <button type="button" onClick={() => { setVideoFile(null); setVideoPreview(editData?.video || ''); }}
+                  className="text-xs" style={{ color: 'var(--muted)' }}>✕</button>
+              </div>
             )}
+
             <button type="button" onClick={() => vidRef.current?.click()}
               className="w-full rounded-lg py-2 text-xs transition-all flex items-center justify-center gap-1"
               style={{ border: '1px dashed var(--border)', color: 'var(--muted)' }}>
-              <Video size={10} /> {videoFile ? 'Change' : 'Video'}
-              <input ref={vidRef} type="file" accept="video/*" className="hidden" onChange={handleVideoFile} />
+              <Video size={10} /> {videoFile ? 'Change video' : removeVideo ? 'Upload new video' : 'Upload video'}
+              <input ref={vidRef} type="file" accept="video/*" className="hidden" onChange={e => {
+                handleVideoFile(e);
+                if (e.target.files[0]) setRemoveVideo(false);
+              }} />
             </button>
           </div>
         </div>

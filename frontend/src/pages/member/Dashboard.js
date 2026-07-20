@@ -6,12 +6,12 @@ import { useAuth } from '../../context/AuthContext';
 import API from '../../utils/api';
 
 const QUICK_ACTIONS = [
-  { icon: <Calendar size={22} className="text-cyan-400" />,    label: 'My Planner',   sub: 'Weekly plan',     path: '/my-planner',   border: 'hover:border-cyan-500/30' },
-  { icon: <Dumbbell size={22} className="text-blue-400" />,    label: 'My Workout',   sub: 'Assigned split',  path: '/my-workout',   border: 'hover:border-blue-500/30' },
+  { icon: <Dumbbell size={22} className="text-cyan-400" />,    label: 'My Workout',   sub: 'Planner + split', path: '/my-workout',   border: 'hover:border-cyan-500/30' },
   { icon: <TrendingUp size={22} className="text-green-400" />, label: 'Progress',     sub: 'Log & track',     path: '/my-progress',  border: 'hover:border-green-500/30' },
   { icon: <Salad size={22} className="text-teal-400" />,       label: 'My Diet',      sub: 'Assigned plans',  path: '/my-diet',      border: 'hover:border-teal-500/30' },
+  { icon: <ShoppingBag size={22} className="text-purple-400" />,label: 'Store',       sub: 'Supplements',     path: '/store',        border: 'hover:border-purple-500/30' },
   { icon: <Package size={22} className="text-amber-400" />,    label: 'My Orders',    sub: 'Order history',   path: '/my-orders',    border: 'hover:border-amber-500/30' },
-  { icon: <ShoppingBag size={22} className="text-pink-400" />, label: 'Store',        sub: 'Supplements',     path: '/store',        border: 'hover:border-pink-500/30' },
+  { icon: <Calendar size={22} className="text-pink-400" />,    label: 'My Exercises', sub: 'Assigned to me',  path: '/my-exercises', border: 'hover:border-pink-500/30' },
 ];
 
 export default function MemberDashboard() {
