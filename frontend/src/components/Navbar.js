@@ -72,7 +72,7 @@ export default function Navbar() {
 
   const handleLogout = () => { logout(); navigate('/'); };
   const isActive = (path) => location.pathname === path;
-  const panelPath = user?.role === 'trainer' ? '/trainer' : '/admin';
+  const panelPath = user?.role === 'admin' ? '/admin' : user?.role === 'trainer' ? '/trainer' : '/dashboard';
 
   return (
     <>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Package, Clock, CheckCircle, XCircle, MapPin, ShoppingBag } from 'lucide-react';
 import { cachedGet } from '../../utils/api';
@@ -78,7 +79,7 @@ export default function MyOrders() {
             <Package size={40} className="text-gray-600 mx-auto mb-3" />
             <div className="text-gray-400 mb-1">No orders placed yet</div>
             <p className="text-gray-600 text-sm mb-4">Visit the store to order supplements</p>
-            <a href="/store" className="btn-fire inline-block px-6 py-2.5 text-sm">Browse Store</a>
+            <Link to="/store" className="btn-fire inline-block px-6 py-2.5 text-sm">Browse Store</Link>
           </div>
         ) : (
           <div className="space-y-4">

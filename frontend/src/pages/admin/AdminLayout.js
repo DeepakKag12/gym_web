@@ -190,13 +190,13 @@ export default function AdminLayout({ children, title }) {
               <Link
                 key={link.path}
                 to={link.path}
-                className={`flex-1 flex flex-col items-center justify-center py-2.5 gap-0.5 transition-all ${
+                className={`flex-1 flex flex-col items-center justify-center py-2.5 gap-0.5 transition-all relative ${
                   active ? 'text-[#22d3ee]' : 'text-gray-500 hover:text-gray-300'
                 }`}
               >
                 <Icon size={20} strokeWidth={active ? 2.5 : 1.8} />
                 <span className="text-[10px] font-medium leading-tight">{link.label}</span>
-                {active && <span className="absolute bottom-0 w-6 h-0.5 bg-[#22d3ee] rounded-full" />}
+                {active && <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-0.5 bg-[#22d3ee] rounded-full" />}
               </Link>
             );
           })}

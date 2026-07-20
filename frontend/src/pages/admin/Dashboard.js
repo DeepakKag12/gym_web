@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Users, MessageSquare, Package, Bell, AlertCircle, CheckCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { cachedGet } from '../../utils/api';
+import { freshGet } from '../../utils/api';
 import AdminLayout from './AdminLayout';
 
 const StatCard = ({ icon, label, value, color, link }) => (
@@ -24,10 +24,11 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Always fetch fresh so the admin dashboard reflects latest additions/deletions
     Promise.all([
-      cachedGet('/members', { cache: 60 }),
-      cachedGet('/orders', { cache: 60 }),
-      cachedGet('/enquiries', { cache: 60 }),
+      freshGet('/members', { cache: 30 }),
+      freshGet('/orders', { cache: 30 }),
+      freshGet('/enquiries', { cache: 30 }),
     ]).then(([m, o, e]) => {
       const members = m.data;
       const now = new Date();

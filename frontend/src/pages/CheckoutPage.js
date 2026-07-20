@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircle, ShoppingBag, MapPin } from 'lucide-react';
 import { useCart } from '../context/CartContext';
@@ -15,7 +15,17 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  if (cart.length === 0) { navigate('/cart'); return null; }
+  // Redirect unauthenticated users to login
+  useEffect(() => {
+    if (!user) navigate('/login', { replace: true });
+  }, [user, navigate]);
+
+  // Redirect if cart is empty
+  useEffect(() => {
+    if (cart.length === 0 && !success) navigate('/cart', { replace: true });
+  }, [cart.length, success, navigate]);
+
+  if (!user || (cart.length === 0 && !success)) return null;
 
   const handleSubmit = async (e) => {
     e.preventDefault();

@@ -24,7 +24,7 @@ export default function MemberBottomNav() {
 
   // Only show on member-relevant pages
   const memberPaths = MEMBER_NAV.map(n => n.path);
-  const alsoShow = ['/my-orders', '/my-exercises', '/store', '/cart'];
+  const alsoShow = ['/my-orders', '/my-exercises', '/my-diet', '/store', '/cart', '/settings'];
   const visible = [...memberPaths, ...alsoShow].some(p => location.pathname.startsWith(p));
   if (!visible) return null;
 
