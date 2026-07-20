@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Salad, TrendingUp, Bell, Calendar } from 'lucide-react';
+import { LayoutDashboard, Salad, TrendingUp, Bell, CalendarDays } from 'lucide-react';
 import API from '../utils/api';
 
 // 5 primary tabs a member needs most on mobile
 const MEMBER_NAV = [
   { path: '/dashboard',     icon: LayoutDashboard, label: 'Home' },
-  { path: '/my-workout',    icon: Calendar,        label: 'Workout' },
+  { path: '/my-planner',    icon: CalendarDays,    label: 'Planner' },
   { path: '/my-diet',       icon: Salad,           label: 'Diet' },
   { path: '/my-progress',   icon: TrendingUp,      label: 'Progress' },
   { path: '/notifications', icon: Bell,            label: 'Alerts' },
@@ -24,7 +24,7 @@ export default function MemberBottomNav() {
 
   // Only show on member-relevant pages
   const memberPaths = MEMBER_NAV.map(n => n.path);
-  const alsoShow = ['/my-orders', '/my-exercises', '/store', '/cart'];
+  const alsoShow = ['/my-orders', '/my-exercises', '/my-workout', '/store', '/cart'];
   const visible = [...memberPaths, ...alsoShow].some(p => location.pathname.startsWith(p));
   if (!visible) return null;
 

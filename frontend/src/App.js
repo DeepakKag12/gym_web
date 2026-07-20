@@ -30,6 +30,7 @@ import MyProgress from './pages/member/MyProgress';
 import MyWorkoutSplit from './pages/member/MyWorkoutSplit';
 import MyExercises from './pages/member/MyExercises';
 import MyDiet from './pages/member/MyDiet';
+import WeeklyPlanner from './pages/member/WeeklyPlanner';
 
 // Admin Pages
 import AdminDashboard from './pages/admin/Dashboard';
@@ -53,36 +54,75 @@ import TrainerDashboard from './pages/trainer/Dashboard';
 // Member bottom nav
 import MemberBottomNav from './components/MemberBottomNav';
 
-const ProtectedRoute = ({ children, roles }) => {
-  const { user, loading } = useAuth();
-  if (loading) return (
+// ── Loading spinner ────────────────────────────────────────────────────────────
+function Spinner() {
+  return (
     <div className="flex items-center justify-center h-screen bg-[#0a0a0f]">
-      <div className="w-10 h-10 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+      <div className="w-10 h-10 border-2 border-[#22d3ee] border-t-transparent rounded-full animate-spin" />
     </div>
   );
-  if (!user) return <Navigate to="/login" />;
-  if (roles && !roles.includes(user.role)) return <Navigate to="/" />;
+}
+
+// ── Route guards ───────────────────────────────────────────────────────────────
+
+/**
+ * ProtectedRoute: requires authentication.
+ * Optionally restrict to specific roles via `roles` prop.
+ */
+const ProtectedRoute = ({ children, roles }) => {
+  const { user, loading } = useAuth();
+  if (loading) return <Spinner />;
+  if (!user) return <Navigate to="/login" replace />;
+  if (roles && !roles.includes(user.role)) {
+    // Send each role to its home panel instead of a blank redirect
+    if (user.role === 'admin')   return <Navigate to="/admin" replace />;
+    if (user.role === 'trainer') return <Navigate to="/trainer" replace />;
+    return <Navigate to="/dashboard" replace />;
+  }
   return children;
 };
 
-// Routes that hide the global Navbar + Footer (admin has its own layout)
-const ADMIN_PREFIX = '/admin';
+/**
+ * AdminRoute: shorthand for admin + trainer combined routes.
+ */
+const AdminRoute = ({ children, allowTrainer = false }) => (
+  <ProtectedRoute roles={allowTrainer ? ['admin', 'trainer'] : ['admin']}>
+    {children}
+  </ProtectedRoute>
+);
+
+/**
+ * GuestRoute: redirects already-logged-in users away from /login.
+ */
+const GuestRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+  if (loading) return <Spinner />;
+  if (user) {
+    if (user.role === 'admin')   return <Navigate to="/admin" replace />;
+    if (user.role === 'trainer') return <Navigate to="/trainer" replace />;
+    return <Navigate to="/dashboard" replace />;
+  }
+  return children;
+};
+
+// ── Routes that hide the global Navbar + Footer ────────────────────────────────
+const ADMIN_PREFIX   = '/admin';
 const TRAINER_PREFIX = '/trainer';
 
 function AppRoutes() {
   const { user } = useAuth();
   const location = useLocation();
 
-  const isAdminRoute = location.pathname.startsWith(ADMIN_PREFIX) || location.pathname.startsWith(TRAINER_PREFIX);
+  const isAdminRoute  = location.pathname.startsWith(ADMIN_PREFIX) || location.pathname.startsWith(TRAINER_PREFIX);
   const isMemberRoute = !isAdminRoute && user?.role === 'member';
 
   return (
     <>
-      {/* Global navbar — hidden on admin/trainer panel */}
+      {/* Global navbar — hidden on admin / trainer panel */}
       {!isAdminRoute && <Navbar />}
 
       <Routes>
-        {/* Public */}
+        {/* ── Public ── */}
         <Route path="/"                   element={<HomePage />} />
         <Route path="/about"              element={<AboutPage />} />
         <Route path="/exercises"          element={<ExercisesPage />} />
@@ -94,43 +134,47 @@ function AppRoutes() {
         <Route path="/checkout"           element={<CheckoutPage />} />
         <Route path="/transformations"    element={<TransformationsPage />} />
         <Route path="/enquiry"            element={<EnquiryPage />} />
-        <Route path="/login"              element={<LoginPage />} />
 
-        {/* Settings — all authenticated roles */}
+        {/* ── Guest-only (redirect logged-in users away) ── */}
+        <Route path="/login"              element={<GuestRoute><LoginPage /></GuestRoute>} />
+
+        {/* ── Authenticated (all roles) ── */}
         <Route path="/settings"           element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
-
-        {/* Member */}
-        <Route path="/dashboard"          element={<ProtectedRoute roles={['member']}><MemberDashboard /></ProtectedRoute>} />
         <Route path="/notifications"      element={<ProtectedRoute><MyNotifications /></ProtectedRoute>} />
+
+        {/* ── Member ── */}
+        <Route path="/dashboard"          element={<ProtectedRoute roles={['member']}><MemberDashboard /></ProtectedRoute>} />
         <Route path="/my-orders"          element={<ProtectedRoute roles={['member']}><MyOrders /></ProtectedRoute>} />
         <Route path="/my-progress"        element={<ProtectedRoute roles={['member']}><MyProgress /></ProtectedRoute>} />
         <Route path="/my-workout"         element={<ProtectedRoute roles={['member']}><MyWorkoutSplit /></ProtectedRoute>} />
         <Route path="/my-exercises"       element={<ProtectedRoute roles={['member']}><MyExercises /></ProtectedRoute>} />
         <Route path="/my-diet"            element={<ProtectedRoute roles={['member']}><MyDiet /></ProtectedRoute>} />
+        <Route path="/my-planner"         element={<ProtectedRoute roles={['member']}><WeeklyPlanner /></ProtectedRoute>} />
 
-        {/* Trainer */}
+        {/* ── Trainer ── */}
         <Route path="/trainer"            element={<ProtectedRoute roles={['trainer']}><TrainerDashboard /></ProtectedRoute>} />
 
-        {/* Admin */}
-        <Route path="/admin"              element={<ProtectedRoute roles={['admin']}><AdminDashboard /></ProtectedRoute>} />
-        <Route path="/admin/members"      element={<ProtectedRoute roles={['admin']}><AdminMembers /></ProtectedRoute>} />
-        <Route path="/admin/exercises"    element={<ProtectedRoute roles={['admin','trainer']}><AdminExercises /></ProtectedRoute>} />
-        <Route path="/admin/diet"         element={<ProtectedRoute roles={['admin','trainer']}><AdminDiet /></ProtectedRoute>} />
-        <Route path="/admin/store"        element={<ProtectedRoute roles={['admin']}><AdminStore /></ProtectedRoute>} />
-        <Route path="/admin/transformations" element={<ProtectedRoute roles={['admin','trainer']}><AdminTransformations /></ProtectedRoute>} />
-        <Route path="/admin/enquiries"    element={<ProtectedRoute roles={['admin']}><AdminEnquiries /></ProtectedRoute>} />
-        <Route path="/admin/orders"       element={<ProtectedRoute roles={['admin']}><AdminOrders /></ProtectedRoute>} />
-        <Route path="/admin/trainers"     element={<ProtectedRoute roles={['admin']}><AdminTrainers /></ProtectedRoute>} />
-        <Route path="/admin/analytics"    element={<ProtectedRoute roles={['admin']}><AdminAnalytics /></ProtectedRoute>} />
-        <Route path="/admin/revenue"      element={<ProtectedRoute roles={['admin']}><AdminRevenue /></ProtectedRoute>} />
-        <Route path="/admin/plans"        element={<ProtectedRoute roles={['admin']}><AdminPlans /></ProtectedRoute>} />
-        <Route path="/admin/splits"       element={<ProtectedRoute roles={['admin','trainer']}><AdminSplits /></ProtectedRoute>} />
-        <Route path="/admin/notifications" element={<ProtectedRoute roles={['admin']}><AdminNotifications /></ProtectedRoute>} />
+        {/* ── Admin ── */}
+        <Route path="/admin"                    element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+        <Route path="/admin/members"            element={<AdminRoute><AdminMembers /></AdminRoute>} />
+        <Route path="/admin/exercises"          element={<AdminRoute allowTrainer><AdminExercises /></AdminRoute>} />
+        <Route path="/admin/diet"               element={<AdminRoute allowTrainer><AdminDiet /></AdminRoute>} />
+        <Route path="/admin/store"              element={<AdminRoute><AdminStore /></AdminRoute>} />
+        <Route path="/admin/transformations"    element={<AdminRoute allowTrainer><AdminTransformations /></AdminRoute>} />
+        <Route path="/admin/enquiries"          element={<AdminRoute><AdminEnquiries /></AdminRoute>} />
+        <Route path="/admin/orders"             element={<AdminRoute><AdminOrders /></AdminRoute>} />
+        <Route path="/admin/trainers"           element={<AdminRoute><AdminTrainers /></AdminRoute>} />
+        <Route path="/admin/analytics"          element={<AdminRoute><AdminAnalytics /></AdminRoute>} />
+        <Route path="/admin/revenue"            element={<AdminRoute><AdminRevenue /></AdminRoute>} />
+        <Route path="/admin/plans"              element={<AdminRoute><AdminPlans /></AdminRoute>} />
+        <Route path="/admin/splits"             element={<AdminRoute allowTrainer><AdminSplits /></AdminRoute>} />
+        <Route path="/admin/notifications"      element={<AdminRoute><AdminNotifications /></AdminRoute>} />
 
-        <Route path="*" element={<Navigate to="/" />} />
+        {/* ── Fallback ── */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
 
-      {/* Global footer — hidden on admin/trainer panel */}
+      {/* Global footer — hidden on admin / trainer panel */}
       {!isAdminRoute && <Footer />}
 
       {/* Member bottom navigation (mobile only) */}

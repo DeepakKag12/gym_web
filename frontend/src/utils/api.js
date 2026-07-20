@@ -35,4 +35,50 @@ API.interceptors.response.use(
   }
 );
 
+// ── Client-side in-memory cache ────────────────────────────────────────────────
+// Only caches safe GET requests. Keyed by full URL + token presence.
+// TTL defaults to 60 s; callers can override via { cache: ttlSeconds } in config.
+const _clientCache = new Map();
+
+function _cacheKey(config) {
+  const auth = localStorage.getItem('token') ? '1' : '0';
+  return `${config.method || 'get'}:${config.url}:${JSON.stringify(config.params || {})}:${auth}`;
+}
+
+function _isCacheable(config) {
+  return (config.method || 'get').toLowerCase() === 'get' && config.cache !== false;
+}
+
+/**
+ * cachedGet(url, config)
+ * Like API.get() but returns a stale-while-revalidate promise.
+ * config.cache = TTL in seconds (default 60). Set to false to skip cache.
+ */
+export async function cachedGet(url, config = {}) {
+  if (!_isCacheable({ ...config, method: 'get' })) {
+    return API.get(url, config);
+  }
+  const ttl = typeof config.cache === 'number' ? config.cache : 60;
+  const key = _cacheKey({ ...config, method: 'get', url });
+  const entry = _clientCache.get(key);
+  const now = Date.now();
+
+  if (entry && now < entry.expiresAt) {
+    return entry.promise;
+  }
+  // Kick off fresh request and cache the promise
+  const promise = API.get(url, config);
+  _clientCache.set(key, { promise, expiresAt: now + ttl * 1000 });
+  // On error remove from cache so the next call retries
+  promise.catch(() => _clientCache.delete(key));
+  return promise;
+}
+
+/** Purge all client-side cache entries whose key contains the given pattern. */
+export function bustCache(pattern) {
+  for (const key of _clientCache.keys()) {
+    if (key.includes(pattern)) _clientCache.delete(key);
+  }
+}
+
 export default API;
