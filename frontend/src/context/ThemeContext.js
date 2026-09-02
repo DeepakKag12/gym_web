@@ -25,12 +25,10 @@ export const THEME_KEY = 'fn-panel-theme';
 const ThemeContext = createContext(null);
 
 /**
- * Reads the stored choice.
+ * Reads the stored choice, defaulting to light.
  *
- * Falls back to dark rather than to the OS setting: this is a gym brand built
- * on a near-black palette, and a first-time visitor on a light-mode laptop
- * should still see the site the way it was designed. The toggle is one click
- * away and the choice is remembered from then on.
+ * Once a visitor picks a side it is remembered, so this only decides the very
+ * first visit.
  */
 export function readStoredTheme() {
   try {
@@ -39,7 +37,7 @@ export function readStoredTheme() {
   } catch {
     /* Safari private mode throws on localStorage — fall through to the default. */
   }
-  return 'dark';
+  return 'light';
 }
 
 function applyTheme(theme) {

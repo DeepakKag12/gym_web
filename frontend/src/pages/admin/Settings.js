@@ -2,11 +2,14 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Dumbbell, CalendarDays, Salad, Sparkles, ShoppingBag, Package, Tag,
-  Bell, MessageSquare, IndianRupee, BarChart3, UserCheck, User, LogOut, ChevronRight, Building2,
+  Bell, MessageSquare, IndianRupee, BarChart3, UserCheck, User, LogOut, ChevronRight, Building2, AlertTriangle,
 } from 'lucide-react';
 import AdminLayout from './AdminLayout';
 import { useAuth } from '../../context/AuthContext';
-import { Card, Button } from '../../components/ui';
+import { Card, Button, Modal, Field, Input, Check as CheckRow } from '../../components/ui';
+import API, { apiError } from '../../utils/api';
+import toast from 'react-hot-toast';
+import { useState } from 'react';
 
 /**
  * Everything that is not a daily job lives here.
@@ -73,8 +76,97 @@ function ToolRow({ item, last }) {
   );
 }
 
+
+/**
+ * Clearing reporting data is destructive and cannot be undone, so it asks for
+ * three separate things: which data, the word DELETE, and the admin's own
+ * password. Being signed in is not enough — a session left open on the gym
+ * counter should never be one click away from erasing the books.
+ *
+ * Members, trainers and their memberships are never in scope. This clears the
+ * record of money and messages, not the people.
+ */
+const SCOPES = [
+  { key: 'payments',      label: 'Payments',      hint: 'Membership fees and renewal records' },
+  { key: 'orders',        label: 'Shop orders',   hint: 'Every order and its payment status' },
+  { key: 'notifications', label: 'Notifications', hint: 'The whole message history' },
+  { key: 'enquiries',     label: 'Enquiries',     hint: 'Website enquiries and your replies' },
+];
+
+function ResetDataModal({ onClose }) {
+  const [picked, setPicked] = useState({});
+  const [password, setPassword] = useState('');
+  const [confirm, setConfirm] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState(null);
+
+  const scopes = SCOPES.filter(s => picked[s.key]).map(s => s.key);
+  const ready = scopes.length > 0 && password && confirm === 'DELETE';
+
+  const run = async () => {
+    setBusy(true);
+    setError(null);
+    try {
+      const { data } = await API.post('/analytics/reset', { password, confirm, scopes });
+      toast.success(data.message);
+      onClose();
+    } catch (err) {
+      setError(apiError(err, 'Could not clear the data.'));
+    } finally { setBusy(false); }
+  };
+
+  return (
+    <Modal
+      title="Clear reporting data"
+      onClose={busy ? () => {} : onClose}
+      width={480}
+      footer={
+        <>
+          <Button onClick={onClose} disabled={busy}>Cancel</Button>
+          <Button variant="primary" onClick={run} loading={busy} disabled={!ready}
+            style={{ background: 'var(--p-danger)' }}>
+            Delete permanently
+          </Button>
+        </>
+      }
+    >
+      <p className="text-[14px] mb-4 p-3 rounded-lg" style={{
+        background: 'var(--p-danger-soft)', border: '1px solid var(--p-danger-line)', color: 'var(--p-text)',
+      }}>
+        This cannot be undone. Your members, trainers and their memberships are
+        <strong> not </strong> affected — only the records below.
+      </p>
+
+      <div className="space-y-2 mb-4">
+        {SCOPES.map(s => (
+          <CheckRow
+            key={s.key}
+            checked={Boolean(picked[s.key])}
+            onChange={v => setPicked(p => ({ ...p, [s.key]: v }))}
+            label={s.label}
+            hint={s.hint}
+          />
+        ))}
+      </div>
+
+      <Field label="Type DELETE to confirm" required>
+        <Input value={confirm} onChange={e => setConfirm(e.target.value)} placeholder="DELETE" />
+      </Field>
+
+      <div className="mt-3">
+        <Field label="Your password" required error={error}
+          hint="Re-entered so an unattended session cannot do this">
+          <Input type="password" value={password} autoComplete="current-password"
+            onChange={e => { setPassword(e.target.value); setError(null); }} />
+        </Field>
+      </div>
+    </Modal>
+  );
+}
+
 export default function AdminSettings() {
   const { user, logout } = useAuth();
+  const [resetOpen, setResetOpen] = useState(false);
   const navigate = useNavigate();
   const groups = GROUPS
     .filter(g => g.roles.includes(user?.role))
@@ -113,6 +205,30 @@ export default function AdminSettings() {
               <ToolRow last item={{ to: '/settings', icon: User, label: 'My profile', hint: 'Change your name, photo or password' }} />
             </ul>
           </Card>
+          {user?.role === 'admin' && (
+            <div className="mt-5">
+              <h2 className="text-[15px] font-semibold mb-2" style={{ color: 'var(--p-danger)' }}>
+                Danger zone
+              </h2>
+              <Card>
+                <div className="flex items-start justify-between gap-3 flex-wrap">
+                  <div className="min-w-0">
+                    <p className="text-[14.5px] font-medium" style={{ color: 'var(--p-text)' }}>
+                      Clear reporting data
+                    </p>
+                    <p className="text-[13px] mt-0.5" style={{ color: 'var(--p-text-2)' }}>
+                      Wipes payments, orders, notifications or enquiries. Members are not touched.
+                    </p>
+                  </div>
+                  <Button icon={AlertTriangle} onClick={() => setResetOpen(true)}
+                    style={{ color: 'var(--p-danger)', borderColor: 'var(--p-danger-line)' }}>
+                    Clear data
+                  </Button>
+                </div>
+              </Card>
+            </div>
+          )}
+
           <Button
             block
             className="mt-3"
@@ -124,6 +240,8 @@ export default function AdminSettings() {
           </Button>
         </div>
       </div>
+
+      {resetOpen && <ResetDataModal onClose={() => setResetOpen(false)} />}
     </AdminLayout>
   );
 }

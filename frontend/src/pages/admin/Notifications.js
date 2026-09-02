@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  Bell, CheckCheck, RefreshCw, Send, AlertTriangle, MessageCircle, Mail, Monitor, Zap,
+  Bell, CheckCheck, RefreshCw, Send, AlertTriangle, MessageCircle, Mail, Monitor, Zap, Trash2,
 } from 'lucide-react';
+import toast from 'react-hot-toast';
+import API, { cachedGet, bustCache, freshGet } from '../../utils/api';
 import AdminLayout from './AdminLayout';
 import { whatsappPending } from './userService';
-import API, { cachedGet, bustCache, freshGet } from '../../utils/api';
-import toast from 'react-hot-toast';
 import {
   Card, Button, Badge, Field, Input, Select, Textarea, Check as CheckRow,
-  Modal, Tabs, EmptyState, SkeletonList, timeAgo,
+  Modal, Tabs, EmptyState, SkeletonList, ConfirmDialog, timeAgo,
 } from '../../components/ui';
 
 /**
@@ -187,6 +187,8 @@ export default function AdminNotifications() {
   const [filter, setFilter] = useState('all');
   const [composeOpen, setComposeOpen] = useState(false);
   const [testing, setTesting] = useState(false);
+  const [member, setMember] = useState('all');
+  const [confirmDelete, setConfirmDelete] = useState(null);
 
   const load = useCallback(async (force = false) => {
     setLoading(true);
@@ -233,6 +235,32 @@ export default function AdminNotifications() {
     }
   };
 
+  const deleteOne = async n => {
+    try {
+      await API.delete(`/notifications/admin/${n._id}`);
+      setNotifs(prev => prev.filter(x => x._id !== n._id));
+      bustCache('/notifications');
+      toast.success('Notification deleted.');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Could not delete this notification.');
+    }
+  };
+
+  const clearHistory = async () => {
+    try {
+      // Scoped by whoever is selected, so "clear" never means more than the
+      // admin can see on screen.
+      const q = member === 'all' ? 'all=true' : `member=${member}`;
+      const { data } = await API.delete(`/notifications/admin?${q}`);
+      toast.success(data.message);
+      setConfirmDelete(null);
+      bustCache('/notifications');
+      load(true);
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Could not clear the history.');
+    }
+  };
+
   const unread = notifs.filter(n => !n.isRead).length;
 
   /**
@@ -245,7 +273,11 @@ export default function AdminNotifications() {
    */
   const attempted = (n, ch) => Boolean(n.delivery?.[ch]?.status) || (n.sentVia || []).includes(ch);
 
-  const byChannel = notifs.filter(n => attempted(n, channel));
+  // Separating by person matters once the list is long: an admin checking
+  // "did this member actually get told" should not have to scan everything.
+  const byChannel = notifs
+    .filter(n => attempted(n, channel))
+    .filter(n => member === 'all' || String(n.member?._id || n.member) === member);
   const filtered = byChannel.filter(n => (filter === 'unread' ? !n.isRead : filter === 'read' ? n.isRead : true));
 
   const countFor = ch => notifs.filter(n => attempted(n, ch)).length;
@@ -305,6 +337,18 @@ export default function AdminNotifications() {
         </Card>
       )}
 
+      <div className="ui-toolbar">
+        <Select value={member} onChange={e => setMember(e.target.value)}
+          aria-label="Filter by member" style={{ flex: '1 1 240px', maxWidth: 320 }}>
+          <option value="all">Everyone</option>
+          {members.map(m => <option key={m._id} value={m._id}>{m.name}</option>)}
+        </Select>
+        <Button icon={Trash2} onClick={() => setConfirmDelete(true)} disabled={byChannel.length === 0}
+          style={{ color: 'var(--p-danger)' }}>
+          {member === 'all' ? 'Clear all history' : 'Clear this member'}
+        </Button>
+      </div>
+
       <div className="mb-4 max-w-sm">
         <Tabs
           value={filter}
@@ -351,11 +395,27 @@ export default function AdminNotifications() {
                       <DeliveryChips notif={n} />
                     </div>
                   </div>
+                  <Button size="sm" variant="ghost" icon={Trash2} onClick={() => deleteOne(n)}
+                    aria-label={`Delete notification for ${n.member?.name || 'member'}`} title="Delete"
+                    style={{ color: 'var(--p-danger)' }} />
                 </div>
               </li>
             ))}
           </ul>
         </Card>
+      )}
+
+      {confirmDelete && (
+        <ConfirmDialog
+          title={member === 'all' ? 'Clear the whole notification history?' : 'Clear this member\u2019s history?'}
+          message={member === 'all'
+            ? 'Every notification record is removed for good, for every member and both channels. Members keep their accounts and memberships \u2014 only the message history goes. This cannot be undone.'
+            : 'Every notification recorded for this member is removed for good. Their account and membership are untouched. This cannot be undone.'}
+          confirmLabel="Clear history"
+          cancelLabel="Cancel"
+          onCancel={() => setConfirmDelete(null)}
+          onConfirm={clearHistory}
+        />
       )}
 
       {composeOpen && (

@@ -54,6 +54,7 @@ const AdminSplits         = lazy(() => import('./pages/admin/Splits'));
 const AdminNotifications  = lazy(() => import('./pages/admin/Notifications'));
 const AdminSettings       = lazy(() => import('./pages/admin/Settings'));
 const AdminGymDetails     = lazy(() => import('./pages/admin/GymDetails'));
+const AdminPayments       = lazy(() => import('./pages/admin/Payments'));
 
 // Trainer
 const TrainerDashboard = lazy(() => import('./pages/trainer/Dashboard'));
@@ -211,6 +212,7 @@ function AppRoutes() {
           <Route path="/admin/notifications"      element={<AdminRoute><AdminNotifications /></AdminRoute>} />
           <Route path="/admin/settings"           element={<AdminRoute allowTrainer><AdminSettings /></AdminRoute>} />
           <Route path="/admin/gym"                element={<AdminRoute><AdminGymDetails /></AdminRoute>} />
+          <Route path="/admin/payments"           element={<AdminRoute><AdminPayments /></AdminRoute>} />
 
           {/* ── Fallback ── */}
           <Route path="*" element={<Navigate to="/" replace />} />

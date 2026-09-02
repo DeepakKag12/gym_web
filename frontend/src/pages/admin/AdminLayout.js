@@ -22,7 +22,7 @@ const NAV = [
   { path: '/admin/users',         icon: Users,           label: 'Users',            roles: ['admin'] },
   { path: '/admin/members',       icon: UserSquare2,     label: 'Members',          roles: ['admin'] },
   { path: '/admin/plans',         icon: Tag,             label: 'Membership Plans', roles: ['admin'] },
-  { path: '/admin/orders',        icon: IndianRupee,     label: 'Payments',         roles: ['admin'] },
+  { path: '/admin/payments',      icon: IndianRupee,     label: 'Payments',         roles: ['admin'] },
   { path: '/admin/notifications', icon: Bell,            label: 'Notifications',    roles: ['admin'] },
   { path: '/admin/analytics',     icon: BarChart3,       label: 'Reports',          roles: ['admin'] },
   { path: '/admin/settings',      icon: Settings,        label: 'Settings',         roles: ['admin', 'trainer'] },
