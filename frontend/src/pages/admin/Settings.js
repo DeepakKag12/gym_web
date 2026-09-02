@@ -3,13 +3,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
   Dumbbell, CalendarDays, Salad, Sparkles, ShoppingBag, Package, Tag,
   Bell, MessageSquare, IndianRupee, BarChart3, UserCheck, User, LogOut, ChevronRight, Building2, AlertTriangle,
+  Rocket,
 } from 'lucide-react';
 import AdminLayout from './AdminLayout';
 import { useAuth } from '../../context/AuthContext';
 import { Card, Button, Modal, Field, Input, Check as CheckRow } from '../../components/ui';
 import API, { apiError } from '../../utils/api';
 import toast from 'react-hot-toast';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 /**
  * Everything that is not a daily job lives here.
@@ -164,9 +165,131 @@ function ResetDataModal({ onClose }) {
   );
 }
 
+/**
+ * Reset to production — empties the gym of practice data before it goes live.
+ *
+ * This is a different order of destruction from clearing reports: it deletes
+ * every MEMBER, so it asks for more than a checkbox. The modal states the real
+ * number of members that will go, keeps the two lists (deleted / kept) side by
+ * side so nothing is a surprise, and needs the word RESET plus the admin's own
+ * password — the same password gate as clearing reports.
+ *
+ * It exists because a gym sets up with dummy members to learn the panel, and
+ * without this the only way to start clean was to delete them one by one.
+ */
+const RESET_GOES = [
+  'Every member, and their logins',
+  'All membership payments and shop orders',
+  'All notifications and enquiries',
+  'Progress entries, success stories, personal workout plans',
+];
+const RESET_STAYS = [
+  'You, and your trainers',
+  'Exercises with their photos and videos',
+  'Diet plans, default workout plans',
+  'Products and membership prices',
+];
+
+function ResetToProductionModal({ onClose }) {
+  const [password, setPassword] = useState('');
+  const [confirm, setConfirm] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState(null);
+  const [memberCount, setMemberCount] = useState(null);
+
+  // Naming the real number turns "delete everything" into a fact the admin can
+  // check against what they expect to lose.
+  useEffect(() => {
+    let alive = true;
+    API.get('/analytics/summary')
+      .then(({ data }) => { if (alive) setMemberCount(data?.totalMembers ?? null); })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, []);
+
+  const ready = password && confirm.trim().toUpperCase() === 'RESET';
+
+  const run = async () => {
+    setBusy(true);
+    setError(null);
+    try {
+      const { data } = await API.post('/analytics/reset-to-production', {
+        confirm: 'RESET_TO_PRODUCTION',
+        password,
+      });
+      const gone = data?.deleted?.members ?? 0;
+      toast.success(`Reset complete — ${gone} member${gone === 1 ? '' : 's'} removed.`);
+      onClose();
+      // Every screen's counts are now stale, so start the panel over.
+      window.location.assign('/admin');
+    } catch (err) {
+      setError(apiError(err, 'Could not reset.'));
+      setBusy(false);
+    }
+  };
+
+  return (
+    <Modal
+      title="Reset to production"
+      onClose={busy ? () => {} : onClose}
+      width={560}
+      footer={
+        <>
+          <Button onClick={onClose} disabled={busy}>Cancel</Button>
+          <Button variant="primary" onClick={run} loading={busy} disabled={!ready}
+            style={{ background: 'var(--p-danger)' }}>
+            Delete all members
+          </Button>
+        </>
+      }
+    >
+      <p className="text-[14px] mb-4 p-3 rounded-lg" style={{
+        background: 'var(--p-danger-soft)', border: '1px solid var(--p-danger-line)', color: 'var(--p-text)',
+      }}>
+        {memberCount === null
+          ? 'This deletes every member in your gym. It cannot be undone.'
+          : <>This deletes <strong>{memberCount} member{memberCount === 1 ? '' : 's'}</strong> and
+             everything attached to them. It cannot be undone.</>}
+      </p>
+
+      <div className="grid sm:grid-cols-2 gap-3 mb-4">
+        <div className="rounded-lg p-3" style={{ border: '1px solid var(--p-border)' }}>
+          <p className="ui-section-label mb-2" style={{ color: 'var(--p-danger)' }}>Deleted</p>
+          <ul className="space-y-1.5">
+            {RESET_GOES.map(t => (
+              <li key={t} className="text-[13px] leading-snug" style={{ color: 'var(--p-text-2)' }}>{t}</li>
+            ))}
+          </ul>
+        </div>
+        <div className="rounded-lg p-3" style={{ border: '1px solid var(--p-border)' }}>
+          <p className="ui-section-label mb-2" style={{ color: 'var(--p-ok)' }}>Kept</p>
+          <ul className="space-y-1.5">
+            {RESET_STAYS.map(t => (
+              <li key={t} className="text-[13px] leading-snug" style={{ color: 'var(--p-text-2)' }}>{t}</li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      <Field label="Type RESET to confirm" required>
+        <Input value={confirm} onChange={e => setConfirm(e.target.value)} placeholder="RESET" />
+      </Field>
+
+      <div className="mt-3">
+        <Field label="Your password" required error={error}
+          hint="Re-entered so an unattended session cannot do this">
+          <Input type="password" value={password} autoComplete="current-password"
+            onChange={e => { setPassword(e.target.value); setError(null); }} />
+        </Field>
+      </div>
+    </Modal>
+  );
+}
+
 export default function AdminSettings() {
   const { user, logout } = useAuth();
   const [resetOpen, setResetOpen] = useState(false);
+  const [goLiveOpen, setGoLiveOpen] = useState(false);
   const navigate = useNavigate();
   const groups = GROUPS
     .filter(g => g.roles.includes(user?.role))
@@ -225,6 +348,22 @@ export default function AdminSettings() {
                     Clear data
                   </Button>
                 </div>
+
+                <div className="flex items-start justify-between gap-3 flex-wrap mt-4 pt-4"
+                  style={{ borderTop: '1px solid var(--p-border)' }}>
+                  <div className="min-w-0">
+                    <p className="text-[14.5px] font-medium" style={{ color: 'var(--p-text)' }}>
+                      Reset to production
+                    </p>
+                    <p className="text-[13px] mt-0.5" style={{ color: 'var(--p-text-2)' }}>
+                      Deletes every member and their data, ready for your real gym.
+                    </p>
+                  </div>
+                  <Button icon={Rocket} onClick={() => setGoLiveOpen(true)}
+                    style={{ color: 'var(--p-danger)', borderColor: 'var(--p-danger-line)' }}>
+                    Reset
+                  </Button>
+                </div>
               </Card>
             </div>
           )}
@@ -242,6 +381,7 @@ export default function AdminSettings() {
       </div>
 
       {resetOpen && <ResetDataModal onClose={() => setResetOpen(false)} />}
+      {goLiveOpen && <ResetToProductionModal onClose={() => setGoLiveOpen(false)} />}
     </AdminLayout>
   );
 }
