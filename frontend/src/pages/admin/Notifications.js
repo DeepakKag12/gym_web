@@ -3,6 +3,7 @@ import {
   Bell, CheckCheck, RefreshCw, Send, AlertTriangle, MessageCircle, Mail, Monitor, Zap,
 } from 'lucide-react';
 import AdminLayout from './AdminLayout';
+import { whatsappPending } from './userService';
 import API, { cachedGet, bustCache, freshGet } from '../../utils/api';
 import toast from 'react-hot-toast';
 import {
@@ -182,6 +183,7 @@ export default function AdminNotifications() {
   const [members, setMembers] = useState([]);
   const [health, setHealth] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [channel, setChannel] = useState('email');
   const [filter, setFilter] = useState('all');
   const [composeOpen, setComposeOpen] = useState(false);
   const [testing, setTesting] = useState(false);
@@ -232,7 +234,25 @@ export default function AdminNotifications() {
   };
 
   const unread = notifs.filter(n => !n.isRead).length;
-  const filtered = notifs.filter(n => (filter === 'unread' ? !n.isRead : filter === 'read' ? n.isRead : true));
+
+  /**
+   * Email and WhatsApp are separated because they are not the same kind of
+   * record. Email is sent by the server and its outcome is known — accepted,
+   * failed, or skipped. WhatsApp is currently handed to the admin's own phone
+   * through a wa.me link, so the most that can honestly be said is that a
+   * message was prepared. Mixing them in one list implied a delivery guarantee
+   * for WhatsApp that does not exist.
+   */
+  const attempted = (n, ch) => Boolean(n.delivery?.[ch]?.status) || (n.sentVia || []).includes(ch);
+
+  const byChannel = notifs.filter(n => attempted(n, channel));
+  const filtered = byChannel.filter(n => (filter === 'unread' ? !n.isRead : filter === 'read' ? n.isRead : true));
+
+  const countFor = ch => notifs.filter(n => attempted(n, ch)).length;
+  const failedFor = ch => notifs.filter(n => n.delivery?.[ch]?.status === 'failed').length;
+
+  // Members who are due a reminder and have not been handed to WhatsApp yet.
+  const stillToContact = members.filter(m => whatsappPending(m)).length;
 
   return (
     <AdminLayout
@@ -248,12 +268,49 @@ export default function AdminNotifications() {
     >
       <ChannelStatus health={health} onTest={sendTest} testing={testing} />
 
+      <div className="mb-3">
+        <Tabs
+          value={channel}
+          onChange={c => { setChannel(c); setFilter('all'); }}
+          options={[
+            { value: 'email', label: 'Email', count: countFor('email') },
+            { value: 'whatsapp', label: 'WhatsApp', count: countFor('whatsapp') },
+          ]}
+        />
+      </div>
+
+      {/* What this channel can and cannot tell you, said once at the top. */}
+      <p className="text-[12.5px] mb-3" style={{ color: 'var(--p-muted)' }}>
+        {channel === 'email'
+          ? 'Sent automatically by the server. Status below is the mail provider\u2019s response.'
+          : 'Automated WhatsApp needs a registered WhatsApp Business sender. Until then messages are opened from your own phone, so delivery cannot be confirmed here.'}
+        {failedFor(channel) > 0 && (
+          <strong style={{ color: 'var(--p-danger)' }}>
+            {' '}{failedFor(channel)} failed.
+          </strong>
+        )}
+      </p>
+
+      {channel === 'whatsapp' && stillToContact > 0 && (
+        <Card className="mb-3">
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <p className="text-[14.5px]" style={{ color: 'var(--p-text)' }}>
+              <strong>{stillToContact}</strong> member{stillToContact === 1 ? '' : 's'} due a reminder
+              {' '}and not yet messaged on WhatsApp.
+            </p>
+            <Button variant="primary" size="sm" to="/admin/members?filter=towhatsapp">
+              Show them
+            </Button>
+          </div>
+        </Card>
+      )}
+
       <div className="mb-4 max-w-sm">
         <Tabs
           value={filter}
           onChange={setFilter}
           options={[
-            { value: 'all', label: 'All', count: notifs.length },
+            { value: 'all', label: 'All', count: byChannel.length },
             { value: 'unread', label: 'Unread', count: unread },
             { value: 'read', label: 'Read' },
           ]}
@@ -266,7 +323,7 @@ export default function AdminNotifications() {
         <Card>
           <EmptyState
             icon={Bell}
-            title={filter === 'all' ? 'Nothing sent yet' : `No ${filter} notifications`}
+            title={`Nothing sent by ${channel === 'email' ? 'email' : 'WhatsApp'} yet`}
             hint="Reminders sent automatically by the system also appear here."
           >
             <Button variant="primary" icon={Send} onClick={() => setComposeOpen(true)}>Send a notification</Button>

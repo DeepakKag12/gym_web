@@ -1,4 +1,5 @@
 import API, { cachedGet, freshGet, bustCache } from '../../utils/api';
+import { DAY, daysUntil, fmtDate } from '../../utils/membership';
 
 /**
  * One place for everything the admin screens do to user accounts.
@@ -8,7 +9,8 @@ import API, { cachedGet, freshGet, bustCache } from '../../utils/api';
  * live here rather than being written twice and drifting apart.
  */
 
-export const DAY = 86400000;
+
+export { DAY, daysUntil, fmtDate };
 
 export const ROLES = {
   admin:   { label: 'Admin',   tone: 'accent',  hint: 'Full access to everything' },
@@ -25,16 +27,7 @@ export const PLANS = {
 
 export const PLAN_MONTHS = { monthly: 1, quarterly: 3, 'half-yearly': 6, yearly: 12 };
 
-export const fmtDate = d =>
-  d ? new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
 
-/** Whole days from today until `d`. Negative once it is in the past. */
-export function daysUntil(d) {
-  if (!d) return null;
-  const end = new Date(d);
-  end.setHours(23, 59, 59, 999);
-  return Math.ceil((end.getTime() - Date.now()) / DAY);
-}
 
 /** Expiry date implied by a start date and a plan length. */
 export function calcExpiry(start, plan) {
@@ -71,6 +64,41 @@ export function statusOf(user) {
   return { key: 'active', label: 'Active', tone: 'ok' };
 }
 
+/**
+ * Has the membership itself run out?
+ *
+ * Deliberately separate from statusOf(). That function answers "what badge does
+ * this row show", where Disabled outranks everything — a disabled member cannot
+ * train whatever their dates say. This one answers "does this membership need
+ * renewing", which is still true of someone whose account is also switched off.
+ * Counting only the enabled ones as expired quietly hid lapsed members from the
+ * Expired total and from the Expired filter.
+ */
+export function isMembershipExpired(user) {
+  if (user.role && user.role !== 'member') return false;   // staff hold no membership
+  const left = daysUntil(user.membershipEnd);
+  return left !== null && left < 0;
+}
+
+/**
+ * Has this member been handed off to WhatsApp for their *current* reminder?
+ *
+ * "Sent at some point in the past" is not the question — a member reminded
+ * three weeks ago for a renewal they have since let lapse still needs
+ * contacting. So the stamp only counts if it is newer than the day the current
+ * reminder window opened.
+ */
+export function whatsappPending(user, windowDays = 4) {
+  const left = daysUntil(user.membershipEnd);
+  if (left === null || left > windowDays) return false;   // not due a reminder yet
+  if (!user.lastWhatsAppAt) return true;                  // never contacted
+
+  // The window opened `windowDays` before expiry; anything stamped before that
+  // belongs to a previous cycle.
+  const windowOpened = new Date(user.membershipEnd).getTime() - windowDays * DAY;
+  return new Date(user.lastWhatsAppAt).getTime() < windowOpened;
+}
+
 /** Filters offered on the Members screen. Each is a plain predicate. */
 export const EXPIRY_FILTERS = [
   { value: 'all',      label: 'Everyone',        test: () => true },
@@ -78,7 +106,9 @@ export const EXPIRY_FILTERS = [
   { value: 'today',    label: 'Expiring today',  test: u => statusOf(u).key === 'today' },
   { value: 'week',     label: 'This week',       test: u => { const d = daysUntil(u.membershipEnd); return d !== null && d >= 0 && d <= 7; } },
   { value: 'month',    label: 'This month',      test: u => { const d = daysUntil(u.membershipEnd); return d !== null && d >= 0 && d <= 30; } },
-  { value: 'expired',  label: 'Expired',         test: u => statusOf(u).key === 'expired' },
+  { value: 'expired',  label: 'Expired',         test: isMembershipExpired },
+  // The working list: due a reminder and not yet contacted on WhatsApp.
+  { value: 'towhatsapp', label: 'To WhatsApp',    test: u => whatsappPending(u) },
   { value: 'disabled', label: 'Disabled',        test: u => u.isActive === false },
 ];
 
@@ -182,4 +212,63 @@ export async function changeRole(user, role) {
 
 export async function deleteUser(user) {
   await API.delete(`${endpointFor(user)}/${user._id}`);
+}
+
+/* ── Manual WhatsApp ────────────────────────────────────────────────────── */
+
+/**
+ * Automated WhatsApp needs a registered WhatsApp Business sender, which needs
+ * Meta verification. Until that exists, these helpers let the admin send the
+ * same message by hand from the gym's own number: one tap opens WhatsApp with
+ * the text already written.
+ *
+ * Email is never manual — it is always sent by the server, on both the
+ * automatic and the admin-triggered path.
+ */
+
+/** Phone as E.164 digits (no +), assuming India for bare 10-digit numbers. */
+export function toE164Digits(phone) {
+  const digits = String(phone || '').replace(/\D/g, '');
+  if (!digits) return null;
+  if (digits.length === 10) return `${91}${digits}`;
+  if (digits.startsWith('00')) return digits.slice(2);
+  return digits;
+}
+
+/** wa.me deep link, or null when there is no usable number. */
+export function waLink(phone, text) {
+  const to = toE164Digits(phone);
+  if (!to) return null;
+  return `https://wa.me/${to}?text=${encodeURIComponent(text)}`;
+}
+
+/** The sign-in details message, worded the same as the welcome email. */
+export function buildCredentialsMessage({ name, email, password, usedPhone, loginUrl }) {
+  const url = loginUrl || `${window.location.origin}/login`;
+  return [
+    `Hi ${name}! Your FitNation membership is active.`,
+    '',
+    `Sign in: ${url}`,
+    `Email: ${email}`,
+    usedPhone ? `Password: your mobile number (${password})` : `Password: ${password}`,
+    '',
+    'Please change your password after your first sign-in.',
+  ].join('\n');
+}
+
+/**
+ * Ask the server to send the renewal reminder.
+ *
+ * The email and the in-app notification go out server-side; the response also
+ * carries the WhatsApp text and a wa.me link so the caller can open the chat.
+ */
+export async function sendReminder(member) {
+  const { data } = await API.post(`/members/${member._id}/reminder`);
+  return data;
+}
+
+/** Run the whole expiry sweep now, rather than waiting for the 9am/7pm cron. */
+export async function runReminderSweep() {
+  const { data } = await API.post('/members/run-reminders');
+  return data;
 }

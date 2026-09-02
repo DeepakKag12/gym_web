@@ -8,8 +8,7 @@ import { useAuth } from '../../context/AuthContext';
 import { cachedGet } from '../../utils/api';
 import MemberPage from '../../components/MemberPage';
 import { Card, Badge, Button, EmptyState, Skeleton, STATUS_TONE, timeAgo } from '../../components/ui';
-
-const DAY = 86400000;
+import { daysUntil, fmtDate, daysLeftLabel, expiryTone, membershipProgress } from '../../utils/membership';
 
 /** The six places a member actually goes. Icons only for recognition, no colour party. */
 const ACTIONS = [
@@ -33,19 +32,15 @@ export default function MemberDashboard() {
       .finally(() => setLoading(false));
   }, []);
 
-  const daysLeft = user?.membershipEnd
-    ? Math.ceil((new Date(user.membershipEnd) - new Date()) / DAY)
-    : null;
-
-  const progress = (() => {
-    if (!user?.membershipStart || !user?.membershipEnd) return null;
-    const total = new Date(user.membershipEnd) - new Date(user.membershipStart);
-    const done = new Date() - new Date(user.membershipStart);
-    if (total <= 0) return null;
-    return Math.min(100, Math.max(0, (done / total) * 100));
-  })();
-
-  const expiringSoon = daysLeft !== null && daysLeft <= 7;
+  // Shared with the admin panel (src/utils/membership.js) so a member and the
+  // person renewing them always see the same number of days.
+  const daysLeft = daysUntil(user?.membershipEnd);
+  const progress = membershipProgress(user?.membershipStart, user?.membershipEnd);
+  const tone = expiryTone(user?.membershipEnd);
+  // Includes negatives on purpose: an already-expired member is exactly who
+  // most needs the prompt, and the previous `>= 0` bound meant they were the
+  // only ones who never saw it.
+  const needsRenewal = daysLeft !== null && daysLeft <= 7;
 
   return (
     <MemberPage
@@ -68,19 +63,16 @@ export default function MemberDashboard() {
         {daysLeft !== null && (
           <>
             <div className="flex justify-between text-[13px] mb-1.5">
-              <span style={{ color: 'var(--p-text-2)' }}>
-                {daysLeft > 0 ? `${daysLeft} day${daysLeft === 1 ? '' : 's'} remaining` : 'Expired'}
-              </span>
-              <span style={{ color: 'var(--p-muted)' }}>
-                until {new Date(user.membershipEnd).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
-              </span>
+              <span style={{ color: 'var(--p-text-2)' }}>{daysLeftLabel(user.membershipEnd)}</span>
+              <span style={{ color: 'var(--p-muted)' }}>until {fmtDate(user.membershipEnd)}</span>
             </div>
             {progress !== null && (
               <div style={{ height: 6, background: 'var(--p-surface-2)', borderRadius: 99, overflow: 'hidden' }}>
                 <div
                   style={{
                     width: `${progress}%`, height: '100%', borderRadius: 99,
-                    background: daysLeft <= 3 ? 'var(--p-danger)' : daysLeft <= 7 ? 'var(--p-warn)' : 'var(--p-accent)',
+                    background: tone === 'danger' ? 'var(--p-danger)'
+                      : tone === 'warn' ? 'var(--p-warn)' : 'var(--p-accent)',
                   }}
                 />
               </div>
@@ -88,22 +80,30 @@ export default function MemberDashboard() {
           </>
         )}
 
-        {expiringSoon && (
-          <div
-            className="flex items-start gap-2 mt-4 p-3 rounded-lg"
-            style={{
-              background: daysLeft > 0 ? 'var(--p-warn-soft)' : 'var(--p-danger-soft)',
-              border: `1px solid ${daysLeft > 0 ? 'var(--p-warn-line)' : 'var(--p-danger-line)'}`,
-            }}
-          >
-            <AlertTriangle size={16} className="flex-shrink-0 mt-0.5" style={{ color: daysLeft > 0 ? 'var(--p-warn)' : 'var(--p-danger)' }} />
-            <p className="text-[13px]" style={{ color: 'var(--p-text-2)' }}>
-              {daysLeft > 0
-                ? `Your membership ends in ${daysLeft} day${daysLeft === 1 ? '' : 's'}. Talk to the front desk to renew.`
-                : 'Your membership has expired. Renew at the gym to keep training.'}
-            </p>
-          </div>
-        )}
+        {needsRenewal && (() => {
+          // Three distinct states. Collapsing "ends today" into the expired
+          // branch told a member with a valid day left that they had already
+          // lost access.
+          const urgent = daysLeft <= 0;
+          const line = daysLeft < 0
+            ? `Your membership expired ${Math.abs(daysLeft)} day${Math.abs(daysLeft) === 1 ? '' : 's'} ago. Renew at the gym to keep training.`
+            : daysLeft === 0
+              ? 'Your membership ends today. Renew at the front desk to keep training.'
+              : `Your membership ends in ${daysLeft} day${daysLeft === 1 ? '' : 's'}. Talk to the front desk to renew.`;
+          return (
+            <div
+              className="flex items-start gap-2 mt-4 p-3 rounded-lg"
+              style={{
+                background: urgent ? 'var(--p-danger-soft)' : 'var(--p-warn-soft)',
+                border: `1px solid ${urgent ? 'var(--p-danger-line)' : 'var(--p-warn-line)'}`,
+              }}
+            >
+              <AlertTriangle size={16} className="flex-shrink-0 mt-0.5"
+                style={{ color: urgent ? 'var(--p-danger)' : 'var(--p-warn)' }} />
+              <p className="text-[13px]" style={{ color: 'var(--p-text-2)' }}>{line}</p>
+            </div>
+          );
+        })()}
       </Card>
 
       {/* Shortcuts */}

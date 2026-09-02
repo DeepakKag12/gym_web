@@ -6,10 +6,8 @@ import {
   Phone, Instagram, Sun, Moon, Footprints, Sparkles,
 } from 'lucide-react';
 import Hero08 from '../components/ui/hero-08';
+import { useSettings } from '../context/SettingsContext';
 
-const GYM_PHONE     = '9589730151';
-const GYM_WA        = '919589730151';
-const GYM_INSTAGRAM = 'fitnation.by.ajeet';
 
 /* ── Counter ──────────────────────────────── */
 function useCounter(target, duration = 1.8, inView) {
@@ -247,6 +245,7 @@ const HERO = {
 const marqueeItems = ['STRENGTH', 'ENDURANCE', 'TRANSFORM', 'NUTRITION', 'CARDIO', 'MUSCLE', 'RESULTS', 'POWER'];
 
 export default function HomePage() {
+  const site = useSettings();
   const cableRef = useRef(null);
   const { scrollYProgress } = useScroll({ target: cableRef, offset: ['start end', 'end start'] });
   const cableProgress = useTransform(scrollYProgress, [0.1, 0.7], [0, 1]);
@@ -268,15 +267,15 @@ export default function HomePage() {
           stacking position this bar renders behind it and is invisible. */}
       <div className="relative z-20 max-w-6xl mx-auto px-6 pb-14 -mt-6 sm:-mt-10">
         <div className="flex flex-wrap gap-5 text-sm text-gray-400 items-center">
-          <a href={`tel:${GYM_PHONE}`} className="flex items-center gap-2 hover:text-cyan-400 transition-colors">
-            <Phone size={13} className="text-cyan-400" /> {GYM_PHONE}
+          <a href={site.telHref} className="flex items-center gap-2 hover:text-cyan-400 transition-colors">
+            <Phone size={13} className="text-cyan-400" /> {site.phone}
           </a>
-          <a href={`https://instagram.com/${GYM_INSTAGRAM}`} target="_blank" rel="noreferrer"
+          <a href={site.instagramHref} target="_blank" rel="noreferrer"
             className="flex items-center gap-2 hover:text-cyan-400 transition-colors">
-            <Instagram size={13} className="text-cyan-400" /> @{GYM_INSTAGRAM}
+            <Instagram size={13} className="text-cyan-400" /> @{site.instagram}
           </a>
           <span className="flex items-center gap-2">
-            <span className="glow-dot" /> Mon–Sat · 5 AM – 10 PM
+            <span className="glow-dot" /> {site.hours[0] || ''}
           </span>
         </div>
       </div>
@@ -454,11 +453,11 @@ export default function HomePage() {
                 <h2 className="gym-font text-5xl text-white mb-3">START YOUR<br /><span className="gradient-text">TRANSFORMATION</span></h2>
                 <p className="text-gray-300 mb-6 max-w-sm">Talk to us on WhatsApp and get a free consultation with our head trainer.</p>
                 <div className="flex flex-wrap gap-3">
-                  <a href={`https://wa.me/${GYM_WA}`} target="_blank" rel="noreferrer" className="btn-fire text-base px-7 py-3.5">
+                  <a href={site.waHref} target="_blank" rel="noreferrer" className="btn-fire text-base px-7 py-3.5">
                     <MessageCircle size={18} /> Chat on WhatsApp
                   </a>
-                  <a href={`tel:${GYM_PHONE}`} className="btn-outline text-base px-7 py-3.5">
-                    <Phone size={16} /> {GYM_PHONE}
+                  <a href={site.telHref} className="btn-outline text-base px-7 py-3.5">
+                    <Phone size={16} /> {site.phone}
                   </a>
                 </div>
               </div>

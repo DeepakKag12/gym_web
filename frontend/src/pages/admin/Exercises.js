@@ -90,13 +90,14 @@ function ExerciseModal({ editData, members, onClose, onSaved }) {
     const fd = new FormData();
     fd.append('file', file);
     fd.append('api_key', sig.api_key);
-    fd.append('timestamp', sig.timestamp);
     fd.append('signature', sig.signature);
-    fd.append('folder', sig.folder);
-    if (resourceType === 'video') {
-      fd.append('video_codec', 'auto');
-      fd.append('quality', 'auto');
-    }
+
+    // Append exactly the parameters the server signed, and nothing else.
+    // Cloudinary signs every field except file/api_key/cloud_name/resource_type,
+    // so a single extra field here (video_codec and quality used to be added
+    // client-side) invalidates the signature and the upload is refused.
+    Object.entries(sig.params || { folder: sig.folder, timestamp: sig.timestamp })
+      .forEach(([k, v]) => fd.append(k, v));
     const uploadUrl = `https://api.cloudinary.com/v1_1/${sig.cloud_name}/${resourceType}/upload`;
     const xhr = new XMLHttpRequest();
     return new Promise((resolve, reject) => {

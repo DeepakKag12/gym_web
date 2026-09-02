@@ -1,208 +1,333 @@
-import React, { useState, useEffect } from 'react';
-import { Trash2, ChevronDown, Phone, ChevronUp, Save, FileText } from 'lucide-react';
-import API, { cachedGet, bustCache, freshGet } from '../../utils/api';
-import AdminLayout from './AdminLayout';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { AnimatePresence } from 'framer-motion';
+import {
+  MessageSquare, Search, RefreshCw, AlertTriangle, Trash2, Reply,
+  Phone, Mail, CheckCircle2, Clock,
+} from 'lucide-react';
 import toast from 'react-hot-toast';
 
-const STATUS_COLORS = {
-  new:       'bg-blue-500/20 text-blue-400 border-blue-500/20',
-  contacted: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/20',
-  converted: 'bg-green-500/20 text-green-400 border-green-500/20',
-  closed:    'bg-gray-500/20 text-gray-400 border-gray-500/20',
+import API, { cachedGet, freshGet, bustCache, apiError } from '../../utils/api';
+import AdminLayout from './AdminLayout';
+import {
+  Card, Button, Badge, Avatar, Field, Textarea, Select, Input, Modal,
+  ConfirmDialog, EmptyState, SkeletonList, Tabs, FadeIn, WhatsAppButton, timeAgo,
+} from '../../components/ui';
+
+/**
+ * Enquiries — people asking about joining, and what was said back.
+ *
+ * Rebuilt from a hand-rolled dark screen onto the shared UI kit, and given the
+ * thing it was missing: a way to actually reply.
+ *
+ * Replying sends the email server-side and hands the same text to WhatsApp, so
+ * one action covers both channels. The enquiry records when it was answered, so
+ * "new" means genuinely unanswered rather than merely unmarked.
+ */
+
+const STATUS = {
+  new:       { label: 'New',       tone: 'warn' },
+  contacted: { label: 'Contacted', tone: 'info' },
+  converted: { label: 'Joined',    tone: 'ok' },
+  closed:    { label: 'Closed',    tone: 'neutral' },
 };
 
-const STATUSES = ['new','contacted','converted','closed'];
+const INTEREST = {
+  membership: 'Membership',
+  'personal-training': 'Personal training',
+  'diet-plan': 'Diet plan',
+  supplements: 'Supplements',
+  general: 'General',
+};
 
-export default function AdminEnquiries() {
-  const [enquiries,    setEnquiries]    = useState([]);
-  const [loading,      setLoading]      = useState(true);
-  const [filterStatus, setFilterStatus] = useState('all');
-  const [expanded,     setExpanded]     = useState({}); // id → true/false (notes open)
-  const [notesDraft,   setNotesDraft]   = useState({}); // id → string
-  const [notesSaving,  setNotesSaving]  = useState({}); // id → bool
+/* ── Reply ──────────────────────────────────────────────────────────────── */
 
-  const load = (force = false) => {
-    setLoading(true);
-    const fetcher = force ? freshGet('/enquiries', { cache: 60 }) : cachedGet('/enquiries', { cache: 60 });
-    fetcher.then(r => {
-      setEnquiries(r.data);
-      // Pre-fill notes drafts
-      const drafts = {};
-      r.data.forEach(e => { drafts[e._id] = e.notes || ''; });
-      setNotesDraft(drafts);
-    }).catch(() => {}).finally(() => setLoading(false));
-  };
-  useEffect(load, []);
+function ReplyModal({ enquiry, onClose, onDone }) {
+  const [message, setMessage] = useState(
+    `Hi ${enquiry.name}, thanks for getting in touch with FitNation. `,
+  );
+  const [error, setError] = useState(null);
+  const [sending, setSending] = useState(false);
 
-  const updateStatus = async (id, status) => {
+  const send = async () => {
+    if (!message.trim()) return setError('Write a reply first.');
+    setSending(true);
     try {
-      await API.put(`/enquiries/${id}`, { status });
-      setEnquiries(prev => prev.map(e => e._id === id ? { ...e, status } : e));
-      bustCache('/enquiries');
-      toast.success('Status updated');
-    } catch (err) { toast.error(err.response?.data?.message || 'Error'); }
+      const { data } = await API.post(`/enquiries/${enquiry._id}/reply`, { message });
+      onDone(data);
+    } catch (err) {
+      toast.error(apiError(err, 'Could not send this reply.'));
+    } finally { setSending(false); }
   };
-
-  const saveNotes = async (id) => {
-    setNotesSaving(p => ({ ...p, [id]: true }));
-    try {
-      await API.put(`/enquiries/${id}`, { notes: notesDraft[id] });
-      setEnquiries(prev => prev.map(e => e._id === id ? { ...e, notes: notesDraft[id] } : e));
-      bustCache('/enquiries');
-      toast.success('Notes saved');
-    } catch (err) { toast.error(err.response?.data?.message || 'Error saving notes'); }
-    finally { setNotesSaving(p => ({ ...p, [id]: false })); }
-  };
-
-  const handleDelete = async (id) => {
-    if (!window.confirm('Delete this enquiry?')) return;
-    try {
-      await API.delete(`/enquiries/${id}`);
-      setEnquiries(prev => prev.filter(e => e._id !== id));
-      bustCache('/enquiries');
-      toast.success('Deleted');
-    } catch (err) { toast.error(err.response?.data?.message || 'Error'); }
-  };
-
-  const toggleExpand = (id) => setExpanded(p => ({ ...p, [id]: !p[id] }));
-
-  const filtered = filterStatus === 'all' ? enquiries : enquiries.filter(e => e.status === filterStatus);
 
   return (
-    <AdminLayout title="Enquiries">
-      {/* Filter pills */}
-      <div className="flex gap-2 flex-wrap mb-5">
-        {['all', ...STATUSES].map(s => (
-          <button key={s} onClick={() => setFilterStatus(s)}
-            className={`px-3 py-1.5 rounded-full text-xs font-semibold capitalize transition-all ${
-              filterStatus === s ? 'bg-orange-500 text-white' : 'bg-white/5 text-gray-400 border border-white/10 hover:border-white/20'
-            }`}>
-            {s}
-            {s !== 'all' && (
-              <span className="ml-1 opacity-60">({enquiries.filter(e => e.status === s).length})</span>
-            )}
-          </button>
-        ))}
+    <Modal
+      title={`Reply to ${enquiry.name}`}
+      onClose={sending ? () => {} : onClose}
+      width={520}
+      footer={
+        <>
+          <Button onClick={onClose} disabled={sending}>Cancel</Button>
+          {/* Email always goes; WhatsApp opens afterwards with the same text. */}
+          <WhatsAppButton
+            label="Send email + WhatsApp"
+            onBeforeOpen={async () => {
+              // The parent reports the outcome, so no toast here — otherwise
+              // the admin gets the same confirmation twice.
+              const { data } = await API.post(`/enquiries/${enquiry._id}/reply`, { message });
+              onDone(data);
+              return data;
+            }}
+            buildHref={r => r?.whatsappUrl}
+            disabled={!message.trim()}
+          />
+          <Button variant="primary" icon={Mail} onClick={send} loading={sending}>
+            Email only
+          </Button>
+        </>
+      }
+    >
+      <div className="ui-card ui-card-pad mb-4" style={{ background: 'var(--p-surface-2)', boxShadow: 'none' }}>
+        <p className="text-[12.5px] mb-1" style={{ color: 'var(--p-muted)' }}>They wrote</p>
+        <p className="text-[14px]" style={{ color: 'var(--p-text)' }}>{enquiry.message}</p>
       </div>
 
-      {loading ? (
-        <div className="flex justify-center py-20">
-          <div className="w-10 h-10 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
+      <Field
+        label="Your reply"
+        required
+        error={error}
+        hint={enquiry.email
+          ? `Emailed to ${enquiry.email}. WhatsApp opens with the same text.`
+          : 'No email address on this enquiry — WhatsApp only.'}
+      >
+        <Textarea
+          rows={6}
+          value={message}
+          autoFocus
+          onChange={e => { setMessage(e.target.value); setError(null); }}
+        />
+      </Field>
+    </Modal>
+  );
+}
+
+/* ── Page ───────────────────────────────────────────────────────────────── */
+
+export default function AdminEnquiries() {
+  const [enquiries, setEnquiries] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [tab, setTab] = useState('new');
+  const [search, setSearch] = useState('');
+  const [replyTo, setReplyTo] = useState(null);
+  const [confirm, setConfirm] = useState(null);
+  const [busy, setBusy] = useState(false);
+
+  const load = useCallback((force = false) => {
+    setLoading(true);
+    setError(null);
+    (force ? freshGet : cachedGet)('/enquiries', { cache: 60 })
+      .then(r => setEnquiries(Array.isArray(r.data) ? r.data : []))
+      .catch(err => setError(apiError(err, 'Could not load enquiries.')))
+      .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  const refresh = () => { bustCache('/enquiries'); bustCache('analytics'); load(true); };
+
+  const counts = useMemo(() => {
+    const c = { all: enquiries.length };
+    Object.keys(STATUS).forEach(k => { c[k] = enquiries.filter(e => e.status === k).length; });
+    return c;
+  }, [enquiries]);
+
+  const shown = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return enquiries.filter(e => {
+      if (tab !== 'all' && e.status !== tab) return false;
+      if (!q) return true;
+      return e.name?.toLowerCase().includes(q)
+        || e.phone?.includes(q)
+        || e.email?.toLowerCase().includes(q)
+        || e.message?.toLowerCase().includes(q);
+    });
+  }, [enquiries, tab, search]);
+
+  const setStatus = async (e, status) => {
+    try {
+      await API.put(`/enquiries/${e._id}`, { status });
+      setEnquiries(prev => prev.map(x => (x._id === e._id ? { ...x, status } : x)));
+      bustCache('/enquiries');
+      toast.success(`Marked ${STATUS[status].label.toLowerCase()}.`);
+    } catch (err) {
+      toast.error(apiError(err, 'Could not update this enquiry.'));
+    }
+  };
+
+  const remove = async e => {
+    setBusy(true);
+    try {
+      await API.delete(`/enquiries/${e._id}`);
+      setEnquiries(prev => prev.filter(x => x._id !== e._id));
+      bustCache('/enquiries');
+      toast.success('Enquiry deleted.');
+      setConfirm(null);
+    } catch (err) {
+      toast.error(apiError(err, 'Could not delete this enquiry.'));
+    } finally { setBusy(false); }
+  };
+
+  return (
+    <AdminLayout
+      title="Enquiries"
+      subtitle="People asking about joining your gym"
+      actions={<Button icon={RefreshCw} onClick={refresh} disabled={loading}>Refresh</Button>}
+    >
+      <div className="ui-toolbar">
+        <div className="ui-search">
+          <Search size={18} />
+          <Input placeholder="Search by name, phone, email or message"
+            value={search} onChange={e => setSearch(e.target.value)} aria-label="Search enquiries" />
         </div>
-      ) : filtered.length === 0 ? (
-        <div className="text-center py-20 text-gray-500">No enquiries found</div>
+      </div>
+
+      <div className="mb-4">
+        <Tabs
+          value={tab}
+          onChange={setTab}
+          options={[
+            { value: 'new', label: 'New', count: counts.new },
+            { value: 'contacted', label: 'Contacted', count: counts.contacted },
+            { value: 'converted', label: 'Joined', count: counts.converted },
+            { value: 'closed', label: 'Closed', count: counts.closed },
+            { value: 'all', label: 'Everyone', count: counts.all },
+          ]}
+        />
+      </div>
+
+      {error ? (
+        <Card>
+          <EmptyState icon={AlertTriangle} title="Could not load enquiries" hint={error}>
+            <Button variant="primary" icon={RefreshCw} onClick={() => load(true)}>Try again</Button>
+          </EmptyState>
+        </Card>
+      ) : loading ? (
+        <SkeletonList rows={4} h={120} />
+      ) : shown.length === 0 ? (
+        <Card>
+          <EmptyState
+            icon={MessageSquare}
+            title={enquiries.length === 0 ? 'No enquiries yet' : 'Nothing in this list'}
+            hint={enquiries.length === 0
+              ? 'Enquiries from your website land here.'
+              : tab === 'new' ? 'Everyone has been replied to — good.' : 'Try another filter or search.'}
+          />
+        </Card>
       ) : (
-        <div className="space-y-3">
-          {filtered.map(e => (
-            <div key={e._id} className="glass rounded-2xl p-4">
-              {/* Top row: name + date */}
-              <div className="flex items-start justify-between gap-2 mb-2">
-                <div>
-                  <div className="text-white font-semibold text-sm">{e.name}</div>
-                  <div className="text-gray-500 text-xs mt-0.5">
-                    {e.email && <span className="mr-2">{e.email}</span>}
-                    {new Date(e.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
-                  </div>
-                </div>
-                <span className={`text-xs px-2.5 py-1 rounded-full font-semibold border capitalize flex-shrink-0 ${STATUS_COLORS[e.status] || ''}`}>
-                  {e.status}
-                </span>
-              </div>
-
-              {/* Interest + message */}
-              <div className="mb-3">
-                {e.interest && (
-                  <span className="inline-block text-[10px] bg-orange-500/10 text-orange-400 border border-orange-500/20 rounded-full px-2 py-0.5 mb-1.5 capitalize">
-                    {e.interest.replace('-', ' ')}
-                  </span>
-                )}
-                {e.message && (
-                  <p className="text-gray-400 text-xs leading-relaxed line-clamp-3">{e.message}</p>
-                )}
-              </div>
-
-              {/* Notes panel (collapsible) */}
-              {expanded[e._id] && (
-                <div className="mb-3 bg-white/3 rounded-xl p-3 border border-white/8">
-                  <label className="text-gray-400 text-xs mb-1 block flex items-center gap-1">
-                    <FileText size={11} /> Admin Notes
-                  </label>
-                  <textarea
-                    rows={3}
-                    className="w-full bg-transparent text-gray-300 text-xs resize-none focus:outline-none placeholder-gray-700"
-                    placeholder="Add follow-up notes, action items, or observations…"
-                    value={notesDraft[e._id] ?? ''}
-                    onChange={ev => setNotesDraft(p => ({ ...p, [e._id]: ev.target.value }))}
-                  />
-                  <div className="flex justify-end mt-2">
-                    <button
-                      onClick={() => saveNotes(e._id)}
-                      disabled={notesSaving[e._id]}
-                      className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-green-500/15 text-green-400 border border-green-500/20 hover:bg-green-500/25 transition-all disabled:opacity-50"
+        <FadeIn>
+          <div className="space-y-3">
+            {shown.map(e => {
+              const st = STATUS[e.status] || STATUS.new;
+              return (
+                <Card key={e._id}>
+                  <div className="flex items-start gap-3 flex-wrap">
+                    <Avatar name={e.name} size={40} />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-[15px] font-semibold" style={{ color: 'var(--p-text)' }}>{e.name}</span>
+                        <Badge tone={st.tone}>{st.label}</Badge>
+                        <Badge tone="neutral">{INTEREST[e.interest] || 'General'}</Badge>
+                      </div>
+                      <div className="flex items-center gap-3 mt-1 text-[13px] flex-wrap" style={{ color: 'var(--p-text-2)' }}>
+                        <a href={`tel:${e.phone}`} className="flex items-center gap-1.5">
+                          <Phone size={12} /> {e.phone}
+                        </a>
+                        {e.email && (
+                          <a href={`mailto:${e.email}`} className="flex items-center gap-1.5">
+                            <Mail size={12} /> {e.email}
+                          </a>
+                        )}
+                        <span className="flex items-center gap-1.5" style={{ color: 'var(--p-muted)' }}>
+                          <Clock size={12} /> {timeAgo(e.createdAt)}
+                        </span>
+                      </div>
+                    </div>
+                    <Select
+                      value={e.status}
+                      onChange={ev => setStatus(e, ev.target.value)}
+                      aria-label={`Status for ${e.name}`}
+                      style={{ width: 150 }}
                     >
-                      <Save size={11} />
-                      {notesSaving[e._id] ? 'Saving…' : 'Save Notes'}
-                    </button>
+                      {Object.entries(STATUS).map(([k, v]) => (
+                        <option key={k} value={k}>{v.label}</option>
+                      ))}
+                    </Select>
                   </div>
-                </div>
-              )}
 
-              {/* Actions row */}
-              <div className="flex items-center gap-2 pt-3 border-t border-white/5">
-                {/* Phone / WhatsApp */}
-                <a
-                  href={`https://wa.me/${e.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`Hi ${e.name}! Thank you for your interest in FitNation.`)}`}
-                  target="_blank" rel="noreferrer"
-                  className="flex items-center gap-1.5 text-xs text-green-400 border border-green-500/20 px-3 py-1.5 rounded-xl hover:bg-green-500/10 transition-all"
-                >
-                  <Phone size={12} /> {e.phone}
-                </a>
+                  <p className="text-[14px] mt-3 p-3 rounded-lg"
+                    style={{ background: 'var(--p-surface-2)', color: 'var(--p-text)' }}>
+                    {e.message}
+                  </p>
 
-                {/* Status dropdown */}
-                <div className="relative flex-1">
-                  <select
-                    value={e.status}
-                    onChange={ev => updateStatus(e._id, ev.target.value)}
-                    className={`w-full text-xs px-3 py-2 rounded-xl border outline-none cursor-pointer font-semibold capitalize appearance-none pr-8 ${STATUS_COLORS[e.status] || 'text-gray-400 bg-white/5 border-white/10'}`}
-                    style={{ background: 'rgba(255,255,255,0.05)' }}
-                  >
-                    {STATUSES.map(s => (
-                      <option key={s} value={s} style={{ background: '#111318', color: '#f1f5f9' }} className="capitalize">{s}</option>
-                    ))}
-                  </select>
-                  <ChevronDown size={12} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
-                </div>
+                  <div className="flex items-center gap-2 mt-3 flex-wrap">
+                    <Button variant="primary" size="sm" icon={Reply} onClick={() => setReplyTo(e)}>
+                      Reply
+                    </Button>
+                    <Button size="sm" variant="ghost" icon={Trash2} onClick={() => setConfirm(e)}
+                      aria-label={`Delete enquiry from ${e.name}`} title="Delete"
+                      style={{ color: 'var(--p-danger)' }} />
 
-                {/* Notes toggle */}
-                <button
-                  onClick={() => toggleExpand(e._id)}
-                  title={expanded[e._id] ? 'Hide notes' : 'Add / view notes'}
-                  className={`p-2 rounded-xl transition-all flex-shrink-0 ${
-                    expanded[e._id] || e.notes
-                      ? 'text-amber-400 bg-amber-400/10 border border-amber-400/20'
-                      : 'text-gray-500 hover:text-gray-300 hover:bg-white/5'
-                  }`}
-                >
-                  {expanded[e._id] ? <ChevronUp size={15} /> : <FileText size={15} />}
-                </button>
+                    {/* Reply history, so nobody is answered twice or missed */}
+                    <span className="ml-auto text-[12.5px] flex items-center gap-1.5"
+                      style={{ color: e.repliedAt ? 'var(--p-ok)' : 'var(--p-muted)' }}>
+                      {e.repliedAt ? (
+                        <>
+                          <CheckCircle2 size={13} />
+                          Replied {timeAgo(e.repliedAt)}
+                          {e.replyCount > 1 ? ` · ${e.replyCount} times` : ''}
+                        </>
+                      ) : 'Not replied yet'}
+                    </span>
+                  </div>
+                </Card>
+              );
+            })}
+          </div>
 
-                {/* Delete */}
-                <button onClick={() => handleDelete(e._id)}
-                  className="p-2 text-red-400 hover:bg-red-400/10 rounded-xl transition-all flex-shrink-0">
-                  <Trash2 size={15} />
-                </button>
-              </div>
-
-              {/* Existing saved notes preview */}
-              {!expanded[e._id] && e.notes && (
-                <div className="mt-2 text-xs text-amber-300/70 italic bg-amber-500/5 rounded-lg px-3 py-1.5 border border-amber-500/10">
-                  {e.notes}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
+          <p className="text-[13px] text-center mt-4" style={{ color: 'var(--p-muted)' }}>
+            Showing {shown.length} of {enquiries.length}
+          </p>
+        </FadeIn>
       )}
+
+      <AnimatePresence>
+        {replyTo && (
+          <ReplyModal
+            key="reply"
+            enquiry={replyTo}
+            onClose={() => setReplyTo(null)}
+            onDone={data => {
+              setReplyTo(null);
+              if (data?.message) toast.success(data.message);
+              setEnquiries(prev => prev.map(x => (x._id === data.enquiry._id ? data.enquiry : x)));
+              bustCache('/enquiries');
+            }}
+          />
+        )}
+
+        {confirm && (
+          <ConfirmDialog
+            key="del"
+            title={`Delete the enquiry from ${confirm.name}?`}
+            message="This removes their message and your reply history for good. It cannot be undone."
+            confirmLabel="Delete"
+            cancelLabel="Cancel"
+            loading={busy}
+            onCancel={() => setConfirm(null)}
+            onConfirm={() => remove(confirm)}
+          />
+        )}
+      </AnimatePresence>
     </AdminLayout>
   );
 }

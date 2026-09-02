@@ -2,6 +2,7 @@ import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { SettingsProvider } from './context/SettingsContext';
 import { CartProvider } from './context/CartContext';
 import { isPanelRoute as isPanelPath } from './utils/routes';
 
@@ -37,6 +38,7 @@ const MyDiet           = lazy(() => import('./pages/member/MyDiet'));
 
 // Admin
 const AdminDashboard      = lazy(() => import('./pages/admin/Dashboard'));
+const AdminUsers          = lazy(() => import('./pages/admin/Users'));
 const AdminMembers        = lazy(() => import('./pages/admin/Members'));
 const AdminExercises      = lazy(() => import('./pages/admin/Exercises'));
 const AdminDiet           = lazy(() => import('./pages/admin/Diet'));
@@ -51,6 +53,7 @@ const AdminPlans          = lazy(() => import('./pages/admin/Plans'));
 const AdminSplits         = lazy(() => import('./pages/admin/Splits'));
 const AdminNotifications  = lazy(() => import('./pages/admin/Notifications'));
 const AdminSettings       = lazy(() => import('./pages/admin/Settings'));
+const AdminGymDetails     = lazy(() => import('./pages/admin/GymDetails'));
 
 // Trainer
 const TrainerDashboard = lazy(() => import('./pages/trainer/Dashboard'));
@@ -192,6 +195,7 @@ function AppRoutes() {
 
           {/* ── Admin ── */}
           <Route path="/admin"                    element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+          <Route path="/admin/users"              element={<AdminRoute><AdminUsers /></AdminRoute>} />
           <Route path="/admin/members"            element={<AdminRoute><AdminMembers /></AdminRoute>} />
           <Route path="/admin/exercises"          element={<AdminRoute allowTrainer><AdminExercises /></AdminRoute>} />
           <Route path="/admin/diet"               element={<AdminRoute allowTrainer><AdminDiet /></AdminRoute>} />
@@ -206,6 +210,7 @@ function AppRoutes() {
           <Route path="/admin/splits"             element={<AdminRoute allowTrainer><AdminSplits /></AdminRoute>} />
           <Route path="/admin/notifications"      element={<AdminRoute><AdminNotifications /></AdminRoute>} />
           <Route path="/admin/settings"           element={<AdminRoute allowTrainer><AdminSettings /></AdminRoute>} />
+          <Route path="/admin/gym"                element={<AdminRoute><AdminGymDetails /></AdminRoute>} />
 
           {/* ── Fallback ── */}
           <Route path="*" element={<Navigate to="/" replace />} />
@@ -224,13 +229,15 @@ function AppRoutes() {
 function App() {
   return (
     <ThemeProvider>
-      <AuthProvider>
-        <CartProvider>
-          <Router>
-            <AppRoutes />
-          </Router>
-        </CartProvider>
-      </AuthProvider>
+      <SettingsProvider>
+        <AuthProvider>
+          <CartProvider>
+            <Router>
+              <AppRoutes />
+            </Router>
+          </CartProvider>
+        </AuthProvider>
+      </SettingsProvider>
     </ThemeProvider>
   );
 }

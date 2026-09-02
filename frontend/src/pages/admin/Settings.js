@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Dumbbell, CalendarDays, Salad, Sparkles, ShoppingBag, Package, Tag,
-  Bell, MessageSquare, IndianRupee, BarChart3, UserCheck, User, LogOut, ChevronRight,
+  Bell, MessageSquare, IndianRupee, BarChart3, UserCheck, User, LogOut, ChevronRight, Building2,
 } from 'lucide-react';
 import AdminLayout from './AdminLayout';
 import { useAuth } from '../../context/AuthContext';
@@ -93,6 +93,18 @@ export default function AdminSettings() {
             </Card>
           </div>
         ))}
+
+        <div>
+          <h2 className="text-[15px] font-semibold mb-2" style={{ color: 'var(--p-text)' }}>Your gym</h2>
+          <Card padded={false}>
+            <ul>
+              <ToolRow last item={{
+                to: '/admin/gym', icon: Building2, label: 'Gym details',
+                hint: 'Phone, WhatsApp, Instagram and hours shown across the website',
+              }} />
+            </ul>
+          </Card>
+        </div>
 
         <div>
           <h2 className="text-[15px] font-semibold mb-2" style={{ color: 'var(--p-text)' }}>Your account</h2>

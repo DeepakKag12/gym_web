@@ -107,7 +107,7 @@ function ExCard({ ex, index }) {
             )}
           </div>
           <div className="absolute top-2.5 left-2.5 z-10">
-            <span className="text-xs bg-black/60 backdrop-blur-sm text-gray-200 px-2 py-1 rounded-full capitalize font-medium">
+            <span className="text-xs bg-black/60 backdrop-blur-sm text-on-photo px-2 py-1 rounded-full capitalize font-medium">
               {ex.muscleGroup}
             </span>
           </div>
@@ -177,7 +177,7 @@ export default function ExercisesPage() {
         <div className="relative z-10 max-w-7xl mx-auto px-6 text-center">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}>
             <span className="section-pill">Exercise Library</span>
-            <h1 className="gym-font text-6xl md:text-7xl text-white mt-2">WORKOUT <span className="gradient-text">LIBRARY</span></h1>
+            <h1 className="gym-font text-6xl md:text-7xl text-on-photo mt-2">WORKOUT <span className="gradient-text">LIBRARY</span></h1>
             <p className="text-gray-400 mt-3 text-lg">Video-guided exercises for every muscle group</p>
           </motion.div>
         </div>

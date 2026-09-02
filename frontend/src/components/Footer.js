@@ -1,10 +1,8 @@
 import React from 'react';
+import { useSettings } from '../context/SettingsContext';
 import { Link } from 'react-router-dom';
 import { Instagram, Phone, MessageCircle, Clock } from 'lucide-react';
 
-const GYM_PHONE     = '9589730151';
-const GYM_WA        = '919589730151';
-const GYM_INSTAGRAM = 'fitnation.by.ajeet';
 
 function Logo({ size = 30 }) {
   return (
@@ -32,6 +30,7 @@ function Logo({ size = 30 }) {
 }
 
 export default function Footer() {
+  const site = useSettings();
   return (
     <footer className="bg-[#0d0e11] border-t border-white/6 mt-16 sm:mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
@@ -53,11 +52,11 @@ export default function Footer() {
             </p>
             {/* Real social links */}
             <div className="flex gap-2">
-              <a href={`https://instagram.com/${GYM_INSTAGRAM}`} target="_blank" rel="noreferrer"
+              <a href={site.instagramHref} target="_blank" rel="noreferrer"
                 className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-white/8 text-gray-400 hover:text-pink-400 hover:border-pink-400/30 transition-all text-xs min-h-0">
                 <Instagram size={14} /> Instagram
               </a>
-              <a href={`https://wa.me/${GYM_WA}`} target="_blank" rel="noreferrer"
+              <a href={site.waHref} target="_blank" rel="noreferrer"
                 className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-white/8 text-gray-400 hover:text-green-400 hover:border-green-400/30 transition-all text-xs min-h-0">
                 <MessageCircle size={14} /> WhatsApp
               </a>
@@ -104,23 +103,22 @@ export default function Footer() {
           <div className="col-span-2 sm:col-span-2 lg:col-span-1">
             <h4 className="text-white font-semibold text-sm mb-3 uppercase tracking-wider">Contact</h4>
             <div className="space-y-2.5">
-              <a href={`tel:${GYM_PHONE}`}
+              <a href={site.telHref}
                 className="flex items-center gap-2.5 text-gray-400 text-sm hover:text-[#22d3ee] transition-colors min-h-0 py-0.5">
-                <Phone size={13} className="text-cyan-400 flex-shrink-0"/> {GYM_PHONE}
+                <Phone size={13} className="text-cyan-400 flex-shrink-0"/> {site.phone}
               </a>
-              <a href={`https://wa.me/${GYM_WA}`} target="_blank" rel="noreferrer"
+              <a href={site.waHref} target="_blank" rel="noreferrer"
                 className="flex items-center gap-2.5 text-gray-400 text-sm hover:text-green-400 transition-colors min-h-0 py-0.5">
                 <MessageCircle size={13} className="text-green-400 flex-shrink-0"/> Chat on WhatsApp
               </a>
-              <a href={`https://instagram.com/${GYM_INSTAGRAM}`} target="_blank" rel="noreferrer"
+              <a href={site.instagramHref} target="_blank" rel="noreferrer"
                 className="flex items-center gap-2.5 text-gray-400 text-sm hover:text-pink-400 transition-colors min-h-0 py-0.5">
-                <Instagram size={13} className="text-pink-400 flex-shrink-0"/> @{GYM_INSTAGRAM}
+                <Instagram size={13} className="text-pink-400 flex-shrink-0"/> @{site.instagram}
               </a>
               <div className="flex items-start gap-2.5 text-gray-500 text-sm pt-1">
                 <Clock size={13} className="flex-shrink-0 mt-0.5 text-gray-600"/>
                 <div>
-                  <div>Mon–Sat: 5 AM – 11 AM</div>
-                  <div>Mon–Sat: 4 PM – 10 PM</div>
+                  {site.hours.map((line, i) => <div key={i}>{line}</div>)}
                   <div className="text-red-400/70 text-xs mt-0.5">Sunday: Closed</div>
                 </div>
               </div>

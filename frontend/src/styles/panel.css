@@ -636,3 +636,19 @@ body.theme-panel [class*="bg-purple-500/"]  { background-color: var(--p-accent-s
   border-radius: var(--p-radius-sm);
   font-size: 13px; font-weight: 500;
 }
+
+/* ── Row action menu ─────────────────────────────────────────────────────── */
+.ui-menu-item {
+  display: flex; align-items: center; gap: 9px;
+  width: 100%;
+  padding: 9px 12px;
+  font-size: 13.5px; font-weight: 500;
+  color: var(--p-text-2);
+  background: none; border: none; cursor: pointer;
+  text-align: left;
+  min-height: 38px;
+  transition: background .12s, color .12s;
+}
+.ui-menu-item:hover { background: var(--p-surface-2); color: var(--p-text); }
+.ui-menu-item-danger { color: var(--p-danger); }
+.ui-menu-item-danger:hover { background: var(--p-danger-soft); color: var(--p-danger); }

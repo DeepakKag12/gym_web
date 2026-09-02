@@ -501,3 +501,5 @@ export function FadeIn({ children, delay = 0, className = '', ...rest }) {
     </motion.div>
   );
 }
+
+export { default as WhatsAppButton } from './WhatsAppButton';

@@ -6,11 +6,9 @@ import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { cachedGet } from '../utils/api';
 import { isPanelRoute } from '../utils/routes';
+import { useSettings } from '../context/SettingsContext';
 import ThemeSwitch from './ThemeSwitch';
 
-const GYM_PHONE     = '9589730151';
-const GYM_WA        = '919589730151';
-const GYM_INSTAGRAM = 'fitnation.by.ajeet';
 
 function Logo({ size = 32 }) {
   return (
@@ -48,6 +46,8 @@ const navLinks = [
 
 export default function Navbar() {
   const { user, logout } = useAuth();
+  // Gym contact details come from the settings an admin edits, not constants.
+  const site = useSettings();
   const { count } = useCart();
   const navigate = useNavigate();
   const location = useLocation();
@@ -246,15 +246,15 @@ export default function Navbar() {
               {/* Quick contact strip */}
               <div className="border-t border-white/8 mx-4" />
               <div className="px-4 py-3 flex gap-3 pb-5">
-                <a href={`tel:${GYM_PHONE}`}
+                <a href={site.telHref}
                   className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white/5 text-sm text-gray-300 hover:bg-white/10 transition-all border border-white/8">
                   <Phone size={14} className="text-cyan-400" /> Call
                 </a>
-                <a href={`https://wa.me/${GYM_WA}`} target="_blank" rel="noreferrer"
+                <a href={site.waHref} target="_blank" rel="noreferrer"
                   className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-green-500/10 text-sm text-green-300 hover:bg-green-500/20 transition-all border border-green-500/20">
                   WhatsApp
                 </a>
-                <a href={`https://instagram.com/${GYM_INSTAGRAM}`} target="_blank" rel="noreferrer"
+                <a href={site.instagramHref} target="_blank" rel="noreferrer"
                   className="flex items-center justify-center w-12 rounded-xl bg-white/5 text-pink-400 hover:bg-white/10 transition-all border border-white/8">
                   <Instagram size={16} />
                 </a>

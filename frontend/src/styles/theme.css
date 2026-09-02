@@ -115,6 +115,7 @@ body.theme-light:not(.theme-panel) .bg-\[\#0d0d14\],
 body.theme-light:not(.theme-panel) .bg-\[\#0d0e11\] { background-color: var(--bg) !important; }
 body.theme-light:not(.theme-panel) .bg-\[\#111318\],
 body.theme-light:not(.theme-panel) .bg-\[\#181b22\],
+body.theme-light:not(.theme-panel) .bg-\[\#0f1218\],
 body.theme-light:not(.theme-panel) .bg-\[\#1a1b23\] { background-color: var(--bg3) !important; }
 
 body.theme-light:not(.theme-panel) .bg-white\/2,
@@ -227,6 +228,23 @@ body.theme-light:not(.theme-panel) [class*="bg-red-500"].text-white,
 body.theme-light:not(.theme-panel) [class*="bg-green-500"].text-white,
 body.theme-light:not(.theme-panel) [class*="bg-rose-500"].text-white,
 body.theme-light:not(.theme-panel) [class*="bg-emerald-500"].text-white { color: #fff !important; }
+
+/* A chip whose own fill stays dark keeps its light text, whatever colour it is.
+   These sit over photographs, so the ground behind them never changes. */
+body.theme-light:not(.theme-panel) [class*="bg-black/"].text-gray-200,
+body.theme-light:not(.theme-panel) [class*="bg-black/"].text-gray-300,
+body.theme-light:not(.theme-panel) [class*="bg-black/"].text-gray-400 { color: #f1f5f9 !important; }
+body.theme-light:not(.theme-panel) [class*="bg-black/"].text-amber-400 { color: #fbbf24 !important; }
+body.theme-light:not(.theme-panel) [class*="bg-black/"].text-cyan-400  { color: #22d3ee !important; }
+
+/* Card thumbnails fade into the card below them. The stop was hardcoded to the
+   dark surface, which left a hard black band across a white card. */
+body.theme-light:not(.theme-panel) .from-\[\#111318\],
+body.theme-light:not(.theme-panel) .from-\[\#0b0c0e\] {
+  --tw-gradient-from: var(--bg2) var(--tw-gradient-from-position) !important;
+  --tw-gradient-to: rgb(255 255 255 / 0) var(--tw-gradient-to-position) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+}
 
 /* ── Theme switch cross-fade ────────────────────────────────────────────────
    Live only for the ~300ms around a toggle (ThemeContext adds the class), so
