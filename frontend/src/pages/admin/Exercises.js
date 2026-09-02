@@ -4,6 +4,7 @@ import { Plus, Trash2, X, Upload, Video, Edit2, Globe, Lock, Dumbbell } from 'lu
 import API, { cachedGet, bustCache, freshGet } from '../../utils/api';
 import AdminLayout from './AdminLayout';
 import toast from 'react-hot-toast';
+import { img } from '../../utils/img';
 
 /* ── VideoThumb: native <video> for direct files, <iframe> for YouTube ── */
 function isYouTube(url) { return url && (url.includes('youtube.com') || url.includes('youtu.be')); }
@@ -29,7 +30,7 @@ function VideoThumb({ video, videoUrl, image, title }) {
         className="absolute inset-0 w-full h-full object-cover" />
     );
   }
-  if (image) return <img src={image} alt={title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />;
+  if (image) return <img src={img(image, 400)} alt={title} loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />;
   return <div className="absolute inset-0 flex items-center justify-center text-gray-700"><Dumbbell size={36} /></div>;
 }
 
@@ -232,7 +233,7 @@ function ExerciseModal({ editData, members, onClose, onSaved }) {
           {/* Visibility + Assign in one row */}
           <div className="col-span-2 flex items-center gap-3">
             <span className="text-xs flex-shrink-0" style={{ color: 'var(--muted)' }}>Visibility:</span>
-            {[['true','🌐 Public'],['false','🔒 Private']].map(([val, lbl]) => (
+            {[['true','Public'],['false','Private']].map(([val, lbl]) => (
               <label key={val} className="flex items-center gap-1 cursor-pointer text-xs" style={{ color: 'var(--muted2)' }}>
                 <input type="radio" name="isPublic" value={val} checked={String(form.isPublic) === val} onChange={handleChange} />
                 {lbl}
@@ -302,9 +303,9 @@ function ExerciseModal({ editData, members, onClose, onSaved }) {
             )}
             {videoFile && (
               <div className="flex items-center gap-1.5 mb-1">
-                <span className="text-xs truncate flex-1" style={{ color: 'var(--cyan)' }}>✓ {videoFile.name.slice(0,16)}</span>
+                <span className="text-xs truncate flex-1" style={{ color: 'var(--cyan)' }}>{videoFile.name.slice(0,16)}</span>
                 <button type="button" onClick={() => { setVideoFile(null); setVideoPreview(editData?.video || ''); }}
-                  className="text-xs" style={{ color: 'var(--muted)' }}>✕</button>
+                  className="text-xs" style={{ color: 'var(--muted)' }} aria-label="Remove video"><X size={13} /></button>
               </div>
             )}
 
@@ -367,7 +368,7 @@ export default function AdminExercises() {
       setExercises(prev => prev.filter(e => e._id !== id));
       bustCache('/exercises');
       toast.success('Deleted');
-    } catch { toast.error('Error'); }
+    } catch (err) { toast.error(err.response?.data?.message || 'Error'); }
   };
 
   return (

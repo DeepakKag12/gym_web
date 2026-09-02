@@ -5,6 +5,7 @@ import { Star, ShoppingCart, Package, CheckCircle, Truck, Shield, RotateCcw, Che
 import API from '../utils/api';
 import { useCart } from '../context/CartContext';
 import toast from 'react-hot-toast';
+import { img as cld } from '../utils/img';
 
 function StarRating({ rating, count, size = 16 }) {
   return (
@@ -132,7 +133,7 @@ export default function ProductDetailPage() {
                       activeImg === i ? 'border-blue-500 shadow-md shadow-blue-900/30' : 'border-white/10 hover:border-blue-500/40'
                     }`}
                   >
-                    <img src={img} alt="" className="w-full h-full object-cover" />
+                    <img src={cld(img, 800)} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
                   </button>
                 ))}
               </div>
@@ -150,7 +151,7 @@ export default function ProductDetailPage() {
                 </span>
               )}
               {product.isFeatured && (
-                <span className="text-yellow-400 text-xs font-bold bg-yellow-500/10 border border-yellow-500/20 px-2.5 py-1 rounded-full">★ Featured</span>
+                <span className="text-yellow-400 text-xs font-bold bg-yellow-500/10 border border-yellow-500/20 px-2.5 py-1 rounded-full">Featured</span>
               )}
               {product.stock > 0
                 ? <span className="text-green-400 text-xs font-semibold bg-green-500/10 border border-green-500/20 px-2.5 py-1 rounded-full flex items-center gap-1"><CheckCircle size={11} /> In Stock</span>

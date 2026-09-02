@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Eye, EyeOff, ArrowRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
+import { apiError } from '../utils/api';
 
 function Logo({ size = 44 }) {
   return (
@@ -47,7 +48,7 @@ export default function LoginPage() {
       else if (user.role === 'trainer') navigate('/trainer');
       else navigate('/dashboard');
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Login failed');
+      toast.error(apiError(err, 'Could not sign you in.'));
     } finally {
       setLoading(false);
     }

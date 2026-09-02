@@ -2,25 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Bebas+Neue&display=swap');
+/* Fonts are linked from public/index.html with preconnect — importing them here
+   as well made the browser fetch the same stylesheet twice, the second time
+   only after index.css had finished downloading. */
 
 /* ─────────────────────────────────────────────────────
    DESIGN TOKENS
 ───────────────────────────────────────────────────── */
-:root {
-  --cyan:        #22d3ee;
-  --cyan-dim:    #0e7490;
-  --cyan-glow:   rgba(34, 211, 238, 0.18);
-  --bg:          #0b0c0e;
-  --bg2:         #111318;
-  --bg3:         #181b22;
-  --surface:     rgba(255,255,255,0.04);
-  --border:      rgba(255,255,255,0.08);
-  --border-cyan: rgba(34,211,238,0.25);
-  --text:        #f1f5f9;
-  --muted:       #64748b;
-  --muted2:      #94a3b8;
-}
+/* The palette lives in src/styles/theme.css — one file owns the light and
+   dark values so there is no second :root here to disagree with it. */
 
 /* ─────────────────────────────────────────────────────
    RESET & BASE

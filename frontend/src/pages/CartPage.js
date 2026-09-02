@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingCart, Trash2, Plus, Minus, ShoppingBag } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { thumb } from '../utils/img';
 
 export default function CartPage() {
   const { cart, removeFromCart, updateQty, total, clearCart } = useCart();
@@ -34,7 +35,7 @@ export default function CartPage() {
             {cart.map((item, i) => (
               <div key={i} className="glass rounded-2xl p-4 flex items-center gap-4">
                 {item.images?.[0] ? (
-                  <img src={item.images[0]} alt={item.name} className="w-[72px] h-[72px] object-cover rounded-xl flex-shrink-0 border border-white/10" />
+                  <img src={thumb(item.images[0], 144)} loading="lazy" decoding="async" alt={item.name} className="w-[72px] h-[72px] object-cover rounded-xl flex-shrink-0 border border-white/10" />
                 ) : (
                   <div className="w-[72px] h-[72px] bg-white/5 rounded-xl flex items-center justify-center flex-shrink-0 border border-white/10">
                     <ShoppingBag size={24} className="text-gray-600" />

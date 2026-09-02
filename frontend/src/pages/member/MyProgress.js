@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { TrendingUp, Plus, Scale, Camera, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import API, { bustCache } from '../../utils/api';
+import { thumb } from '../../utils/img';
 
 
 function LineChart({ entries, field, label, color }) {
@@ -68,7 +69,7 @@ export default function MyProgress() {
       setForm({ date: new Date().toISOString().split('T')[0], weight: '', bodyFat: '', chest: '', waist: '', hips: '', arms: '', thighs: '', notes: '' });
       setPhotoFile(null);
       fetchEntries();
-    } catch { toast.error('Failed to save'); }
+    } catch (err) { toast.error(err.response?.data?.message || 'Failed to save'); }
     finally { setSubmitting(false); }
   };
 
@@ -78,7 +79,7 @@ export default function MyProgress() {
       await API.delete(`/progress/${id}`);
       setEntries(prev => prev.filter(e => e._id !== id));
       toast.success('Deleted');
-    } catch { toast.error('Failed to delete entry'); }
+    } catch (err) { toast.error(err.response?.data?.message || 'Failed to delete entry'); }
   };
 
   return (
@@ -160,17 +161,17 @@ export default function MyProgress() {
                       {new Date(entry.date).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}
                     </div>
                     <div className="flex flex-wrap gap-3 mt-2">
-                      {entry.weight && <span className="text-xs bg-blue-500/15 text-blue-300 px-2 py-0.5 rounded-full">⚖️ {entry.weight} kg</span>}
-                      {entry.bodyFat && <span className="text-xs bg-purple-500/15 text-purple-300 px-2 py-0.5 rounded-full">🔥 {entry.bodyFat}% BF</span>}
-                      {entry.waist && <span className="text-xs bg-amber-500/15 text-amber-300 px-2 py-0.5 rounded-full">📏 W:{entry.waist}cm</span>}
-                      {entry.chest && <span className="text-xs bg-green-500/15 text-green-300 px-2 py-0.5 rounded-full">💪 C:{entry.chest}cm</span>}
-                      {entry.arms && <span className="text-xs bg-red-500/15 text-red-300 px-2 py-0.5 rounded-full">💪 A:{entry.arms}cm</span>}
+                      {entry.weight && <span className="text-xs bg-blue-500/15 text-blue-300 px-2 py-0.5 rounded-full">{entry.weight} kg</span>}
+                      {entry.bodyFat && <span className="text-xs bg-purple-500/15 text-purple-300 px-2 py-0.5 rounded-full">{entry.bodyFat}% body fat</span>}
+                      {entry.waist && <span className="text-xs bg-amber-500/15 text-amber-300 px-2 py-0.5 rounded-full">Waist {entry.waist} cm</span>}
+                      {entry.chest && <span className="text-xs bg-green-500/15 text-green-300 px-2 py-0.5 rounded-full">Chest {entry.chest} cm</span>}
+                      {entry.arms && <span className="text-xs bg-red-500/15 text-red-300 px-2 py-0.5 rounded-full">Arms {entry.arms} cm</span>}
                     </div>
                     {entry.notes && <p className="text-gray-500 text-xs mt-2 italic">"{entry.notes}"</p>}
                   </div>
                   <div className="flex items-start gap-2 flex-shrink-0 ml-2">
                     {entry.photo && (
-                      <img src={entry.photo} alt="progress" className="w-14 h-14 rounded-lg object-cover border border-white/10" />
+                      <img src={thumb(entry.photo, 112)} alt="progress" loading="lazy" decoding="async" className="w-14 h-14 rounded-lg object-cover border border-white/10" />
                     )}
                     <button onClick={() => deleteEntry(entry._id)} className="text-gray-600 hover:text-red-400 p-1 transition-colors">
                       <Trash2 size={15} />

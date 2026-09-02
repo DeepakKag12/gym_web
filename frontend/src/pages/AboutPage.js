@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Phone, Instagram, MapPin, Clock, Award, Target, Heart,
-  Dumbbell, MessageCircle, CheckCircle, Sun, Moon, AlertCircle,
+  Dumbbell, MessageCircle, CheckCircle, Sun, Moon, AlertCircle, Footprints, Sparkles,
   ChevronRight, ArrowRight
 } from 'lucide-react';
 
@@ -228,12 +228,12 @@ export default function AboutPage() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-white/5">
               {[
-                { icon: '👟', title: 'Proper Gym Shoes', sub: 'Compulsory for all members' },
-                { icon: '🏋️', title: 'Rerack Your Weights', sub: 'After every set, every time' },
-                { icon: '🧹', title: 'Keep Gym Clean', sub: 'Maintain hygiene & discipline' },
+                { icon: Footprints, title: 'Proper Gym Shoes', sub: 'Compulsory for all members' },
+                { icon: Dumbbell,   title: 'Rerack Your Weights', sub: 'After every set, every time' },
+                { icon: Sparkles,   title: 'Keep Gym Clean', sub: 'Maintain hygiene & discipline' },
               ].map((n, i) => (
                 <div key={i} className="flex items-center gap-4 px-6 py-5">
-                  <span className="text-2xl">{n.icon}</span>
+                  <n.icon size={20} className="flex-shrink-0 mt-0.5 text-[#22d3ee]" />
                   <div>
                     <div className="text-white font-semibold text-sm">{n.title}</div>
                     <div className="text-gray-500 text-xs mt-0.5">{n.sub}</div>
@@ -289,7 +289,7 @@ export default function AboutPage() {
                 whileHover={{ y: -5 }}
                 className="glass rounded-2xl overflow-hidden group border border-white/5 hover:border-[#22d3ee]/25 transition-all">
                 <div className="relative h-52 overflow-hidden">
-                  <img src={t.img} alt={t.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"/>
+                  <img src={t.img} alt={t.name} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"/>
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0b0c0e] via-transparent to-transparent"/>
                   <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#22d3ee] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"/>
                 </div>

@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import API, { cachedGet } from '../../utils/api';
+import { img, thumb as cldThumb } from '../../utils/img';
 
 /* ──────────────────────────────────────────
    Constants & helpers
@@ -272,7 +273,7 @@ function ExercisePicker({ day, existingIds, onAdd, onClose }) {
                   {/* Thumbnail */}
                   <div className="w-12 h-12 rounded-xl bg-[#111] flex items-center justify-center flex-shrink-0 overflow-hidden border border-white/8">
                     {thumb ? (
-                      <img src={thumb} alt={ex.title} className="w-full h-full object-cover" />
+                      <img src={cldThumb(thumb, 200)} alt={ex.title} loading="lazy" decoding="async" className="w-full h-full object-cover" />
                     ) : (
                       <Dumbbell size={18} className="text-gray-600 group-hover:text-[#22d3ee] transition-colors" />
                     )}
@@ -349,7 +350,7 @@ function ExerciseVideoThumb({ vid, image, title }) {
       />
     );
   }
-  return <img src={image} alt={title} className="absolute inset-0 w-full h-full object-cover" />;
+  return <img src={img(image, 400)} alt={title} loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover" />;
 }
 
 /* ──────────────────────────────────────────
@@ -511,7 +512,7 @@ function DayCard({ dayData, dayIndex, editable, onAddExercise, onRemoveExercise,
                     <span className="text-xs">Tap to add exercises</span>
                   </button>
                 ) : (
-                  <span className="text-gray-600 text-xs">🌟 Rest & Recovery</span>
+                  <span className="text-gray-600 text-xs">Rest &amp; Recovery</span>
                 )}
               </div>
             ) : (
@@ -540,7 +541,7 @@ function DayCard({ dayData, dayIndex, editable, onAddExercise, onRemoveExercise,
             ) : (
               (dayData.notes || dayData.focus) ? (
                 <div className="text-[11px] text-gray-600 italic border-t border-white/5 pt-2">
-                  💡 {dayData.notes || dayData.focus}
+                  {dayData.notes || dayData.focus}
                 </div>
               ) : null
             )}
@@ -676,7 +677,7 @@ export default function MyWorkout() {
       setSaved(true);
       clearTimeout(savedTimer.current);
       savedTimer.current = setTimeout(() => setSaved(false), 3500);
-      toast.success('Workout plan saved! 💪', {
+      toast.success('Workout plan saved', {
         style: { background: '#0d1117', color: '#e2e8f0', border: '1px solid rgba(34,211,238,0.2)' },
         iconTheme: { primary: '#22d3ee', secondary: '#000' },
       });
@@ -722,7 +723,7 @@ export default function MyWorkout() {
               tab === 'planner' ? 'bg-[#22d3ee] text-black shadow-md shadow-[#22d3ee]/20' : 'text-gray-400 hover:text-white'
             }`}
           >
-            📅 My Planner
+            My Planner
           </button>
           <button
             type="button"

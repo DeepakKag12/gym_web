@@ -3,17 +3,18 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Search, Lock, Dumbbell, Zap, Video } from 'lucide-react';
 import { cachedGet } from '../utils/api';
+import { img } from '../utils/img';
 
 const MUSCLE_GROUPS = [
-  { key: 'all',       label: 'All',        emoji: '🏋️' },
-  { key: 'chest',     label: 'Chest',      emoji: '💪' },
-  { key: 'back',      label: 'Back',       emoji: '🔙' },
-  { key: 'shoulders', label: 'Shoulders',  emoji: '⚡' },
-  { key: 'arms',      label: 'Arms',       emoji: '💥' },
-  { key: 'legs',      label: 'Legs',       emoji: '🦵' },
-  { key: 'core',      label: 'Core',       emoji: '🎯' },
-  { key: 'cardio',    label: 'Cardio',     emoji: '🔥' },
-  { key: 'fullbody',  label: 'Full Body',  emoji: '⚔️' },
+  { key: 'all',       label: 'All' },
+  { key: 'chest',     label: 'Chest' },
+  { key: 'back',      label: 'Back' },
+  { key: 'shoulders', label: 'Shoulders' },
+  { key: 'arms',      label: 'Arms' },
+  { key: 'legs',      label: 'Legs' },
+  { key: 'core',      label: 'Core' },
+  { key: 'cardio',    label: 'Cardio' },
+  { key: 'fullbody',  label: 'Full Body' },
 ];
 
 const DIFF_MAP = {
@@ -70,7 +71,7 @@ function VideoThumb({ video, videoUrl, image, title, placeholderIcon }) {
     );
   }
   if (image) {
-    return <img src={image} alt={title} className="absolute inset-0 w-full h-full object-cover" />;
+    return <img src={img(image, 500)} alt={title} loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover" />;
   }
   return (
     <div className="absolute inset-0 flex items-center justify-center">
@@ -175,7 +176,7 @@ export default function ExercisesPage() {
         <div className="absolute inset-0 bg-gradient-to-b from-[#0b0c0e]/60 to-[#0b0c0e]" />
         <div className="relative z-10 max-w-7xl mx-auto px-6 text-center">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}>
-            <span className="section-pill">💪 Exercise Library</span>
+            <span className="section-pill">Exercise Library</span>
             <h1 className="gym-font text-6xl md:text-7xl text-white mt-2">WORKOUT <span className="gradient-text">LIBRARY</span></h1>
             <p className="text-gray-400 mt-3 text-lg">Video-guided exercises for every muscle group</p>
           </motion.div>
@@ -196,7 +197,7 @@ export default function ExercisesPage() {
           {MUSCLE_GROUPS.map(mg => (
             <button key={mg.key} onClick={() => setActiveMuscle(mg.key)}
               className={`cat-pill flex items-center gap-1.5 flex-shrink-0 ${activeMuscle === mg.key ? 'active' : ''}`}>
-              <span>{mg.emoji}</span> {mg.label}
+              {mg.label}
             </button>
           ))}
         </div>

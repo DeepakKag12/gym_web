@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Plus, Edit2, Trash2, Dumbbell, Users, Calendar, X,
+  Plus, Edit2, Trash2, Dumbbell, Users, Calendar, X, Check,
   Search, ChevronDown, ChevronUp, Play
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import API, { cachedGet, bustCache, freshGet } from '../../utils/api';
 import AdminLayout from './AdminLayout';
+import { thumb } from '../../utils/img';
 
 const DAYS  = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 const GOALS = ['strength','muscle','fat_loss','endurance','general'];
@@ -125,12 +126,12 @@ function DayExerciseSelector({ day, allExercises, selectedIds, onChange }) {
                   className={`flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-white/4 transition-all border-b border-white/4 last:border-0 ${selected ? 'bg-[#22d3ee]/4' : ''}`}>
                   <input type="checkbox" checked={selected} onChange={() => toggle(ex._id)} className="hidden" />
                   <div className={`w-4 h-4 rounded flex items-center justify-center flex-shrink-0 border transition-all ${selected ? 'bg-[#22d3ee] border-[#22d3ee]' : 'border-white/20'}`}>
-                    {selected && <span className="text-black text-[10px] font-black">✓</span>}
+                    {selected && <Check size={11} strokeWidth={3} className="text-black" />}
                   </div>
                   {/* Thumb */}
                   <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0 overflow-hidden">
                     {ex.image
-                      ? <img src={ex.image} alt={ex.title} className="w-full h-full object-cover" />
+                      ? <img src={thumb(ex.image, 96)} alt={ex.title} loading="lazy" decoding="async" className="w-full h-full object-cover" />
                       : <Dumbbell size={13} className="text-gray-600" />}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -346,7 +347,7 @@ export default function AdminSplits() {
       bustCache('/splits');
       setSplits(prev => prev.filter(s => s._id !== id));
       toast.success('Deleted');
-    } catch { toast.error('Delete failed'); }
+    } catch (err) { toast.error(err.response?.data?.message || 'Delete failed'); }
   };
 
   return (

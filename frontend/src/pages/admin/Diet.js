@@ -4,6 +4,7 @@ import { Plus, Trash2, X, Edit2, Salad, Users } from 'lucide-react';
 import API, { cachedGet, bustCache, freshGet } from '../../utils/api';
 import AdminLayout from './AdminLayout';
 import toast from 'react-hot-toast';
+import { img } from '../../utils/img';
 
 const GOALS = ['weight-loss','muscle-gain','maintenance','endurance','general'];
 const MEAL_TYPES = ['breakfast','lunch','dinner','snack','pre-workout','post-workout'];
@@ -50,7 +51,7 @@ function DietModal({ editData, members, onClose, onSaved }) {
         toast.success('Diet plan created!');
       }
       onSaved();
-    } catch { toast.error('Save failed'); }
+    } catch (err) { toast.error(err.response?.data?.message || 'Save failed'); }
     finally { setSaving(false); }
   };
 
@@ -77,7 +78,7 @@ function DietModal({ editData, members, onClose, onSaved }) {
           <div>
             <label className="text-gray-400 text-xs font-medium block mb-1.5">Visibility</label>
             <div className="flex gap-4 h-10 items-center">
-              {[['true','🌐 Public'],['false','🔒 Private']].map(([val, lbl]) => (
+              {[['true','Public'],['false','Private']].map(([val, lbl]) => (
                 <label key={val} className="flex items-center gap-1.5 cursor-pointer text-sm text-gray-300">
                   <input type="radio" checked={String(form.isPublic) === val} onChange={() => setForm(p => ({ ...p, isPublic: val === 'true' }))} />
                   {lbl}
@@ -185,7 +186,7 @@ export default function AdminDiet() {
       setPlans(prev => prev.filter(p => p._id !== id));
       bustCache('/diet');
       toast.success('Deleted');
-    } catch { toast.error('Error'); }
+    } catch (err) { toast.error(err.response?.data?.message || 'Error'); }
   };
 
   return (
@@ -208,20 +209,20 @@ export default function AdminDiet() {
           {plans.map((p, i) => (
             <motion.div key={p._id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
               className="glass rounded-2xl overflow-hidden">
-              {p.image && <img src={p.image} alt={p.title} className="w-full h-36 object-cover" />}
+              {p.image && <img src={img(p.image, 400)} alt={p.title} loading="lazy" decoding="async" className="w-full h-36 object-cover" />}
               <div className="p-4">
                 <div className="flex items-start justify-between mb-1">
                   <div className="flex-1 min-w-0">
                     <h3 className="text-white font-semibold line-clamp-1">{p.title}</h3>
                     <span className="text-xs text-[#22d3ee] capitalize">{p.goal?.replace(/-/g, ' ')}</span>
                   </div>
-                  <span className="text-[10px] text-gray-500 flex-shrink-0 ml-2">{p.isPublic ? '🌐' : '🔒'}</span>
+                  <span className="text-[10px] text-gray-500 flex-shrink-0 ml-2">{p.isPublic ? 'Public' : 'Private'}</span>
                 </div>
                 <p className="text-gray-500 text-xs mt-2 line-clamp-2">{p.description}</p>
                 <div className="flex gap-3 text-xs text-gray-600 mt-2">
-                  {p.totalCalories && <span>🔥 {p.totalCalories} kcal</span>}
-                  {p.totalProtein && <span>💪 {p.totalProtein} protein</span>}
-                  <span>🍽️ {p.meals?.length || 0} meals</span>
+                  {p.totalCalories && <span>{p.totalCalories} kcal</span>}
+                  {p.totalProtein && <span>{p.totalProtein} protein</span>}
+                  <span>{p.meals?.length || 0} meals</span>
                 </div>
                 <div className="flex gap-2 mt-3 border-t border-white/5 pt-3">
                   <button onClick={() => setModal(p)} className="flex-1 flex items-center justify-center gap-1.5 text-xs text-amber-400 hover:bg-amber-400/10 rounded-lg py-1.5 transition-all">

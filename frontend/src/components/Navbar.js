@@ -5,6 +5,8 @@ import { ShoppingCart, Bell, Menu, X, LogOut, LayoutDashboard, Phone, Instagram,
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { cachedGet } from '../utils/api';
+import { isPanelRoute } from '../utils/routes';
+import ThemeSwitch from './ThemeSwitch';
 
 const GYM_PHONE     = '9589730151';
 const GYM_WA        = '919589730151';
@@ -51,6 +53,9 @@ export default function Navbar() {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  // Inside the panel the bar is always solid — a transparent bar over a light
+  // page leaves the links floating with nothing behind them.
+  const inPanel = isPanelRoute(location.pathname);
   const [unread, setUnread] = useState(0);
 
   useEffect(() => {
@@ -80,7 +85,7 @@ export default function Navbar() {
         initial={{ y: -80 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'nav-float shadow-lg shadow-black/30' : 'bg-transparent'}`}
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled || inPanel ? 'nav-float' : 'bg-transparent'}`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between h-14 sm:h-16">
@@ -114,6 +119,7 @@ export default function Navbar() {
 
             {/* Desktop Right Actions */}
             <div className="hidden lg:flex items-center gap-2">
+              <ThemeSwitch />
               <Link to="/cart" className="relative p-2 rounded-xl text-gray-400 hover:text-[#22d3ee] hover:bg-white/5 transition-all min-h-0">
                 <ShoppingCart size={19} />
                 {count > 0 && (
@@ -170,6 +176,7 @@ export default function Navbar() {
                   <span className="absolute top-1 right-0.5 w-4 h-4 bg-[#22d3ee] text-black text-[9px] font-bold rounded-full flex items-center justify-center">{count}</span>
                 )}
               </Link>
+              <ThemeSwitch size={20} />
               <button onClick={() => setMobileOpen(!mobileOpen)}
                 className="p-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/8 transition-all min-h-0">
                 {mobileOpen ? <X size={22} /> : <Menu size={22} />}

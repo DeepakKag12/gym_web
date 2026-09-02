@@ -17,7 +17,9 @@ export default function AdminTrainers() {
 
   const load = (force = false) => {
     setLoading(true);
-    const fetcher = force ? freshGet('/trainers', { cache: 180 }) : cachedGet('/trainers', { cache: 180 });
+    // ?all=1 is the admin view — includes deactivated trainers so they can be
+    // edited back to active. The bare /trainers route is public and active-only.
+    const fetcher = force ? freshGet('/trainers?all=1', { cache: 0 }) : cachedGet('/trainers?all=1', { cache: 30 });
     fetcher.then(r => setTrainers(r.data)).catch(() => {}).finally(() => setLoading(false));
   };
 
@@ -63,8 +65,8 @@ export default function AdminTrainers() {
       setTrainers(prev => prev.filter(t => t._id !== id));
       bustCache('/trainers');
       toast.success('Trainer deleted');
-    } catch {
-      toast.error('Error deleting trainer');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Error deleting trainer');
     }
   };
 

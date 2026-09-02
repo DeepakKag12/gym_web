@@ -1,0 +1,245 @@
+/* =============================================================================
+   PUBLIC SITE THEME
+
+   The marketing pages (Home, Store, About, Exercises …) were written for one
+   fixed dark palette, with the colours hardcoded as Tailwind utilities:
+   `text-white`, `bg-white/5`, `border-white/10`, `bg-[#0b0c0e]` and so on —
+   around 350 of them across 15 files.
+
+   Rather than rewrite every one, the palette lives in CSS variables and the
+   handful of hardcoded utilities are remapped for light mode below. This is
+   the same technique src/styles/panel.css already uses for the admin panel,
+   so the two areas behave consistently.
+
+   Applied by src/context/ThemeContext.js:
+     html.theme-dark   -> dark   (the default; the brand's natural look)
+     html.theme-light  -> light
+   Panel routes are excluded with :not(.theme-panel) — panel.css owns those.
+
+   Selectors are written flat on purpose. CRA runs no PostCSS nesting plugin,
+   so a nested block here would silently do nothing.
+   ============================================================================= */
+
+/* ── DARK (default) ─────────────────────────────────────────────────────────
+   Refined from the original flat near-black. The three surface steps now rise
+   in lightness with a slight cool cast rather than all being the same grey, so
+   a card reads as sitting above the page instead of being drawn onto it. */
+:root {
+  --cyan:        #22d3ee;
+  --cyan-dim:    #0e7490;
+  --cyan-glow:   rgba(34, 211, 238, 0.18);
+
+  --bg:          #0a0b0d;
+  --bg2:         #121419;
+  --bg3:         #191c23;
+  --surface:     rgba(255, 255, 255, 0.04);
+  --border:      rgba(255, 255, 255, 0.09);
+  --border-cyan: rgba(34, 211, 238, 0.25);
+
+  --text:        #f4f6f8;
+  --muted2:      #9aa6b4;
+  --muted:       #6c7684;
+
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, .5);
+  --shadow-2: 0 10px 30px rgba(0, 0, 0, .45);
+}
+
+/* ── LIGHT ──────────────────────────────────────────────────────────────────
+   A warm off-white rather than pure white: it keeps the gym photography from
+   looking cold and stops the large flat areas glaring. */
+html.theme-light:not(.theme-panel),
+body.theme-light:not(.theme-panel) {
+  --cyan:        #0e7490;
+  --cyan-dim:    #155e75;
+  --cyan-glow:   rgba(14, 116, 144, 0.12);
+
+  --bg:          #fbfaf9;
+  --bg2:         #ffffff;
+  --bg3:         #f4f4f2;
+  --surface:     rgba(16, 18, 22, 0.03);
+  --border:      rgba(16, 18, 22, 0.10);
+  --border-cyan: rgba(14, 116, 144, 0.28);
+
+  --text:        #16181d;
+  --muted2:      #565e6b;
+  --muted:       #8a919c;
+
+  --shadow-1: 0 1px 2px rgba(16, 18, 22, .06);
+  --shadow-2: 0 10px 30px rgba(16, 18, 22, .10);
+}
+
+html.theme-light:not(.theme-panel),
+body.theme-light:not(.theme-panel),
+body.theme-light:not(.theme-panel) #root {
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* =============================================================================
+   COMPATIBILITY LAYER — light mode only
+   Every rule below exists because a public page hardcodes that utility.
+   ============================================================================= */
+
+/* ── Text ─────────────────────────────────────────────────────────────────── */
+body.theme-light:not(.theme-panel) .text-white { color: var(--text) !important; }
+body.theme-light:not(.theme-panel) .text-gray-200,
+body.theme-light:not(.theme-panel) .text-gray-300,
+body.theme-light:not(.theme-panel) .text-gray-400 { color: var(--muted2) !important; }
+body.theme-light:not(.theme-panel) .text-gray-500,
+body.theme-light:not(.theme-panel) .text-gray-600,
+body.theme-light:not(.theme-panel) .text-gray-700 { color: var(--muted) !important; }
+
+/* The 400-level accents were picked for a near-black ground and fall to ~2:1
+   on an off-white one. Each moves to the darker step of the same hue, so the
+   meaning (green = good, red = problem) survives the switch. */
+body.theme-light:not(.theme-panel) .text-cyan-400,
+body.theme-light:not(.theme-panel) .text-sky-400,
+body.theme-light:not(.theme-panel) .text-\[\#22d3ee\] { color: var(--cyan) !important; }
+body.theme-light:not(.theme-panel) .text-green-400,
+body.theme-light:not(.theme-panel) .text-emerald-400 { color: #067647 !important; }
+body.theme-light:not(.theme-panel) .text-yellow-400,
+body.theme-light:not(.theme-panel) .text-amber-400,
+body.theme-light:not(.theme-panel) .text-orange-400,
+body.theme-light:not(.theme-panel) .text-orange-500 { color: #b54708 !important; }
+body.theme-light:not(.theme-panel) .text-red-400,
+body.theme-light:not(.theme-panel) .text-rose-400 { color: #b42318 !important; }
+body.theme-light:not(.theme-panel) .text-blue-400,
+body.theme-light:not(.theme-panel) .text-indigo-400,
+body.theme-light:not(.theme-panel) .text-purple-400,
+body.theme-light:not(.theme-panel) .text-pink-400 { color: #5b53d6 !important; }
+
+/* ── Page and card fills ──────────────────────────────────────────────────── */
+body.theme-light:not(.theme-panel) .bg-\[\#0a0a0f\],
+body.theme-light:not(.theme-panel) .bg-\[\#0b0c0e\],
+body.theme-light:not(.theme-panel) .bg-\[\#0d0d14\],
+body.theme-light:not(.theme-panel) .bg-\[\#0d0e11\] { background-color: var(--bg) !important; }
+body.theme-light:not(.theme-panel) .bg-\[\#111318\],
+body.theme-light:not(.theme-panel) .bg-\[\#181b22\],
+body.theme-light:not(.theme-panel) .bg-\[\#1a1b23\] { background-color: var(--bg3) !important; }
+
+body.theme-light:not(.theme-panel) .bg-white\/2,
+body.theme-light:not(.theme-panel) .bg-white\/3,
+body.theme-light:not(.theme-panel) .bg-white\/4,
+body.theme-light:not(.theme-panel) .bg-white\/5,
+body.theme-light:not(.theme-panel) .bg-white\/6,
+body.theme-light:not(.theme-panel) .bg-white\/8,
+body.theme-light:not(.theme-panel) .bg-white\/10,
+body.theme-light:not(.theme-panel) .bg-white\/15,
+body.theme-light:not(.theme-panel) .bg-white\/20 { background-color: var(--surface) !important; }
+
+body.theme-light:not(.theme-panel) .border-white\/4,
+body.theme-light:not(.theme-panel) .border-white\/5,
+body.theme-light:not(.theme-panel) .border-white\/6,
+body.theme-light:not(.theme-panel) .border-white\/8,
+body.theme-light:not(.theme-panel) .border-white\/10,
+body.theme-light:not(.theme-panel) .border-white\/15,
+body.theme-light:not(.theme-panel) .border-white\/20 { border-color: var(--border) !important; }
+
+body.theme-light:not(.theme-panel) .hover\:bg-white\/5:hover,
+body.theme-light:not(.theme-panel) .hover\:bg-white\/10:hover { background-color: var(--bg3) !important; }
+body.theme-light:not(.theme-panel) .hover\:text-white:hover { color: var(--text) !important; }
+
+/* Tinted status washes read as near-invisible on a light ground.
+   `:not(.text-white)` matters: a chip carrying white text (the BEFORE/AFTER
+   badges over transformation photos, for instance) is a solid coloured pill,
+   not a wash — paling it out would leave white text on near-white. */
+body.theme-light:not(.theme-panel) [class*="bg-green-500/"]:not(.text-white),
+body.theme-light:not(.theme-panel) [class*="bg-emerald-500/"]:not(.text-white) { background-color: #ecfdf3 !important; }
+body.theme-light:not(.theme-panel) [class*="bg-yellow-500/"]:not(.text-white),
+body.theme-light:not(.theme-panel) [class*="bg-amber-500/"]:not(.text-white) { background-color: #fffaeb !important; }
+body.theme-light:not(.theme-panel) [class*="bg-red-500/"]:not(.text-white),
+body.theme-light:not(.theme-panel) [class*="bg-rose-500/"]:not(.text-white) { background-color: #fef3f2 !important; }
+body.theme-light:not(.theme-panel) [class*="bg-cyan-500/"]:not(.text-white),
+body.theme-light:not(.theme-panel) [class*="bg-blue-500/"]:not(.text-white),
+body.theme-light:not(.theme-panel) [class*="bg-sky-500/"]:not(.text-white),
+body.theme-light:not(.theme-panel) [class*="bg-purple-500/"]:not(.text-white) { background-color: #ecfeff !important; }
+
+/* ── Shared component classes from index.css ──────────────────────────────── */
+body.theme-light:not(.theme-panel) .glass {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-1);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+body.theme-light:not(.theme-panel) .glass-cyan {
+  background: #f0fdff;
+  border: 1px solid var(--border-cyan);
+}
+body.theme-light:not(.theme-panel) .card-hover:hover {
+  box-shadow: var(--shadow-2);
+  border-color: var(--border-cyan);
+}
+
+body.theme-light:not(.theme-panel) .btn-fire { background: var(--cyan); color: #fff; }
+body.theme-light:not(.theme-panel) .btn-fire:hover {
+  background: var(--cyan-dim);
+  box-shadow: 0 6px 20px rgba(14, 116, 144, .25);
+}
+body.theme-light:not(.theme-panel) .btn-outline { color: var(--cyan); border-color: var(--cyan); }
+body.theme-light:not(.theme-panel) .btn-outline:hover { background: var(--cyan-glow); box-shadow: none; }
+body.theme-light:not(.theme-panel) .btn-ghost { color: var(--muted2); border-color: var(--border); }
+body.theme-light:not(.theme-panel) .btn-ghost:hover { background: var(--bg3); color: var(--text); }
+
+body.theme-light:not(.theme-panel) .section-pill {
+  background: rgba(14, 116, 144, .08);
+  color: var(--cyan);
+  border-color: rgba(14, 116, 144, .22);
+}
+
+body.theme-light:not(.theme-panel) .nav-float {
+  background: rgba(251, 250, 249, 0.82);
+  border-bottom: 1px solid var(--border);
+}
+
+body.theme-light:not(.theme-panel) .input-dark,
+body.theme-light:not(.theme-panel) .input-light,
+body.theme-light:not(.theme-panel) .admin-input {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+body.theme-light:not(.theme-panel) .input-dark::placeholder,
+body.theme-light:not(.theme-panel) .admin-input::placeholder { color: var(--muted); }
+
+/* The brand gradient is a light-on-dark effect; on an off-white ground the
+   cyan end vanishes, so it becomes a solid readable colour instead. */
+body.theme-light:not(.theme-panel) .gradient-text,
+body.theme-light:not(.theme-panel) .gradient-text-warm {
+  background: none;
+  -webkit-text-fill-color: initial;
+  color: var(--cyan);
+}
+
+/* ── Text that must stay white in BOTH themes ──────────────────────────────
+   The `.text-white` remap above is right for body copy but wrong wherever the
+   text sits on a photograph or a solid coloured chip — there the background
+   does not change with the theme, so the text must not either.
+
+   `.text-on-photo` is the explicit opt-out for our own components. The rules
+   after it cover the existing pages, where `text-white` is paired with a solid
+   fill that stays dark in light mode. */
+.text-on-photo { color: #fff !important; }
+
+body.theme-light:not(.theme-panel) .bg-black\/50.text-white,
+body.theme-light:not(.theme-panel) .bg-black\/60.text-white,
+body.theme-light:not(.theme-panel) [class*="bg-red-500"].text-white,
+body.theme-light:not(.theme-panel) [class*="bg-green-500"].text-white,
+body.theme-light:not(.theme-panel) [class*="bg-rose-500"].text-white,
+body.theme-light:not(.theme-panel) [class*="bg-emerald-500"].text-white { color: #fff !important; }
+
+/* ── Theme switch cross-fade ────────────────────────────────────────────────
+   Live only for the ~300ms around a toggle (ThemeContext adds the class), so
+   nothing pays for a transition for the rest of the session. */
+body.theme-switching,
+body.theme-switching *,
+body.theme-switching *::before,
+body.theme-switching *::after {
+  transition: background-color .3s ease, border-color .3s ease,
+              color .3s ease, box-shadow .3s ease, fill .3s ease !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.theme-switching,
+  body.theme-switching * { transition: none !important; }
+}

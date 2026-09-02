@@ -5,6 +5,7 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import API from '../utils/api';
 import toast from 'react-hot-toast';
+import { thumb } from '../utils/img';
 
 export default function CheckoutPage() {
   const { cart, total, clearCart } = useCart();
@@ -14,6 +15,7 @@ export default function CheckoutPage() {
   const [phone, setPhone] = useState(user?.phone || '');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [placedTotal, setPlacedTotal] = useState(null);
 
   // Redirect unauthenticated users to login
   useEffect(() => {
@@ -38,16 +40,19 @@ export default function CheckoutPage() {
         quantity: i.qty, flavor: i.flavor, weight: i.weight,
         image: i.images?.[0] || ''
       }));
-      await API.post('/orders', {
+      // totalAmount / paymentStatus are deliberately NOT sent: the server
+      // re-prices every line from the database and ignores client values.
+      const { data: order } = await API.post('/orders', {
         items,
         shippingAddress: { name, phone, address: 'Collect from Gym', city: 'Gym', state: '', pincode: '000000' },
-        totalAmount: total,
         paymentMethod: 'cod',
-        paymentStatus: 'pending',
       });
+      // Show what was actually charged — a cart restored from localStorage can
+      // hold a stale price if the product changed since it was added.
+      setPlacedTotal(order?.totalAmount ?? total);
       clearCart();
       setSuccess(true);
-    } catch { toast.error('Order placement failed. Please try again.'); }
+    } catch (err) { toast.error(err.response?.data?.message || 'Order placement failed. Please try again.'); }
     finally { setLoading(false); }
   };
 
@@ -60,6 +65,9 @@ export default function CheckoutPage() {
       <p className="text-gray-400 text-center max-w-sm">
         Thank you! Your order is confirmed. Please collect your items from the gym and pay cash on pickup.
       </p>
+      {placedTotal !== null && (
+        <p className="text-white font-semibold text-lg">Amount due on pickup: ₹{Number(placedTotal).toFixed(0)}</p>
+      )}
       <button onClick={() => navigate('/store')} className="btn-fire px-10 py-3">Continue Shopping</button>
     </div>
   );
@@ -95,7 +103,7 @@ export default function CheckoutPage() {
               </div>
               <p className="text-gray-400 text-sm">Pick up your order directly at the gym. Pay cash when you collect.</p>
               <div className="flex items-center gap-2.5 mt-2 px-3 py-2.5 rounded-lg bg-orange-500/10 border border-orange-500/20">
-                <span className="text-orange-400 font-semibold text-sm">💵 Cash on Delivery (COD)</span>
+                <span className="text-orange-400 font-semibold text-sm">Cash on Delivery</span>
               </div>
             </div>
 
@@ -112,7 +120,7 @@ export default function CheckoutPage() {
             <div className="space-y-3 max-h-80 overflow-y-auto pr-1">
               {cart.map((item, i) => (
                 <div key={i} className="flex items-center gap-3">
-                  {item.images?.[0] && <img src={item.images[0]} alt={item.name} className="w-12 h-12 object-cover rounded-lg flex-shrink-0" />}
+                  {item.images?.[0] && <img src={thumb(item.images[0], 96)} loading="lazy" decoding="async" alt={item.name} className="w-12 h-12 object-cover rounded-lg flex-shrink-0" />}
                   <div className="flex-1 min-w-0">
                     <div className="text-white text-sm font-medium line-clamp-1">{item.name}</div>
                     {(item.flavor || item.weight) && (

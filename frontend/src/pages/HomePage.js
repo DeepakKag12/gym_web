@@ -1,7 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useInView, useScroll, useTransform, animate, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Play, Dumbbell, Salad, ShoppingBag, MessageCircle, ChevronRight, Phone, Instagram } from 'lucide-react';
+import {
+  ArrowRight, Dumbbell, Salad, ShoppingBag, MessageCircle, ChevronRight,
+  Phone, Instagram, Sun, Moon, Footprints, Sparkles,
+} from 'lucide-react';
+import Hero08 from '../components/ui/hero-08';
 
 const GYM_PHONE     = '9589730151';
 const GYM_WA        = '919589730151';
@@ -120,13 +124,13 @@ function MuscleShowcase() {
             <div className="text-xs font-bold tracking-widest uppercase mb-1" style={{ color: m.accent }}>
               Muscle Group
             </div>
-            <div className="gym-font text-4xl text-white">{m.label}</div>
+            <div className="gym-font text-4xl text-on-photo">{m.label}</div>
           </motion.div>
         </AnimatePresence>
 
         {/* Link overlay */}
         <Link to={`/exercises?muscle=${m.key}`}
-          className="absolute top-5 right-5 bg-black/50 border border-white/20 backdrop-blur-sm rounded-full px-3 py-1.5 text-xs text-white flex items-center gap-1.5 hover:bg-white/20 transition-all">
+          className="absolute top-5 right-5 bg-black/50 border border-white/20 backdrop-blur-sm rounded-full px-3 py-1.5 text-xs text-on-photo flex items-center gap-1.5 hover:bg-white/20 transition-all">
           View exercises <ArrowRight size={11} />
         </Link>
 
@@ -154,7 +158,7 @@ function MuscleShowcase() {
           >
             {/* Thumbnail */}
             <div className="h-20 relative overflow-hidden">
-              <img src={muscle.img} alt={muscle.label}
+              <img src={muscle.img} alt={muscle.label} loading="lazy" decoding="async"
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
               <div className="absolute inset-0 bg-black/50" />
               {active === i && (
@@ -205,13 +209,44 @@ function CableMachine({ progress }) {
   );
 }
 
+/* ── Hero content ─────────────────────────────────────────────
+   The two cards carry the page's primary actions: the workout
+   library and the join-the-gym enquiry, which is what the old
+   hero's two buttons pointed at. */
+const HERO = {
+  title: 'Train harder. Live better.',
+  description:
+    'FITNATION BY AJEET — expert trainers, personalised plans, and a community that pushes you beyond limits.',
+  socialProof: 'Join 2,000+ Members Training With Us',
+  avatars: [
+    { src: 'https://images.unsplash.com/photo-1618077360395-f3068be8e001?w=128&q=80', fallback: 'AK' },
+    { src: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=128&q=80',  fallback: 'RS' },
+    { src: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=128&q=80', fallback: 'PM' },
+  ],
+  cards: [
+    {
+      title: 'Explore Workouts',
+      subtitle: 'Muscle-group guides, form videos and splits',
+      image: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=1200&auto=format&fit=crop',
+      imageAlt: 'A coach correcting a member\'s form during a set',
+      invert: true,
+      cta: { ctaEnabled: true, text: 'Start Training', link: '/exercises', size: 'default' },
+    },
+    {
+      title: 'Join FitNation',
+      subtitle: 'Talk to us about a plan that fits your goal',
+      image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1200&auto=format&fit=crop',
+      imageAlt: 'The FitNation training floor',
+      invert: true,
+      cta: { ctaEnabled: true, text: 'Join Now', link: '/enquiry', size: 'default' },
+    },
+  ],
+  animation: 'subtle',
+};
+
 const marqueeItems = ['STRENGTH', 'ENDURANCE', 'TRANSFORM', 'NUTRITION', 'CARDIO', 'MUSCLE', 'RESULTS', 'POWER'];
 
 export default function HomePage() {
-  const heroRef = useRef(null);
-  const { scrollYProgress: heroScroll } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
-  const heroY = useTransform(heroScroll, [0, 1], ['0%', '25%']);
-
   const cableRef = useRef(null);
   const { scrollYProgress } = useScroll({ target: cableRef, offset: ['start end', 'end start'] });
   const cableProgress = useTransform(scrollYProgress, [0.1, 0.7], [0, 1]);
@@ -222,71 +257,36 @@ export default function HomePage() {
     <div className="min-h-screen bg-[#0b0c0e] text-white overflow-x-hidden">
 
       {/* ── HERO ───────────────────────────────────── */}
-      <section ref={heroRef} className="relative h-screen min-h-[640px] flex items-center overflow-hidden">
-        <motion.div style={{ y: heroY }} className="absolute inset-0 z-0">
-          <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1600&q=80" alt="gym"
-            className="w-full h-full object-cover object-center" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0b0c0e] via-[#0b0c0e]/80 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0b0c0e] via-transparent to-transparent" />
-        </motion.div>
+      <Hero08 {...HERO} titleClassName="gym-font text-5xl sm:text-6xl md:text-7xl leading-none" />
 
-        <div className="absolute top-1/4 right-1/3 w-72 h-72 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none" />
-
-        <div className="relative z-10 max-w-7xl mx-auto px-6 w-full pt-16">
-          <div className="max-w-2xl">
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-              <span className="section-pill">💪 Est. 2026 · Premium Fitness</span>
-            </motion.div>
-
-            <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-              className="gym-font text-6xl md:text-8xl leading-none my-5">
-              TRAIN<br /><span className="gradient-text">HARDER.</span><br />LIVE BETTER.
-            </motion.h1>
-
-            <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
-              className="text-gray-300 text-lg leading-relaxed mb-8 max-w-lg">
-              FITNATION BY AJEET — expert trainers, personalised plans, and a community that pushes you beyond limits.
-            </motion.p>
-
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
-              className="flex flex-wrap gap-3">
-              <Link to="/enquiry" className="btn-fire text-base px-7 py-3.5">Join Now <ArrowRight size={18} /></Link>
-              <Link to="/exercises" className="btn-outline text-base px-7 py-3.5"><Play size={16} /> Explore Workouts</Link>
-            </motion.div>
-
-            {/* Real contact quick bar */}
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }}
-              className="flex flex-wrap gap-5 mt-10 text-sm text-gray-400 items-center">
-              <a href={`tel:${GYM_PHONE}`} className="flex items-center gap-2 hover:text-cyan-400 transition-colors">
-                <Phone size={13} className="text-cyan-400" /> {GYM_PHONE}
-              </a>
-              <a href={`https://instagram.com/${GYM_INSTAGRAM}`} target="_blank" rel="noreferrer"
-                className="flex items-center gap-2 hover:text-cyan-400 transition-colors">
-                <Instagram size={13} className="text-cyan-400" /> @{GYM_INSTAGRAM}
-              </a>
-              <span className="flex items-center gap-2">
-                <span className="glow-dot" /> Mon–Sat · 5 AM – 10 PM
-              </span>
-            </motion.div>
-          </div>
+      {/* Contact details kept from the previous hero — a phone number, the
+          Instagram handle and opening hours are the most-used facts on the
+          page and hero-08 has no slot for them. */}
+      {/* `relative z-20` is load-bearing: hero-08's inner wrapper is
+          `relative z-10` inside an `isolate` section, and the negative margin
+          tucks this bar into that wrapper's bottom padding. Without its own
+          stacking position this bar renders behind it and is invisible. */}
+      <div className="relative z-20 max-w-6xl mx-auto px-6 pb-14 -mt-6 sm:-mt-10">
+        <div className="flex flex-wrap gap-5 text-sm text-gray-400 items-center">
+          <a href={`tel:${GYM_PHONE}`} className="flex items-center gap-2 hover:text-cyan-400 transition-colors">
+            <Phone size={13} className="text-cyan-400" /> {GYM_PHONE}
+          </a>
+          <a href={`https://instagram.com/${GYM_INSTAGRAM}`} target="_blank" rel="noreferrer"
+            className="flex items-center gap-2 hover:text-cyan-400 transition-colors">
+            <Instagram size={13} className="text-cyan-400" /> @{GYM_INSTAGRAM}
+          </a>
+          <span className="flex items-center gap-2">
+            <span className="glow-dot" /> Mon–Sat · 5 AM – 10 PM
+          </span>
         </div>
-
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2 }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-gray-500 text-xs">
-          <span>Scroll down</span>
-          <motion.div animate={{ y: [0, 8, 0] }} transition={{ duration: 1.5, repeat: Infinity }}
-            className="w-5 h-8 border border-gray-600 rounded-full flex items-start justify-center pt-1.5">
-            <div className="w-1 h-2 bg-[#22d3ee] rounded-full" />
-          </motion.div>
-        </motion.div>
-      </section>
+      </div>
 
       {/* ── MARQUEE ───────────────────────────────── */}
       <div className="py-4 border-y border-white/5 overflow-hidden bg-[#0b0c0e]">
         <div className="flex animate-marquee gap-12 w-max">
           {[...marqueeItems, ...marqueeItems].map((item, i) => (
             <span key={i} className="gym-font text-2xl text-gray-700 tracking-widest flex items-center gap-4">
-              {item} <span className="text-[#22d3ee]">✦</span>
+              {item}
             </span>
           ))}
         </div>
@@ -332,7 +332,7 @@ export default function HomePage() {
             <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
               className="glass rounded-2xl p-7 border border-white/8 hover:border-cyan-500/30 transition-all">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-xl bg-amber-400/10 text-amber-400 flex items-center justify-center text-lg">☀️</div>
+                <div className="w-10 h-10 rounded-xl bg-amber-400/10 text-amber-400 flex items-center justify-center"><Sun size={18} /></div>
                 <div>
                   <div className="text-white font-bold text-lg">Morning Session</div>
                   <div className="text-gray-500 text-xs">Early risers welcome</div>
@@ -346,7 +346,7 @@ export default function HomePage() {
             <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
               className="glass rounded-2xl p-7 border border-white/8 hover:border-cyan-500/30 transition-all">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-xl bg-indigo-400/10 text-indigo-400 flex items-center justify-center text-lg">🌙</div>
+                <div className="w-10 h-10 rounded-xl bg-indigo-400/10 text-indigo-400 flex items-center justify-center"><Moon size={18} /></div>
                 <div>
                   <div className="text-white font-bold text-lg">Evening Session</div>
                   <div className="text-gray-500 text-xs">After-work warriors</div>
@@ -360,15 +360,15 @@ export default function HomePage() {
           {/* Important notes */}
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
             className="glass rounded-2xl p-6 border border-yellow-500/15">
-            <div className="text-yellow-400 text-xs font-bold uppercase tracking-widest mb-4">🔔 Important Notes</div>
+            <div className="text-yellow-400 text-xs font-bold uppercase tracking-widest mb-4">Important Notes</div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
               {[
-                { icon: '👟', title: 'Proper Gym Shoes', sub: 'Compulsory for all members' },
-                { icon: '🏋️', title: 'Rerack Your Weights', sub: 'After every set, every time' },
-                { icon: '🧹', title: 'Keep Gym Clean', sub: 'Maintain hygiene & discipline' },
+                { icon: Footprints, title: 'Proper Gym Shoes', sub: 'Compulsory for all members' },
+                { icon: Dumbbell,   title: 'Rerack Your Weights', sub: 'After every set, every time' },
+                { icon: Sparkles,   title: 'Keep Gym Clean', sub: 'Maintain hygiene & discipline' },
               ].map((n, i) => (
                 <div key={i} className="flex items-start gap-3">
-                  <span className="text-xl flex-shrink-0">{n.icon}</span>
+                  <n.icon size={18} className="flex-shrink-0 mt-0.5 text-[#22d3ee]" />
                   <div>
                     <div className="text-white font-semibold">{n.title}</div>
                     <div className="text-gray-500 text-xs mt-0.5">{n.sub}</div>

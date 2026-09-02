@@ -40,7 +40,7 @@ export default function AdminEnquiries() {
       setEnquiries(prev => prev.map(e => e._id === id ? { ...e, status } : e));
       bustCache('/enquiries');
       toast.success('Status updated');
-    } catch { toast.error('Error'); }
+    } catch (err) { toast.error(err.response?.data?.message || 'Error'); }
   };
 
   const saveNotes = async (id) => {
@@ -50,7 +50,7 @@ export default function AdminEnquiries() {
       setEnquiries(prev => prev.map(e => e._id === id ? { ...e, notes: notesDraft[id] } : e));
       bustCache('/enquiries');
       toast.success('Notes saved');
-    } catch { toast.error('Error saving notes'); }
+    } catch (err) { toast.error(err.response?.data?.message || 'Error saving notes'); }
     finally { setNotesSaving(p => ({ ...p, [id]: false })); }
   };
 
@@ -61,7 +61,7 @@ export default function AdminEnquiries() {
       setEnquiries(prev => prev.filter(e => e._id !== id));
       bustCache('/enquiries');
       toast.success('Deleted');
-    } catch { toast.error('Error'); }
+    } catch (err) { toast.error(err.response?.data?.message || 'Error'); }
   };
 
   const toggleExpand = (id) => setExpanded(p => ({ ...p, [id]: !p[id] }));
@@ -196,7 +196,7 @@ export default function AdminEnquiries() {
               {/* Existing saved notes preview */}
               {!expanded[e._id] && e.notes && (
                 <div className="mt-2 text-xs text-amber-300/70 italic bg-amber-500/5 rounded-lg px-3 py-1.5 border border-amber-500/10">
-                  📝 {e.notes}
+                  {e.notes}
                 </div>
               )}
             </div>

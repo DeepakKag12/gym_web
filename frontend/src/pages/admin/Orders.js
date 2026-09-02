@@ -3,6 +3,7 @@ import { Package, ChevronDown, MapPin, Phone, User, IndianRupee } from 'lucide-r
 import API, { cachedGet, bustCache, freshGet } from '../../utils/api';
 import AdminLayout from './AdminLayout';
 import toast from 'react-hot-toast';
+import { thumb } from '../../utils/img';
 
 // Gym-pickup order flow
 const STATUSES = ['placed', 'confirmed', 'ready', 'collected', 'cancelled'];
@@ -11,7 +12,7 @@ const STATUS_META = {
   placed:    { label: 'Order Placed',        color: 'text-blue-400 bg-blue-400/10 border-blue-400/20' },
   confirmed: { label: 'Confirmed',           color: 'text-yellow-400 bg-yellow-400/10 border-yellow-400/20' },
   ready:     { label: 'Ready for Pickup',    color: 'text-purple-400 bg-purple-400/10 border-purple-400/20' },
-  collected: { label: 'Collected ✓',         color: 'text-green-400 bg-green-400/10 border-green-400/20' },
+  collected: { label: 'Collected',         color: 'text-green-400 bg-green-400/10 border-green-400/20' },
   cancelled: { label: 'Cancelled',           color: 'text-red-400 bg-red-400/10 border-red-400/20' },
 };
 
@@ -39,7 +40,7 @@ export default function AdminOrders() {
       setOrders(prev => prev.map(o => o._id === id ? { ...o, orderStatus } : o));
       bustCache('/orders');
       toast.success('Order status updated');
-    } catch { toast.error('Error updating status'); }
+    } catch (err) { toast.error(err.response?.data?.message || 'Error updating status'); }
   };
 
   const updatePaymentStatus = async (id, paymentStatus) => {
@@ -49,7 +50,7 @@ export default function AdminOrders() {
       bustCache('/orders');
       bustCache('analytics');
       toast.success('Payment status updated');
-    } catch { toast.error('Error updating payment'); }
+    } catch (err) { toast.error(err.response?.data?.message || 'Error updating payment'); }
   };
 
   const filtered = filterStatus === 'all' ? orders : orders.filter(o => o.orderStatus === filterStatus);
@@ -150,7 +151,7 @@ export default function AdminOrders() {
                   {o.items.map((item, i) => (
                     <div key={i} className="flex items-center gap-2">
                       {item.image && (
-                        <img src={item.image} alt="" className="w-9 h-9 rounded-lg object-cover flex-shrink-0 bg-white/5" />
+                        <img src={thumb(item.image, 72)} alt="" loading="lazy" decoding="async" className="w-9 h-9 rounded-lg object-cover flex-shrink-0 bg-white/5" />
                       )}
                       <span className="text-gray-300 text-xs flex-1 min-w-0 truncate">{item.name}</span>
                       {item.flavor && <span className="text-gray-600 text-xs flex-shrink-0">{item.flavor}</span>}

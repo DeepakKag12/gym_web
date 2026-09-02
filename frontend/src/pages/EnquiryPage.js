@@ -22,7 +22,7 @@ export default function EnquiryPage() {
       await API.post('/enquiries', form);
       toast.success('Enquiry submitted! We\'ll contact you soon.');
       setForm({ name: '', phone: '', email: '', message: '', interest: 'general' });
-    } catch { toast.error('Failed to submit. Try WhatsApp instead.'); }
+    } catch (err) { toast.error(err.response?.data?.message || 'Failed to submit. Try WhatsApp instead.'); }
     finally { setLoading(false); }
   };
 

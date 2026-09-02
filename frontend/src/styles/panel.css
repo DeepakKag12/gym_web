@@ -1,0 +1,638 @@
+/* =============================================================================
+   PANEL THEME — the light, quiet interface used by the admin, trainer and
+   member areas. The public marketing pages (Home, Store, About …) keep the
+   original dark look; `body.theme-panel` is toggled per route in App.js.
+
+   Two parts:
+     1. Tokens + `.ui-*` component classes — used by src/components/ui.
+     2. A compatibility layer that remaps the old dark utility classes, so the
+        screens not yet converted stay readable on a light background instead
+        of rendering white text on white.
+   ============================================================================= */
+
+:root {
+  /* Surfaces */
+  --p-bg:        #f5f6f8;   /* page background */
+  --p-surface:   #ffffff;   /* cards, inputs, sheets */
+  --p-surface-2: #f8fafc;   /* subtle fills, table headers, hover */
+  --p-border:    #e4e7ec;   /* hairlines */
+  --p-border-2:  #d0d5dd;   /* input borders, stronger dividers */
+
+  /* Text — only three levels, on purpose */
+  --p-text:      #101828;   /* headings, values */
+  --p-text-2:    #475467;   /* body copy */
+  --p-muted:     #98a2b3;   /* labels, meta, placeholders */
+
+  /* One accent, carried over from the brand cyan but darkened for contrast
+     on white (AA at 4.6:1 — the original #22d3ee sat at 1.7:1 and was
+     unreadable on a light surface). */
+  --p-accent:      #0e7490;
+  --p-accent-hov:  #155e75;
+  --p-accent-soft: #ecfeff;
+  --p-accent-line: #a5f3fc;
+
+  /* Status */
+  --p-ok:     #067647;  --p-ok-soft:     #ecfdf3;  --p-ok-line:     #abefc6;
+  --p-warn:   #b54708;  --p-warn-soft:   #fffaeb;  --p-warn-line:   #fedf89;
+  --p-danger: #b42318;  --p-danger-soft: #fef3f2;  --p-danger-line: #fecdca;
+  --p-info:   #175cd3;  --p-info-soft:   #eff8ff;  --p-info-line:   #b2ddff;
+
+  /* Values the components used to hardcode — tokenised so the dark palette
+     can override them in one place. */
+  --p-overlay:   rgba(16,24,40,0.45);
+  --p-skeleton:  #eceff3;
+  --p-focus:     rgba(14,116,144,0.12);
+  --p-scroll:    #cbd5e1;
+  --p-scheme:    light;
+  --p-option-bg: #ffffff;
+
+  --p-radius:   12px;
+  --p-radius-sm: 8px;
+  --p-shadow:   0 1px 2px rgba(16,24,40,0.05);
+  --p-shadow-md:0 4px 12px rgba(16,24,40,0.08);
+  --p-shadow-lg:0 12px 32px rgba(16,24,40,0.14);
+}
+
+/* =============================================================================
+   DARK PALETTE
+   The panel ships light and dark. Only the token values change here — every
+   `.ui-*` rule and the whole compatibility layer below read `var(--p-*)`, so
+   nothing else in this file (or in any screen) needs a dark variant.
+   Applied by src/context/ThemeContext.js and pre-applied in public/index.html
+   so a refresh never flashes the wrong colour.
+   ============================================================================= */
+body.theme-panel.theme-dark,
+html.theme-panel.theme-dark {
+  --p-bg:        #0b0c0e;
+  --p-surface:   #141619;
+  --p-surface-2: #1b1e23;
+  --p-border:    #262a30;
+  --p-border-2:  #363b43;
+
+  --p-text:      #f1f5f9;
+  --p-text-2:    #a9b4c0;
+  --p-muted:     #6d7885;
+
+  /* On a near-black ground the full brand cyan is legible again (11:1), so
+     dark mode uses the real brand colour rather than the darkened step. */
+  --p-accent:      #22d3ee;
+  --p-accent-hov:  #67e8f9;
+  --p-accent-soft: rgba(34,211,238,0.12);
+  --p-accent-line: rgba(34,211,238,0.32);
+
+  --p-ok:     #4ade80;  --p-ok-soft:     rgba(74,222,128,0.12);  --p-ok-line:     rgba(74,222,128,0.30);
+  --p-warn:   #fbbf24;  --p-warn-soft:   rgba(251,191,36,0.12);  --p-warn-line:   rgba(251,191,36,0.30);
+  --p-danger: #f87171;  --p-danger-soft: rgba(248,113,113,0.12); --p-danger-line: rgba(248,113,113,0.32);
+  --p-info:   #60a5fa;  --p-info-soft:   rgba(96,165,250,0.12);  --p-info-line:   rgba(96,165,250,0.30);
+
+  --p-overlay:   rgba(0,0,0,0.66);
+  --p-skeleton:  #22262c;
+  --p-focus:     rgba(34,211,238,0.18);
+  --p-scroll:    #333a43;
+  --p-scheme:    dark;
+  --p-option-bg: #141619;
+
+  --p-shadow:    0 1px 2px rgba(0,0,0,0.40);
+  --p-shadow-md: 0 4px 12px rgba(0,0,0,0.45);
+  --p-shadow-lg: 0 12px 32px rgba(0,0,0,0.55);
+}
+
+/* ── Theme switch transition ──────────────────────────────────────────────
+   Only live for the ~300ms around a toggle (ThemeContext adds the class),
+   so surfaces cross-fade instead of snapping, without paying for a
+   transition on every element for the rest of the session. */
+body.theme-switching,
+body.theme-switching *,
+body.theme-switching *::before,
+body.theme-switching *::after {
+  transition: background-color .28s ease, border-color .28s ease,
+              color .28s ease, box-shadow .28s ease !important;
+}
+
+/* ── Page canvas ─────────────────────────────────────────────────────────── */
+html.theme-panel,
+body.theme-panel,
+body.theme-panel #root {
+  background: var(--p-bg);
+  color: var(--p-text);
+}
+
+body.theme-panel ::selection { background: var(--p-accent-line); color: var(--p-text); }
+body.theme-panel ::-webkit-scrollbar { width: 10px; height: 10px; }
+body.theme-panel ::-webkit-scrollbar-track { background: transparent; }
+body.theme-panel ::-webkit-scrollbar-thumb { background: var(--p-scroll); border-radius: 99px; border: 3px solid var(--p-bg); }
+
+/* Focus ring — one consistent, visible ring everywhere (keyboard + touch). */
+body.theme-panel :focus-visible {
+  outline: 2px solid var(--p-accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* =============================================================================
+   1. UI KIT
+   ============================================================================= */
+
+/* ── Card ────────────────────────────────────────────────────────────────── */
+.ui-card {
+  background: var(--p-surface);
+  border: 1px solid var(--p-border);
+  border-radius: var(--p-radius);
+  box-shadow: var(--p-shadow);
+}
+.ui-card-pad { padding: 20px; }
+.ui-card-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--p-border);
+}
+.ui-card-title { font-size: 15px; font-weight: 600; color: var(--p-text); }
+
+/* Clickable card */
+.ui-card-link { transition: border-color .15s, box-shadow .15s; display: block; }
+.ui-card-link:hover { border-color: var(--p-border-2); box-shadow: var(--p-shadow-md); }
+
+/* ── Buttons ─────────────────────────────────────────────────────────────── */
+.ui-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  /* min-height as well as height: index.css sets a global 44px minimum on every
+     button/link for touch, which would otherwise stretch these out of shape. */
+  height: 40px; min-height: 40px; padding: 0 16px;
+  border-radius: var(--p-radius-sm);
+  font-size: 14px; font-weight: 600; font-family: inherit;
+  border: 1px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.ui-btn:disabled { opacity: .55; cursor: not-allowed; }
+
+.ui-btn-primary   { background: var(--p-accent); color: #fff; }
+.ui-btn-primary:hover:not(:disabled) { background: var(--p-accent-hov); }
+
+.ui-btn-secondary { background: var(--p-surface); color: var(--p-text-2); border-color: var(--p-border-2); }
+.ui-btn-secondary:hover:not(:disabled) { background: var(--p-surface-2); color: var(--p-text); }
+
+.ui-btn-ghost     { background: transparent; color: var(--p-text-2); }
+.ui-btn-ghost:hover:not(:disabled) { background: var(--p-surface-2); color: var(--p-text); }
+
+.ui-btn-danger    { background: var(--p-surface); color: var(--p-danger); border-color: var(--p-danger-line); }
+.ui-btn-danger:hover:not(:disabled) { background: var(--p-danger-soft); }
+
+.ui-btn-sm { height: 34px; min-height: 34px; padding: 0 12px; font-size: 13px; }
+.ui-btn-block { width: 100%; }
+.ui-btn-icon { width: 40px; padding: 0; }
+.ui-btn-icon.ui-btn-sm { width: 34px; }
+
+/* ── Form controls ───────────────────────────────────────────────────────── */
+.ui-label {
+  display: block;
+  font-size: 13px; font-weight: 500;
+  color: var(--p-text-2);
+  margin-bottom: 6px;
+}
+.ui-input {
+  width: 100%;
+  min-height: 40px;
+  padding: 9px 12px;
+  background: var(--p-surface);
+  border: 1px solid var(--p-border-2);
+  border-radius: var(--p-radius-sm);
+  color: var(--p-text);
+  font-size: 16px;          /* 16px stops iOS zooming the page on focus */
+  font-family: inherit;
+  outline: none;
+  transition: border-color .15s, box-shadow .15s;
+  -webkit-appearance: none; appearance: none;
+}
+@media (min-width: 640px) { .ui-input { font-size: 14px; } }
+.ui-input::placeholder { color: var(--p-muted); }
+.ui-input:focus { border-color: var(--p-accent); box-shadow: 0 0 0 3px var(--p-focus); }
+.ui-input:disabled { background: var(--p-surface-2); color: var(--p-muted); }
+textarea.ui-input { min-height: 90px; resize: vertical; line-height: 1.5; }
+
+select.ui-input {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23667085' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 34px;
+  color-scheme: var(--p-scheme);
+}
+body.theme-panel select option { background: var(--p-option-bg) !important; color: var(--p-text) !important; }
+
+.ui-hint { font-size: 12px; color: var(--p-muted); margin-top: 5px; }
+
+/* Checkbox row — a whole tappable strip, not a 16px box */
+.ui-check {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--p-border);
+  border-radius: var(--p-radius-sm);
+  background: var(--p-surface);
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+}
+.ui-check:hover { background: var(--p-surface-2); }
+.ui-check input { width: 18px; height: 18px; accent-color: var(--p-accent); margin-top: 1px; flex-shrink: 0; cursor: pointer; }
+.ui-check-on { border-color: var(--p-accent-line); background: var(--p-accent-soft); }
+
+/* ── Badge ───────────────────────────────────────────────────────────────── */
+.ui-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 2px 9px;
+  border-radius: 99px;
+  font-size: 12px; font-weight: 600;
+  border: 1px solid transparent;
+  white-space: nowrap;
+  text-transform: capitalize;
+}
+.ui-badge-neutral { background: var(--p-surface-2); color: var(--p-text-2); border-color: var(--p-border); }
+.ui-badge-ok      { background: var(--p-ok-soft);     color: var(--p-ok);     border-color: var(--p-ok-line); }
+.ui-badge-warn    { background: var(--p-warn-soft);   color: var(--p-warn);   border-color: var(--p-warn-line); }
+.ui-badge-danger  { background: var(--p-danger-soft); color: var(--p-danger); border-color: var(--p-danger-line); }
+.ui-badge-info    { background: var(--p-info-soft);   color: var(--p-info);   border-color: var(--p-info-line); }
+.ui-badge-accent  { background: var(--p-accent-soft); color: var(--p-accent); border-color: var(--p-accent-line); }
+
+/* ── Tabs / filter pills ─────────────────────────────────────────────────── */
+.ui-tabs { display: flex; gap: 4px; padding: 4px; background: var(--p-surface-2); border: 1px solid var(--p-border); border-radius: 10px; overflow-x: auto; scrollbar-width: none; }
+.ui-tabs::-webkit-scrollbar { display: none; }
+.ui-tab {
+  flex: 1;
+  padding: 7px 14px;
+  border-radius: 7px;
+  font-size: 13px; font-weight: 600;
+  color: var(--p-text-2);
+  background: transparent; border: none; cursor: pointer;
+  white-space: nowrap;
+  transition: background .15s, color .15s;
+  min-height: 34px;
+}
+.ui-tab:hover { color: var(--p-text); }
+.ui-tab-on { background: var(--p-surface); color: var(--p-accent); box-shadow: var(--p-shadow); }
+
+/* ── Table (desktop) ─────────────────────────────────────────────────────── */
+.ui-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.ui-table th {
+  text-align: left;
+  padding: 10px 16px;
+  font-size: 12px; font-weight: 600; letter-spacing: .02em;
+  color: var(--p-text-2);
+  background: var(--p-surface-2);
+  border-bottom: 1px solid var(--p-border);
+  white-space: nowrap;
+}
+.ui-table td { padding: 14px 16px; border-bottom: 1px solid var(--p-border); color: var(--p-text-2); vertical-align: middle; }
+.ui-table tr:last-child td { border-bottom: none; }
+.ui-table tbody tr:hover { background: var(--p-surface-2); }
+
+/* ── Empty state / skeleton ──────────────────────────────────────────────── */
+.ui-empty { text-align: center; padding: 48px 20px; color: var(--p-muted); }
+.ui-empty-icon {
+  width: 44px; height: 44px; margin: 0 auto 12px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--p-surface-2); border: 1px solid var(--p-border);
+  border-radius: 12px; color: var(--p-muted);
+}
+@keyframes ui-spin { to { transform: rotate(360deg) } }
+
+.ui-skeleton { background: var(--p-skeleton); border-radius: var(--p-radius-sm); animation: ui-pulse 1.4s ease-in-out infinite; }
+@keyframes ui-pulse { 0%,100% { opacity: 1 } 50% { opacity: .55 } }
+
+/* ── Modal ───────────────────────────────────────────────────────────────── */
+.ui-modal-overlay {
+  position: fixed; inset: 0; z-index: 60;
+  background: var(--p-overlay);
+  display: flex; align-items: flex-start; justify-content: center;
+  overflow-y: auto;
+  padding: 16px;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom));
+}
+.ui-modal {
+  background: var(--p-surface);
+  border-radius: 14px;
+  box-shadow: var(--p-shadow-lg);
+  width: 100%; max-width: 560px;
+  margin: auto;
+  overflow: hidden;
+}
+.ui-modal-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--p-border);
+}
+.ui-modal-title { font-size: 16px; font-weight: 600; color: var(--p-text); }
+.ui-modal-body { padding: 20px; }
+.ui-modal-foot {
+  display: flex; justify-content: flex-end; gap: 10px;
+  padding: 14px 20px;
+  border-top: 1px solid var(--p-border);
+  background: var(--p-surface-2);
+}
+
+/* ── Page header ─────────────────────────────────────────────────────────── */
+.ui-page-title { font-size: 22px; font-weight: 700; color: var(--p-text); letter-spacing: -0.01em; }
+.ui-page-sub   { font-size: 14px; color: var(--p-text-2); margin-top: 2px; }
+
+/* ── Section label ───────────────────────────────────────────────────────── */
+.ui-section-label {
+  font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
+  color: var(--p-muted);
+}
+
+/* =============================================================================
+   2. COMPATIBILITY LAYER
+   Screens still written against the dark palette (Store, Orders, Progress …)
+   render inside the light panel. Rather than rewriting all 40 files at once,
+   the handful of dark utilities they lean on are remapped here so text stays
+   legible and cards stay visible. Converted screens use `.ui-*` and never
+   depend on this.
+   ============================================================================= */
+
+/* The original dark tokens from index.css are re-pointed at the light palette,
+   so anything still written as `var(--text)` / `var(--bg2)` flips over with no
+   edit to that file. This is what keeps the unconverted screens legible. */
+body.theme-panel {
+  --bg:          var(--p-bg);
+  --bg2:         var(--p-surface);
+  --bg3:         var(--p-surface-2);
+  --surface:     var(--p-surface);
+  --border:      var(--p-border);
+  --border-cyan: var(--p-accent-line);
+  --text:        var(--p-text);
+  --muted:       var(--p-muted);
+  --muted2:      var(--p-text-2);
+  --cyan:        var(--p-accent);
+  --cyan-dim:    var(--p-accent-hov);
+  --cyan-glow:   var(--p-accent-soft);
+}
+
+/* Text */
+body.theme-panel .text-white     { color: var(--p-text) !important; }
+body.theme-panel .text-gray-200,
+body.theme-panel .text-gray-300  { color: var(--p-text) !important; }
+body.theme-panel .text-gray-400  { color: var(--p-text-2) !important; }
+body.theme-panel .text-gray-500,
+body.theme-panel .text-gray-600  { color: var(--p-muted) !important; }
+
+/* Panels and fills */
+body.theme-panel .glass,
+body.theme-panel .glass-cyan {
+  background: var(--p-surface);
+  border: 1px solid var(--p-border);
+  box-shadow: var(--p-shadow);
+  backdrop-filter: none; -webkit-backdrop-filter: none;
+}
+body.theme-panel .bg-\[\#0a0a0f\],
+body.theme-panel .bg-\[\#0b0c0e\],
+body.theme-panel .bg-\[\#0d0d14\],
+body.theme-panel .bg-\[\#0d0e11\],
+body.theme-panel .bg-\[\#111318\],
+body.theme-panel .bg-\[\#1a1b23\] { background-color: var(--p-bg) !important; }
+
+body.theme-panel .bg-white\/2,
+body.theme-panel .bg-white\/3,
+body.theme-panel .bg-white\/4,
+body.theme-panel .bg-white\/5,
+body.theme-panel .bg-white\/6,
+body.theme-panel .bg-white\/8,
+body.theme-panel .bg-white\/10,
+body.theme-panel .bg-white\/15,
+body.theme-panel .bg-white\/20 { background-color: var(--p-surface-2) !important; }
+
+body.theme-panel .border-white\/4,
+body.theme-panel .border-white\/5,
+body.theme-panel .border-white\/6,
+body.theme-panel .border-white\/8,
+body.theme-panel .border-white\/10,
+body.theme-panel .border-white\/15,
+body.theme-panel .border-white\/20 { border-color: var(--p-border) !important; }
+
+body.theme-panel .hover\:bg-white\/5:hover,
+body.theme-panel .hover\:bg-white\/10:hover { background-color: var(--p-surface-2) !important; }
+body.theme-panel .hover\:text-white:hover { color: var(--p-text) !important; }
+
+/* Legacy controls */
+body.theme-panel .input-dark,
+body.theme-panel .input-light,
+body.theme-panel .admin-input {
+  background: var(--p-surface);
+  border: 1px solid var(--p-border-2);
+  color: var(--p-text);
+}
+body.theme-panel .input-dark::placeholder,
+body.theme-panel .input-light::placeholder,
+body.theme-panel .admin-input::placeholder { color: var(--p-muted); }
+body.theme-panel .input-dark:focus,
+body.theme-panel .input-light:focus,
+body.theme-panel .admin-input:focus {
+  border-color: var(--p-accent);
+  box-shadow: 0 0 0 3px var(--p-focus);
+}
+body.theme-panel select.input-dark,
+body.theme-panel select.admin-input {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23667085' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+
+body.theme-panel .btn-fire { background: var(--p-accent); color: #fff; box-shadow: none; border-radius: var(--p-radius-sm); }
+body.theme-panel .btn-fire:hover { background: var(--p-accent-hov); transform: none; box-shadow: none; }
+body.theme-panel .btn-outline { color: var(--p-accent); border-color: var(--p-border-2); border-radius: var(--p-radius-sm); }
+body.theme-panel .btn-outline:hover { background: var(--p-accent-soft); box-shadow: none; }
+body.theme-panel .btn-ghost { color: var(--p-text-2); border-color: var(--p-border-2); border-radius: var(--p-radius-sm); }
+body.theme-panel .btn-ghost:hover { background: var(--p-surface-2); color: var(--p-text); }
+
+body.theme-panel .admin-modal-overlay { background: var(--p-overlay); backdrop-filter: none; -webkit-backdrop-filter: none; }
+body.theme-panel .admin-modal-box { background: var(--p-surface); border: 1px solid var(--p-border); box-shadow: var(--p-shadow-lg); }
+
+body.theme-panel .card-hover:hover { box-shadow: var(--p-shadow-md); border-color: var(--p-border-2); transform: none; }
+body.theme-panel .gradient-text { -webkit-text-fill-color: initial; background: none; color: var(--p-accent); }
+body.theme-panel .divider { background: var(--p-border); }
+body.theme-panel .nav-float { background: rgba(255,255,255,0.92); border-bottom: 1px solid var(--p-border); }
+
+/* The decorative motion is dropped in the panel — it distracts from the data. */
+body.theme-panel .animate-float,
+body.theme-panel .animate-pulse-glow,
+body.theme-panel .animate-spin-slow { animation: none; }
+
+/* Respect the OS "reduce motion" setting everywhere. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* =============================================================================
+   3. PANEL CHROME
+   The sidebar, top bar and bottom tab bar. These appear on both light panel
+   routes and (for the member bottom nav) the dark public pages, so they carry
+   their own dark defaults plus a light override.
+   ============================================================================= */
+.panel-bar {
+  background: #0d0d14;
+  /* Declared here, not inline on the element: an inline `borderTop: '1px solid'`
+     shorthand would reset the colour to currentColor and win the cascade. */
+  border-top: 1px solid rgba(255,255,255,0.10);
+}
+body.theme-panel .panel-bar {
+  background: var(--p-surface);
+  border-top-color: var(--p-border);
+}
+
+.panel-tab {
+  flex: 1;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 3px;
+  padding: 9px 4px;
+  position: relative;
+  color: #64748b;
+  font-size: 10px; font-weight: 500; line-height: 1.2;
+  transition: color .15s;
+  min-height: 54px;
+}
+.panel-tab:hover { color: #cbd5e1; }
+.panel-tab-on    { color: #22d3ee; }
+body.theme-panel .panel-tab      { color: var(--p-muted); }
+body.theme-panel .panel-tab:hover{ color: var(--p-text-2); }
+body.theme-panel .panel-tab-on   { color: var(--p-accent); }
+
+/* Sidebar links (desktop + drawer) */
+.panel-link {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-size: 14px; font-weight: 500;
+  color: var(--p-text-2);
+  transition: background .15s, color .15s;
+  min-height: 40px;
+}
+.panel-link:hover  { background: var(--p-surface-2); color: var(--p-text); }
+.panel-link-on     { background: var(--p-accent-soft); color: var(--p-accent); font-weight: 600; }
+.panel-link-on:hover { background: var(--p-accent-soft); color: var(--p-accent); }
+
+/* Sidebar / top bar surfaces inside the light panel */
+.panel-side {
+  background: var(--p-surface);
+  border-right: 1px solid var(--p-border);
+}
+.panel-top {
+  background: var(--p-surface);
+  border-bottom: 1px solid var(--p-border);
+}
+
+/* Notification dot on a tab icon */
+.panel-dot {
+  position: absolute;
+  top: -3px; right: -6px;
+  min-width: 15px; height: 15px;
+  padding: 0 4px;
+  background: var(--p-danger, #b42318);
+  color: #fff;
+  font-size: 9px; font-weight: 700; line-height: 15px;
+  border-radius: 99px;
+  text-align: center;
+}
+
+/* Accent text: the 400-level Tailwind colours were picked for a near-black
+   background and drop to ~2:1 contrast on white. Each maps to the darker step
+   of the same hue, so the meaning (green = good, red = problem) survives. */
+body.theme-panel .text-cyan-400,
+body.theme-panel .text-sky-400,
+body.theme-panel .text-\[\#22d3ee\]   { color: var(--p-accent) !important; }
+body.theme-panel .text-green-400,
+body.theme-panel .text-emerald-400     { color: var(--p-ok) !important; }
+body.theme-panel .text-yellow-400,
+body.theme-panel .text-amber-400,
+body.theme-panel .text-orange-400,
+body.theme-panel .text-orange-500      { color: var(--p-warn) !important; }
+body.theme-panel .text-red-400,
+body.theme-panel .text-rose-400        { color: var(--p-danger) !important; }
+body.theme-panel .text-blue-400,
+body.theme-panel .text-indigo-400,
+body.theme-panel .text-purple-400,
+body.theme-panel .text-pink-400,
+body.theme-panel .text-teal-400        { color: var(--p-info) !important; }
+
+/* Solid accent fills keep their contrast by moving to the darker accent. */
+body.theme-panel .bg-\[\#22d3ee\] { background-color: var(--p-accent) !important; color: #fff; }
+
+/* Tinted status pills (bg-green-500/20 and friends) read as near-invisible
+   washes on white; give them a light tint plus a hairline instead. */
+body.theme-panel [class*="bg-green-500/"],
+body.theme-panel [class*="bg-emerald-500/"] { background-color: var(--p-ok-soft) !important; }
+body.theme-panel [class*="bg-yellow-500/"],
+body.theme-panel [class*="bg-amber-500/"]   { background-color: var(--p-warn-soft) !important; }
+body.theme-panel [class*="bg-red-500/"],
+body.theme-panel [class*="bg-rose-500/"]    { background-color: var(--p-danger-soft) !important; }
+body.theme-panel [class*="bg-blue-500/"],
+body.theme-panel [class*="bg-cyan-500/"],
+body.theme-panel [class*="bg-sky-500/"],
+body.theme-panel [class*="bg-purple-500/"]  { background-color: var(--p-accent-soft) !important; }
+
+/* =============================================================================
+   4. ADMIN POLISH
+   Small additions used by the simplified admin screens. Everything here is
+   token-driven, so it works in both palettes without a dark variant.
+   ============================================================================= */
+
+/* ── Theme toggle (top-right, the panel's only theme control) ────────────── */
+.ui-theme-toggle {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 38px; height: 38px; min-height: 38px;
+  border-radius: 999px;
+  border: 1px solid var(--p-border-2);
+  background: var(--p-surface);
+  color: var(--p-text-2);
+  cursor: pointer;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.ui-theme-toggle:hover { background: var(--p-surface-2); color: var(--p-text); border-color: var(--p-accent-line); }
+
+/* ── Table ───────────────────────────────────────────────────────────────── */
+.ui-table tbody tr { transition: background .12s; }
+.ui-table td.ui-td-tight { padding-top: 10px; padding-bottom: 10px; }
+
+/* Always visible. Revealing these on hover looked tidier, but it hides the
+   only way to act on a row behind a gesture a new admin has no reason to try —
+   and it does not exist at all on a touch screen. Legibility wins. */
+.ui-row-actions { display: flex; gap: 2px; justify-content: flex-end; }
+.ui-row-actions .ui-btn { color: var(--p-text-2); }
+.ui-row-actions .ui-btn:hover:not(:disabled) { background: var(--p-surface-2); color: var(--p-text); }
+
+/* ── Toolbar above a list ────────────────────────────────────────────────── */
+.ui-toolbar {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+  margin-bottom: 16px;
+}
+.ui-search { position: relative; flex: 1 1 260px; min-width: 0; }
+.ui-search .ui-input { padding-left: 38px; height: 42px; }
+.ui-search svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--p-muted); pointer-events: none; }
+
+/* ── Stat card ───────────────────────────────────────────────────────────── */
+.ui-stat-icon {
+  width: 38px; height: 38px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ── Definition rows inside the View user sheet ──────────────────────────── */
+.ui-dl-row {
+  display: flex; justify-content: space-between; gap: 16px;
+  padding: 11px 0;
+  border-top: 1px solid var(--p-border);
+  font-size: 14px;
+}
+.ui-dl-row dt { color: var(--p-text-2); }
+.ui-dl-row dd { color: var(--p-text); font-weight: 500; text-align: right; word-break: break-word; }
+
+/* ── Sample-data notice ──────────────────────────────────────────────────── */
+.ui-demo-note {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px;
+  border: 1px dashed var(--p-warn-line);
+  background: var(--p-warn-soft);
+  color: var(--p-warn);
+  border-radius: var(--p-radius-sm);
+  font-size: 13px; font-weight: 500;
+}

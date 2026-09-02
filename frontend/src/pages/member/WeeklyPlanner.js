@@ -255,7 +255,7 @@ export default function WeeklyPlanner() {
         setDays(sorted);
       }
       setSaved(true);
-      toast.success('Weekly plan saved! 💪');
+      toast.success('Weekly plan saved');
       setTimeout(() => setSaved(false), 3000);
     } catch {
       toast.error('Failed to save plan');

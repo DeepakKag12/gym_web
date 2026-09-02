@@ -4,6 +4,7 @@ import { Plus, Trash2, X, Package, Edit2, Upload, ImageIcon, Star, ToggleLeft, T
 import API, { cachedGet, bustCache, freshGet } from '../../utils/api';
 import AdminLayout from './AdminLayout';
 import toast from 'react-hot-toast';
+import { img } from '../../utils/img';
 
 const CATEGORIES = ['protein','creatine','pre-workout','vitamins','weight-gainer','fat-burner','bcaa','accessories','apparel','other'];
 
@@ -181,7 +182,7 @@ export default function AdminStore() {
       setProducts(prev => prev.filter(p => p._id !== id));
       bustCache('/store');
       toast.success('Product deleted');
-    } catch { toast.error('Delete failed'); }
+    } catch (err) { toast.error(err.response?.data?.message || 'Delete failed'); }
   };
 
   const toggleActive = async (p) => {
@@ -190,7 +191,7 @@ export default function AdminStore() {
       setProducts(prev => prev.map(x => x._id === p._id ? { ...x, isActive: !p.isActive } : x));
       bustCache('/store');
       toast.success(p.isActive ? 'Product hidden' : 'Product active');
-    } catch { toast.error('Update failed'); }
+    } catch (err) { toast.error(err.response?.data?.message || 'Update failed'); }
   };
 
   const filtered = products.filter(p => {
@@ -239,7 +240,7 @@ export default function AdminStore() {
                 {/* Image */}
                 <div className="relative h-44 bg-[#0d0e11] overflow-hidden">
                   {p.images?.[0] ? (
-                    <img src={p.images[0]} alt={p.name} className="w-full h-full object-cover" />
+                    <img src={img(p.images[0], 300)} alt={p.name} loading="lazy" decoding="async" className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
                       <Package size={40} className="text-gray-700" />

@@ -176,7 +176,7 @@ function ClearFakeDataModal({ onClose, onSuccess }) {
             </div>
 
             <div className="bg-red-500/8 border border-red-500/20 rounded-xl p-4 mb-4 text-sm text-gray-300 space-y-1.5">
-              <div className="text-red-400 font-semibold mb-2">⚠️ Permanently deletes EVERYTHING:</div>
+              <div className="text-red-400 font-semibold mb-2">Permanently deletes everything:</div>
               <div>• All members (every role:member record)</div>
               <div>• All orders &amp; all notifications</div>
               <div>• All progress entries &amp; enquiries</div>
@@ -184,7 +184,7 @@ function ClearFakeDataModal({ onClose, onSuccess }) {
             </div>
 
             <div className="bg-green-500/8 border border-green-500/20 rounded-xl p-3 mb-5 text-sm text-green-300 space-y-1">
-              <div className="font-semibold mb-1">✓ Keeps (ready to use with real data):</div>
+              <div className="font-semibold mb-1">Keeps (ready to use with real data):</div>
               <div>Admin account · Trainers · Membership plans</div>
               <div>Exercises + videos · Diet plans · Workout splits · Products</div>
             </div>
@@ -357,10 +357,10 @@ export default function AdminRevenue() {
         {/* Tab pills */}
         <div className="flex gap-2 flex-wrap">
           {[
-            { key: 'overview',   label: '📊 Overview'   },
-            { key: 'membership', label: '🏅 Membership' },
-            { key: 'store',      label: '🛒 Store'      },
-            { key: 'pending',    label: `⚠️ Pending (${pending.length})` },
+            { key: 'overview',   label: 'Overview'   },
+            { key: 'membership', label: 'Membership' },
+            { key: 'store',      label: 'Store'      },
+            { key: 'pending',    label: `Pending (${pending.length})` },
           ].map(t => (
             <button key={t.key} onClick={() => setTab(t.key)}
               className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${

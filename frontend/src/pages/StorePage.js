@@ -5,6 +5,7 @@ import { Search, Star, ShoppingCart, ShoppingBag, X, Zap, Shield, Truck, RotateC
 import { cachedGet } from '../utils/api';
 import { useCart } from '../context/CartContext';
 import toast from 'react-hot-toast';
+import { img } from '../utils/img';
 
 function useDebounce(value, delay) {
   const [debounced, setDebounced] = useState(value);
@@ -16,16 +17,16 @@ function useDebounce(value, delay) {
 }
 
 const CATEGORIES = [
-  { key: 'all',          label: 'All Products',  icon: '🏪' },
-  { key: 'protein',      label: 'Protein',        icon: '💪' },
-  { key: 'creatine',     label: 'Creatine',       icon: '⚡' },
-  { key: 'pre-workout',  label: 'Pre-Workout',    icon: '🔥' },
-  { key: 'vitamins',     label: 'Vitamins',       icon: '💊' },
-  { key: 'weight-gainer',label: 'Weight Gainer',  icon: '📈' },
-  { key: 'fat-burner',   label: 'Fat Burner',     icon: '🌡️' },
-  { key: 'bcaa',         label: 'BCAA',           icon: '🧬' },
-  { key: 'accessories',  label: 'Accessories',    icon: '🎽' },
-  { key: 'apparel',      label: 'Apparel',        icon: '👕' },
+  { key: 'all',          label: 'All Products' },
+  { key: 'protein',      label: 'Protein' },
+  { key: 'creatine',     label: 'Creatine' },
+  { key: 'pre-workout',  label: 'Pre-Workout' },
+  { key: 'vitamins',     label: 'Vitamins' },
+  { key: 'weight-gainer',label: 'Weight Gainer' },
+  { key: 'fat-burner',   label: 'Fat Burner' },
+  { key: 'bcaa',         label: 'BCAA' },
+  { key: 'accessories',  label: 'Accessories' },
+  { key: 'apparel',      label: 'Apparel' },
 ];
 
 const TRUST_BADGES = [
@@ -62,7 +63,7 @@ function ProductCard({ product, onAdd }) {
       <Link to={`/store/${product._id}`} className="block relative overflow-hidden flex-shrink-0" style={{ paddingBottom: '100%' }}>
         <div className="absolute inset-0">
           {product.images?.[0] ? (
-            <img src={product.images[0]} alt={product.name} className="product-img w-full h-full object-cover" loading="lazy" />
+            <img src={img(product.images[0], 400)} alt={product.name} className="product-img w-full h-full object-cover" loading="lazy" decoding="async" />
           ) : (
             <div className="w-full h-full flex flex-col items-center justify-center gap-2" style={{ background: 'var(--bg3)' }}>
               <ShoppingBag size={36} style={{ color: 'var(--border)' }} />
@@ -75,7 +76,7 @@ function ProductCard({ product, onAdd }) {
           style={{ background: 'linear-gradient(to top, rgba(17,19,24,0.6), transparent)' }} />
         {/* Badges */}
         {discount > 0 && <span className="badge-discount">{discount}% OFF</span>}
-        {product.isFeatured && <span className="badge-new">★ Featured</span>}
+        {product.isFeatured && <span className="badge-new">Featured</span>}
         {product.stock === 0 && (
           <div className="absolute inset-0 flex items-center justify-center"
             style={{ background: 'rgba(11,12,14,0.7)' }}>
@@ -318,7 +319,7 @@ export default function StorePage() {
               onClick={() => setCategory(cat.key)}
               className={`cat-pill flex items-center gap-1.5 flex-shrink-0 ${category === cat.key ? 'active' : ''}`}
             >
-              <span>{cat.icon}</span> {cat.label}
+              {cat.label}
             </button>
           ))}
         </div>

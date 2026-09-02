@@ -4,6 +4,7 @@ import { Plus, Trash2, X, Edit2 } from 'lucide-react';
 import API, { cachedGet, bustCache, freshGet } from '../../utils/api';
 import AdminLayout from './AdminLayout';
 import toast from 'react-hot-toast';
+import { img } from '../../utils/img';
 
 const emptyForm = { title: '', description: '', duration: '', weightLost: '', muscleGained: '', isPublic: true, member: '' };
 
@@ -52,7 +53,7 @@ export default function AdminTransformations() {
         toast.success('Transformation added!');
       }
       bustCache('/transformations'); closeModal(); load(true);
-    } catch { toast.error('Error saving'); }
+    } catch (err) { toast.error(err.response?.data?.message || 'Error saving'); }
     finally { setSaving(false); }
   };
 
@@ -64,7 +65,7 @@ export default function AdminTransformations() {
       bustCache('/transformations');
       toast.success('Deleted');
     }
-    catch { toast.error('Error'); }
+    catch (err) { toast.error(err.response?.data?.message || 'Error'); }
   };
 
   return (
@@ -84,8 +85,8 @@ export default function AdminTransformations() {
           {transformations.map(t => (
             <div key={t._id} className="glass rounded-xl overflow-hidden">
               <div className="grid grid-cols-2 gap-0.5">
-                <div className="relative"><img src={t.beforeImage} alt="Before" className="w-full h-44 object-cover" /><div className="absolute bottom-1 left-1 text-xs bg-red-500/80 text-white px-2 py-0.5 rounded-full">BEFORE</div></div>
-                <div className="relative"><img src={t.afterImage} alt="After" className="w-full h-44 object-cover" /><div className="absolute bottom-1 right-1 text-xs bg-green-500/80 text-white px-2 py-0.5 rounded-full">AFTER</div></div>
+                <div className="relative"><img src={img(t.beforeImage, 400)} alt="Before" loading="lazy" decoding="async" className="w-full h-44 object-cover" /><div className="absolute bottom-1 left-1 text-xs bg-red-500/80 text-white px-2 py-0.5 rounded-full">BEFORE</div></div>
+                <div className="relative"><img src={img(t.afterImage, 400)} alt="After" loading="lazy" decoding="async" className="w-full h-44 object-cover" /><div className="absolute bottom-1 right-1 text-xs bg-green-500/80 text-white px-2 py-0.5 rounded-full">AFTER</div></div>
               </div>
               <div className="p-4">
                 <div className="flex items-start justify-between mb-2">

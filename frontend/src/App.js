@@ -1,7 +1,9 @@
 import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import { CartProvider } from './context/CartContext';
+import { isPanelRoute as isPanelPath } from './utils/routes';
 
 // Layout
 import Navbar from './components/Navbar';
@@ -48,6 +50,7 @@ const AdminRevenue        = lazy(() => import('./pages/admin/Revenue'));
 const AdminPlans          = lazy(() => import('./pages/admin/Plans'));
 const AdminSplits         = lazy(() => import('./pages/admin/Splits'));
 const AdminNotifications  = lazy(() => import('./pages/admin/Notifications'));
+const AdminSettings       = lazy(() => import('./pages/admin/Settings'));
 
 // Trainer
 const TrainerDashboard = lazy(() => import('./pages/trainer/Dashboard'));
@@ -71,22 +74,16 @@ function PageSpinner() {
     return () => clearTimeout(t);
   }, []);
 
+  // No background of its own — it inherits the page (dark public / light panel),
+  // so switching between the two never flashes the wrong colour.
   return (
     <div
       className="flex items-center justify-center h-screen"
-      style={{
-        background: '#0b0c0e',
-        opacity: visible ? 1 : 0,
-        transition: 'opacity 0.2s ease',
-      }}
+      style={{ opacity: visible ? 1 : 0, transition: 'opacity 0.2s ease' }}
     >
-      <div className="flex flex-col items-center gap-4">
-        {/* Logo mark */}
-        <div className="w-12 h-12 rounded-2xl bg-[#22d3ee]/10 border border-[#22d3ee]/20 flex items-center justify-center">
-          <span className="text-[#22d3ee] font-black text-xl" style={{ fontFamily: 'system-ui' }}>F</span>
-        </div>
-        <div className="w-8 h-8 border-2 border-[#22d3ee] border-t-transparent rounded-full animate-spin" />
-        <span className="text-gray-600 text-xs tracking-wide">Loading…</span>
+      <div className="flex flex-col items-center gap-3">
+        <div className="w-7 h-7 border-2 border-current border-t-transparent rounded-full animate-spin opacity-40" />
+        <span className="text-xs opacity-50">Loading…</span>
       </div>
     </div>
   );
@@ -133,12 +130,24 @@ const GuestRoute = ({ children }) => {
 const ADMIN_PREFIX   = '/admin';
 const TRAINER_PREFIX = '/trainer';
 
+/** Marks panel routes so src/styles/panel.css takes over from the dark
+ *  marketing palette. Light vs dark within the panel is ThemeContext's job. */
+function usePanelTheme(isPanel) {
+  useEffect(() => {
+    const els = [document.documentElement, document.body];
+    els.forEach(el => el.classList.toggle('theme-panel', isPanel));
+    return () => els.forEach(el => el.classList.remove('theme-panel'));
+  }, [isPanel]);
+}
+
 function AppRoutes() {
   const { user } = useAuth();
   const location = useLocation();
 
   const isAdminRoute  = location.pathname.startsWith(ADMIN_PREFIX) || location.pathname.startsWith(TRAINER_PREFIX);
   const isMemberRoute = !isAdminRoute && user?.role === 'member';
+  const isPanelRoute  = isPanelPath(location.pathname);
+  usePanelTheme(isPanelRoute);
 
   return (
     <>
@@ -196,14 +205,15 @@ function AppRoutes() {
           <Route path="/admin/plans"              element={<AdminRoute><AdminPlans /></AdminRoute>} />
           <Route path="/admin/splits"             element={<AdminRoute allowTrainer><AdminSplits /></AdminRoute>} />
           <Route path="/admin/notifications"      element={<AdminRoute><AdminNotifications /></AdminRoute>} />
+          <Route path="/admin/settings"           element={<AdminRoute allowTrainer><AdminSettings /></AdminRoute>} />
 
           {/* ── Fallback ── */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Suspense>
 
-      {/* Global footer — hidden on admin / trainer panel */}
-      {!isAdminRoute && <Footer />}
+      {/* Global footer — marketing only; the panel keeps its own chrome */}
+      {!isPanelRoute && <Footer />}
 
       {/* Member bottom navigation (mobile only) */}
       {isMemberRoute && <MemberBottomNav />}
@@ -213,13 +223,15 @@ function AppRoutes() {
 
 function App() {
   return (
-    <AuthProvider>
-      <CartProvider>
-        <Router>
-          <AppRoutes />
-        </Router>
-      </CartProvider>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <CartProvider>
+          <Router>
+            <AppRoutes />
+          </Router>
+        </CartProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

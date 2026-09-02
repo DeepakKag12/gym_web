@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 // ArrowRight removed (unused)
 import { cachedGet } from '../utils/api';
+import { img } from '../utils/img';
 
 export default function TransformationsPage() {
   const [transformations, setTransformations] = useState([]);
@@ -37,11 +38,11 @@ export default function TransformationsPage() {
               >
                 <div className="grid grid-cols-2 gap-1">
                   <div className="relative">
-                    <img src={t.beforeImage} alt="Before" className="w-full h-52 object-cover" />
+                    <img src={img(t.beforeImage, 500)} alt="Before" loading="lazy" decoding="async" className="w-full h-52 object-cover" />
                     <div className="absolute bottom-2 left-2 bg-red-500/80 text-white text-xs px-2 py-0.5 rounded-full font-semibold">BEFORE</div>
                   </div>
                   <div className="relative">
-                    <img src={t.afterImage} alt="After" className="w-full h-52 object-cover" />
+                    <img src={img(t.afterImage, 500)} alt="After" loading="lazy" decoding="async" className="w-full h-52 object-cover" />
                     <div className="absolute bottom-2 right-2 bg-green-500/80 text-white text-xs px-2 py-0.5 rounded-full font-semibold">AFTER</div>
                   </div>
                 </div>

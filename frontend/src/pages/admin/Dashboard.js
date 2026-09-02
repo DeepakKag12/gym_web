@@ -1,135 +1,254 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Users, MessageSquare, Package, Bell, AlertCircle, CheckCircle } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { freshGet } from '../../utils/api';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  UserPlus, Users, UserCheck, Sparkles, AlertTriangle, RefreshCw,
+  ArrowRight, Ban, CalendarClock, FlaskConical, Activity,
+} from 'lucide-react';
+import { cachedGet, freshGet } from '../../utils/api';
+import { DEMO_ENABLED, DEMO_USERS } from '../../utils/demoData';
 import AdminLayout from './AdminLayout';
+import {
+  Card, Button, EmptyState, Skeleton, StatCard, Stagger, FadeIn, timeAgo,
+} from '../../components/ui';
 
-const StatCard = ({ icon, label, value, color, link }) => (
-  <Link to={link || '#'} className="glass rounded-xl p-5 hover:border-orange-500/30 transition-all block group">
-    <div className="flex items-start justify-between mb-3">
-      <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${color}`}>
-        {icon}
-      </div>
-    </div>
-    <div className="text-white font-bold text-3xl mb-1">{value}</div>
-    <div className="text-gray-400 text-sm">{label}</div>
-  </Link>
-);
+/**
+ * The home screen answers one question: what is happening with my users?
+ *
+ * Three numbers and a list of what changed recently. No charts, no revenue
+ * breakdown, no tiles that link to a report nobody opens — those pages still
+ * exist and are one tap away under Settings.
+ *
+ * Everything is derived from the one user list the panel already loads, so the
+ * numbers here can never disagree with the Users page. That mismatch is the
+ * fastest way to make an admin stop trusting a dashboard.
+ */
 
-export default function AdminDashboard() {
-  const [stats, setStats] = useState({ members: 0, expiring: 0, orders: 0, enquiries: 0 });
-  const [recentMembers, setRecentMembers] = useState([]);
-  const [expiringMembers, setExpiringMembers] = useState([]);
-  const [loading, setLoading] = useState(true);
+const DAY = 86400000;
 
-  useEffect(() => {
-    // Always fetch fresh so the admin dashboard reflects latest additions/deletions
-    Promise.all([
-      freshGet('/members', { cache: 30 }),
-      freshGet('/orders', { cache: 30 }),
-      freshGet('/enquiries', { cache: 30 }),
-    ]).then(([m, o, e]) => {
-      const members = m.data;
-      const now = new Date();
-      const expiring = members.filter(mem => {
-        if (!mem.membershipEnd) return false;
-        const days = Math.ceil((new Date(mem.membershipEnd) - now) / (1000 * 60 * 60 * 24));
-        return days <= 7 && days >= 0;
+function isDisabled(u) { return u.isActive === false; }
+function isExpired(u) {
+  return u.membershipStatus === 'expired' ||
+    (u.membershipEnd && new Date(u.membershipEnd).getTime() < Date.now());
+}
+/** Active = allowed to sign in and their membership has not run out. */
+function isActiveUser(u) { return !isDisabled(u) && !isExpired(u); }
+
+/**
+ * Recent activity, worked out from the user records themselves.
+ *
+ * The API has no activity log, and inventing one on the server was not part of
+ * this change. Rather than show a fake feed, this reports things that are
+ * genuinely true of the data: who joined, whose access is off, and whose
+ * membership is about to end.
+ */
+function buildActivity(users) {
+  const now = Date.now();
+  const events = [];
+
+  users.forEach(u => {
+    if (u.createdAt) {
+      events.push({
+        id: `new-${u._id}`, at: new Date(u.createdAt).getTime(),
+        icon: UserPlus, tone: 'ok',
+        who: u.name, what: 'joined the gym',
       });
-      setStats({ members: members.length, expiring: expiring.length, orders: o.data.length, enquiries: e.data.filter(eq => eq.status === 'new').length });
-      setRecentMembers(members.slice(0, 5));
-      setExpiringMembers(expiring.slice(0, 5));
-    }).catch(() => {}).finally(() => setLoading(false));
-  }, []);
+    }
+    if (isDisabled(u)) {
+      events.push({
+        id: `off-${u._id}`, at: new Date(u.updatedAt || u.createdAt || now).getTime(),
+        icon: Ban, tone: 'danger',
+        who: u.name, what: 'cannot sign in',
+      });
+    }
+    if (u.membershipEnd) {
+      const left = Math.ceil((new Date(u.membershipEnd).getTime() - now) / DAY);
+      if (left >= 0 && left <= 7) {
+        // Sorted as if it had just happened so it stays near the top, but
+        // labelled with when it is DUE — "6d ago" next to "ends in 1 day"
+        // reads as a contradiction.
+        events.push({
+          id: `end-${u._id}`, at: now - (7 - left) * DAY,
+          icon: CalendarClock, tone: 'warn',
+          who: u.name,
+          what: left === 0 ? 'membership ends today' : `membership ends in ${left} day${left > 1 ? 's' : ''}`,
+          when: left === 0 ? 'Today' : `In ${left}d`,
+        });
+      }
+    }
+  });
+
+  return events.sort((a, b) => b.at - a.at).slice(0, 8);
+}
+
+function ActivityRow({ event, first }) {
+  const Icon = event.icon;
+  const color = {
+    ok: 'var(--p-ok)', warn: 'var(--p-warn)', danger: 'var(--p-danger)', info: 'var(--p-info)',
+  }[event.tone];
+  const soft = {
+    ok: 'var(--p-ok-soft)', warn: 'var(--p-warn-soft)', danger: 'var(--p-danger-soft)', info: 'var(--p-info-soft)',
+  }[event.tone];
 
   return (
-    <AdminLayout title="Dashboard">
-      {loading ? (
-        <div className="flex justify-center py-20"><div className="w-10 h-10 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" /></div>
-      ) : (
-        <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0 }}>
-              <StatCard icon={<Users size={20} className="text-blue-400" />} label="Total Members" value={stats.members} color="bg-blue-400/10" link="/admin/members" />
-            </motion.div>
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-              <StatCard icon={<AlertCircle size={20} className="text-yellow-400" />} label="Expiring (7 days)" value={stats.expiring} color="bg-yellow-400/10" link="/admin/members" />
-            </motion.div>
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-              <StatCard icon={<Package size={20} className="text-green-400" />} label="Total Orders" value={stats.orders} color="bg-green-400/10" link="/admin/orders" />
-            </motion.div>
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-              <StatCard icon={<MessageSquare size={20} className="text-purple-400" />} label="New Enquiries" value={stats.enquiries} color="bg-purple-400/10" link="/admin/enquiries" />
-            </motion.div>
-          </div>
+    <li
+      className="flex items-center gap-3 px-4 py-3.5"
+      style={{ borderTop: first ? 'none' : '1px solid var(--p-border)' }}
+    >
+      <span className="ui-stat-icon" style={{ background: soft, color, width: 34, height: 34 }}>
+        <Icon size={16} />
+      </span>
+      <span className="flex-1 min-w-0 text-[14px]" style={{ color: 'var(--p-text-2)' }}>
+        <strong style={{ color: 'var(--p-text)', fontWeight: 600 }}>{event.who}</strong> {event.what}
+      </span>
+      <span className="text-[12px] flex-shrink-0" style={{ color: 'var(--p-muted)' }}>
+        {event.when ?? timeAgo(new Date(event.at).toISOString())}
+      </span>
+    </li>
+  );
+}
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Recent Members */}
-            <div className="glass rounded-xl p-5">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-white font-semibold">Recent Members</h2>
-                <Link to="/admin/members" className="text-orange-400 text-xs hover:underline">View all →</Link>
-              </div>
-              {recentMembers.length === 0 ? (
-                <div className="text-gray-500 text-sm text-center py-8">No members yet</div>
-              ) : (
-                <div className="space-y-3">
-                  {recentMembers.map(m => (
-                    <div key={m._id} className="flex items-center gap-3 py-2 border-b border-white/5 last:border-0">
-                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-                        {m.name?.[0]?.toUpperCase()}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-white text-sm font-medium truncate">{m.name}</div>
-                        <div className="text-gray-500 text-xs">{m.membershipPlan} · {m.membershipStatus}</div>
-                      </div>
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${
-                        m.membershipStatus === 'active' ? 'bg-green-500/20 text-green-400' :
-                        m.membershipStatus === 'expired' ? 'bg-red-500/20 text-red-400' :
-                        'bg-yellow-500/20 text-yellow-400'
-                      }`}>{m.membershipStatus}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+export default function AdminDashboard() {
+  const [users, setUsers] = useState([]);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [isDemo, setIsDemo] = useState(false);
 
-            {/* Expiring Memberships */}
-            <div className="glass rounded-xl p-5">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-white font-semibold flex items-center gap-2"><Bell size={18} className="text-yellow-400" /> Expiring Soon</h2>
-              </div>
-              {expiringMembers.length === 0 ? (
-                <div className="flex flex-col items-center py-8 text-gray-500">
-                  <CheckCircle size={32} className="text-green-400 mb-2" />
-                  <span className="text-sm">No memberships expiring in 7 days</span>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {expiringMembers.map(m => {
-                    const daysLeft = Math.ceil((new Date(m.membershipEnd) - new Date()) / (1000 * 60 * 60 * 24));
-                    return (
-                      <div key={m._id} className="flex items-center gap-3 py-2 border-b border-white/5 last:border-0">
-                        <div className="w-9 h-9 rounded-full bg-yellow-500/20 flex items-center justify-center text-yellow-400 font-bold text-sm flex-shrink-0">
-                          {m.name?.[0]?.toUpperCase()}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="text-white text-sm font-medium truncate">{m.name}</div>
-                          <div className="text-gray-500 text-xs">{m.phone}</div>
-                        </div>
-                        <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${
-                          daysLeft <= 3 ? 'bg-red-500/20 text-red-400' : 'bg-yellow-500/20 text-yellow-400'
-                        }`}>{daysLeft}d left</span>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
+  const load = useCallback((force = false) => {
+    setLoading(true);
+    setError(null);
+    const get = force ? freshGet : cachedGet;
+
+    // The same two endpoints the Users page merges, so "Total users" here and
+    // the count at the bottom of that list can never disagree.
+    Promise.all([
+      get('/members', { cache: 60 }),
+      get('/trainers', { cache: 180 }),
+    ])
+      .then(([m, t]) => {
+        const list = [
+          ...(Array.isArray(m.data) ? m.data : []),
+          ...(Array.isArray(t.data) ? t.data : []),
+        ];
+        // An empty gym is a real state, not a failure — only stand in sample
+        // data when previewing, and say so on screen when we do.
+        if (list.length === 0 && DEMO_ENABLED) {
+          setUsers(DEMO_USERS);
+          setIsDemo(true);
+        } else {
+          setUsers(list);
+          setIsDemo(false);
+        }
+      })
+      .catch(err => {
+        if (DEMO_ENABLED) {
+          setUsers(DEMO_USERS);
+          setIsDemo(true);
+          return;
+        }
+        setError(err.response?.data?.message || 'Could not load your users. Check your connection and try again.');
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  const stats = useMemo(() => {
+    const monthAgo = Date.now() - 30 * DAY;
+    return {
+      total: users.length,
+      active: users.filter(isActiveUser).length,
+      isNew: users.filter(u => u.createdAt && new Date(u.createdAt).getTime() >= monthAgo).length,
+    };
+  }, [users]);
+
+  const activity = useMemo(() => buildActivity(users), [users]);
+
+  if (error) {
+    return (
+      <AdminLayout title="Home">
+        <Card>
+          <EmptyState icon={AlertTriangle} title="Something went wrong" hint={error}>
+            <Button variant="primary" icon={RefreshCw} onClick={() => load(true)}>Try again</Button>
+          </EmptyState>
+        </Card>
+      </AdminLayout>
+    );
+  }
+
+  return (
+    <AdminLayout
+      title="Home"
+      subtitle="How your gym is doing right now"
+      actions={<Button variant="primary" icon={UserPlus} to="/admin/members?add=1">Add user</Button>}
+    >
+      <div className="space-y-4 max-w-4xl">
+        {isDemo && (
+          <div className="ui-demo-note">
+            <FlaskConical size={15} className="flex-shrink-0" />
+            Showing sample data — no real users were found.
           </div>
-        </>
-      )}
+        )}
+
+        {/* Three numbers, each with a plain-language line saying what it counts */}
+        <Stagger className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <StatCard
+            label="Total users"
+            value={stats.total}
+            hint="Everyone on your books"
+            icon={Users}
+            tone="accent"
+            loading={loading}
+          />
+          <StatCard
+            label="Active users"
+            value={stats.active}
+            hint="Can sign in, membership running"
+            icon={UserCheck}
+            tone="ok"
+            loading={loading}
+          />
+          <StatCard
+            label="New users"
+            value={stats.isNew}
+            hint="Joined in the last 30 days"
+            icon={Sparkles}
+            tone="info"
+            loading={loading}
+          />
+        </Stagger>
+
+        {/* What has been happening */}
+        <FadeIn delay={0.12}>
+          <Card
+            title="Recent activity"
+            padded={false}
+            action={
+              <Button size="sm" to="/admin/members">
+                All users <ArrowRight size={14} />
+              </Button>
+            }
+          >
+            {loading ? (
+              <div className="p-4 space-y-3">
+                {Array.from({ length: 4 }, (_, i) => <Skeleton key={i} h={44} />)}
+              </div>
+            ) : activity.length === 0 ? (
+              <EmptyState
+                icon={Activity}
+                title="Nothing has happened yet"
+                hint="Add your first user and their activity will show up here."
+              >
+                <Button variant="primary" icon={UserPlus} to="/admin/members?add=1">Add user</Button>
+              </EmptyState>
+            ) : (
+              <ul>
+                {activity.map((event, i) => (
+                  <ActivityRow key={event.id} event={event} first={i === 0} />
+                ))}
+              </ul>
+            )}
+          </Card>
+        </FadeIn>
+      </div>
     </AdminLayout>
   );
 }

@@ -3,14 +3,17 @@ import { Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, Salad, TrendingUp, Bell, Dumbbell } from 'lucide-react';
 import { cachedGet } from '../utils/api';
 
-// 5 primary tabs a member needs most on mobile
-const MEMBER_NAV = [
+// The five tabs a member needs on a phone.
+const TABS = [
   { path: '/dashboard',     icon: LayoutDashboard, label: 'Home' },
   { path: '/my-workout',    icon: Dumbbell,        label: 'Workout' },
   { path: '/my-diet',       icon: Salad,           label: 'Diet' },
   { path: '/my-progress',   icon: TrendingUp,      label: 'Progress' },
   { path: '/notifications', icon: Bell,            label: 'Alerts' },
 ];
+
+// Pages that keep the bar visible even though they are not tabs themselves.
+const ALSO_SHOW = ['/my-orders', '/my-exercises', '/store', '/cart', '/settings'];
 
 export default function MemberBottomNav() {
   const location = useLocation();
@@ -22,46 +25,34 @@ export default function MemberBottomNav() {
       .catch(() => {});
   }, [location.pathname]);
 
-  // Only show on member-relevant pages
-  const memberPaths = MEMBER_NAV.map(n => n.path);
-  const alsoShow = ['/my-orders', '/my-exercises', '/my-diet', '/store', '/cart', '/settings'];
-  const visible = [...memberPaths, ...alsoShow].some(p => location.pathname.startsWith(p));
+  const visible = [...TABS.map(t => t.path), ...ALSO_SHOW].some(p => location.pathname.startsWith(p));
   if (!visible) return null;
 
   return (
     <nav
-      className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0d0d14]/95 backdrop-blur-md border-t border-white/10"
+      className="lg:hidden fixed bottom-0 inset-x-0 z-40 flex panel-bar"
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
-      <div className="flex items-stretch">
-        {MEMBER_NAV.map(link => {
-          const Icon = link.icon;
-          const active = location.pathname === link.path;
-          const isNotif = link.path === '/notifications';
-          return (
-            <Link
-              key={link.path}
-              to={link.path}
-              className={`flex-1 flex flex-col items-center justify-center py-2.5 gap-0.5 relative transition-all ${
-                active ? 'text-[#22d3ee]' : 'text-gray-500 hover:text-gray-300'
-              }`}
-            >
-              <div className="relative">
-                <Icon size={20} strokeWidth={active ? 2.5 : 1.8} />
-                {isNotif && unread > 0 && (
-                  <span className="absolute -top-1 -right-1.5 min-w-[14px] h-3.5 bg-red-500 text-white text-[8px] font-bold rounded-full flex items-center justify-center px-0.5 leading-none">
-                    {unread > 9 ? '9+' : unread}
-                  </span>
-                )}
-              </div>
-              <span className="text-[10px] font-medium leading-tight">{link.label}</span>
-              {active && (
-                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-0.5 bg-[#22d3ee] rounded-full" />
+      {TABS.map(tab => {
+        const Icon = tab.icon;
+        const active = location.pathname === tab.path;
+        return (
+          <Link
+            key={tab.path}
+            to={tab.path}
+            aria-current={active ? 'page' : undefined}
+            className={`panel-tab ${active ? 'panel-tab-on' : ''}`}
+          >
+            <span className="relative">
+              <Icon size={20} strokeWidth={active ? 2.4 : 1.8} />
+              {tab.path === '/notifications' && unread > 0 && (
+                <span className="panel-dot">{unread > 9 ? '9+' : unread}</span>
               )}
-            </Link>
-          );
-        })}
-      </div>
+            </span>
+            {tab.label}
+          </Link>
+        );
+      })}
     </nav>
   );
 }

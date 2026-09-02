@@ -1,208 +1,313 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import {
+  Bell, CheckCheck, RefreshCw, Send, AlertTriangle, MessageCircle, Mail, Monitor, Zap,
+} from 'lucide-react';
 import AdminLayout from './AdminLayout';
-import { Bell, CheckCheck, RefreshCw, User, MessageSquare, AlertCircle, Info, Gift } from 'lucide-react';
 import API, { cachedGet, bustCache, freshGet } from '../../utils/api';
+import toast from 'react-hot-toast';
+import {
+  Card, Button, Badge, Field, Input, Select, Textarea, Check as CheckRow,
+  Modal, Tabs, EmptyState, SkeletonList, timeAgo,
+} from '../../components/ui';
 
-const TYPE_META = {
-  fee_reminder:  { icon: AlertCircle, color: 'text-yellow-400', bg: 'bg-yellow-400/10', label: 'Fee Reminder' },
-  plan_expiry:   { icon: AlertCircle, color: 'text-red-400',    bg: 'bg-red-400/10',    label: 'Plan Expiry' },
-  welcome:       { icon: Gift,        color: 'text-cyan-400',   bg: 'bg-cyan-400/10',   label: 'Welcome' },
-  announcement:  { icon: Info,        color: 'text-blue-400',   bg: 'bg-blue-400/10',   label: 'Announcement' },
-  message:       { icon: MessageSquare, color: 'text-purple-400', bg: 'bg-purple-400/10', label: 'Message' },
+/**
+ * Notification types must match the enum in the API's Notification model.
+ * They previously did not — the compose box sent `fee_reminder` / `plan_expiry`
+ * / `message`, none of which the server accepts, so those sends failed.
+ */
+const TYPES = [
+  { value: 'announcement',       label: 'Announcement' },
+  { value: 'general',            label: 'General' },
+  { value: 'fee-reminder',       label: 'Fee reminder' },
+  { value: 'membership-expired', label: 'Membership expired' },
+];
+
+const TYPE_TONE = {
+  'fee-reminder': 'warn',
+  'membership-expired': 'danger',
+  announcement: 'info',
+  welcome: 'accent',
 };
 
-function getTypeMeta(type) {
-  return TYPE_META[type] || { icon: Bell, color: 'text-gray-400', bg: 'bg-gray-400/10', label: type || 'Notification' };
+const CHANNEL_ICON = { website: Monitor, whatsapp: MessageCircle, email: Mail };
+
+/** Where a single notification actually landed. */
+function DeliveryChips({ notif }) {
+  const sent = notif.sentVia || [];
+  const failed = Object.entries(notif.delivery || {})
+    .filter(([, d]) => d && d.status === 'failed')
+    .map(([channel]) => channel);
+
+  if (!sent.length && !failed.length) return null;
+  return (
+    <span className="flex items-center gap-1.5 flex-wrap">
+      {sent.map(c => {
+        const Icon = CHANNEL_ICON[c] || Monitor;
+        return (
+          <span key={c} className="inline-flex items-center gap-1 text-[12px]" style={{ color: 'var(--p-muted)' }}>
+            <Icon size={12} /> {c}
+          </span>
+        );
+      })}
+      {failed.map(c => (
+        <span key={c} className="inline-flex items-center gap-1 text-[12px]" style={{ color: 'var(--p-danger)' }}>
+          <AlertTriangle size={12} /> {c} failed
+        </span>
+      ))}
+    </span>
+  );
 }
 
-function timeAgo(dateStr) {
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const m = Math.floor(diff / 60000);
-  if (m < 1) return 'just now';
-  if (m < 60) return `${m}m ago`;
-  const h = Math.floor(m / 60);
-  if (h < 24) return `${h}h ago`;
-  return `${Math.floor(h / 24)}d ago`;
+/* ─── Compose ───────────────────────────────────────────────────────────── */
+function ComposeModal({ members, onClose, onSent }) {
+  const [form, setForm] = useState({
+    title: '', message: '', type: 'announcement', memberId: '',
+    sendWhatsApp: true, sendEmail: true,
+  });
+  const [sending, setSending] = useState(false);
+
+  const broadcast = !form.memberId;
+
+  const send = async () => {
+    if (!form.title || !form.message) return toast.error('Add a title and a message');
+    if (broadcast && !window.confirm(`Send this to all ${members.length} members by app, WhatsApp and email?`)) return;
+    setSending(true);
+    try {
+      const { data } = await API.post('/notifications/admin/send', form);
+      toast.success(data.message || 'Notification sent');
+      onSent();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Could not send');
+    } finally {
+      setSending(false);
+    }
+  };
+
+  return (
+    <Modal
+      title="Send a notification"
+      onClose={onClose}
+      width={520}
+      footer={
+        <>
+          <Button onClick={onClose}>Cancel</Button>
+          <Button variant="primary" icon={Send} onClick={send} loading={sending}>
+            {broadcast ? `Send to ${members.length} members` : 'Send'}
+          </Button>
+        </>
+      }
+    >
+      <div className="space-y-3">
+        <Field label="Send to">
+          <Select value={form.memberId} onChange={e => setForm(p => ({ ...p, memberId: e.target.value }))}>
+            <option value="">Everyone ({members.length} members)</option>
+            {members.map(m => <option key={m._id} value={m._id}>{m.name} — {m.email}</option>)}
+          </Select>
+        </Field>
+        <Field label="Type">
+          <Select value={form.type} onChange={e => setForm(p => ({ ...p, type: e.target.value }))}>
+            {TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+          </Select>
+        </Field>
+        <Field label="Title" required>
+          <Input value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))} placeholder="Gym closed on Sunday" />
+        </Field>
+        <Field label="Message" required>
+          <Textarea rows={4} value={form.message} onChange={e => setForm(p => ({ ...p, message: e.target.value }))} placeholder="Write the message members will receive…" />
+        </Field>
+
+        <p className="ui-section-label pt-1">Also send by</p>
+        <CheckRow checked={form.sendWhatsApp} onChange={v => setForm(p => ({ ...p, sendWhatsApp: v }))} label="WhatsApp" hint="Delivered at the same time as email" />
+        <CheckRow checked={form.sendEmail} onChange={v => setForm(p => ({ ...p, sendEmail: v }))} label="Email" hint="Branded email with the same message" />
+        <p className="ui-hint">Everyone always gets it in the app as well.</p>
+      </div>
+    </Modal>
+  );
 }
 
+/* ─── Channel setup banner ──────────────────────────────────────────────── */
+function ChannelStatus({ health, onTest, testing }) {
+  if (!health) return null;
+  const off = ['whatsapp', 'email'].filter(c => health[c] && !health[c].configured);
+  // A configured channel can still carry a setup warning (e.g. credentials in
+  // the wrong variable), so it is shown even when nothing is switched off.
+  const warnings = ['whatsapp', 'email'].filter(c => health[c]?.warning);
+
+  if (!off.length) {
+    return (
+      <Card className="mb-4">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <p className="text-[14px] flex items-center gap-2" style={{ color: 'var(--p-text-2)' }}>
+            <Badge tone="ok">Live</Badge>
+            WhatsApp and email are both set up. Members receive every notification on all three channels.
+          </p>
+          <Button size="sm" icon={Zap} onClick={onTest} loading={testing}>Send test</Button>
+        </div>
+        {warnings.map(c => (
+          <p key={c} className="ui-hint mt-2 flex items-start gap-1.5">
+            <AlertTriangle size={13} style={{ color: 'var(--p-warn)' }} className="flex-shrink-0 mt-0.5" />
+            <span className="capitalize">{c}</span>: {health[c].warning}
+          </p>
+        ))}
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="mb-4" style={{ borderColor: 'var(--p-warn-line)' }}>
+      <div className="flex items-start gap-3">
+        <AlertTriangle size={18} style={{ color: 'var(--p-warn)' }} className="flex-shrink-0 mt-0.5" />
+        <div className="flex-1 min-w-0">
+          <p className="text-[14px] font-semibold" style={{ color: 'var(--p-text)' }}>
+            {off.join(' and ')} {off.length > 1 ? 'are' : 'is'} not set up
+          </p>
+          <ul className="mt-1 space-y-0.5">
+            {off.map(c => (
+              <li key={c} className="text-[13px]" style={{ color: 'var(--p-text-2)' }}>
+                <span className="capitalize font-medium">{c}</span>: {health[c].reason}
+              </li>
+            ))}
+          </ul>
+          <p className="ui-hint">Notifications still appear in the app, and any channel that IS working still delivers. Add the missing values to your server environment to enable the rest.</p>
+          <div className="mt-3"><Button size="sm" icon={Zap} onClick={onTest} loading={testing}>Send test</Button></div>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+/* ─── Page ──────────────────────────────────────────────────────────────── */
 export default function AdminNotifications() {
   const [notifs, setNotifs] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState('all'); // all | unread | read
-  const [sending, setSending] = useState(false);
-  const [form, setForm] = useState({ title: '', message: '', type: 'announcement', memberId: '' });
   const [members, setMembers] = useState([]);
-  const [showCompose, setShowCompose] = useState(false);
+  const [health, setHealth] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState('all');
+  const [composeOpen, setComposeOpen] = useState(false);
+  const [testing, setTesting] = useState(false);
 
   const load = useCallback(async (force = false) => {
     setLoading(true);
+    const get = force ? freshGet : cachedGet;
     try {
-      const nf = force ? freshGet('/notifications/admin/all', { cache: 30 }) : cachedGet('/notifications/admin/all', { cache: 30 });
-      const mf = cachedGet('/members', { cache: 60 });
-      const [nr, mr] = await Promise.all([nf, mf]);
-      setNotifs(nr.data);
-      setMembers(mr.data);
-    } catch {}
+      const [n, m] = await Promise.all([
+        get('/notifications/admin/all', { cache: 30 }),
+        cachedGet('/members', { cache: 60 }),
+      ]);
+      setNotifs(n.data);
+      setMembers(m.data);
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Could not load notifications');
+    }
     setLoading(false);
+    // Channel setup is a separate, non-critical call — an older API without this
+    // endpoint simply leaves the banner hidden.
+    cachedGet('/notifications/admin/channels', { cache: 300 })
+      .then(r => setHealth(r.data))
+      .catch(() => setHealth(null));
   }, []);
 
   useEffect(() => { load(); }, [load]);
-
-  const filtered = notifs.filter(n => {
-    if (filter === 'unread') return !n.isRead;
-    if (filter === 'read')   return n.isRead;
-    return true;
-  });
-
-  const markRead = async (id) => {
-    await API.put(`/notifications/${id}/read`);
-    bustCache('/notifications/admin/all');
-    setNotifs(prev => prev.map(n => n._id === id ? { ...n, isRead: true } : n));
-  };
 
   const markAllRead = async () => {
     await API.put('/notifications/admin/mark-all-read');
     bustCache('/notifications/admin/all');
     setNotifs(prev => prev.map(n => ({ ...n, isRead: true })));
+    toast.success('All marked as read');
   };
 
-  const send = async () => {
-    if (!form.title || !form.message) return;
-    setSending(true);
+  const sendTest = async () => {
+    setTesting(true);
     try {
-      await API.post('/notifications/admin/send', form);
-      bustCache('/notifications/admin/all');
-      setForm({ title: '', message: '', type: 'announcement', memberId: '' });
-      setShowCompose(false);
-      load(true);
-    } catch {}
-    setSending(false);
+      const { data } = await API.post('/notifications/admin/test', {});
+      const ok = data.delivered || [];
+      ok.length
+        ? toast.success(`Test sent to you via ${ok.join(' and ')}`)
+        : toast.error('Test could not be delivered on any channel');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Test failed');
+    } finally {
+      setTesting(false);
+    }
   };
 
-  const unreadCount = notifs.filter(n => !n.isRead).length;
+  const unread = notifs.filter(n => !n.isRead).length;
+  const filtered = notifs.filter(n => (filter === 'unread' ? !n.isRead : filter === 'read' ? n.isRead : true));
 
   return (
-    <AdminLayout title="Notifications">
-      <div className="max-w-5xl mx-auto space-y-6">
+    <AdminLayout
+      title="Notifications"
+      subtitle="Everything sent to members, and what reached them"
+      actions={
+        <>
+          <Button icon={RefreshCw} onClick={() => load(true)} aria-label="Refresh" />
+          {unread > 0 && <Button icon={CheckCheck} onClick={markAllRead}>Mark all read</Button>}
+          <Button variant="primary" icon={Send} onClick={() => setComposeOpen(true)}>Send</Button>
+        </>
+      }
+    >
+      <ChannelStatus health={health} onTest={sendTest} testing={testing} />
 
-        {/* Header */}
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <h2 className="text-white font-bold text-xl flex items-center gap-2">
-              <Bell size={22} className="text-cyan-400" /> All Notifications
-              {unreadCount > 0 && (
-                <span className="text-xs bg-cyan-400/20 text-cyan-400 px-2 py-0.5 rounded-full">{unreadCount} unread</span>
-              )}
-            </h2>
-            <p className="text-gray-500 text-sm mt-0.5">View and manage all member notifications</p>
-          </div>
-          <div className="flex gap-2 flex-wrap">
-            <button onClick={() => load(true)} className="flex items-center gap-2 text-sm text-gray-400 hover:text-white px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 transition-all">
-              <RefreshCw size={15} /> Refresh
-            </button>
-            {unreadCount > 0 && (
-              <button onClick={markAllRead} className="flex items-center gap-2 text-sm text-gray-400 hover:text-white px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 transition-all">
-                <CheckCheck size={15} /> Mark all read
-              </button>
-            )}
-            <button onClick={() => setShowCompose(v => !v)} className="btn-fire text-sm px-4 py-2">
-              + Send Notification
-            </button>
-          </div>
-        </div>
+      <div className="mb-4 max-w-sm">
+        <Tabs
+          value={filter}
+          onChange={setFilter}
+          options={[
+            { value: 'all', label: 'All', count: notifs.length },
+            { value: 'unread', label: 'Unread', count: unread },
+            { value: 'read', label: 'Read' },
+          ]}
+        />
+      </div>
 
-        {/* Compose */}
-        {showCompose && (
-          <div className="glass rounded-2xl p-6 space-y-4">
-            <h3 className="text-white font-semibold">Compose Notification</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-gray-400 text-xs mb-1">Title *</label>
-                <input className="input-dark w-full" placeholder="Notification title" value={form.title}
-                  onChange={e => setForm(p => ({ ...p, title: e.target.value }))} />
-              </div>
-              <div>
-                <label className="block text-gray-400 text-xs mb-1">Type</label>
-                <select className="input-dark w-full" value={form.type} onChange={e => setForm(p => ({ ...p, type: e.target.value }))}>
-                  {Object.entries(TYPE_META).map(([k, v]) => <option key={k} value={k} style={{ background: '#111318', color: '#f1f5f9' }}>{v.label}</option>)}
-                </select>
-              </div>
-              <div>
-                <label className="block text-gray-400 text-xs mb-1">Send To</label>
-                <select className="input-dark w-full" value={form.memberId} onChange={e => setForm(p => ({ ...p, memberId: e.target.value }))}>
-                  <option value="" style={{ background: '#111318', color: '#f1f5f9' }}>All Members (Broadcast)</option>
-                  {members.map(m => <option key={m._id} value={m._id} style={{ background: '#111318', color: '#f1f5f9' }}>{m.name} ({m.email})</option>)}
-                </select>
-              </div>
-              <div>
-                <label className="block text-gray-400 text-xs mb-1">Message *</label>
-                <textarea className="input-dark w-full resize-none" rows={2} placeholder="Notification message"
-                  value={form.message} onChange={e => setForm(p => ({ ...p, message: e.target.value }))} />
-              </div>
-            </div>
-            <div className="flex gap-2 justify-end">
-              <button onClick={() => setShowCompose(false)} className="btn-outline text-sm px-4 py-2">Cancel</button>
-              <button onClick={send} disabled={sending} className="btn-fire text-sm px-4 py-2">
-                {sending ? 'Sending…' : 'Send'}
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Filter tabs */}
-        <div className="flex gap-2">
-          {['all','unread','read'].map(f => (
-            <button key={f} onClick={() => setFilter(f)}
-              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all capitalize ${filter === f ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/40' : 'text-gray-400 hover:text-white bg-white/5 hover:bg-white/10'}`}>
-              {f}
-            </button>
-          ))}
-        </div>
-
-        {/* List */}
-        {loading ? (
-          <div className="space-y-3">{[...Array(6)].map((_, i) => (
-            <div key={i} className="h-16 rounded-xl bg-white/5 animate-pulse" />
-          ))}</div>
-        ) : filtered.length === 0 ? (
-          <div className="text-center py-16 text-gray-500">
-            <Bell size={40} className="mx-auto mb-3 opacity-30" />
-            <p>No notifications found</p>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {filtered.map(n => {
-              const meta = getTypeMeta(n.type);
-              const Icon = meta.icon;
-              return (
-                <div key={n._id} className={`flex items-start gap-4 p-4 rounded-xl border transition-all ${n.isRead ? 'bg-white/3 border-white/5' : 'bg-cyan-500/5 border-cyan-500/20'}`}>
-                  <div className={`${meta.bg} ${meta.color} rounded-xl p-2.5 flex-shrink-0`}>
-                    <Icon size={16} />
-                  </div>
+      {loading ? (
+        <SkeletonList rows={6} h={76} />
+      ) : filtered.length === 0 ? (
+        <Card>
+          <EmptyState
+            icon={Bell}
+            title={filter === 'all' ? 'Nothing sent yet' : `No ${filter} notifications`}
+            hint="Reminders sent automatically by the system also appear here."
+          >
+            <Button variant="primary" icon={Send} onClick={() => setComposeOpen(true)}>Send a notification</Button>
+          </EmptyState>
+        </Card>
+      ) : (
+        <Card padded={false}>
+          <ul>
+            {filtered.map((n, i) => (
+              <li
+                key={n._id}
+                className="px-4 py-3.5 sm:px-5"
+                style={{ borderTop: i ? '1px solid var(--p-border)' : 'none', background: n.isRead ? 'transparent' : 'var(--p-accent-soft)' }}
+              >
+                <div className="flex items-start gap-3">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-white font-semibold text-sm">{n.title}</span>
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${meta.bg} ${meta.color}`}>{meta.label}</span>
-                      {!n.isRead && <span className="w-2 h-2 rounded-full bg-cyan-400 flex-shrink-0" />}
+                      <span className="text-[14px] font-semibold" style={{ color: 'var(--p-text)' }}>{n.title}</span>
+                      <Badge tone={TYPE_TONE[n.type] || 'neutral'}>{(n.type || 'general').replace(/-/g, ' ')}</Badge>
                     </div>
-                    <p className="text-gray-400 text-sm mt-0.5 line-clamp-2">{n.message}</p>
-                    <div className="flex items-center gap-3 mt-1 text-xs text-gray-600">
-                      {n.member?.name && <span className="flex items-center gap-1"><User size={11} />{n.member.name}</span>}
+                    <p className="text-[13px] mt-1 line-clamp-2" style={{ color: 'var(--p-text-2)' }}>{n.message}</p>
+                    <div className="flex items-center gap-3 mt-1.5 flex-wrap text-[12px]" style={{ color: 'var(--p-muted)' }}>
+                      {n.member?.name && <span>{n.member.name}</span>}
                       <span>{timeAgo(n.createdAt)}</span>
-                      {n.sentVia && n.sentVia.length > 0 && <span>via {n.sentVia.join(', ')}</span>}
+                      <DeliveryChips notif={n} />
                     </div>
                   </div>
-                  {!n.isRead && (
-                    <button onClick={() => markRead(n._id)} className="text-gray-500 hover:text-cyan-400 transition-colors flex-shrink-0 p-1">
-                      <CheckCheck size={16} />
-                    </button>
-                  )}
                 </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      )}
+
+      {composeOpen && (
+        <ComposeModal
+          members={members}
+          onClose={() => setComposeOpen(false)}
+          onSent={() => { setComposeOpen(false); bustCache('/notifications/admin/all'); load(true); }}
+        />
+      )}
     </AdminLayout>
   );
 }

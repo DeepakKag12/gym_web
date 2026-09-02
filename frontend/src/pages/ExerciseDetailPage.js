@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Dumbbell, Clock, Target, BarChart3 } from 'lucide-react';
 import { cachedGet } from '../utils/api';
+import { img } from '../utils/img';
 
 /* ── Helpers ── */
 function isYouTube(url) { return url && (url.includes('youtube.com') || url.includes('youtu.be')); }
@@ -72,7 +73,7 @@ export default function ExerciseDetailPage() {
                 />
               );
             })() : ex.image ? (
-              <img src={ex.image} alt={ex.title} className="w-full rounded-xl border border-white/10 object-cover max-h-80" />
+              <img src={img(ex.image, 900)} alt={ex.title} decoding="async" className="w-full rounded-xl border border-white/10 object-cover max-h-80" />
             ) : (
               <div className="w-full h-64 bg-white/5 rounded-xl flex items-center justify-center">
                 <Dumbbell size={64} className="text-gray-700" />

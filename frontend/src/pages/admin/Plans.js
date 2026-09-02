@@ -19,7 +19,7 @@ function PlanModal({ plan, onClose, onSaved }) {
       if (plan) { await API.put(`/plans/${plan._id}`, payload); toast.success('Plan updated'); }
       else { await API.post('/plans', payload); toast.success('Plan created'); }
       onSaved();
-    } catch { toast.error('Save failed'); }
+    } catch (err) { toast.error(err.response?.data?.message || 'Save failed'); }
     finally { setSaving(false); }
   };
 
@@ -90,7 +90,7 @@ export default function AdminPlans() {
       setPlans(prev => prev.filter(p => p._id !== id));
       bustCache('/plans');
       toast.success('Deleted');
-    } catch { toast.error('Delete failed'); }
+    } catch (err) { toast.error(err.response?.data?.message || 'Delete failed'); }
   };
 
   return (

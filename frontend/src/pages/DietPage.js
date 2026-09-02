@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Salad, Lock, ChevronDown, ChevronUp } from 'lucide-react';
 import { cachedGet } from '../utils/api';
+import { img } from '../utils/img';
 
 const GOAL_COLORS = {
   'weight-loss': 'text-red-400 bg-red-400/10',
@@ -16,7 +17,7 @@ function DietCard({ plan }) {
   return (
     <div className="glass rounded-xl overflow-hidden hover:border-orange-500/30 transition-all">
       <div className="p-5">
-        {plan.image && <img src={plan.image} alt={plan.title} className="w-full h-40 object-cover rounded-lg mb-4" />}
+        {plan.image && <img src={img(plan.image, 500)} alt={plan.title} loading="lazy" decoding="async" className="w-full h-40 object-cover rounded-lg mb-4" />}
         <div className="flex items-start justify-between mb-2">
           <h3 className="text-white font-semibold text-lg">{plan.title}</h3>
           {!plan.isPublic && <Lock size={14} className="text-yellow-400 flex-shrink-0 mt-1" />}
@@ -27,8 +28,8 @@ function DietCard({ plan }) {
         <p className="text-gray-400 text-sm mt-2 leading-relaxed line-clamp-2">{plan.description}</p>
         {plan.totalCalories && (
           <div className="mt-3 flex gap-4 text-xs text-gray-500">
-            <span>🔥 {plan.totalCalories} kcal</span>
-            {plan.totalProtein && <span>💪 {plan.totalProtein} protein</span>}
+            <span>{plan.totalCalories} kcal</span>
+            {plan.totalProtein && <span>{plan.totalProtein} protein</span>}
           </div>
         )}
         {plan.meals?.length > 0 && (

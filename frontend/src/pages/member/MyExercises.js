@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Dumbbell, BookOpen, Target, Flame, ExternalLink, ChevronDown, Video } from 'lucide-react';
 import { cachedGet } from '../../utils/api';
+import { img } from '../../utils/img';
 
 /* ── VideoThumb: native <video> for direct files, <iframe> for YouTube ── */
 function isYouTube(url) { return url && (url.includes('youtube.com') || url.includes('youtu.be')); }
@@ -27,7 +28,7 @@ function VideoThumb({ video, videoUrl, image, title }) {
         className="absolute inset-0 w-full h-full object-cover" />
     );
   }
-  if (image) return <img src={image} alt={title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />;
+  if (image) return <img src={img(image, 500)} alt={title} loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />;
   return <div className="absolute inset-0 flex items-center justify-center"><Dumbbell size={48} className="text-gray-700" /></div>;
 }
 
@@ -37,10 +38,6 @@ const DIFF_COLOR = {
   advanced:     'text-red-400 bg-red-400/10',
 };
 
-const MUSCLE_EMOJI = {
-  chest: '💪', back: '🔙', shoulders: '🏋️', arms: '💪',
-  legs: '🦵', core: '🎯', cardio: '🏃', fullbody: '⚡',
-};
 
 function ExCard({ ex }) {
   const [open, setOpen] = useState(false);
@@ -57,7 +54,7 @@ function ExCard({ ex }) {
           </div>
         )}
         <span className="absolute bottom-3 left-3 text-xs px-2 py-0.5 rounded-full bg-black/60 text-white capitalize z-10">
-          {MUSCLE_EMOJI[ex.muscleGroup] || '💪'} {ex.muscleGroup}
+          {ex.muscleGroup}
         </span>
       </div>
 
@@ -156,7 +153,7 @@ export default function MyExercises() {
                   className={`px-4 py-1.5 rounded-full text-sm font-medium capitalize transition-all ${
                     muscle === m ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/40' : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10'
                   }`}>
-                  {m === 'all' ? 'All' : `${MUSCLE_EMOJI[m] || '💪'} ${m}`}
+                  {m === 'all' ? 'All' : m}
                 </button>
               ))}
             </div>

@@ -1,12 +1,11 @@
 <!DOCTYPE html>
-<html lang="en" style="background:#0b0c0e;">
+<html lang="en" style="background:#0a0b0d;">
   <head>
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <!-- Match app background so status bar + address bar blend in on mobile -->
-    <meta name="theme-color" content="#0b0c0e" />
-    <meta name="theme-color" content="#0b0c0e" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#0a0b0d" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="description" content="FitNation By Ajeet — Uniting a Healthier World. Workouts, Diet Plans, Supplements & More." />
@@ -16,9 +15,43 @@
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <!-- Inline critical CSS: paint the correct background colour before ANY JS/CSS loads.
          This is what prevents the white/black flash on mobile refresh. -->
+    <script>
+      /* The admin, trainer and member areas render in the panel theme. React
+         applies the class on mount, which is one paint too late — without this
+         the panel flashes the wrong colour on every refresh. Same route list as
+         src/utils/routes.js. */
+      (function () {
+        var p = window.location.pathname;
+        var panel = ['/admin', '/trainer', '/dashboard', '/my-', '/notifications', '/settings']
+          .some(function (prefix) { return p.indexOf(prefix) === 0; });
+
+        /* The saved light/dark choice has to land before the first paint,
+           otherwise every refresh flashes the wrong colour. Same key as
+           THEME_KEY in src/context/ThemeContext.js. Dark is the default. */
+        var theme = null;
+        try { theme = localStorage.getItem('fn-panel-theme'); } catch (e) {}
+        if (theme !== 'light' && theme !== 'dark') theme = 'dark';
+
+        var cls = ' ' + (theme === 'dark' ? 'theme-dark' : 'theme-light');
+        if (panel) cls += ' theme-panel';
+        document.documentElement.className += cls;
+      })();
+    </script>
     <style>
+      /* Public pages */
+      html.theme-light:not(.theme-panel), html.theme-light:not(.theme-panel) body,
+      html.theme-light:not(.theme-panel) #root { background: #fbfaf9 !important; }
+      html.theme-light:not(.theme-panel) #root:empty::after { background: #fbfaf9 !important; }
+      /* Beats the inline style="background" attribute on <html>/<body> above,
+         which exists to paint the right colour before any CSS loads. */
+      html.theme-light:not(.theme-panel) body { background: #fbfaf9 !important; }
+      /* Admin panel */
+      html.theme-panel, html.theme-panel body, html.theme-panel #root { background: #f5f6f8 !important; }
+      html.theme-panel #root:empty::after { background: #f5f6f8 !important; }
+      html.theme-panel.theme-dark, html.theme-panel.theme-dark body, html.theme-panel.theme-dark #root { background: #0b0c0e !important; }
+      html.theme-panel.theme-dark #root:empty::after { background: #0b0c0e !important; }
       html, body, #root {
-        background: #0b0c0e;
+        background: #0a0b0d;
         min-height: 100%;
         margin: 0;
         padding: 0;
@@ -29,11 +62,11 @@
         display: block;
         position: fixed;
         inset: 0;
-        background: #0b0c0e;
+        background: #0a0b0d;
       }
     </style>
   </head>
-  <body style="background:#0b0c0e; margin:0;">
+  <body style="background:#0a0b0d; margin:0;">
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
   </body>

@@ -99,3 +99,29 @@ export async function freshGet(url, config = {}) {
 }
 
 export default API;
+
+/**
+ * apiError(err, fallback) — one readable sentence for any failure.
+ *
+ * `err.response?.data?.message || 'Something failed'` was used everywhere, but
+ * it collapses the two cases a user most needs told apart:
+ *
+ *   • the server answered and refused  -> show what it said ("Invalid credentials")
+ *   • the request never arrived        -> the old code showed "Login failed",
+ *     which sends someone hunting for a wrong password when the backend is
+ *     actually down, blocked by CORS, or unreachable on this network.
+ */
+export function apiError(err, fallback = 'Something went wrong. Please try again.') {
+  if (err?.response) {
+    return err.response.data?.message || `${fallback} (server said ${err.response.status})`;
+  }
+  if (err?.code === 'ECONNABORTED') {
+    return 'The server took too long to respond. Check your connection and try again.';
+  }
+  if (err?.request) {
+    // No response at all: server down, wrong API URL, CORS, or offline.
+    const base = API.defaults.baseURL;
+    return `Cannot reach the server at ${base}. Make sure the backend is running and that this address is allowed.`;
+  }
+  return err?.message || fallback;
+}
