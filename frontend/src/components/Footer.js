@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSettings } from '../context/SettingsContext';
 import { Link } from 'react-router-dom';
-import { Instagram, Phone, MessageCircle, Clock } from 'lucide-react';
+import { Instagram, Phone, MessageCircle, Clock, Code2, Mail } from 'lucide-react';
 
 
 function Logo({ size = 30 }) {
@@ -130,6 +130,35 @@ export default function Footer() {
         <div className="border-t border-white/6 pt-5 flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
           <p className="text-gray-600 text-xs">© {new Date().getFullYear()} FITNATION BY AJEET. All rights reserved.</p>
           <p className="text-gray-700 text-xs italic">"Uniting a Healthier World"</p>
+        </div>
+
+        {/*
+          Developer credit.
+          Separated from the gym's own contact block above so a member looking
+          for the gym never dials the developer by mistake — the two numbers sit
+          in different sections and this one says plainly what it is for.
+          Both are real links: tel: dials on a phone, mailto: opens the mail app.
+        */}
+        <div className="mt-4 pt-4 border-t border-white/6">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-x-4 gap-y-2 text-center">
+            <span className="flex items-center gap-2 text-gray-500 text-xs">
+              <Code2 size={13} className="text-[#22d3ee] flex-shrink-0" />
+              Developed by <strong className="text-gray-300 font-semibold">Deepak Kag</strong>
+            </span>
+            <span className="hidden sm:block text-gray-700">·</span>
+            <a href="tel:+919174222924"
+              className="flex items-center gap-1.5 text-gray-500 text-xs hover:text-[#22d3ee] transition-colors">
+              <Phone size={12} className="flex-shrink-0" /> 91742 22924
+            </a>
+            <span className="hidden sm:block text-gray-700">·</span>
+            <a href="mailto:kagdeepak45@gmail.com"
+              className="flex items-center gap-1.5 text-gray-500 text-xs hover:text-[#22d3ee] transition-colors break-all">
+              <Mail size={12} className="flex-shrink-0" /> kagdeepak45@gmail.com
+            </a>
+          </div>
+          <p className="text-gray-700 text-[11px] text-center mt-2">
+            Available for web and app development projects
+          </p>
         </div>
       </div>
     </footer>
