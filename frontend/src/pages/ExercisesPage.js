@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Search, Lock, Dumbbell, Zap, Play, X } from 'lucide-react';
@@ -14,9 +14,14 @@ import { img } from '../utils/img';
  * autoplayed a muted video, so a phone downloaded a dozen clips to render
  * thumbnails.
  *
- * Now: a compact header, one aligned toolbar carrying search, muscle group,
- * difficulty and the result count, and cards that show a still and play on
- * demand.
+ * Now: a compact header, and one aligned toolbar carrying search, muscle
+ * group, difficulty and the result count.
+ *
+ * Cards play their clip on the grid, looping, so a member can see the movement
+ * without opening anything. Only the cards actually on screen run: each one
+ * waits for an IntersectionObserver before mounting a player and tears it down
+ * on the way out, so scrolling a long library does not accumulate thirty live
+ * players. Until then the card shows the still, which is what loads first.
  */
 
 const MUSCLE_GROUPS = [
@@ -43,40 +48,173 @@ const videoOf = ex => ex?.video || ex?.videoUrl || '';
 const isYouTube = url => /(?:youtube\.com|youtu\.be)/.test(url || '');
 const ytId = url => (String(url || '').match(/(?:v=|youtu\.be\/|embed\/)([A-Za-z0-9_-]{11})/) || [])[1] || '';
 
+/** Someone who asked their system for less motion should not get autoplay. */
+function usePrefersReducedMotion() {
+  const [reduced, setReduced] = useState(
+    () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false,
+  );
+  useEffect(() => {
+    const mq = window.matchMedia?.('(prefers-reduced-motion: reduce)');
+    if (!mq) return undefined;
+    const on = e => setReduced(e.matches);
+    mq.addEventListener('change', on);
+    return () => mq.removeEventListener('change', on);
+  }, []);
+  return reduced;
+}
+
 /**
- * A still, not a running video.
+ * True only while the element is on screen.
  *
- * YouTube publishes a thumbnail per video, so a link costs one image rather
- * than an embedded player. An uploaded file falls back to its poster image, and
- * anything with neither gets an icon — the previous placeholder rendered a
- * broken-file glyph, which looked like a bug rather than an absence.
+ * Playback is tied to this rather than to page load, so a library of thirty
+ * exercises runs the handful of players that are actually visible instead of
+ * thirty at once — the difference between a few hundred KB and tens of MB on a
+ * phone, and it stops when the card scrolls away.
+ */
+function useOnScreen(ref) {
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof IntersectionObserver === 'undefined') {
+      setVisible(true); // No observer: better to play than to show nothing.
+      return undefined;
+    }
+    const io = new IntersectionObserver(
+      ([entry]) => setVisible(entry.isIntersecting),
+      { rootMargin: '120px' }, // Start just before it scrolls into view.
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [ref]);
+  return visible;
+}
+
+/**
+ * A YouTube clip, looping silently.
+ *
+ * A <video> tag cannot play a YouTube link, so this is the embed player.
+ * Looping there needs playlist=<the same id>, which is YouTube's own quirk.
+ *
+ * It fades in rather than appearing straight away: the embed paints solid black
+ * for the second or so it spends buffering, which on a slow phone turned the
+ * card into a black rectangle and hid the still underneath. Staying transparent
+ * until it has actually loaded means the member sees the photo, then the clip.
+ * If the video is gone the fade never runs and the still simply stays.
+ */
+function LoopEmbed({ id, title }) {
+  const [ready, setReady] = useState(false);
+
+  return (
+    <span className="absolute inset-0 overflow-hidden pointer-events-none">
+      <iframe
+        title={title}
+        src={`https://www.youtube-nocookie.com/embed/${id}?autoplay=1&mute=1&loop=1&playlist=${id}&controls=0&playsinline=1&modestbranding=1&rel=0&disablekb=1&fs=0`}
+        allow="autoplay; encrypted-media"
+        frameBorder="0"
+        // onLoad fires when the player page is up, a moment before the first
+        // frame; the short wait covers that gap so it never flashes black.
+        onLoad={() => setTimeout(() => setReady(true), 700)}
+        className="absolute top-1/2 left-1/2 border-0 transition-opacity duration-500"
+        style={{
+          width: '178%', height: '178%',
+          // Scaled past the frame to crop the letterboxing and title overlay,
+          // so the card reads as a clip rather than as an embed.
+          transform: 'translate(-50%, -50%) scale(1.35)',
+          opacity: ready ? 1 : 0,
+        }}
+      />
+    </span>
+  );
+}
+
+/**
+ * An uploaded clip, looping silently.
+ *
+ * The autoPlay attribute alone is not enough: React sets `muted` as a property
+ * rather than rendering the attribute, so Chrome can evaluate its autoplay
+ * policy on a video it still considers unmuted and refuse to start. Muting the
+ * element directly and calling play() removes that race.
+ *
+ * A browser is still entitled to say no. The promise is caught rather than left
+ * to reject unhandled, and the card simply keeps showing its still.
+ */
+function LoopVideo({ src, poster }) {
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return undefined;
+    el.muted = true;
+    const start = () => { const r = el.play(); if (r?.catch) r.catch(() => {}); };
+    start();
+    // Safari may not have enough buffered on the first attempt.
+    el.addEventListener('canplay', start);
+    return () => el.removeEventListener('canplay', start);
+  }, [src]);
+
+  return (
+    <video
+      ref={ref}
+      src={src}
+      muted
+      loop
+      playsInline
+      autoPlay
+      poster={poster || undefined}
+      className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+    />
+  );
+}
+
+/**
+ * The card's media: a looping, muted clip once the card is on screen.
+ *
+ * A YouTube link needs its iframe player — a <video> tag cannot play one — and
+ * looping there requires playlist=<same id>, which is YouTube's own quirk.
+ * An uploaded file is a plain <video>, which is far lighter.
+ *
+ * The still always renders underneath: it is what the member sees while the
+ * player loads, and it is all they see if the clip is gone. Without the
+ * onError the browser draws its torn-image glyph, which reads as a broken page
+ * rather than a missing picture.
+ *
+ * Nothing here takes pointer events, so a click anywhere on the card still
+ * opens the exercise instead of being swallowed by the player.
  */
 function Thumb({ ex }) {
   const url = videoOf(ex);
-  const poster = isYouTube(url)
-    ? (ytId(url) ? `https://img.youtube.com/vi/${ytId(url)}/hqdefault.jpg` : '')
+  const yt = isYouTube(url) ? ytId(url) : '';
+  const file = url && !isYouTube(url) ? url : '';
+  const poster = yt
+    ? `https://img.youtube.com/vi/${yt}/hqdefault.jpg`
     : (ex.image ? img(ex.image, 500) : '');
 
-  // A poster can fail: a deleted YouTube video, a moved Cloudinary asset, a
-  // blocked host. Without this the browser draws its torn-image glyph, which
-  // reads as a broken page rather than a missing picture.
   const [failed, setFailed] = useState(false);
+  const ref = useRef(null);
+  const onScreen = useOnScreen(ref);
+  const reduced = usePrefersReducedMotion();
+  const play = onScreen && !reduced && (yt || file);
 
-  if (poster && !failed) {
-    return (
-      <img
-        src={poster}
-        alt=""
-        loading="lazy"
-        decoding="async"
-        onError={() => setFailed(true)}
-        className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-      />
-    );
-  }
   return (
-    <span className="absolute inset-0 grid place-items-center">
-      <Dumbbell size={30} className="text-gray-700" />
+    <span ref={ref} className="absolute inset-0 block">
+      {poster && !failed ? (
+        <img
+          src={poster}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          onError={() => setFailed(true)}
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+        />
+      ) : (
+        <span className="absolute inset-0 grid place-items-center">
+          <Dumbbell size={30} className="text-gray-700" />
+        </span>
+      )}
+
+      {play && yt && <LoopEmbed id={yt} title={ex.title} />}
+
+      {play && file && <LoopVideo src={file} poster={poster} />}
     </span>
   );
 }
