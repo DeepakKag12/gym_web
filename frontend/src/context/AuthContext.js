@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import API from '../utils/api';
-import { bustCache } from '../utils/api';
+import { bustCache, clearClientCache } from '../utils/api';
 
 const AuthContext = createContext(null);
 
@@ -32,6 +32,7 @@ export const AuthProvider = ({ children }) => {
           .catch(() => {
             // Token expired or revoked — log out cleanly
             localStorage.removeItem('token');
+            clearClientCache();
             sessionStorage.removeItem('auth_user');
             setUser(null);
           });
@@ -51,6 +52,7 @@ export const AuthProvider = ({ children }) => {
       })
       .catch(() => {
         localStorage.removeItem('token');
+        clearClientCache();
         sessionStorage.removeItem('auth_user');
       })
       .finally(() => {
@@ -62,6 +64,7 @@ export const AuthProvider = ({ children }) => {
   const login = useCallback(async (email, password) => {
     const res = await API.post('/auth/login', { email, password });
     localStorage.setItem('token', res.data.token);
+    clearClientCache(); // nothing cached before this moment belongs to this user
     sessionStorage.setItem('auth_user', JSON.stringify(res.data.user));
     // Clear any cached API responses that are user-specific
     bustCache('member');
@@ -71,6 +74,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = useCallback(() => {
     localStorage.removeItem('token');
+    clearClientCache();
     sessionStorage.removeItem('auth_user');
     bustCache('member');
     setUser(null);

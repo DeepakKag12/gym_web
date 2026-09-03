@@ -20,6 +20,7 @@ API.interceptors.request.use((req) => {
 API.interceptors.response.use(
   (res) => res,
   (err) => {
+    if (err.response?.status === 401) clearClientCache();
     if (err.response) {
       const ct = err.response.headers['content-type'] || '';
       if (ct.includes('text/html')) {
@@ -36,14 +37,38 @@ API.interceptors.response.use(
 );
 
 // ── Client-side in-memory cache ────────────────────────────────────────────────
-// Keyed by full URL + token presence. TTL defaults to 60 s.
-// bustCache() immediately expires all matching keys so the very next
-// cachedGet() skips the cache and fetches fresh from the network.
+// TTL defaults to 60 s. bustCache() immediately expires all matching keys so
+// the very next cachedGet() skips the cache and fetches fresh from the network.
 const _clientCache = new Map();
 
+/**
+ * The key answers: "would the server give THIS caller the same bytes?"
+ *
+ * It used to be url + whether-a-token-exists. That let one person read
+ * another's data: sign out as the admin, sign in as a member within the TTL on
+ * the same tab, and the member was handed the admin's cached member list and
+ * notifications — the promise was still fresh, so no request was made. Keying
+ * on who the token belongs to closes that. The base URL is in the key too, so
+ * a response from one backend can never be served as if it came from another.
+ */
+function _identity() {
+  const token = localStorage.getItem('token');
+  if (!token) return 'anon';
+  // The JWT payload carries the user id; that is the identity, not the whole
+  // token (which would make every re-login a cold cache for no reason).
+  try { return JSON.parse(atob(token.split('.')[1])).id || 'user'; } catch { return 'user'; }
+}
+
 function _cacheKey(url) {
-  const auth = localStorage.getItem('token') ? '1' : '0';
-  return `get:${url}:${auth}`;
+  return `get:${API.defaults.baseURL}:${url}:${_identity()}`;
+}
+
+/**
+ * Drop everything. Called on sign-in, sign-out and any 401, because at each of
+ * those moments every cached answer was for somebody else.
+ */
+export function clearClientCache() {
+  _clientCache.clear();
 }
 
 /**
