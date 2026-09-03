@@ -257,7 +257,10 @@ body.theme-panel select option { background: var(--p-option-bg) !important; colo
 .ui-tabs { display: flex; gap: 4px; padding: 4px; background: var(--p-surface-2); border: 1px solid var(--p-border); border-radius: 10px; overflow-x: auto; scrollbar-width: none; }
 .ui-tabs::-webkit-scrollbar { display: none; }
 .ui-tab {
-  flex: 1;
+  /* Grow to share the row when there is space, but never shrink below the
+     label's own width — the strip scrolls instead. With plain `flex: 1` the
+     tabs were squeezed under their text on a phone. */
+  flex: 1 0 auto;
   padding: 7px 14px;
   border-radius: 7px;
   font-size: 13px; font-weight: 600;

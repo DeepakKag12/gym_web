@@ -343,11 +343,47 @@ export default function AdminMembers() {
                           {PLANS[m.membershipPlan] || '—'} · Expires {fmtDate(m.membershipEnd)}
                         </p>
                       </div>
-                      <Badge tone={status.tone}>{status.label}</Badge>
+                      <span className="flex-shrink-0 text-right">
+                        <Badge tone={status.tone}>{status.label}</Badge>
+                        {/* The reminder state drove the whole WhatsApp workflow but
+                            was printed in the desktop table only, so on a phone
+                            there was no way to tell who still needed messaging. */}
+                        {whatsappPending(m) ? (
+                          <span className="block text-[11px] mt-1" style={{ color: 'var(--p-warn)' }}>
+                            WhatsApp pending
+                          </span>
+                        ) : m.lastWhatsAppAt ? (
+                          <span className="block text-[11px] mt-1" style={{ color: 'var(--p-muted)' }}>
+                            WA {timeAgo(m.lastWhatsAppAt)}
+                          </span>
+                        ) : null}
+                      </span>
                     </div>
-                    <div className="mt-2.5 flex gap-2">
-                      <Button size="sm" onClick={() => setViewing(m)}>View</Button>
+                    {/* Every action the desktop table offers. These used to be
+                        View and Renew only, so sending a member their reminder
+                        on WhatsApp — the job this screen exists for — could not
+                        be done from a phone at all. */}
+                    {/* One row, so a hundred members stay scannable. The two
+                        actions with a name are the ones this screen is for;
+                        view and edit are icons with accessible labels. */}
+                    <div className="mt-2.5 flex items-center gap-2">
                       <Button size="sm" variant="primary" icon={CalendarPlus} onClick={() => setRenewing(m)}>Renew</Button>
+                      <WhatsAppButton
+                        size="sm"
+                        label="WhatsApp"
+                        onBeforeOpen={async () => {
+                          const r = await sendReminder(m);
+                          toast.success(r.message || 'Reminder emailed.');
+                          return r;
+                        }}
+                        buildHref={r => r?.whatsappUrl}
+                      />
+                      <span className="flex gap-2 ml-auto">
+                        <Button size="sm" icon={Eye} onClick={() => setViewing(m)}
+                          aria-label={`View ${m.name}`} title="View member" />
+                        <Button size="sm" icon={Pencil} to={`/admin/users?edit=${m._id}`}
+                          aria-label={`Edit ${m.name}`} title="Edit member" />
+                      </span>
                     </div>
                   </li>
                 );
