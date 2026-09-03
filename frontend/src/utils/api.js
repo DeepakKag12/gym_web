@@ -1,12 +1,30 @@
 import axios from 'axios';
 
-// Determine base URL:
-// 1. If REACT_APP_API_URL is set in .env, use it.
-// 2. In production builds, use same origin /api (works when backend serves the build).
-// 3. Fall back to localhost for local dev.
+/**
+ * Where the API lives.
+ *
+ * REACT_APP_API_URL is baked in at build time. When a build ran without it, the
+ * old fallback in production was same-origin '/api' — which the static host
+ * rewrites to index.html, so the app called ITSELF, got HTML back, and every
+ * screen said "invalid JSON response". One of the two Vercel projects serving
+ * this site was built exactly that way, which is why it worked on some phones
+ * and not others: it depended on which address had been bookmarked.
+ *
+ * The backend is a single known deployment, so a production build now defaults
+ * to it. The env var still wins when set, so a staging backend is one variable
+ * away — but forgetting it can no longer produce a site that cannot load.
+ */
+const PRODUCTION_API = 'https://g-ym-backend.vercel.app/api';
+
 const baseURL =
   process.env.REACT_APP_API_URL ||
-  (process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:5000/api');
+  (process.env.NODE_ENV === 'production' ? PRODUCTION_API : 'http://localhost:5000/api');
+
+if (process.env.NODE_ENV === 'production' && !process.env.REACT_APP_API_URL) {
+  // Visible in devtools on the deployment that forgot the variable, so the
+  // misconfiguration is diagnosable instead of silently defaulted.
+  console.warn(`REACT_APP_API_URL was not set at build time; using ${PRODUCTION_API}`);
+}
 
 const API = axios.create({ baseURL });
 
