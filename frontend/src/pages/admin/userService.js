@@ -186,6 +186,7 @@ export async function updateUser(user, form) {
     if (form.membershipPlan)  payload.membershipPlan  = form.membershipPlan;
     if (form.membershipStart) payload.membershipStart = form.membershipStart;
     if (form.membershipEnd)   payload.membershipEnd   = form.membershipEnd;
+    if (form.feePaid !== undefined) payload.feePaid = form.feePaid;
     if (form.feeAmount !== '' && form.feeAmount != null) payload.feeAmount = Number(form.feeAmount);
   }
 

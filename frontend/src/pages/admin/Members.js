@@ -10,7 +10,7 @@ import AdminLayout from './AdminLayout';
 import { apiError } from '../../utils/api';
 import {
   Card, Button, Badge, Avatar, Field, Input, Select, Modal,
-  EmptyState, SkeletonList, Table, TableRow, FadeIn, Tabs, WhatsAppButton, timeAgo,
+  EmptyState, SkeletonList, Table, TableRow, FadeIn, Tabs, WhatsAppButton, timeAgo, Check,
 } from '../../components/ui';
 import {
   PLANS, loadUsers, statusOf, daysUntil, fmtDate, calcExpiry,
@@ -46,12 +46,17 @@ function RenewModal({ member, onClose, onSaved }) {
   const [plan, setPlan] = useState(member.membershipPlan || 'monthly');
   const [start, setStart] = useState(() => renewalStart(member));
   const [fee, setFee] = useState(member.feeAmount ?? '');
+  const [feeDue, setFeeDue] = useState(member.feePaid === false);
   const [saving, setSaving] = useState(false);
 
   const end = calcExpiry(start, plan);
   const extendingEarly = member.membershipEnd && new Date(member.membershipEnd) > new Date();
 
   const submit = async () => {
+    if (feeDue && !(Number(fee) > 0)) {
+      toast.error('Enter the amount that is due before saving.');
+      return;
+    }
     setSaving(true);
     try {
       await updateUser(
@@ -59,6 +64,7 @@ function RenewModal({ member, onClose, onSaved }) {
         {
           name: member.name, email: member.email, phone: member.phone || '',
           membershipPlan: plan, membershipStart: start, membershipEnd: end,
+          feePaid: !feeDue,
           feeAmount: fee === '' ? undefined : fee,
         },
       );
@@ -95,6 +101,13 @@ function RenewModal({ member, onClose, onSaved }) {
         <Field label="Fee collected (₹)" hint="Optional">
           <Input type="number" min="0" value={fee} onChange={e => setFee(e.target.value)} placeholder="1500" />
         </Field>
+
+        <Check
+          checked={feeDue}
+          onChange={setFeeDue}
+          label="Payment is due"
+          hint="Renew the membership now, but keep this amount in the Due fees list."
+        />
 
         {extendingEarly && (
           <p className="text-[13px]" style={{ color: 'var(--p-muted)' }}>
