@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 import {
   IndianRupee, ShoppingBag, UserSquare2, RefreshCw, AlertTriangle, Search, TrendingUp,
-  UserPlus, CheckCircle2, FileText, Share2,
+  UserPlus, CheckCircle2, FileText, Share2, Eye,
 } from 'lucide-react';
 
 import API, { cachedGet, freshGet, bustCache, apiError } from '../../utils/api';
@@ -48,6 +48,8 @@ export default function AdminPayments() {
   const [settlementMethod, setSettlementMethod] = useState('cash');
   const [statementSending, setStatementSending] = useState(null);
   const [statementSharing, setStatementSharing] = useState(null);
+  const [statementViewing, setStatementViewing] = useState(null);
+
   const [savingDue, setSavingDue] = useState(false);
   const [settlingDue, setSettlingDue] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -131,20 +133,80 @@ export default function AdminPayments() {
     setStatementSharing(member._id);
     try {
       const { data } = await API.post(`/payments/${member._id}/statement`);
-      const response = await fetch(data.url);
-      const blob = await response.blob();
-      const file = new File([blob], `${member.name || 'member'}-statement.pdf`, { type: 'application/pdf' });
-      if (navigator.share && (!navigator.canShare || navigator.canShare({ files: [file] }))) {
-        await navigator.share({ files: [file], title: `${member.name} payment statement`, text: 'FitNation payment statement' });
-      } else {
-        const digits = String(member.phone || '').replace(/\D/g, '');
-        const number = digits.length === 10 ? `91${digits}` : digits;
-        const text = `Hi ${member.name}, here is your FitNation payment statement: ${data.url}`;
-        window.open(`https://wa.me/${number}?text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer');
+      const pdfUrl = data.url;
+
+      // Try the native share sheet (works on Android Chrome, iOS Safari).
+      // We attempt to share the file if the browser supports it, otherwise
+      // fall back to sharing the URL so the admin can copy/paste it.
+      if (navigator.share) {
+        try {
+          const response = await fetch(pdfUrl);
+          const blob = await response.blob();
+          const file = new File([blob], `${member.name || 'member'}-statement.pdf`, { type: 'application/pdf' });
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({ files: [file], title: `${member.name} payment statement`, text: 'FitNation payment statement' });
+            return;
+          }
+          // Browsers that support share() but not file sharing — share the URL instead.
+          await navigator.share({ url: pdfUrl, title: `${member.name} payment statement`, text: 'FitNation payment statement' });
+          return;
+        } catch (shareErr) {
+          if (shareErr?.name === 'AbortError') return; // user cancelled
+          // Share failed — fall through to manual options below
+        }
       }
+
+      // Desktop fallback: open the PDF in a new tab so the admin can view,
+      // download, or copy the link and send it manually (e.g. paste into WhatsApp Web).
+      const opened = window.open(pdfUrl, '_blank', 'noopener,noreferrer');
+      if (!opened) {
+        // Pop-up blocked — give the admin a direct download link instead.
+        const a = document.createElement('a');
+        a.href = pdfUrl;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        a.download = `${member.name || 'member'}-statement.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+      toast.success('PDF opened — you can now save or share it manually.');
     } catch (err) {
       if (err?.name !== 'AbortError') toast.error(apiError(err, 'Could not share the statement.'));
     } finally { setStatementSharing(null); }
+  };
+
+  const viewStatement = async member => {
+    setStatementViewing(member._id);
+    try {
+      // Use the GET endpoint that streams the PDF directly from the server.
+      // We fetch it as a blob and open a local object URL so the browser
+      // displays it without a separate authentication step.
+      const response = await fetch(`${API.defaults.baseURL}/payments/${member._id}/statement`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+      });
+      if (!response.ok) {
+        const json = await response.json().catch(() => ({}));
+        throw new Error(json.message || `Server error ${response.status}`);
+      }
+      const blob = await response.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      const win = window.open(objectUrl, '_blank', 'noopener,noreferrer');
+      // Revoke after 60 s — long enough for the PDF tab to load.
+      setTimeout(() => URL.revokeObjectURL(objectUrl), 60_000);
+      if (!win) {
+        // Pop-up blocked: download instead
+        const a = document.createElement('a');
+        a.href = objectUrl;
+        a.download = `${(member.name || 'member').replace(/\s+/g, '-')}-statement.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        toast.success('PDF downloaded.');
+      }
+    } catch (err) {
+      toast.error(apiError(err, 'Could not open the statement.'));
+    } finally { setStatementViewing(null); }
   };
 
   const shown = useMemo(() => {
@@ -263,6 +325,15 @@ export default function AdminPayments() {
                       onClick={event => { event.preventDefault(); event.stopPropagation(); shareStatement(member); }}
                       aria-label={`Share ${member.name}'s statement`}
                       title="Share PDF statement"
+                    />
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      icon={Eye}
+                      loading={statementViewing === member._id}
+                      onClick={event => { event.preventDefault(); event.stopPropagation(); viewStatement(member); }}
+                      aria-label={`View ${member.name}'s statement`}
+                      title="View PDF statement"
                     />
                   </label>
                 ))}
@@ -444,6 +515,11 @@ export default function AdminPayments() {
                                 onClick={() => shareStatement(r.member)}
                                 aria-label={`Share ${r.member.name}'s statement`}
                                 title="Share PDF statement" />
+                              <Button size="sm" variant="ghost" icon={Eye}
+                                loading={statementViewing === r.member._id}
+                                onClick={() => viewStatement(r.member)}
+                                aria-label={`View ${r.member.name}'s statement`}
+                                title="View PDF statement" />
                             </>
                           )}
                         </div>
@@ -484,6 +560,11 @@ export default function AdminPayments() {
                               onClick={() => shareStatement(r.member)}
                               aria-label={`Share ${r.member.name}'s statement`}
                               title="Share PDF statement" />
+                            <Button size="sm" variant="ghost" icon={Eye}
+                              loading={statementViewing === r.member._id}
+                              onClick={() => viewStatement(r.member)}
+                              aria-label={`View ${r.member.name}'s statement`}
+                              title="View PDF statement" />
                           </span>
                         )}
                       </span>
