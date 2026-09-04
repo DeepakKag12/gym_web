@@ -44,11 +44,16 @@ export default function AdminPayments() {
   const [dueTotal, setDueTotal] = useState(0);
   const [selectedDue, setSelectedDue] = useState([]);
   const [dueFormOpen, setDueFormOpen] = useState(false);
-  const [dueForm, setDueForm] = useState({ member: '', amount: '' });
+  const [dueForm, setDueForm] = useState({ member: '', amount: '', paidAmount: '', method: 'cash', note: '' });
   const [settlementMethod, setSettlementMethod] = useState('cash');
   const [statementSending, setStatementSending] = useState(null);
   const [statementSharing, setStatementSharing] = useState(null);
   const [statementViewing, setStatementViewing] = useState(null);
+
+  // Pay / Adjust Due modal state
+  const [payDueMember, setPayDueMember] = useState(null);
+  const [payDueForm, setPayDueForm] = useState({ mode: 'pay', paidAmount: '', newDue: '', method: 'cash', note: '' });
+  const [savingPayDue, setSavingPayDue] = useState(false);
 
   const [savingDue, setSavingDue] = useState(false);
   const [settlingDue, setSettlingDue] = useState(false);
@@ -82,7 +87,12 @@ export default function AdminPayments() {
   useEffect(() => { load(); }, [load]);
 
   const refresh = () => {
-    bustCache('/payments'); bustCache('/payments/due'); bustCache('/members'); bustCache('analytics'); load(true);
+    bustCache('/payments');
+    bustCache('/payments/due');
+    bustCache('/payments/summary');
+    bustCache('/members');
+    bustCache('analytics');
+    load(true);
   };
 
   const toggleDue = id => setSelectedDue(current =>
@@ -91,21 +101,90 @@ export default function AdminPayments() {
 
   const addDue = async () => {
     if (!dueForm.member || !(Number(dueForm.amount) > 0)) {
-      toast.error('Choose a member and enter a due amount.');
+      toast.error('Choose a member and enter a total fee amount.');
+      return;
+    }
+    const total = Number(dueForm.amount);
+    const paid = Number(dueForm.paidAmount || 0);
+    if (paid < 0) {
+      toast.error('Paid amount cannot be negative.');
+      return;
+    }
+    if (paid > total) {
+      toast.error('Paid amount cannot be greater than the total fee amount.');
       return;
     }
     setSavingDue(true);
     try {
       const { data } = await API.post('/payments/due', {
         member: dueForm.member,
-        amount: Number(dueForm.amount),
+        amount: total,
+        paidAmount: paid,
+        method: dueForm.method || 'cash',
+        note: dueForm.note,
       });
       toast.success(data.message || 'Fee due added.');
       setDueFormOpen(false);
-      setDueForm({ member: '', amount: '' });
+      setDueForm({ member: '', amount: '', paidAmount: '', method: 'cash', note: '' });
       refresh();
     } catch (err) { toast.error(apiError(err, 'Could not add this due fee.')); }
     finally { setSavingDue(false); }
+  };
+
+  const openPayDue = member => {
+    setPayDueMember(member);
+    setPayDueForm({
+      mode: 'pay',
+      paidAmount: String(member.dueAmount || ''),
+      newDue: String(member.dueAmount || ''),
+      method: 'cash',
+      note: '',
+    });
+  };
+
+  const submitPayDue = async () => {
+    if (!payDueMember) return;
+    setSavingPayDue(true);
+    try {
+      if (payDueForm.mode === 'pay') {
+        const paid = Number(payDueForm.paidAmount);
+        if (!(paid > 0)) {
+          toast.error('Enter a payment amount greater than zero.');
+          setSavingPayDue(false);
+          return;
+        }
+        if (paid > Number(payDueMember.dueAmount)) {
+          toast.error(`Payment cannot be greater than the outstanding due of ₹${payDueMember.dueAmount}.`);
+          setSavingPayDue(false);
+          return;
+        }
+        const { data } = await API.post('/payments', {
+          member: payDueMember._id,
+          amount: paid,
+          method: payDueForm.method || 'cash',
+          note: payDueForm.note || (paid === Number(payDueMember.dueAmount) ? 'Due fee settled' : 'Partial due payment'),
+          kind: 'adjustment',
+        });
+        toast.success(data.message || 'Payment recorded successfully.');
+      } else {
+        const newDue = Number(payDueForm.newDue);
+        if (isNaN(newDue) || newDue < 0) {
+          toast.error('Enter a valid due amount (0 or higher).');
+          setSavingPayDue(false);
+          return;
+        }
+        const { data } = await API.patch(`/payments/due/${payDueMember._id}`, {
+          dueAmount: newDue,
+        });
+        toast.success(data.message || 'Due amount updated.');
+      }
+      setPayDueMember(null);
+      refresh();
+    } catch (err) {
+      toast.error(apiError(err, 'Could not process due action.'));
+    } finally {
+      setSavingPayDue(false);
+    }
   };
 
   const settleSelected = async () => {
@@ -310,6 +389,16 @@ export default function AdminPayments() {
                     </span>
                     <Button
                       size="sm"
+                      variant="primary"
+                      icon={IndianRupee}
+                      onClick={event => { event.preventDefault(); event.stopPropagation(); openPayDue(member); }}
+                      aria-label={`Collect or edit due for ${member.name}`}
+                      title="Collect payment (partial or full) or change due money"
+                    >
+                      Pay / Edit
+                    </Button>
+                    <Button
+                      size="sm"
                       variant="ghost"
                       icon={FileText}
                       loading={statementSending === member._id}
@@ -357,44 +446,6 @@ export default function AdminPayments() {
                   <div>
                     <p className="text-[12.5px]" style={{ color: 'var(--p-text-2)' }}>Membership</p>
                     <p className="text-[22px] font-bold" style={{ color: 'var(--p-text)' }}>{money(summary.thisMonth.membership)}</p>
-
-              {dueFormOpen && (
-                <Modal
-                  title="Add fee due"
-                  onClose={savingDue ? () => {} : () => setDueFormOpen(false)}
-                  width={430}
-                  footer={
-                    <>
-                      <Button onClick={() => setDueFormOpen(false)} disabled={savingDue}>Cancel</Button>
-                      <Button variant="primary" onClick={addDue} loading={savingDue}>Add to due list</Button>
-                    </>
-                  }
-                >
-                  <div className="space-y-4">
-                    <Field label="Member" required hint="Their current fee will remain due until it is marked paid.">
-                      <Select
-                        value={dueForm.member}
-                        onChange={e => {
-                          const member = members.find(item => item._id === e.target.value);
-                          setDueForm({ member: e.target.value, amount: member?.dueAmount || member?.feeAmount || '' });
-                        }}
-                      >
-                        <option value="">Choose a member</option>
-                        {members.map(member => <option key={member._id} value={member._id}>{member.name}</option>)}
-                      </Select>
-                    </Field>
-                    <Field label="Amount due (₹)" required>
-                      <Input
-                        type="number"
-                        min="1"
-                        value={dueForm.amount}
-                        onChange={e => setDueForm(current => ({ ...current, amount: e.target.value }))}
-                        placeholder="1500"
-                      />
-                    </Field>
-                  </div>
-                </Modal>
-              )}
                   </div>
                   <div>
                     <p className="text-[12.5px]" style={{ color: 'var(--p-text-2)' }}>Shop</p>
@@ -580,6 +631,246 @@ export default function AdminPayments() {
             </FadeIn>
           )}
         </div>
+      )}
+
+      {dueFormOpen && (
+        <Modal
+          title="Add fee due"
+          onClose={savingDue ? () => {} : () => setDueFormOpen(false)}
+          width={460}
+          footer={
+            <>
+              <Button onClick={() => setDueFormOpen(false)} disabled={savingDue}>Cancel</Button>
+              <Button variant="primary" onClick={addDue} loading={savingDue}>
+                {Number(dueForm.paidAmount || 0) > 0
+                  ? `Record ${money(dueForm.paidAmount)} & Add Due`
+                  : 'Add to due list'}
+              </Button>
+            </>
+          }
+        >
+          <div className="space-y-4">
+            <Field label="Member" required hint="Choose the member who owes the fee.">
+              <Select
+                value={dueForm.member}
+                onChange={e => {
+                  const member = members.find(item => item._id === e.target.value);
+                  setDueForm(prev => ({
+                    ...prev,
+                    member: e.target.value,
+                    amount: member?.dueAmount || member?.feeAmount || '',
+                    paidAmount: '',
+                  }));
+                }}
+              >
+                <option value="">Choose a member</option>
+                {members.map(member => <option key={member._id} value={member._id}>{member.name}</option>)}
+              </Select>
+            </Field>
+
+            <Field label="Total fee amount (₹)" required>
+              <Input
+                type="number"
+                min="1"
+                value={dueForm.amount}
+                onChange={e => setDueForm(current => ({ ...current, amount: e.target.value }))}
+                placeholder="2000"
+              />
+            </Field>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <Field label="Paid today (₹)" hint="Leave 0 if unpaid">
+                <Input
+                  type="number"
+                  min="0"
+                  max={dueForm.amount || undefined}
+                  value={dueForm.paidAmount}
+                  onChange={e => setDueForm(current => ({ ...current, paidAmount: e.target.value }))}
+                  placeholder="0"
+                />
+              </Field>
+
+              <Field label="Payment method">
+                <Select
+                  value={dueForm.method || 'cash'}
+                  onChange={e => setDueForm(current => ({ ...current, method: e.target.value }))}
+                  disabled={!Number(dueForm.paidAmount || 0)}
+                >
+                  <option value="cash">Cash</option>
+                  <option value="upi">UPI</option>
+                  <option value="card">Card</option>
+                  <option value="online">Online</option>
+                  <option value="other">Other</option>
+                </Select>
+              </Field>
+            </div>
+
+            {Number(dueForm.paidAmount || 0) > 0 && (
+              <div className="p-3 rounded-lg text-[13px] space-y-1.5" style={{ background: 'var(--p-surface-2)', border: '1px solid var(--p-border)' }}>
+                <div className="flex justify-between items-center">
+                  <span style={{ color: 'var(--p-muted)' }}>Paid today (added to Total Revenue):</span>
+                  <strong style={{ color: 'var(--p-ok)' }}>{money(dueForm.paidAmount)}</strong>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span style={{ color: 'var(--p-muted)' }}>Remaining in due list:</span>
+                  <strong style={{ color: 'var(--p-danger)' }}>{money(Math.max(0, Number(dueForm.amount || 0) - Number(dueForm.paidAmount || 0)))}</strong>
+                </div>
+              </div>
+            )}
+          </div>
+        </Modal>
+      )}
+
+      {payDueMember && (
+        <Modal
+          title={`Due fee for ${payDueMember.name}`}
+          onClose={savingPayDue ? () => {} : () => setPayDueMember(null)}
+          width={460}
+          footer={
+            <>
+              <Button onClick={() => setPayDueMember(null)} disabled={savingPayDue}>Cancel</Button>
+              <Button variant="primary" onClick={submitPayDue} loading={savingPayDue}>
+                {payDueForm.mode === 'pay'
+                  ? `Record ${money(payDueForm.paidAmount || 0)} payment`
+                  : `Update due to ${money(payDueForm.newDue || 0)}`}
+              </Button>
+            </>
+          }
+        >
+          <div className="space-y-4">
+            <div className="flex items-center justify-between p-3 rounded-lg" style={{ background: 'var(--p-surface-2)', border: '1px solid var(--p-border)' }}>
+              <div>
+                <span className="block text-[13px] font-semibold" style={{ color: 'var(--p-text)' }}>{payDueMember.name}</span>
+                <span className="block text-[12px]" style={{ color: 'var(--p-muted)' }}>{payDueMember.phone || payDueMember.email}</span>
+              </div>
+              <div className="text-right">
+                <span className="block text-[11px] uppercase tracking-wide" style={{ color: 'var(--p-muted)' }}>Outstanding due</span>
+                <strong className="text-[17px]" style={{ color: 'var(--p-danger)' }}>{money(payDueMember.dueAmount)}</strong>
+              </div>
+            </div>
+
+            <div className="flex rounded-lg p-1" style={{ background: 'var(--p-surface-2)', border: '1px solid var(--p-border)' }}>
+              <button
+                type="button"
+                className="flex-1 py-1.5 text-[13px] font-medium rounded-md transition-colors"
+                style={{
+                  background: payDueForm.mode === 'pay' ? 'var(--p-surface)' : 'transparent',
+                  color: payDueForm.mode === 'pay' ? 'var(--p-text)' : 'var(--p-muted)',
+                  boxShadow: payDueForm.mode === 'pay' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                }}
+                onClick={() => setPayDueForm(prev => ({ ...prev, mode: 'pay' }))}
+              >
+                Collect payment
+              </button>
+              <button
+                type="button"
+                className="flex-1 py-1.5 text-[13px] font-medium rounded-md transition-colors"
+                style={{
+                  background: payDueForm.mode === 'adjust' ? 'var(--p-surface)' : 'transparent',
+                  color: payDueForm.mode === 'adjust' ? 'var(--p-text)' : 'var(--p-muted)',
+                  boxShadow: payDueForm.mode === 'adjust' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                }}
+                onClick={() => setPayDueForm(prev => ({ ...prev, mode: 'adjust' }))}
+              >
+                Change due amount
+              </button>
+            </div>
+
+            {payDueForm.mode === 'pay' ? (
+              <>
+                <div>
+                  <Field label="Paid amount (₹)" required hint="Enter amount collected today">
+                    <Input
+                      type="number"
+                      min="1"
+                      max={payDueMember.dueAmount}
+                      value={payDueForm.paidAmount}
+                      onChange={e => setPayDueForm(prev => ({ ...prev, paidAmount: e.target.value }))}
+                      placeholder={String(payDueMember.dueAmount)}
+                      autoFocus
+                    />
+                  </Field>
+                  <div className="flex gap-2 mt-2">
+                    <button
+                      type="button"
+                      className="text-[12px] px-2.5 py-1 rounded border hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+                      style={{ borderColor: 'var(--p-border)', color: 'var(--p-text-2)' }}
+                      onClick={() => setPayDueForm(prev => ({ ...prev, paidAmount: String(Math.round(payDueMember.dueAmount / 2)) }))}
+                    >
+                      Half (50%): {money(Math.round(payDueMember.dueAmount / 2))}
+                    </button>
+                    <button
+                      type="button"
+                      className="text-[12px] px-2.5 py-1 rounded border hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+                      style={{ borderColor: 'var(--p-border)', color: 'var(--p-text-2)' }}
+                      onClick={() => setPayDueForm(prev => ({ ...prev, paidAmount: String(payDueMember.dueAmount) }))}
+                    >
+                      Full (100%): {money(payDueMember.dueAmount)}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <Field label="Payment method" required>
+                    <Select
+                      value={payDueForm.method}
+                      onChange={e => setPayDueForm(prev => ({ ...prev, method: e.target.value }))}
+                    >
+                      <option value="cash">Cash</option>
+                      <option value="upi">UPI</option>
+                      <option value="card">Card</option>
+                      <option value="online">Online</option>
+                      <option value="other">Other</option>
+                    </Select>
+                  </Field>
+                  <Field label="Note" hint="Optional">
+                    <Input
+                      value={payDueForm.note}
+                      onChange={e => setPayDueForm(prev => ({ ...prev, note: e.target.value }))}
+                      placeholder="e.g. Part payment via GPay"
+                    />
+                  </Field>
+                </div>
+
+                <div className="p-3 rounded-lg text-[13px] space-y-1.5" style={{ background: 'var(--p-surface-2)', border: '1px solid var(--p-border)' }}>
+                  <div className="flex justify-between items-center">
+                    <span style={{ color: 'var(--p-muted)' }}>Payment today (to Total Revenue):</span>
+                    <strong style={{ color: 'var(--p-ok)' }}>{money(payDueForm.paidAmount || 0)}</strong>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span style={{ color: 'var(--p-muted)' }}>Remaining due:</span>
+                    <strong style={{ color: Math.max(0, payDueMember.dueAmount - Number(payDueForm.paidAmount || 0)) > 0 ? 'var(--p-danger)' : 'var(--p-ok)' }}>
+                      {money(Math.max(0, payDueMember.dueAmount - Number(payDueForm.paidAmount || 0)))}
+                    </strong>
+                  </div>
+                  <p className="text-[11.5px] pt-1" style={{ color: 'var(--p-muted)', borderTop: '1px solid var(--p-border)' }}>
+                    {Math.max(0, payDueMember.dueAmount - Number(payDueForm.paidAmount || 0)) === 0
+                      ? '✓ Fully clears this member’s due balance. They will be removed from Due Fees.'
+                      : '⏳ The remaining balance will stay in Due Fees until paid.'}
+                  </p>
+                </div>
+              </>
+            ) : (
+              <>
+                <Field label="New due amount (₹)" required hint="Change the due amount directly without creating a payment record">
+                  <Input
+                    type="number"
+                    min="0"
+                    value={payDueForm.newDue}
+                    onChange={e => setPayDueForm(prev => ({ ...prev, newDue: e.target.value }))}
+                    placeholder="0"
+                    autoFocus
+                  />
+                </Field>
+                <p className="text-[12.5px]" style={{ color: 'var(--p-muted)' }}>
+                  {Number(payDueForm.newDue) === 0
+                    ? 'Setting to ₹0 marks this member as having no outstanding fee due.'
+                    : `Updates the outstanding due fee to ${money(payDueForm.newDue)}.`}
+                </p>
+              </>
+            )}
+          </div>
+        </Modal>
       )}
     </AdminLayout>
   );
