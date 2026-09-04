@@ -47,14 +47,16 @@ function RenewModal({ member, onClose, onSaved }) {
   const [start, setStart] = useState(() => renewalStart(member));
   const [fee, setFee] = useState(member.feeAmount ?? '');
   const [feeDue, setFeeDue] = useState(member.feePaid === false);
+  const [initialPayment, setInitialPayment] = useState(() => member.feePaid === false ? '' : (member.feeAmount ?? ''));
+  const [paymentMethod, setPaymentMethod] = useState('cash');
   const [saving, setSaving] = useState(false);
 
   const end = calcExpiry(start, plan);
   const extendingEarly = member.membershipEnd && new Date(member.membershipEnd) > new Date();
 
   const submit = async () => {
-    if (feeDue && !(Number(fee) > 0)) {
-      toast.error('Enter the amount that is due before saving.');
+    if (Number(initialPayment || 0) > Number(fee || 0)) {
+      toast.error('Paid today cannot be greater than the renewal fee.');
       return;
     }
     setSaving(true);
@@ -64,8 +66,10 @@ function RenewModal({ member, onClose, onSaved }) {
         {
           name: member.name, email: member.email, phone: member.phone || '',
           membershipPlan: plan, membershipStart: start, membershipEnd: end,
-          feePaid: !feeDue,
+          feePaid: feeDue || Number(initialPayment || 0) < Number(fee || 0),
           feeAmount: fee === '' ? undefined : fee,
+          initialPayment: initialPayment === '' ? undefined : initialPayment,
+          paymentMethod,
         },
       );
       onSaved(`${member.name}'s membership now runs to ${fmtDate(end)}.`);
@@ -102,11 +106,27 @@ function RenewModal({ member, onClose, onSaved }) {
           <Input type="number" min="0" value={fee} onChange={e => setFee(e.target.value)} placeholder="1500" />
         </Field>
 
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <Field label="Paid today (₹)" hint="Leave 0 if nothing was collected">
+            <Input type="number" min="0" value={initialPayment}
+              onChange={e => setInitialPayment(e.target.value)} placeholder="0" />
+          </Field>
+          <Field label="Payment method">
+            <Select value={paymentMethod} onChange={e => setPaymentMethod(e.target.value)}>
+              <option value="cash">Cash</option>
+              <option value="upi">UPI</option>
+              <option value="card">Card</option>
+              <option value="online">Online</option>
+              <option value="other">Other</option>
+            </Select>
+          </Field>
+        </div>
+
         <Check
           checked={feeDue}
           onChange={setFeeDue}
-          label="Payment is due"
-          hint="Renew the membership now, but keep this amount in the Due fees list."
+          label="Keep remaining balance due"
+          hint="Renew now and put the unpaid remainder in Payments → Due fees."
         />
 
         {extendingEarly && (

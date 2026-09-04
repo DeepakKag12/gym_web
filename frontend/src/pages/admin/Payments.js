@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 import {
   IndianRupee, ShoppingBag, UserSquare2, RefreshCw, AlertTriangle, Search, TrendingUp,
-  UserPlus, CheckCircle2,
+  UserPlus, CheckCircle2, FileText, Share2,
 } from 'lucide-react';
 
 import API, { cachedGet, freshGet, bustCache, apiError } from '../../utils/api';
@@ -45,6 +45,9 @@ export default function AdminPayments() {
   const [selectedDue, setSelectedDue] = useState([]);
   const [dueFormOpen, setDueFormOpen] = useState(false);
   const [dueForm, setDueForm] = useState({ member: '', amount: '' });
+  const [settlementMethod, setSettlementMethod] = useState('cash');
+  const [statementSending, setStatementSending] = useState(null);
+  const [statementSharing, setStatementSharing] = useState(null);
   const [savingDue, setSavingDue] = useState(false);
   const [settlingDue, setSettlingDue] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -107,12 +110,41 @@ export default function AdminPayments() {
     if (!selectedDue.length) return;
     setSettlingDue(true);
     try {
-      const { data } = await API.post('/payments/due/settle', { memberIds: selectedDue });
+      const { data } = await API.post('/payments/due/settle', { memberIds: selectedDue, method: settlementMethod });
       toast.success(data.message || 'Due fees marked paid.');
       setSelectedDue([]);
       refresh();
     } catch (err) { toast.error(apiError(err, 'Could not settle the selected fees.')); }
     finally { setSettlingDue(false); }
+  };
+
+  const sendStatement = async memberId => {
+    setStatementSending(memberId);
+    try {
+      const { data } = await API.post(`/payments/${memberId}/statement/whatsapp`);
+      toast.success(data.message || 'Statement sent on WhatsApp.');
+    } catch (err) { toast.error(apiError(err, 'Could not send the statement.')); }
+    finally { setStatementSending(null); }
+  };
+
+  const shareStatement = async member => {
+    setStatementSharing(member._id);
+    try {
+      const { data } = await API.post(`/payments/${member._id}/statement`);
+      const response = await fetch(data.url);
+      const blob = await response.blob();
+      const file = new File([blob], `${member.name || 'member'}-statement.pdf`, { type: 'application/pdf' });
+      if (navigator.share && (!navigator.canShare || navigator.canShare({ files: [file] }))) {
+        await navigator.share({ files: [file], title: `${member.name} payment statement`, text: 'FitNation payment statement' });
+      } else {
+        const digits = String(member.phone || '').replace(/\D/g, '');
+        const number = digits.length === 10 ? `91${digits}` : digits;
+        const text = `Hi ${member.name}, here is your FitNation payment statement: ${data.url}`;
+        window.open(`https://wa.me/${number}?text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer');
+      }
+    } catch (err) {
+      if (err?.name !== 'AbortError') toast.error(apiError(err, 'Could not share the statement.'));
+    } finally { setStatementSharing(null); }
   };
 
   const shown = useMemo(() => {
@@ -162,9 +194,18 @@ export default function AdminPayments() {
           <Card
             title={`Due fees${due.length ? ` (${due.length})` : ''}`}
             action={selectedDue.length > 0 ? (
-              <Button size="sm" variant="primary" icon={CheckCircle2} loading={settlingDue} onClick={settleSelected}>
-                Mark {selectedDue.length} paid
-              </Button>
+              <div className="flex items-center gap-2">
+                <Select value={settlementMethod} onChange={e => setSettlementMethod(e.target.value)} aria-label="Payment method">
+                  <option value="cash">Cash</option>
+                  <option value="upi">UPI</option>
+                  <option value="card">Card</option>
+                  <option value="online">Online</option>
+                  <option value="other">Other</option>
+                </Select>
+                <Button size="sm" variant="primary" icon={CheckCircle2} loading={settlingDue} onClick={settleSelected}>
+                  Mark {selectedDue.length} paid
+                </Button>
+              </div>
             ) : null}
           >
             <div className="flex items-center justify-between gap-3 mb-3">
@@ -197,11 +238,32 @@ export default function AdminPayments() {
                     <span className="flex-1 min-w-0">
                       <span className="block text-[14px] font-semibold truncate" style={{ color: 'var(--p-text)' }}>{member.name}</span>
                       <span className="block text-[12px] truncate" style={{ color: 'var(--p-muted)' }}>{member.phone || member.email}</span>
+                      <span className="block text-[11px] mt-1" style={{ color: 'var(--p-muted)' }}>
+                        {member.memberMonths} month(s) · Paid {money(member.paidTotal)} of {money(member.totalFee)} · {member.dueMonths} month(s) due
+                      </span>
                     </span>
                     <span className="text-right">
-                      <strong className="block" style={{ color: 'var(--p-danger)' }}>{money(member.feeAmount)}</strong>
+                      <strong className="block" style={{ color: 'var(--p-danger)' }}>{money(member.dueAmount)}</strong>
                       <span className="text-[11px]" style={{ color: 'var(--p-muted)' }}>due</span>
                     </span>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      icon={FileText}
+                      loading={statementSending === member._id}
+                      onClick={event => { event.preventDefault(); event.stopPropagation(); sendStatement(member._id); }}
+                      aria-label={`Send ${member.name}'s statement`}
+                      title="Send PDF statement on WhatsApp"
+                    />
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      icon={Share2}
+                      loading={statementSharing === member._id}
+                      onClick={event => { event.preventDefault(); event.stopPropagation(); shareStatement(member); }}
+                      aria-label={`Share ${member.name}'s statement`}
+                      title="Share PDF statement"
+                    />
                   </label>
                 ))}
               </div>
@@ -243,7 +305,7 @@ export default function AdminPayments() {
                         value={dueForm.member}
                         onChange={e => {
                           const member = members.find(item => item._id === e.target.value);
-                          setDueForm({ member: e.target.value, amount: member?.feeAmount || '' });
+                          setDueForm({ member: e.target.value, amount: member?.dueAmount || member?.feeAmount || '' });
                         }}
                       >
                         <option value="">Choose a member</option>
@@ -368,7 +430,23 @@ export default function AdminPayments() {
                         </span>
                       </td>
                       <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
-                        <strong style={{ color: 'var(--p-text)' }}>{money(r.amount)}</strong>
+                        <div className="flex items-center justify-end gap-2">
+                          <strong style={{ color: 'var(--p-text)' }}>{money(r.amount)}</strong>
+                          {r.source === 'membership' && r.member?._id && (
+                            <>
+                              <Button size="sm" variant="ghost" icon={FileText}
+                                loading={statementSending === r.member._id}
+                                onClick={() => sendStatement(r.member._id)}
+                                aria-label={`Send ${r.member.name}'s statement`}
+                                title="Send PDF statement on WhatsApp" />
+                              <Button size="sm" variant="ghost" icon={Share2}
+                                loading={statementSharing === r.member._id}
+                                onClick={() => shareStatement(r.member)}
+                                aria-label={`Share ${r.member.name}'s statement`}
+                                title="Share PDF statement" />
+                            </>
+                          )}
+                        </div>
                       </td>
                     </TableRow>
                   ))}
@@ -394,6 +472,20 @@ export default function AdminPayments() {
                         <Badge tone={r.source === 'membership' ? 'accent' : 'info'}>
                           {r.source === 'membership' ? 'Membership' : 'Shop'}
                         </Badge>
+                        {r.source === 'membership' && r.member?._id && (
+                          <span className="flex justify-end gap-1 mt-1">
+                            <Button size="sm" variant="ghost" icon={FileText}
+                              loading={statementSending === r.member._id}
+                              onClick={() => sendStatement(r.member._id)}
+                              aria-label={`Send ${r.member.name}'s statement`}
+                              title="Send PDF statement on WhatsApp" />
+                            <Button size="sm" variant="ghost" icon={Share2}
+                              loading={statementSharing === r.member._id}
+                              onClick={() => shareStatement(r.member)}
+                              aria-label={`Share ${r.member.name}'s statement`}
+                              title="Share PDF statement" />
+                          </span>
+                        )}
                       </span>
                     </li>
                   ))}

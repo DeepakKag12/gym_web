@@ -12,7 +12,7 @@ import { apiError } from '../../utils/api';
 import {
   Card, Button, Badge, Avatar, Field, Input, Select,
   Modal, ConfirmDialog, EmptyState, SkeletonList, Table, TableRow, FadeIn,
-  WhatsAppButton,
+  WhatsAppButton, Check,
 } from '../../components/ui';
 import {
   ROLES, PLANS, loadUsers, statusOf, fmtDate, calcExpiry, bustUserCaches,
@@ -35,6 +35,9 @@ const blank = {
   membershipPlan: 'monthly',
   membershipStart: new Date().toISOString().split('T')[0],
   feeAmount: '',
+  initialPayment: '',
+  paymentDue: false,
+  paymentMethod: 'cash',
 };
 
 function UserForm({ editing, onClose, onSaved }) {
@@ -51,6 +54,9 @@ function UserForm({ editing, onClose, onSaved }) {
         membershipStart: editing.membershipStart?.split('T')[0] || '',
         membershipEnd: editing.membershipEnd?.split('T')[0] || '',
         feeAmount: editing.feeAmount ?? '',
+        initialPayment: '',
+        paymentDue: editing.feePaid === false,
+        paymentMethod: 'cash',
       }
     : { ...blank }));
   const [errors, setErrors] = useState({});
@@ -87,6 +93,9 @@ function UserForm({ editing, onClose, onSaved }) {
 
     if (form.role === 'member' && !isEdit && !form.membershipStart) {
       e.membershipStart = 'Pick the day their membership starts.';
+    }
+    if (form.role === 'member' && !isEdit && Number(form.initialPayment || 0) > Number(form.feeAmount || 0)) {
+      e.initialPayment = 'Paid today cannot be greater than the fee amount.';
     }
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -211,6 +220,30 @@ function UserForm({ editing, onClose, onSaved }) {
             <Field label="Fee amount (₹)" hint="Optional">
               <Input type="number" min="0" {...bind('feeAmount')} placeholder="1500" />
             </Field>
+            {!isEdit && (
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <Field label="Paid today (₹)" error={errors.initialPayment} hint="Leave 0 if nothing was collected">
+                    <Input type="number" min="0" {...bind('initialPayment')} placeholder="0" />
+                  </Field>
+                  <Field label="Payment method">
+                    <Select {...bind('paymentMethod')}>
+                      <option value="cash">Cash</option>
+                      <option value="upi">UPI</option>
+                      <option value="card">Card</option>
+                      <option value="online">Online</option>
+                      <option value="other">Other</option>
+                    </Select>
+                  </Field>
+                </div>
+                <Check
+                  checked={form.paymentDue}
+                  onChange={value => set('paymentDue', value)}
+                  label="Keep remaining balance due"
+                  hint="The unpaid balance will appear in Payments → Due fees."
+                />
+              </>
+            )}
             {expiry && (
               <p className="text-[13.5px] p-3 rounded-lg" style={{
                 background: 'var(--p-accent-soft)', border: '1px solid var(--p-accent-line)', color: 'var(--p-text)',

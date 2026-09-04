@@ -170,6 +170,9 @@ export async function createUser(form) {
     membershipPlan: form.membershipPlan || 'monthly',
     membershipStart: form.membershipStart || new Date().toISOString().split('T')[0],
     feeAmount: form.feeAmount === '' || form.feeAmount == null ? undefined : Number(form.feeAmount),
+    initialPayment: form.initialPayment === '' || form.initialPayment == null ? undefined : Number(form.initialPayment),
+    paymentDue: form.paymentDue === true,
+    paymentMethod: form.paymentMethod || 'cash',
   });
   return data;
 }
@@ -188,6 +191,8 @@ export async function updateUser(user, form) {
     if (form.membershipEnd)   payload.membershipEnd   = form.membershipEnd;
     if (form.feePaid !== undefined) payload.feePaid = form.feePaid;
     if (form.feeAmount !== '' && form.feeAmount != null) payload.feeAmount = Number(form.feeAmount);
+    if (form.initialPayment !== undefined && form.initialPayment !== '') payload.initialPayment = Number(form.initialPayment);
+    if (form.paymentMethod) payload.paymentMethod = form.paymentMethod;
   }
 
   const { data } = await API.put(`${endpointFor(user)}/${user._id}`, payload);
