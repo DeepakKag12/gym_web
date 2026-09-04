@@ -16,15 +16,29 @@ import axios from 'axios';
  */
 const PRODUCTION_API = 'https://g-ym-backend.vercel.app/api';
 
-const baseURL =
-  process.env.REACT_APP_API_URL ||
-  (process.env.NODE_ENV === 'production' ? PRODUCTION_API : 'http://localhost:5000/api');
+function determineBaseUrl() {
+  const isBrowser = typeof window !== 'undefined' && window.location;
+  const isLocalHost = isBrowser && (
+    window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1' ||
+    window.location.hostname.endsWith('.local')
+  );
 
-if (process.env.NODE_ENV === 'production' && !process.env.REACT_APP_API_URL) {
-  // Visible in devtools on the deployment that forgot the variable, so the
-  // misconfiguration is diagnosable instead of silently defaulted.
-  console.warn(`REACT_APP_API_URL was not set at build time; using ${PRODUCTION_API}`);
+  const rawEnv = process.env.REACT_APP_API_URL;
+
+  // If running in a deployed/production browser environment but rawEnv was set to localhost,
+  // automatically guard against broken production builds by using PRODUCTION_API.
+  if (isBrowser && !isLocalHost && rawEnv && (rawEnv.includes('localhost') || rawEnv.includes('127.0.0.1'))) {
+    console.warn(`Localhost API URL detected in production environment (${window.location.hostname}); falling back to ${PRODUCTION_API}`);
+    return PRODUCTION_API;
+  }
+
+  if (rawEnv) return rawEnv;
+  if (process.env.NODE_ENV === 'production' || (isBrowser && !isLocalHost)) return PRODUCTION_API;
+  return 'http://localhost:5000/api';
 }
+
+const baseURL = determineBaseUrl();
 
 const API = axios.create({ baseURL });
 

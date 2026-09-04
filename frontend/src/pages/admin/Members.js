@@ -170,7 +170,13 @@ function MemberDetails({ member, onClose, onRenew }) {
         {row('Started', fmtDate(member.membershipStart || member.createdAt))}
         {row('Expires', fmtDate(member.membershipEnd))}
         {row('Days left', left === null ? '—' : left < 0 ? `${Math.abs(left)} days overdue` : `${left} days`)}
-        {member.feeAmount ? row('Fee', `₹${member.feeAmount}`) : null}
+        {member.feeAmount ? row('Total fee', `₹${Number(member.feeAmount).toLocaleString('en-IN')}`) : null}
+        {member.feeDueAmount > 0 ? (
+          <div className="ui-dl-row">
+            <dt>Fee due</dt>
+            <dd style={{ color: 'var(--p-danger)', fontWeight: 600 }}>₹{Number(member.feeDueAmount).toLocaleString('en-IN')}</dd>
+          </div>
+        ) : null}
         {member.assignedTrainer?.name ? row('Trainer', member.assignedTrainer.name) : null}
       </dl>
     </Modal>
