@@ -30,8 +30,8 @@ export default function TrainerDashboard() {
 
   useEffect(() => {
     Promise.all([
-      cachedGet('/analytics/summary', { cache: 120 }),
-      cachedGet('/members', { cache: 60 }),
+      cachedGet('/analytics/trainer-summary', { cache: 120 }),
+      cachedGet('/members/roster', { cache: 60 }),
     ]).then(([sr, mr]) => {
       setStats(sr.data);
       setRecentMembers((mr.data || []).slice(0, 5));
