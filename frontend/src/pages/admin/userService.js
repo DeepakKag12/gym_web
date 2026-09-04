@@ -267,8 +267,11 @@ export async function sendReminder(member) {
   return data;
 }
 
-/** Run the whole expiry sweep now, rather than waiting for the 9am/7pm cron. */
+/** Email every active member whose membership ends within the next 7 days. */
 export async function runReminderSweep() {
-  const { data } = await API.post('/members/run-reminders');
+  const { data } = await API.post('/members/bulk-reminder', {
+    days: 7,
+    channels: ['email'],
+  });
   return data;
 }
