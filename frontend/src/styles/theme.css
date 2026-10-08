@@ -328,3 +328,62 @@ body.theme-switching *::after {
     transition: none !important;
   }
 }
+
+/* ── 7. SITE FOOTER ISOLATION & HIGH VISIBILITY ──────────────────────────────
+   The site footer is designed as a premium, sleek dark anchor in all themes,
+   with glowing accent lines and high-contrast typography so it is distinctly
+   visible in dark mode without washed out contrast or low-light invisibility. */
+.site-footer {
+  background-color: #08090d;
+}
+
+body.theme-light:not(.theme-panel) .site-footer {
+  background-color: #0b0f17 !important;
+  border-top-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+body.theme-light:not(.theme-panel) .site-footer .footer-heading,
+body.theme-light:not(.theme-panel) .site-footer .text-white {
+  color: #ffffff !important;
+}
+
+body.theme-light:not(.theme-panel) .site-footer .text-slate-200,
+body.theme-light:not(.theme-panel) .site-footer .text-gray-200 {
+  color: #e2e8f0 !important;
+}
+
+body.theme-light:not(.theme-panel) .site-footer .text-slate-300,
+body.theme-light:not(.theme-panel) .site-footer .text-gray-300 {
+  color: #cbd5e1 !important;
+}
+
+body.theme-light:not(.theme-panel) .site-footer .text-slate-400,
+body.theme-light:not(.theme-panel) .site-footer .text-gray-400 {
+  color: #94a3b8 !important;
+}
+
+body.theme-light:not(.theme-panel) .site-footer .text-emerald-400 {
+  color: #34d399 !important;
+}
+
+body.theme-light:not(.theme-panel) .site-footer .text-pink-400 {
+  color: #f472b6 !important;
+}
+
+body.theme-light:not(.theme-panel) .site-footer .text-amber-400 {
+  color: #fbbf24 !important;
+}
+
+body.theme-light:not(.theme-panel) .site-footer a:hover,
+body.theme-light:not(.theme-panel) .site-footer .hover\:text-white:hover {
+  color: #ffffff !important;
+}
+
+body.theme-light:not(.theme-panel) .site-footer .hover\:text-emerald-400:hover {
+  color: #34d399 !important;
+}
+
+body.theme-light:not(.theme-panel) .site-footer .hover\:text-pink-400:hover {
+  color: #f472b6 !important;
+}
+

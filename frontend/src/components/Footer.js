@@ -34,51 +34,68 @@ export default function Footer() {
   const { isDark } = useTheme();
 
   return (
-    <footer className={`relative z-20 border-t mt-16 sm:mt-20 transition-colors duration-200 ${
-      isDark ? 'bg-[#0d0e11] border-white/10 text-gray-300' : 'bg-[#fbfaf9] border-[#e6e0d8] text-slate-700'
-    }`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
+    <footer
+      className={`site-footer relative z-20 border-t mt-16 sm:mt-24 transition-colors duration-200 ${
+        isDark
+          ? 'bg-[#08090d] border-white/10 text-slate-300'
+          : 'bg-[#0b0f17] border-white/10 text-slate-300'
+      }`}
+    >
+      {/* Top luminous emerald accent line for high visibility in dark mode */}
+      <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-emerald-500/60 to-transparent pointer-events-none" />
 
+      {/* Ambient emerald radial lighting */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_0%,rgba(16,185,129,0.06),transparent_70%)] pointer-events-none" />
+
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
         {/* Grid — 1 col mobile, 2 col sm, 4 col lg */}
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 mb-10">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 mb-12">
 
           {/* Brand — full width on mobile */}
           <div className="col-span-2 sm:col-span-2 lg:col-span-1">
-            <div className="flex items-center gap-2.5 mb-3">
-              <Logo size={30} />
+            <Link to="/" className="inline-flex items-center gap-2.5 mb-3.5 group">
+              <Logo size={32} />
               <div>
-                <div className={`font-black gym-font text-lg tracking-wider ${isDark ? 'text-white' : 'text-slate-900'}`}>FITNATION</div>
-                <div className="text-primary font-bold text-[9px] tracking-[3px]">BY AJEET</div>
+                <div className="font-black gym-font text-lg sm:text-xl tracking-wider text-white group-hover:text-emerald-400 transition-colors">
+                  FITNATION
+                </div>
+                <div className="text-emerald-400 font-bold text-[9px] tracking-[3px]">
+                  BY AJEET
+                </div>
               </div>
-            </div>
-            <p className={`text-sm leading-relaxed mb-4 ${isDark ? 'text-gray-400' : 'text-slate-600'}`}>
+            </Link>
+            <p className="text-sm leading-relaxed mb-5 text-slate-300 font-normal">
               Uniting a healthier world. Premium fitness training, nutrition guidance, and supplements — all under one roof.
             </p>
-            {/* Real social links */}
-            <div className="flex gap-2">
-              <a href={site.instagramHref} target="_blank" rel="noreferrer"
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border transition-all text-xs min-h-0 ${
-                  isDark
-                    ? 'border-white/10 text-gray-300 hover:text-pink-400 hover:border-pink-400/30 hover:bg-white/5'
-                    : 'border-slate-300 bg-white text-slate-700 hover:text-pink-600 hover:border-pink-500/50 hover:bg-slate-50 shadow-xs'
-                }`}>
-                <Instagram size={14} /> Instagram
+
+            {/* Social badges with tactile dark glass finish */}
+            <div className="flex flex-wrap gap-2.5">
+              <a
+                href={site.instagramHref}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-white/15 bg-white/[0.04] hover:bg-white/[0.1] text-xs font-medium text-slate-200 hover:text-pink-400 hover:border-pink-500/40 transition-all shadow-xs"
+              >
+                <Instagram size={14} className="text-pink-400 flex-shrink-0" /> Instagram
               </a>
-              <a href={site.waHref} target="_blank" rel="noreferrer"
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border transition-all text-xs min-h-0 ${
-                  isDark
-                    ? 'border-white/10 text-gray-300 hover:text-emerald-400 hover:border-emerald-400/30 hover:bg-white/5'
-                    : 'border-slate-300 bg-white text-slate-700 hover:text-[#176b45] hover:border-[#176b45]/50 hover:bg-slate-50 shadow-xs'
-                }`}>
-                <MessageCircle size={14} /> WhatsApp
+              <a
+                href={site.waHref}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-white/15 bg-white/[0.04] hover:bg-white/[0.1] text-xs font-medium text-slate-200 hover:text-emerald-400 hover:border-emerald-500/40 transition-all shadow-xs"
+              >
+                <MessageCircle size={14} className="text-emerald-400 flex-shrink-0" /> WhatsApp
               </a>
             </div>
           </div>
 
           {/* Explore */}
           <div>
-            <h4 className={`font-semibold text-sm mb-3 uppercase tracking-wider ${isDark ? 'text-white' : 'text-slate-900'}`}>Explore</h4>
-            <div className="space-y-2">
+            <h4 className="footer-heading font-bold text-sm mb-4 uppercase tracking-wider text-white flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0"></span>
+              Explore
+            </h4>
+            <ul className="space-y-2.5">
               {[
                 { label: 'Explore Workouts', path: '/exercises' },
                 { label: 'Join FitNation', path: '/enquiry' },
@@ -87,20 +104,26 @@ export default function Footer() {
                 { label: 'Transformations', path: '/transformations' },
                 { label: 'About FitNation', path: '/about' },
               ].map(l => (
-                <Link key={l.path} to={l.path}
-                  className={`block text-sm transition-colors py-0.5 min-h-0 ${
-                    isDark
-                      ? 'text-gray-400 hover:text-emerald-400 font-normal hover:font-medium'
-                      : 'text-slate-600 hover:text-[#176b45] font-normal hover:font-semibold'
-                  }`}>{l.label}</Link>
+                <li key={l.path}>
+                  <Link
+                    to={l.path}
+                    className="text-sm text-slate-300 hover:text-white hover:translate-x-1 transition-all duration-150 inline-flex items-center gap-1 py-0.5"
+                  >
+                    <span className="text-emerald-500/60 text-xs">›</span>
+                    <span>{l.label}</span>
+                  </Link>
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
 
           {/* Members */}
           <div>
-            <h4 className={`font-semibold text-sm mb-3 uppercase tracking-wider ${isDark ? 'text-white' : 'text-slate-900'}`}>Members</h4>
-            <div className="space-y-2">
+            <h4 className="footer-heading font-bold text-sm mb-4 uppercase tracking-wider text-white flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0"></span>
+              Members
+            </h4>
+            <ul className="space-y-2.5">
               {[
                 { label: 'Member Login', path: '/login' },
                 { label: 'Member Dashboard', path: '/dashboard' },
@@ -109,43 +132,73 @@ export default function Footer() {
                 { label: 'My Progress', path: '/my-progress' },
                 { label: 'My Orders', path: '/my-orders' },
               ].map(l => (
-                <Link key={l.path} to={l.path}
-                  className={`block text-sm transition-colors py-0.5 min-h-0 ${
-                    isDark
-                      ? 'text-gray-400 hover:text-emerald-400 font-normal hover:font-medium'
-                      : 'text-slate-600 hover:text-[#176b45] font-normal hover:font-semibold'
-                  }`}>{l.label}</Link>
+                <li key={l.path}>
+                  <Link
+                    to={l.path}
+                    className="text-sm text-slate-300 hover:text-white hover:translate-x-1 transition-all duration-150 inline-flex items-center gap-1 py-0.5"
+                  >
+                    <span className="text-emerald-500/60 text-xs">›</span>
+                    <span>{l.label}</span>
+                  </Link>
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
 
           {/* Contact — full width on mobile sm */}
           <div className="col-span-2 sm:col-span-2 lg:col-span-1">
-            <h4 className={`font-semibold text-sm mb-3 uppercase tracking-wider ${isDark ? 'text-white' : 'text-slate-900'}`}>Contact</h4>
-            <div className="space-y-2.5">
-              <a href={site.telHref}
-                className={`flex items-center gap-2.5 text-sm transition-colors min-h-0 py-0.5 ${
-                  isDark ? 'text-gray-400 hover:text-emerald-400' : 'text-slate-600 hover:text-[#176b45] font-normal hover:font-medium'
-                }`}>
-                <Phone size={13} className={`flex-shrink-0 ${isDark ? 'text-gray-400' : 'text-slate-500'}`}/> {site.phone}
+            <h4 className="footer-heading font-bold text-sm mb-4 uppercase tracking-wider text-white flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0"></span>
+              Contact
+            </h4>
+            <div className="space-y-3">
+              <a
+                href={site.telHref}
+                className="flex items-center gap-2.5 text-sm text-slate-300 hover:text-emerald-400 transition-colors py-0.5"
+              >
+                <div className="w-7 h-7 rounded-lg bg-white/[0.05] border border-white/10 flex items-center justify-center flex-shrink-0 text-emerald-400">
+                  <Phone size={13} />
+                </div>
+                <span>{site.phone}</span>
               </a>
-              <a href={site.waHref} target="_blank" rel="noreferrer"
-                className={`flex items-center gap-2.5 text-sm transition-colors min-h-0 py-0.5 ${
-                  isDark ? 'text-gray-400 hover:text-emerald-400' : 'text-slate-600 hover:text-[#176b45] font-normal hover:font-medium'
-                }`}>
-                <MessageCircle size={13} className={`flex-shrink-0 ${isDark ? 'text-emerald-400' : 'text-[#176b45]'}`}/> Chat on WhatsApp
+
+              <a
+                href={site.waHref}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center gap-2.5 text-sm text-slate-300 hover:text-emerald-400 transition-colors py-0.5"
+              >
+                <div className="w-7 h-7 rounded-lg bg-white/[0.05] border border-white/10 flex items-center justify-center flex-shrink-0 text-emerald-400">
+                  <MessageCircle size={13} />
+                </div>
+                <span>Chat on WhatsApp</span>
               </a>
-              <a href={site.instagramHref} target="_blank" rel="noreferrer"
-                className={`flex items-center gap-2.5 text-sm transition-colors min-h-0 py-0.5 ${
-                  isDark ? 'text-gray-400 hover:text-pink-400' : 'text-slate-600 hover:text-pink-600 font-normal hover:font-medium'
-                }`}>
-                <Instagram size={13} className={`flex-shrink-0 ${isDark ? 'text-pink-400' : 'text-pink-600'}`}/> @{site.instagram}
+
+              <a
+                href={site.instagramHref}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center gap-2.5 text-sm text-slate-300 hover:text-pink-400 transition-colors py-0.5"
+              >
+                <div className="w-7 h-7 rounded-lg bg-white/[0.05] border border-white/10 flex items-center justify-center flex-shrink-0 text-pink-400">
+                  <Instagram size={13} />
+                </div>
+                <span>@{site.instagram}</span>
               </a>
-              <div className={`flex items-start gap-2.5 text-sm pt-1 ${isDark ? 'text-gray-400' : 'text-slate-600'}`}>
-                <Clock size={13} className={`flex-shrink-0 mt-0.5 ${isDark ? 'text-gray-500' : 'text-slate-500'}`}/>
+
+              <div className="flex items-start gap-2.5 text-sm pt-1.5">
+                <div className="w-7 h-7 rounded-lg bg-white/[0.05] border border-white/10 flex items-center justify-center flex-shrink-0 text-amber-400 mt-0.5">
+                  <Clock size={13} />
+                </div>
                 <div>
-                  {site.hours.map((line, i) => <div key={i}>{line}</div>)}
-                  <div className={`text-xs mt-0.5 font-medium ${isDark ? 'text-rose-400/90' : 'text-rose-600'}`}>Sunday: Closed</div>
+                  {site.hours.map((line, i) => (
+                    <div key={i} className="text-slate-300 font-normal leading-relaxed">{line}</div>
+                  ))}
+                  <div className="mt-1.5">
+                    <span className="inline-block px-2.5 py-0.5 text-[11px] font-semibold rounded bg-rose-500/15 text-rose-300 border border-rose-500/30">
+                      Sunday: Closed
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -153,44 +206,42 @@ export default function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className={`border-t pt-5 flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left ${
-          isDark ? 'border-white/10 text-gray-500' : 'border-slate-300 text-slate-500'
-        }`}>
-          <p className="text-xs">© {new Date().getFullYear()} FITNATION BY AJEET. All rights reserved.</p>
-          <p className={`text-xs italic ${isDark ? 'text-gray-600' : 'text-slate-500'}`}>"Uniting a Healthier World"</p>
+        <div className="border-t border-white/10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+          <p className="text-xs text-slate-400">
+            © {new Date().getFullYear()} <span className="text-slate-200 font-medium">FITNATION BY AJEET</span>. All rights reserved.
+          </p>
+          <p className="text-xs italic text-emerald-400/90 font-medium">
+            "Uniting a Healthier World"
+          </p>
         </div>
 
-        {/*
-          Developer credit.
-          Separated from the gym's own contact block above so a member looking
-          for the gym never dials the developer by mistake — the two numbers sit
-          in different sections and this one says plainly what it is for.
-          Both are real links: tel: dials on a phone, mailto: opens the mail app.
-        */}
-        <div className={`mt-4 pt-4 border-t ${isDark ? 'border-white/10' : 'border-slate-300'}`}>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-x-4 gap-y-2 text-center">
-            <span className={`flex items-center gap-2 text-xs ${isDark ? 'text-gray-400' : 'text-slate-600'}`}>
-              <Code2 size={13} className="text-primary flex-shrink-0" />
-              Developed by <strong className={`font-semibold ${isDark ? 'text-gray-200' : 'text-slate-900'}`}>Deepak Kag</strong>
-            </span>
-            <span className={`hidden sm:block ${isDark ? 'text-gray-600' : 'text-slate-400'}`}>·</span>
-            <a href="tel:+919174222924"
-              className={`flex items-center gap-1.5 text-xs transition-colors ${
-                isDark ? 'text-gray-400 hover:text-emerald-400' : 'text-slate-600 hover:text-[#176b45] font-medium'
-              }`}>
-              <Phone size={12} className="flex-shrink-0" /> 91742 22924
-            </a>
-            <span className={`hidden sm:block ${isDark ? 'text-gray-600' : 'text-slate-400'}`}>·</span>
-            <a href="mailto:kagdeepak45@gmail.com"
-              className={`flex items-center gap-1.5 text-xs transition-colors break-all ${
-                isDark ? 'text-gray-400 hover:text-emerald-400' : 'text-slate-600 hover:text-[#176b45] font-medium'
-              }`}>
-              <Mail size={12} className="flex-shrink-0" /> kagdeepak45@gmail.com
-            </a>
+        {/* Developer credit card */}
+        <div className="mt-6 pt-5 border-t border-white/10">
+          <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-3.5 sm:p-4 text-center">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-x-4 gap-y-2">
+              <span className="flex items-center gap-2 text-xs text-slate-300 font-normal">
+                <Code2 size={14} className="text-emerald-400 flex-shrink-0" />
+                Developed by <strong className="font-semibold text-white">Deepak Kag</strong>
+              </span>
+              <span className="hidden sm:inline text-emerald-500/40">·</span>
+              <a
+                href="tel:+919174222924"
+                className="flex items-center gap-1.5 text-xs text-slate-300 hover:text-emerald-400 transition-colors font-medium"
+              >
+                <Phone size={12} className="flex-shrink-0 text-emerald-400" /> 91742 22924
+              </a>
+              <span className="hidden sm:inline text-emerald-500/40">·</span>
+              <a
+                href="mailto:kagdeepak45@gmail.com"
+                className="flex items-center gap-1.5 text-xs text-slate-300 hover:text-emerald-400 transition-colors font-medium break-all"
+              >
+                <Mail size={12} className="flex-shrink-0 text-emerald-400" /> kagdeepak45@gmail.com
+              </a>
+            </div>
+            <p className="text-[11px] text-slate-400 mt-2">
+              Available for web and app development projects
+            </p>
           </div>
-          <p className={`text-[11px] text-center mt-2 ${isDark ? 'text-gray-500' : 'text-slate-500'}`}>
-            Available for web and app development projects
-          </p>
         </div>
       </div>
     </footer>
