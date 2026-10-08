@@ -97,8 +97,8 @@ function FeatureCard({ card, vs }) {
   // `text-on-photo`, not `text-white`: the public light theme remaps
   // `.text-white` to dark body copy, which would make these titles vanish
   // into the photograph behind them.
-  const titleClass = card.invert ? 'text-on-photo' : 'text-foreground';
-  const subtitleClass = card.invert ? 'text-white/80' : 'text-muted-foreground';
+  const titleClass = card.invert ? 'text-white text-on-photo' : 'text-foreground';
+  const subtitleClass = card.invert ? 'text-white/90 text-on-photo-muted' : 'text-muted-foreground';
 
   return (
     <div
@@ -113,24 +113,31 @@ function FeatureCard({ card, vs }) {
           alt={card.imageAlt ?? ''}
           loading="lazy"
           decoding="async"
-          className="absolute inset-0 -z-10 h-full w-full object-cover"
+          className="absolute inset-0 -z-10 h-full w-full object-cover opacity-75 transition-opacity duration-300"
         />
       )}
 
       {card.invert && (
-        // Deeper than the original from-black/40: FitNation's gym and food
-        // photography is bright, and the subtitle failed contrast over it.
+        // Cinematic contrast overlay so member photography never over-brightens the UI
         <div
           aria-hidden
-          className="absolute inset-0 -z-10 bg-gradient-to-br from-black/75 via-black/45 to-black/10"
+          className="absolute inset-0 -z-10 bg-gradient-to-br from-black/85 via-black/55 to-black/25"
         />
       )}
 
       <div className={cn('flex h-full flex-col items-start', vs.cardBody)}>
-        <h3 className={cn('font-semibold tracking-tight text-balance', vs.cardTitle, titleClass)}>
+        <h3
+          className={cn('font-semibold tracking-tight text-balance', vs.cardTitle, titleClass)}
+          style={card.invert ? { color: '#ffffff' } : undefined}
+        >
           {card.title}
         </h3>
-        <p className={cn('mt-1 text-sm', subtitleClass)}>{card.subtitle}</p>
+        <p
+          className={cn('mt-1 text-sm', subtitleClass)}
+          style={card.invert ? { color: 'rgba(255, 255, 255, 0.88)' } : undefined}
+        >
+          {card.subtitle}
+        </p>
         {card.cta?.ctaEnabled && (
           <div className="mt-4">
             <Cta cta={card.cta} invert={card.invert} />

@@ -23,16 +23,25 @@ export function Cta({ cta, invert, className }) {
     lg: 'h-12 px-7 text-base',
   }[cta.size || 'default'];
 
+  // Support explicit variant or choose contextually based on image brightness:
+  // On dark photos (invert), 'light' button (white + dark text) provides brilliant, immediate readability.
+  const variant = cta.variant || (invert ? 'light' : 'primary');
+
+  const variantStyles = {
+    light: 'bg-white text-stone-900 hover:bg-stone-100 shadow-md ring-1 ring-black/5 font-semibold focus-visible:ring-white',
+    primary: 'bg-primary text-white hover:bg-primary-hover shadow-sm font-semibold focus-visible:ring-primary',
+    dark: 'bg-stone-900 text-white hover:bg-stone-800 shadow-sm font-semibold border border-white/10 focus-visible:ring-stone-400',
+    outline: 'border-2 border-white/80 bg-black/25 backdrop-blur-md text-white hover:bg-white/15 hover:border-white font-semibold focus-visible:ring-white',
+    secondary: 'bg-stone-800/80 backdrop-blur-md text-white hover:bg-stone-700 border border-white/10 font-semibold focus-visible:ring-white',
+    ghost: 'bg-transparent text-white/90 hover:bg-white/10 font-semibold focus-visible:ring-white',
+  };
+
   const classes = cn(
-    'group inline-flex items-center justify-center gap-2 rounded-full font-bold',
-    'transition-transform duration-200 hover:-translate-y-0.5',
+    'group inline-flex items-center justify-center gap-2 rounded-lg font-semibold',
+    'transition-all duration-200 hover:-translate-y-0.5',
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
     sizeClass,
-    // On an image card the button sits on photography, so it stays the solid
-    // brand cyan in both themes rather than following the page foreground.
-    invert
-      ? 'bg-[#22d3ee] text-black hover:bg-[#67e8f9] focus-visible:ring-white'
-      : 'bg-foreground text-background hover:opacity-90 focus-visible:ring-primary',
+    variantStyles[variant] || variantStyles.light,
     className,
   );
 

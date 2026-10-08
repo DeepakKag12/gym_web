@@ -17,7 +17,7 @@ const PLAN_COLORS = {
   'half-yearly':'#34d399',
   yearly:       '#fb923c',
 };
-const METHOD_COLORS = { cod: '#f59e0b', online: '#22d3ee', upi: '#a78bfa' };
+const METHOD_COLORS = { cod: '#f59e0b', online: '#10b981', upi: '#a78bfa' };
 
 /* ── Stacked bar chart ── */
 function StackedBarChart({ data, highlightMonth }) {
@@ -576,7 +576,7 @@ export default function AdminRevenue() {
         <>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             {[
-              { label: 'Total Members',    val: summary?.totalMembers,   icon: Users,         c: 'bg-blue-500/10 text-blue-400' },
+              { label: 'Total Members',    val: summary?.totalMembers,   icon: Users,         c: 'bg-emerald-500/10 text-emerald-400' },
               { label: 'Active',           val: summary?.activeMembers,  icon: CheckCircle2,  c: 'bg-green-500/10 text-green-400' },
               { label: 'Expired',          val: summary?.expiredMembers, icon: AlertCircle,   c: 'bg-red-500/10 text-red-400' },
               { label: 'Expiring (7d)',    val: summary?.expiringIn7,    icon: Clock,         c: 'bg-yellow-500/10 text-yellow-400' },
@@ -667,7 +667,7 @@ export default function AdminRevenue() {
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
             <KpiCard icon={ShoppingBag}  label="Store Revenue"     value={fmt(totals.storeRevenue)}   color="bg-amber-500/10 text-amber-400" />
             <KpiCard icon={Package}      label="Total Orders"      value={summary?.totalOrders ?? 0}  color="bg-purple-500/10 text-purple-400" />
-            <KpiCard icon={CreditCard}   label="This Month Orders" value={fmt(summary?.monthlyRevenue)} color="bg-cyan-500/10 text-cyan-400" />
+            <KpiCard icon={CreditCard}   label="This Month Orders" value={fmt(summary?.monthlyRevenue)} color="bg-primary/10 text-primary" />
           </div>
 
           {/* Top products */}
@@ -691,7 +691,7 @@ export default function AdminRevenue() {
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.22 }}
             className="glass rounded-xl p-5">
             <div className="flex items-center gap-2 mb-4">
-              <CreditCard size={15} className="text-cyan-400" />
+              <CreditCard size={15} className="text-primary" />
               <span className="text-white font-semibold text-sm">Revenue by Payment Method</span>
             </div>
             <div className="flex items-start gap-6">

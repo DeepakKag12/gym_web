@@ -46,7 +46,7 @@ export default function ProductDetailPage() {
   if (loading) return (
     <div className="min-h-screen bg-[#0d0d14] flex items-center justify-center pt-16">
       <div className="flex flex-col items-center gap-3">
-        <div className="w-10 h-10 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+        <div className="w-10 h-10 border-2 border-primary border-t-transparent rounded-full animate-spin" />
         <p className="text-gray-400 text-sm">Loading product…</p>
       </div>
     </div>
@@ -56,7 +56,7 @@ export default function ProductDetailPage() {
     <div className="min-h-screen bg-[#0d0d14] flex flex-col items-center justify-center gap-4 pt-16">
       <Package size={48} className="text-gray-600" />
       <p className="text-gray-400 font-medium">Product not found</p>
-      <Link to="/store" className="btn-fire text-sm px-5 py-2.5">← Back to Store</Link>
+      <Link to="/store" className="btn-secondary text-sm px-5 py-2.5">← Back to Store</Link>
     </div>
   );
 
@@ -67,8 +67,8 @@ export default function ProductDetailPage() {
   const handleAdd = () => {
     addToCart(product, qty, flavor, weight);
     toast.success(`${product.name} added to cart!`, {
-      style: { background: '#fff', color: '#111', border: '1px solid #e2e8f0' },
-      iconTheme: { primary: '#2563eb', secondary: '#fff' },
+      style: { background: 'var(--color-surface, #fff)', color: 'var(--color-text, #111)', border: '1px solid var(--border)' },
+      iconTheme: { primary: 'var(--color-primary, #176b45)', secondary: '#fff' },
     });
   };
 
@@ -78,13 +78,13 @@ export default function ProductDetailPage() {
       {/* ── Breadcrumb ── */}
       <div className="bg-[#111318] border-b border-white/8">
         <div className="max-w-6xl mx-auto px-6 py-3 flex items-center gap-2 text-sm text-gray-500">
-          <Link to="/" className="hover:text-blue-400 transition-colors">Home</Link>
+          <Link to="/" className="hover:text-primary transition-colors">Home</Link>
           <ChevronRight size={14} className="text-gray-700" />
-          <Link to="/store" className="hover:text-blue-400 transition-colors">Store</Link>
+          <Link to="/store" className="hover:text-primary transition-colors">Store</Link>
           <ChevronRight size={14} className="text-gray-700" />
           {product.category && (
             <>
-              <Link to={`/store?category=${product.category}`} className="hover:text-blue-400 capitalize transition-colors">{product.category}</Link>
+              <Link to={`/store?category=${product.category}`} className="hover:text-primary capitalize transition-colors">{product.category}</Link>
               <ChevronRight size={14} className="text-gray-700" />
             </>
           )}
@@ -130,7 +130,7 @@ export default function ProductDetailPage() {
                     key={i}
                     onClick={() => setActiveImg(i)}
                     className={`flex-shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition-all ${
-                      activeImg === i ? 'border-blue-500 shadow-md shadow-blue-900/30' : 'border-white/10 hover:border-blue-500/40'
+                      activeImg === i ? 'border-primary shadow-md shadow-primary/20' : 'border-white/10 hover:border-primary/40'
                     }`}
                   >
                     <img src={cld(img, 800)} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
@@ -146,7 +146,7 @@ export default function ProductDetailPage() {
             {/* Brand + badges */}
             <div className="flex items-center gap-2 mb-2 flex-wrap">
               {product.brand && (
-                <span className="text-blue-400 text-xs font-bold uppercase tracking-wider bg-blue-500/10 border border-blue-500/20 px-2.5 py-1 rounded-full">
+                <span className="text-gray-300 text-xs font-bold uppercase tracking-wider bg-white/5 border border-white/10 px-2.5 py-1 rounded-full">
                   {product.brand}
                 </span>
               )}
@@ -154,7 +154,7 @@ export default function ProductDetailPage() {
                 <span className="text-yellow-400 text-xs font-bold bg-yellow-500/10 border border-yellow-500/20 px-2.5 py-1 rounded-full">Featured</span>
               )}
               {product.stock > 0
-                ? <span className="text-green-400 text-xs font-semibold bg-green-500/10 border border-green-500/20 px-2.5 py-1 rounded-full flex items-center gap-1"><CheckCircle size={11} /> In Stock</span>
+                ? <span className="text-emerald-400 text-xs font-semibold bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-full flex items-center gap-1"><CheckCircle size={11} /> In Stock</span>
                 : <span className="text-red-400 text-xs font-semibold bg-red-500/10 border border-red-500/20 px-2.5 py-1 rounded-full">Out of Stock</span>
               }
             </div>
@@ -173,7 +173,7 @@ export default function ProductDetailPage() {
               {product.discountPrice && (
                 <>
                   <span className="text-gray-600 line-through text-xl">₹{product.price}</span>
-                  <span className="bg-green-500/15 text-green-400 text-sm font-bold px-2.5 py-1 rounded-lg border border-green-500/20">
+                  <span className="bg-emerald-500/15 text-emerald-400 text-sm font-bold px-2.5 py-1 rounded-lg border border-emerald-500/20">
                     Save ₹{product.price - product.discountPrice}
                   </span>
                 </>
@@ -184,17 +184,17 @@ export default function ProductDetailPage() {
             {product.flavors?.length > 0 && (
               <div className="mb-4">
                 <div className="text-gray-300 text-sm font-semibold mb-2">
-                  Flavor: <span className="text-blue-400">{flavor}</span>
+                  Flavor: <span className="text-primary font-bold">{flavor}</span>
                 </div>
                 <div className="flex gap-2 flex-wrap">
                   {product.flavors.map(f => (
                     <button
                       key={f}
                       onClick={() => setFlavor(f)}
-                      className={`px-3 py-1.5 rounded-lg text-sm font-medium border-2 transition-all ${
+                      className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-all ${
                         flavor === f
-                          ? 'border-blue-500 bg-blue-500/15 text-blue-400'
-                          : 'border-white/10 text-gray-400 hover:border-blue-500/40 bg-white/5'
+                          ? 'border-primary bg-primary/15 text-white font-semibold'
+                          : 'border-white/10 text-gray-400 hover:border-white/30 bg-white/5'
                       }`}
                     >
                       {f}
@@ -208,7 +208,7 @@ export default function ProductDetailPage() {
             {product.weights?.length > 0 && (
               <div className="mb-5">
                 <div className="text-gray-300 text-sm font-semibold mb-2">
-                  Size: <span className="text-blue-400">{weight}</span>
+                  Size: <span className="text-primary">{weight}</span>
                 </div>
                 <div className="flex gap-2 flex-wrap">
                   {product.weights.map(w => (
@@ -217,8 +217,8 @@ export default function ProductDetailPage() {
                       onClick={() => setWeight(w)}
                       className={`px-4 py-2 rounded-lg text-sm font-semibold border-2 transition-all ${
                         weight === w
-                          ? 'border-blue-500 bg-blue-500 text-white'
-                          : 'border-white/10 text-gray-400 hover:border-blue-500/40 bg-white/5'
+                          ? 'border-primary bg-primary text-white'
+                          : 'border-white/10 text-gray-400 hover:border-primary/40 bg-white/5'
                       }`}
                     >
                       {w}
@@ -251,7 +251,7 @@ export default function ProductDetailPage() {
             {product.stock > 0 ? (
               <button
                 onClick={handleAdd}
-                className="w-full flex items-center justify-center gap-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-base py-4 rounded-2xl transition-all hover:-translate-y-0.5 hover:shadow-xl hover:shadow-blue-900/30 mb-3"
+                className="btn-fire w-full py-4 text-base font-bold rounded-xl mb-3 shadow-md"
               >
                 <ShoppingCart size={20} /> Add {qty} to Cart · ₹{((product.discountPrice || product.price) * qty).toFixed(0)}
               </button>
@@ -264,7 +264,7 @@ export default function ProductDetailPage() {
             {/* Trust badges */}
             <div className="grid grid-cols-3 gap-2 mt-1">
               {[
-                { icon: <Truck size={16} className="text-blue-400" />, label: 'Free Delivery', sub: 'On orders ₹999+' },
+                { icon: <Truck size={16} className="text-primary" />, label: 'Free Delivery', sub: 'On orders ₹999+' },
                 { icon: <Shield size={16} className="text-green-400" />, label: 'Authentic', sub: '100% genuine' },
                 { icon: <RotateCcw size={16} className="text-orange-400" />, label: 'Easy Returns', sub: '7-day policy' },
               ].map((b, i) => (
@@ -288,7 +288,7 @@ export default function ProductDetailPage() {
                 onClick={() => setTab(t)}
                 className={`px-6 py-4 text-sm font-semibold capitalize transition-all border-b-2 -mb-px ${
                   tab === t
-                    ? 'border-blue-500 text-blue-400 bg-blue-500/8'
+                    ? 'border-primary text-primary bg-primary/10'
                     : 'border-transparent text-gray-500 hover:text-gray-300'
                 }`}
               >
@@ -314,7 +314,7 @@ export default function ProductDetailPage() {
                       <div key={i} className="border border-white/10 rounded-xl p-4 bg-white/5">
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white font-bold text-sm">
+                            <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm">
                               {r.name?.[0]?.toUpperCase()}
                             </div>
                             <div>

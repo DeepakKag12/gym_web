@@ -142,7 +142,7 @@ function DietModal({ editData, members, onClose, onSaved }) {
                   </div>
                 ))}
                 <div className="flex gap-3 mt-2">
-                  <button onClick={() => addItem(mi)} className="text-[#22d3ee] text-xs hover:underline">+ Add item</button>
+                  <button onClick={() => addItem(mi)} className="text-primary text-xs hover:underline font-medium">+ Add item</button>
                   <input className="input-dark text-xs py-1 flex-1 ml-2" placeholder="Meal notes (optional)" value={meal.notes} onChange={e => updateMeal(mi, 'notes', e.target.value)} />
                 </div>
               </div>
@@ -156,7 +156,7 @@ function DietModal({ editData, members, onClose, onSaved }) {
         <div className="flex justify-end gap-3 mt-6">
           <button onClick={onClose} className="btn-ghost px-5 py-2.5 text-sm">Cancel</button>
           <button onClick={save} disabled={saving} className="btn-fire px-6 py-2.5 text-sm">
-            {saving ? <span className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" /> : (editData ? 'Update Plan' : 'Create Plan')}
+            {saving ? <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : (editData ? 'Update Plan' : 'Create Plan')}
           </button>
         </div>
       </motion.div>
@@ -198,7 +198,7 @@ export default function AdminDiet() {
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-20"><div className="w-8 h-8 border-2 border-[#22d3ee] border-t-transparent rounded-full animate-spin" /></div>
+        <div className="flex justify-center py-20"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>
       ) : plans.length === 0 ? (
         <div className="glass rounded-2xl p-16 text-center">
           <Salad size={40} className="text-gray-700 mx-auto mb-3" />
@@ -214,7 +214,7 @@ export default function AdminDiet() {
                 <div className="flex items-start justify-between mb-1">
                   <div className="flex-1 min-w-0">
                     <h3 className="text-white font-semibold line-clamp-1">{p.title}</h3>
-                    <span className="text-xs text-[#22d3ee] capitalize">{p.goal?.replace(/-/g, ' ')}</span>
+                    <span className="text-xs text-gray-400 capitalize font-medium">{p.goal?.replace(/-/g, ' ')}</span>
                   </div>
                   <span className="text-[10px] text-gray-500 flex-shrink-0 ml-2">{p.isPublic ? 'Public' : 'Private'}</span>
                 </div>

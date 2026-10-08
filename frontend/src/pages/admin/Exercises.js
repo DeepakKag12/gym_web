@@ -283,8 +283,8 @@ function ExerciseModal({ editData, members, onClose, onSaved }) {
             {editData?.video && !videoFile && !removeVideo && (
               <div className="flex items-center gap-1.5 mb-1">
                 <a href={editData.video} target="_blank" rel="noreferrer"
-                  className="text-xs flex items-center gap-1 flex-1 truncate"
-                  style={{ color: 'var(--cyan)' }}>
+                  className="text-xs flex items-center gap-1 flex-1 truncate font-medium"
+                  style={{ color: 'var(--color-primary, #176b45)' }}>
                   <Video size={10} /> Saved video
                 </a>
                 <button type="button"
@@ -304,7 +304,7 @@ function ExerciseModal({ editData, members, onClose, onSaved }) {
             )}
             {videoFile && (
               <div className="flex items-center gap-1.5 mb-1">
-                <span className="text-xs truncate flex-1" style={{ color: 'var(--cyan)' }}>{videoFile.name.slice(0,16)}</span>
+                <span className="text-xs truncate flex-1 font-medium" style={{ color: 'var(--color-primary, #176b45)' }}>{videoFile.name.slice(0,16)}</span>
                 <button type="button" onClick={() => { setVideoFile(null); setVideoPreview(editData?.video || ''); }}
                   className="text-xs" style={{ color: 'var(--muted)' }} aria-label="Remove video"><X size={13} /></button>
               </div>
@@ -324,7 +324,7 @@ function ExerciseModal({ editData, members, onClose, onSaved }) {
 
         {/* Upload progress bar */}
         {uploadProgress && (
-          <div className="mt-2 text-xs rounded-lg px-3 py-2 flex items-center gap-2" style={{ background: 'rgba(34,211,238,0.08)', color: 'var(--cyan)', border: '1px solid rgba(34,211,238,0.2)' }}>
+          <div className="mt-2 text-xs rounded-lg px-3 py-2 flex items-center gap-2" style={{ background: 'var(--color-primary-soft, rgba(23,107,69,0.12))', color: 'var(--color-primary, #176b45)', border: '1px solid var(--color-primary-border, rgba(23,107,69,0.25))' }}>
             <span className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin flex-shrink-0" />
             {uploadProgress}
           </div>
@@ -378,12 +378,12 @@ export default function AdminExercises() {
         {/* Muscle filter pills */}
         <div className="flex gap-1.5 flex-wrap">
           <button onClick={() => setFilterMuscle('all')}
-            className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${filterMuscle === 'all' ? 'bg-[#22d3ee] text-black' : 'bg-white/5 text-gray-400 border border-white/8 hover:border-white/20'}`}>
+            className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${filterMuscle === 'all' ? 'bg-primary text-white font-semibold shadow-sm' : 'bg-white/5 text-gray-400 border border-white/8 hover:border-white/20'}`}>
             All
           </button>
           {MUSCLE_GROUPS.map(mg => (
             <button key={mg} onClick={() => setFilterMuscle(mg)}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium capitalize transition-all ${filterMuscle === mg ? 'bg-[#22d3ee] text-black' : 'bg-white/5 text-gray-400 border border-white/8 hover:border-white/20'}`}>
+              className={`px-3 py-1.5 rounded-full text-xs font-medium capitalize transition-all ${filterMuscle === mg ? 'bg-primary text-white font-semibold shadow-sm' : 'bg-white/5 text-gray-400 border border-white/8 hover:border-white/20'}`}>
               {mg}
             </button>
           ))}
@@ -394,7 +394,7 @@ export default function AdminExercises() {
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-20"><div className="w-8 h-8 border-2 border-[#22d3ee] border-t-transparent rounded-full animate-spin" /></div>
+        <div className="flex justify-center py-20"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>
       ) : exercises.length === 0 ? (
         <div className="glass rounded-2xl p-16 text-center">
           <Dumbbell size={40} className="text-gray-700 mx-auto mb-3" />
@@ -408,8 +408,8 @@ export default function AdminExercises() {
               <div className="relative h-40 bg-[#0d0e11] overflow-hidden">
                 <VideoThumb video={ex.video} videoUrl={ex.videoUrl} image={ex.image} title={ex.title} />
                 {(ex.video || ex.videoUrl) && (
-                  <div className="absolute top-2 right-2 bg-[#22d3ee] rounded-full p-1 pointer-events-none z-10">
-                    <Video size={11} className="text-black" />
+                  <div className="absolute top-2 right-2 bg-primary rounded-full p-1 pointer-events-none z-10 shadow-sm">
+                    <Video size={11} className="text-white" />
                   </div>
                 )}
                 <div className="absolute top-2 left-2 z-10">

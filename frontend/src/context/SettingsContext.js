@@ -25,6 +25,9 @@ const FALLBACK = {
   instagram: 'fitnation.by.ajeet',
   address: '',
   hours: ['Mon–Sat: 5 AM – 11 AM', 'Mon–Sat: 4 PM – 10 PM', 'Sunday: Closed'],
+  heroWorkoutImage: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=1200&auto=format&fit=crop',
+  heroJoinImage: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1200&auto=format&fit=crop',
+  ctaBannerImage: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=1200&q=80',
 };
 
 const SettingsContext = createContext(null);

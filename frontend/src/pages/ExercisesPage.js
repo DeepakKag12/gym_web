@@ -240,8 +240,8 @@ function ExCard({ ex, index }) {
 
           <div className="absolute top-2.5 right-2.5 flex flex-col items-end gap-1 z-10 pointer-events-none">
             {hasVideo && (
-              <span className="grid place-items-center bg-[#22d3ee] rounded-full" style={{ width: 20, height: 20 }}>
-                <Play size={10} className="text-black" style={{ marginLeft: 1 }} />
+              <span className="grid place-items-center bg-white/95 rounded-full shadow-md" style={{ width: 20, height: 20 }}>
+                <Play size={10} className="text-stone-900" style={{ marginLeft: 1 }} />
               </span>
             )}
             {!ex.isPublic && (
@@ -255,7 +255,7 @@ function ExCard({ ex, index }) {
         {/* flex-1 + mt-auto keeps the meta row on the baseline whether or not
             the description runs to two lines, so a row of cards lines up. */}
         <div className="p-3.5 flex flex-col flex-1">
-          <h3 className="text-white font-semibold text-sm mb-1 line-clamp-1 group-hover:text-[#22d3ee] transition-colors">
+          <h3 className="text-white font-semibold text-sm mb-1 line-clamp-1 group-hover:text-primary transition-colors">
             {ex.title}
           </h3>
           {ex.description && (
@@ -266,8 +266,8 @@ function ExCard({ ex, index }) {
               {diff.label}
             </span>
             {ex.sets ? (
-              <span className="text-gray-600 text-[11px] flex items-center gap-1">
-                <Zap size={10} className="text-[#22d3ee]" />{ex.sets}×{ex.reps}
+              <span className="text-gray-500 text-[11px] flex items-center gap-1">
+                <Zap size={10} className="text-amber-400" />{ex.sets}×{ex.reps}
               </span>
             ) : null}
           </div>

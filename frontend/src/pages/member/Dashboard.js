@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Dumbbell, Salad, TrendingUp, ShoppingBag, Package, Calendar, Settings,
-  Bell, AlertTriangle, ArrowRight, IndianRupee, Flame, UserCheck, MessageCircle,
-  Play, Sparkles, CheckCircle2,
+  Bell, AlertTriangle, ArrowRight, IndianRupee, UserCheck, Play,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useSettings } from '../../context/SettingsContext';
@@ -225,8 +224,8 @@ export default function MemberDashboard() {
         {ACTIONS.map(a => {
           const Icon = a.icon;
           return (
-            <Link key={a.to} to={a.to} className="ui-card ui-card-link ui-card-pad">
-              <Icon size={20} style={{ color: 'var(--p-accent)' }} />
+            <Link key={a.to} to={a.to} className="ui-card ui-card-link ui-card-pad group">
+              <Icon size={20} className="transition-colors group-hover:text-[var(--p-text)]" style={{ color: 'var(--p-text-2)' }} />
               <p className="text-[14px] font-semibold mt-2.5" style={{ color: 'var(--p-text)' }}>{a.label}</p>
               <p className="text-[12px] mt-0.5" style={{ color: 'var(--p-muted)' }}>{a.hint}</p>
             </Link>
@@ -239,7 +238,7 @@ export default function MemberDashboard() {
         title="Gym Announcements & Updates"
         padded={false}
         action={
-          <Link to="/notifications" className="text-[13px] font-medium inline-flex items-center gap-1" style={{ color: 'var(--p-accent)' }}>
+          <Link to="/notifications" className="text-[13px] font-medium inline-flex items-center gap-1 hover:text-[var(--p-text)] transition-colors" style={{ color: 'var(--p-text-2)' }}>
             See all <ArrowRight size={13} />
           </Link>
         }
@@ -255,7 +254,7 @@ export default function MemberDashboard() {
                 <li key={n._id} className="py-3" style={{ borderTop: i ? '1px solid var(--p-border)' : 'none' }}>
                   <div className="flex items-start gap-2">
                     {!n.isRead && (
-                      <span className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style={{ background: 'var(--p-accent)' }} />
+                      <span className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style={{ background: 'var(--p-warn)' }} />
                     )}
                     <div className="min-w-0">
                       <p className="text-[14px] font-medium" style={{ color: 'var(--p-text)' }}>{n.title}</p>

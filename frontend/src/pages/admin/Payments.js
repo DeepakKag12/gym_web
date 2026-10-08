@@ -10,7 +10,7 @@ import API, { cachedGet, freshGet, bustCache, apiError } from '../../utils/api';
 import AdminLayout from './AdminLayout';
 import {
   Card, Button, Badge, Avatar, Input, EmptyState, SkeletonList, Table, TableRow,
-  Tabs, FadeIn, Stagger, StatCard, timeAgo, Modal, Field, Select, PdfViewerModal,
+  Tabs, FadeIn, timeAgo, Modal, Field, Select, PdfViewerModal,
 } from '../../components/ui';
 import { fmtDate } from '../../utils/membership';
 import { downloadPdf, fetchPdfBlobUrl } from '../../utils/pdf';
@@ -473,7 +473,7 @@ export default function AdminPayments() {
                     </span>
                     <Button
                       size="sm"
-                      variant="primary"
+                      variant="secondary"
                       icon={IndianRupee}
                       onClick={event => { event.preventDefault(); event.stopPropagation(); openPayDue(member); }}
                       aria-label={`Collect or edit due for ${member.name}`}
@@ -529,27 +529,27 @@ export default function AdminPayments() {
               onClick={() => setSource('all')}
               className={`p-3.5 sm:p-4 rounded-xl border text-left transition cursor-pointer relative overflow-hidden ${
                 source === 'all'
-                  ? 'ring-2 ring-emerald-500 shadow-md'
+                  ? 'ring-2 ring-[var(--p-accent)] shadow-md'
                   : 'hover:border-[var(--p-border-2)]'
               }`}
               style={{ background: 'var(--p-surface)', borderColor: 'var(--p-border)' }}
             >
               <div className="flex items-center justify-between mb-1">
-                <span className="text-xs font-semibold uppercase tracking-wider text-emerald-400">
+                <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--p-text-2)' }}>
                   Total Taken
                 </span>
-                <span className="p-1 rounded-md bg-emerald-500/10 text-emerald-400">
+                <span className="p-1 rounded-md" style={{ background: 'var(--p-surface-2)', color: 'var(--p-text-2)' }}>
                   <IndianRupee size={14} />
                 </span>
               </div>
-              <div className="text-2xl font-bold tracking-tight text-emerald-400">
+              <div className="text-2xl font-bold tracking-tight" style={{ color: 'var(--p-text)' }}>
                 {money(totals.all)}
               </div>
-              <p className="text-[11.5px] mt-0.5 truncate text-emerald-400/70">
+              <p className="text-[11.5px] mt-0.5 truncate" style={{ color: 'var(--p-muted)' }}>
                 Both sources together
               </p>
               {source === 'all' && (
-                <div className="absolute bottom-0 left-0 right-0 h-1 bg-emerald-500" />
+                <div className="absolute bottom-0 left-0 right-0 h-1 bg-[var(--p-accent)]" />
               )}
             </button>
 
@@ -587,27 +587,27 @@ export default function AdminPayments() {
               onClick={() => setSource('store')}
               className={`p-3.5 sm:p-4 rounded-xl border text-left transition cursor-pointer relative overflow-hidden ${
                 source === 'store'
-                  ? 'ring-2 ring-blue-500 shadow-md'
+                  ? 'ring-2 ring-[var(--p-accent)] shadow-md'
                   : 'hover:border-[var(--p-border-2)]'
               }`}
               style={{ background: 'var(--p-surface)', borderColor: 'var(--p-border)' }}
             >
               <div className="flex items-center justify-between mb-1">
-                <span className="text-xs font-semibold uppercase tracking-wider text-blue-400">
+                <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--p-text-2)' }}>
                   Shop Orders
                 </span>
-                <span className="p-1 rounded-md bg-blue-500/10 text-blue-400">
+                <span className="p-1 rounded-md" style={{ background: 'var(--p-surface-2)', color: 'var(--p-text-2)' }}>
                   <ShoppingBag size={14} />
                 </span>
               </div>
-              <div className="text-2xl font-bold tracking-tight text-blue-400">
+              <div className="text-2xl font-bold tracking-tight" style={{ color: 'var(--p-text)' }}>
                 {money(totals.store)}
               </div>
-              <p className="text-[11.5px] mt-0.5 truncate text-blue-400/70">
+              <p className="text-[11.5px] mt-0.5 truncate" style={{ color: 'var(--p-muted)' }}>
                 Product sales revenue
               </p>
               {source === 'store' && (
-                <div className="absolute bottom-0 left-0 right-0 h-1 bg-blue-500" />
+                <div className="absolute bottom-0 left-0 right-0 h-1 bg-[var(--p-accent)]" />
               )}
             </button>
 

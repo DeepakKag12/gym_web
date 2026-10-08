@@ -23,7 +23,7 @@ export default function CartPage() {
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-white font-bold text-2xl flex items-center gap-3">
-            <ShoppingCart size={26} className="text-cyan-400" /> Shopping Cart
+            <ShoppingCart size={26} className="text-gray-300" /> Shopping Cart
             <span className="text-gray-500 font-normal text-base">({cart.reduce((s,i)=>s+i.qty,0)} items)</span>
           </h1>
           <button onClick={clearCart} className="text-red-400 text-sm hover:underline font-medium">Clear all</button>
@@ -46,7 +46,7 @@ export default function CartPage() {
                   {(item.flavor || item.weight) && (
                     <p className="text-gray-500 text-xs mt-0.5">{[item.flavor, item.weight].filter(Boolean).join(' · ')}</p>
                   )}
-                  <p className="text-cyan-400 font-bold mt-1 text-sm">₹{item.discountPrice || item.price}</p>
+                  <p className="text-white font-bold mt-1 text-sm">₹{item.discountPrice || item.price}</p>
                 </div>
                 <div className="flex items-center border border-white/10 rounded-xl overflow-hidden bg-white/5">
                   <button onClick={() => updateQty(item._id, item.flavor, item.weight, item.qty - 1)} className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition-colors"><Minus size={13} /></button>
@@ -76,7 +76,7 @@ export default function CartPage() {
                 <span className="gradient-text">₹{total.toFixed(0)}</span>
               </div>
               <Link to="/checkout" className="btn-fire w-full justify-center py-3.5 text-base">Proceed to Checkout</Link>
-              <Link to="/store" className="block text-center text-gray-500 hover:text-cyan-400 text-sm mt-4 transition-colors">← Continue Shopping</Link>
+              <Link to="/store" className="block text-center text-gray-500 hover:text-primary text-sm mt-4 transition-colors">← Continue Shopping</Link>
             </div>
           </div>
         </div>

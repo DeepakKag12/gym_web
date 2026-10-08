@@ -6,27 +6,30 @@ module.exports = {
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
         gym:  ['"Bebas Neue"', 'cursive'],
-        // Used by shadcn-style components. No webfont is loaded for this —
-        // it falls back to the platform serif, which is enough for the one
-        // component that asks for it.
-        serif: ['Georgia', 'Cambria', 'Times New Roman', 'serif'],
+        display: ['"Playfair Display"', 'Georgia', 'serif'],
+        serif: ['"Playfair Display"', 'Georgia', 'serif'],
       },
       colors: {
-        primary: '#22d3ee',
-        secondary: '#0b0c0e',
-        accent:  '#818cf8',
+        primary: {
+          DEFAULT: 'var(--primary, #176b45)',
+          hover: 'var(--primary-hover, #125638)',
+          active: 'var(--primary-active, #0e442c)',
+          light: 'var(--primary-soft, rgba(23, 107, 69, 0.12))',
+          dark: '#0e442c',
+        },
+        secondary: 'var(--secondary, #2c2523)',
+        accent:  'var(--accent, #10b981)',
 
         // ── shadcn-style semantic tokens ──────────────────────────────────
         // Pointed at the CSS variables this project already defines in
-        // index.css. src/styles/panel.css re-points those same variables for
-        // the admin panel, so a component written against `bg-background`
-        // follows the light/dark switch with no extra work.
+        // index.css and theme.css. src/styles/panel.css re-points those same
+        // variables for the admin panel.
         background: 'var(--bg)',
         foreground: 'var(--text)',
         'muted-foreground': 'var(--muted2)',
         input: 'var(--border)',
-        ring: 'var(--cyan)',
-        destructive: '#ef4444',
+        ring: 'var(--primary, #16a34a)',
+        destructive: '#dc2626',
       },
       backgroundOpacity: {
         '4':  '0.04',

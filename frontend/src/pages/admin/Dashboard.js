@@ -4,8 +4,7 @@ import {
   UserSquare2, CheckCircle2, CalendarClock, UserPlus,
   AlertTriangle, RefreshCw, ArrowRight, Ban, Activity, IndianRupee,
   ShoppingBag, CreditCard, Eye, Download, MessageSquare,
-  Package, Sparkles, TrendingUp, DollarSign, PlusCircle,
-  Phone, ExternalLink, HelpCircle
+  Package, TrendingUp, DollarSign
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import AdminLayout from './AdminLayout';

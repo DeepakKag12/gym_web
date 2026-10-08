@@ -37,8 +37,8 @@ export default function ThemeSwitch({ className = '', size = 19 }) {
       whileTap={reduce ? undefined : { scale: 0.9 }}
       className={
         'relative grid h-9 w-9 place-items-center overflow-hidden rounded-xl ' +
-        'text-gray-400 transition-colors hover:text-[#22d3ee] hover:bg-white/5 ' +
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#22d3ee]/60 ' +
+        'text-gray-400 transition-colors hover:text-primary hover:bg-white/5 ' +
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 ' +
         className
       }
       style={{ minHeight: 0 }}

@@ -17,7 +17,7 @@ const MG_COLORS = {
   shoulders: 'bg-purple-500/15 text-purple-300', arms: 'bg-amber-500/15 text-amber-300',
   biceps: 'bg-amber-500/15 text-amber-300', triceps: 'bg-orange-500/15 text-orange-300',
   legs: 'bg-green-500/15 text-green-300', glutes: 'bg-pink-500/15 text-pink-300',
-  core: 'bg-cyan-500/15 text-cyan-300', abs: 'bg-cyan-500/15 text-cyan-300',
+  core: 'bg-rose-500/15 text-rose-300', abs: 'bg-rose-500/15 text-rose-300',
   cardio: 'bg-sky-500/15 text-sky-300', 'full-body': 'bg-indigo-500/15 text-indigo-300',
   other: 'bg-gray-500/15 text-gray-300',
 };
@@ -61,7 +61,7 @@ function DayExerciseSelector({ day, allExercises, selectedIds, onChange }) {
           </div>
           <span className="text-white text-sm font-semibold">{day}</span>
           {selectedIds.length > 0 && (
-            <span className="text-xs bg-[#22d3ee]/15 text-[#22d3ee] px-2 py-0.5 rounded-full">
+            <span className="text-xs bg-primary/15 text-primary border border-primary/25 px-2 py-0.5 rounded-full font-medium">
               {selectedIds.length} exercise{selectedIds.length !== 1 ? 's' : ''}
             </span>
           )}
@@ -96,7 +96,7 @@ function DayExerciseSelector({ day, allExercises, selectedIds, onChange }) {
             <div className="relative">
               <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
               <input
-                className="w-full bg-white/5 border border-white/8 rounded-xl py-2 pl-8 pr-3 text-xs text-white placeholder-gray-700 focus:outline-none focus:border-[#22d3ee]/30"
+                className="w-full bg-white/5 border border-white/8 rounded-xl py-2 pl-8 pr-3 text-xs text-white placeholder-gray-700 focus:outline-none focus:border-primary/50"
                 placeholder="Search exercises…"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
@@ -106,7 +106,7 @@ function DayExerciseSelector({ day, allExercises, selectedIds, onChange }) {
               {muscles.map(m => (
                 <button key={m} type="button" onClick={() => setMgFilter(m)}
                   className={`flex-shrink-0 text-[10px] px-2 py-0.5 rounded-full capitalize transition-all ${
-                    mgFilter === m ? 'bg-[#22d3ee]/20 text-[#22d3ee] border border-[#22d3ee]/25' : 'bg-white/5 text-gray-600 border border-white/8 hover:text-gray-400'
+                    mgFilter === m ? 'bg-primary text-white font-semibold' : 'bg-white/5 text-gray-600 border border-white/8 hover:text-gray-400'
                   }`}>
                   {m === 'all' ? 'All' : m}
                 </button>
@@ -123,10 +123,10 @@ function DayExerciseSelector({ day, allExercises, selectedIds, onChange }) {
               const exVid = vid(ex);
               return (
                 <label key={ex._id}
-                  className={`flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-white/4 transition-all border-b border-white/4 last:border-0 ${selected ? 'bg-[#22d3ee]/4' : ''}`}>
+                  className={`flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-white/4 transition-all border-b border-white/4 last:border-0 ${selected ? 'bg-primary/5' : ''}`}>
                   <input type="checkbox" checked={selected} onChange={() => toggle(ex._id)} className="hidden" />
-                  <div className={`w-4 h-4 rounded flex items-center justify-center flex-shrink-0 border transition-all ${selected ? 'bg-[#22d3ee] border-[#22d3ee]' : 'border-white/20'}`}>
-                    {selected && <Check size={11} strokeWidth={3} className="text-black" />}
+                  <div className={`w-4 h-4 rounded flex items-center justify-center flex-shrink-0 border transition-all ${selected ? 'bg-primary border-primary' : 'border-white/20'}`}>
+                    {selected && <Check size={11} strokeWidth={3} className="text-white" />}
                   </div>
                   {/* Thumb */}
                   <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0 overflow-hidden">
@@ -285,7 +285,7 @@ function SplitModal({ split, exercises, onClose, onSaved }) {
             <div className="flex items-end pb-1">
               <label className="flex items-center gap-2 cursor-pointer select-none">
                 <div onClick={() => setForm(p => ({ ...p, isDefault: !p.isDefault }))}
-                  className={`w-10 h-5 rounded-full transition-all flex-shrink-0 relative ${form.isDefault ? 'bg-[#22d3ee]' : 'bg-white/15'}`}>
+                  className={`w-10 h-5 rounded-full transition-all flex-shrink-0 relative ${form.isDefault ? 'bg-primary' : 'bg-white/15'}`}>
                   <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all ${form.isDefault ? 'left-5' : 'left-0.5'}`} />
                 </div>
                 <span className="text-gray-300 text-sm">Set as Default Plan</span>
@@ -361,7 +361,7 @@ export default function AdminSplits() {
 
       {loading ? (
         <div className="flex justify-center py-16">
-          <div className="w-8 h-8 border-2 border-[#22d3ee] border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
         </div>
       ) : splits.length === 0 ? (
         <div className="glass rounded-2xl p-12 text-center">
@@ -390,7 +390,7 @@ export default function AdminSplits() {
                   <div className="flex-1 min-w-0">
                     <div className="text-white font-bold text-base truncate">{split.title}</div>
                     <div className="flex items-center gap-2 mt-1 flex-wrap">
-                      <span className="text-xs bg-[#22d3ee]/15 text-[#22d3ee] px-2 py-0.5 rounded-full capitalize">
+                      <span className="text-xs bg-primary/15 text-primary border border-primary/25 px-2 py-0.5 rounded-full capitalize font-medium">
                         {split.goal?.replace('_', ' ')}
                       </span>
                       {split.isDefault && (
@@ -399,7 +399,7 @@ export default function AdminSplits() {
                     </div>
                   </div>
                   <div className="flex gap-1 flex-shrink-0">
-                    <button onClick={() => setModal(split)} className="p-1.5 text-gray-500 hover:text-[#22d3ee] hover:bg-[#22d3ee]/10 rounded-lg transition-all">
+                    <button onClick={() => setModal(split)} className="p-1.5 text-gray-500 hover:text-white hover:bg-white/10 rounded-lg transition-all">
                       <Edit2 size={14} />
                     </button>
                     <button onClick={() => deleteSplit(split._id)} className="p-1.5 text-gray-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all">
@@ -431,7 +431,7 @@ export default function AdminSplits() {
                     const count   = dayData?.exercises?.length || 0;
                     return (
                       <div key={d} className={`text-[10px] px-1.5 py-0.5 rounded-md font-medium ${
-                        count > 0 ? 'bg-[#22d3ee]/10 text-[#22d3ee]' : 'bg-white/4 text-gray-700'
+                        count > 0 ? 'bg-primary/15 text-primary font-semibold' : 'bg-white/4 text-gray-700'
                       }`}>
                         {d.slice(0,3)}{count > 0 ? ` (${count})` : ''}
                       </div>

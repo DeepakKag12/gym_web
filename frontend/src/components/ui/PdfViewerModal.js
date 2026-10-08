@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
   X, Download, Printer, ExternalLink, FileText,
   Maximize2, Minimize2, RefreshCw, AlertTriangle
@@ -188,8 +188,8 @@ export default function PdfViewerModal({
             <span
               className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm"
               style={{
-                background: 'var(--p-accent-soft, rgba(34,211,238,0.15))',
-                color: 'var(--p-accent, #22d3ee)',
+                background: 'var(--p-accent-soft, rgba(23,107,69,0.15))',
+                color: 'var(--p-accent, #176b45)',
               }}
             >
               <FileText size={18} />
@@ -202,9 +202,9 @@ export default function PdfViewerModal({
                 <span
                   className="hidden md:inline-flex px-2 py-0.5 rounded-full text-[10.5px] font-semibold tracking-wide uppercase"
                   style={{
-                    background: 'var(--p-accent-soft, rgba(34,211,238,0.15))',
-                    color: 'var(--p-accent, #22d3ee)',
-                    border: '1px solid var(--p-accent-line, rgba(34,211,238,0.3))',
+                    background: 'var(--p-accent-soft, rgba(23,107,69,0.15))',
+                    color: 'var(--p-accent, #176b45)',
+                    border: '1px solid var(--p-accent-line, rgba(23,107,69,0.3))',
                   }}
                 >
                   PDF Document
@@ -306,7 +306,7 @@ export default function PdfViewerModal({
                 className="w-10 h-10 border-3 rounded-full animate-spin"
                 style={{
                   borderColor: 'var(--p-border, rgba(255,255,255,0.15))',
-                  borderTopColor: 'var(--p-accent, #22d3ee)',
+                  borderTopColor: 'var(--p-accent, #176b45)',
                 }}
               />
               <p className="text-sm font-medium" style={{ color: 'var(--p-text)' }}>
@@ -383,7 +383,7 @@ export default function PdfViewerModal({
               type="button"
               onClick={handleDownload}
               className="font-semibold underline cursor-pointer"
-              style={{ color: 'var(--p-accent, #22d3ee)' }}
+              style={{ color: 'var(--p-accent, #176b45)' }}
             >
               Download PDF
             </button>

@@ -99,8 +99,8 @@ export default function MyProgress() {
         {/* Log Form */}
         {showForm && (
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-            className="glass rounded-2xl p-6 mb-6 border border-blue-500/20">
-            <h2 className="text-white font-semibold mb-4 flex items-center gap-2"><Scale size={18} className="text-blue-400" /> Log Progress Entry</h2>
+            className="glass rounded-2xl p-6 mb-6 border border-primary/25">
+            <h2 className="text-white font-semibold mb-4 flex items-center gap-2"><Scale size={18} className="text-gray-300" /> Log Progress Entry</h2>
             <form onSubmit={handleSubmit}>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
                 {[['date','Date','date'],['weight','Weight (kg)','number'],['bodyFat','Body Fat (%)','number'],['chest','Chest (cm)','number'],['waist','Waist (cm)','number'],['hips','Hips (cm)','number'],['arms','Arms (cm)','number'],['thighs','Thighs (cm)','number']].map(([k, lbl, type]) => (
@@ -136,7 +136,7 @@ export default function MyProgress() {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
             className="glass rounded-2xl p-6 mb-6">
             <h2 className="text-white font-semibold mb-2 flex items-center gap-2"><TrendingUp size={18} className="text-green-400" /> Progress Charts</h2>
-            <LineChart entries={[...entries].reverse()} field="weight" label="Weight (kg)" color="#38bdf8" />
+            <LineChart entries={[...entries].reverse()} field="weight" label="Weight (kg)" color="#22c55e" />
             <LineChart entries={[...entries].reverse()} field="waist" label="Waist (cm)" color="#f59e0b" />
             <LineChart entries={[...entries].reverse()} field="bodyFat" label="Body Fat (%)" color="#a78bfa" />
           </motion.div>
@@ -144,7 +144,7 @@ export default function MyProgress() {
 
         {/* Entries List */}
         {loading ? (
-          <div className="flex justify-center py-16"><div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" /></div>
+          <div className="flex justify-center py-16"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>
         ) : entries.length === 0 ? (
           <div className="glass rounded-2xl p-12 text-center">
             <Scale size={40} className="text-gray-600 mx-auto mb-3" />
@@ -161,7 +161,7 @@ export default function MyProgress() {
                       {new Date(entry.date).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}
                     </div>
                     <div className="flex flex-wrap gap-3 mt-2">
-                      {entry.weight && <span className="text-xs bg-blue-500/15 text-blue-300 px-2 py-0.5 rounded-full">{entry.weight} kg</span>}
+                      {entry.weight && <span className="text-xs bg-primary/15 text-emerald-400 px-2 py-0.5 rounded-full">{entry.weight} kg</span>}
                       {entry.bodyFat && <span className="text-xs bg-purple-500/15 text-purple-300 px-2 py-0.5 rounded-full">{entry.bodyFat}% body fat</span>}
                       {entry.waist && <span className="text-xs bg-amber-500/15 text-amber-300 px-2 py-0.5 rounded-full">Waist {entry.waist} cm</span>}
                       {entry.chest && <span className="text-xs bg-green-500/15 text-green-300 px-2 py-0.5 rounded-full">Chest {entry.chest} cm</span>}

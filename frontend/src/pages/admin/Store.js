@@ -142,8 +142,8 @@ function ProductModal({ editData, onClose, onSaved }) {
               </div>
             )}
             <button type="button" onClick={() => fileRef.current?.click()}
-              className="w-full border-2 border-dashed border-white/10 hover:border-[#22d3ee]/40 rounded-xl p-5 text-center cursor-pointer transition-all group">
-              <Upload size={20} className="text-gray-600 group-hover:text-[#22d3ee] mx-auto mb-1.5 transition-colors" />
+              className="w-full border-2 border-dashed border-white/10 hover:border-primary/40 rounded-xl p-5 text-center cursor-pointer transition-all group">
+              <Upload size={20} className="text-gray-600 group-hover:text-primary mx-auto mb-1.5 transition-colors" />
               <p className="text-gray-500 text-xs group-hover:text-gray-300 transition-colors">Click to upload images (multiple supported)</p>
               <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={handleFiles} />
             </button>
@@ -245,7 +245,7 @@ export default function AdminStore() {
 
       {loading ? (
         <div className="flex justify-center py-20">
-          <div className="w-8 h-8 border-2 border-[#22d3ee] border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
         </div>
       ) : filtered.length === 0 ? (
         <div className="glass rounded-2xl p-16 text-center">
@@ -265,7 +265,7 @@ export default function AdminStore() {
                     <img src={img(p.images[0], 300)} alt={p.name} loading="lazy" decoding="async" className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
-                      <Package size={40} className="text-gray-700" />
+                       <Package size={40} className="text-gray-700" />
                     </div>
                   )}
                   {disc > 0 && (
@@ -290,8 +290,8 @@ export default function AdminStore() {
                   <div className="text-white font-semibold text-sm line-clamp-1 mb-0.5">{p.name}</div>
                   <div className="text-gray-500 text-xs mb-2 capitalize">{p.brand} · {p.category}</div>
                   <div className="flex items-center gap-1.5 mb-3">
-                    <span className="text-[#22d3ee] font-bold text-sm">₹{p.discountPrice || p.price}</span>
-                    {p.discountPrice && <span className="text-gray-600 line-through text-xs">₹{p.price}</span>}
+                    <span className="text-white font-bold text-sm">₹{p.discountPrice || p.price}</span>
+                    {p.discountPrice && <span className="text-gray-500 line-through text-xs">₹{p.price}</span>}
                     <span className={`ml-auto text-xs ${p.stock > 10 ? 'text-emerald-400' : p.stock > 0 ? 'text-amber-400' : 'text-red-400'}`}>
                       Stock: {p.stock}
                     </span>

@@ -248,27 +248,27 @@ export default function AdminEnquiries() {
           onClick={() => setTab('contacted')}
           className={`p-3.5 sm:p-4 rounded-xl border text-left transition cursor-pointer relative overflow-hidden ${
             tab === 'contacted'
-              ? 'ring-2 ring-blue-500 shadow-md'
+              ? 'ring-2 ring-sky-500 shadow-md'
               : 'hover:border-[var(--p-border-2)]'
           }`}
           style={{ background: 'var(--p-surface)', borderColor: 'var(--p-border)' }}
         >
           <div className="flex items-center justify-between mb-1">
-            <span className="text-xs font-semibold uppercase tracking-wider text-blue-400">
+            <span className="text-xs font-semibold uppercase tracking-wider text-sky-400">
               Contacted
             </span>
-            <span className="p-1 rounded-md bg-blue-500/10 text-blue-400">
+            <span className="p-1 rounded-md bg-sky-500/10 text-sky-400">
               <Reply size={14} />
             </span>
           </div>
-          <div className="text-2xl font-bold tracking-tight text-blue-400">
+          <div className="text-2xl font-bold tracking-tight text-sky-400">
             {counts.contacted || 0}
           </div>
-          <p className="text-[11.5px] mt-0.5 truncate text-blue-400/70">
+          <p className="text-[11.5px] mt-0.5 truncate text-sky-400/70">
             Discussion in progress
           </p>
           {tab === 'contacted' && (
-            <div className="absolute bottom-0 left-0 right-0 h-1 bg-blue-500" />
+            <div className="absolute bottom-0 left-0 right-0 h-1 bg-sky-500" />
           )}
         </button>
 

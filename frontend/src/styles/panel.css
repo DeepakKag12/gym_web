@@ -12,45 +12,43 @@
 
 :root {
   /* Surfaces */
-  --p-bg:        #f5f6f8;   /* page background */
-  --p-surface:   #ffffff;   /* cards, inputs, sheets */
-  --p-surface-2: #f8fafc;   /* subtle fills, table headers, hover */
-  --p-border:    #e4e7ec;   /* hairlines */
-  --p-border-2:  #d0d5dd;   /* input borders, stronger dividers */
+  --p-bg:        var(--color-bg, #f4f0ea);   /* page background */
+  --p-surface:   var(--color-surface, #ffffff);   /* cards, inputs, sheets */
+  --p-surface-2: var(--color-surface-hover, #faf8f5);   /* subtle fills, table headers, hover */
+  --p-border:    var(--color-border, #e6e0d8);   /* hairlines */
+  --p-border-2:  var(--color-border-strong, #d4ccbf);   /* input borders, stronger dividers */
 
   /* Text — only three levels, on purpose */
-  --p-text:      #101828;   /* headings, values */
-  --p-text-2:    #475467;   /* body copy */
-  --p-muted:     #98a2b3;   /* labels, meta, placeholders */
+  --p-text:      var(--color-text-primary, #2c2523);   /* headings, values */
+  --p-text-2:    var(--color-text-secondary, #524742);   /* body copy */
+  --p-muted:     var(--color-text-muted, #756b65);   /* labels, meta, placeholders */
 
-  /* One accent, carried over from the brand cyan but darkened for contrast
-     on white (AA at 4.6:1 — the original #22d3ee sat at 1.7:1 and was
-     unreadable on a light surface). */
-  --p-accent:      #0e7490;
-  --p-accent-hov:  #155e75;
-  --p-accent-soft: #ecfeff;
-  --p-accent-line: #a5f3fc;
+  /* One accent: sophisticated athletic deep forest green */
+  --p-accent:      var(--color-primary, #176b45);
+  --p-accent-hov:  var(--color-primary-hover, #125638);
+  --p-accent-soft: var(--color-primary-soft, rgba(23, 107, 69, 0.08));
+  --p-accent-line: var(--color-primary-border, rgba(23, 107, 69, 0.24));
 
   /* Status */
-  --p-ok:     #067647;  --p-ok-soft:     #ecfdf3;  --p-ok-line:     #abefc6;
-  --p-warn:   #b54708;  --p-warn-soft:   #fffaeb;  --p-warn-line:   #fedf89;
-  --p-danger: #b42318;  --p-danger-soft: #fef3f2;  --p-danger-line: #fecdca;
-  --p-info:   #175cd3;  --p-info-soft:   #eff8ff;  --p-info-line:   #b2ddff;
+  --p-ok:     var(--color-status-success, #3b704a);  --p-ok-soft:     var(--color-status-success-soft, rgba(59, 112, 74, 0.10));  --p-ok-line:     #abefc6;
+  --p-warn:   var(--color-status-warning, #b86b1e);  --p-warn-soft:   var(--color-status-warning-soft, rgba(184, 107, 30, 0.10));  --p-warn-line:   #fde68a;
+  --p-danger: var(--color-status-error, #a83838);    --p-danger-soft: var(--color-status-error-soft, rgba(168, 56, 56, 0.10));  --p-danger-line: #fecaca;
+  --p-info:   var(--color-status-info, #5c6b73);    --p-info-soft:   var(--color-status-info-soft, rgba(92, 107, 115, 0.10));  --p-info-line:   #cbd5e1;
 
   /* Values the components used to hardcode — tokenised so the dark palette
      can override them in one place. */
-  --p-overlay:   rgba(16,24,40,0.45);
-  --p-skeleton:  #eceff3;
-  --p-focus:     rgba(14,116,144,0.12);
-  --p-scroll:    #cbd5e1;
+  --p-overlay:   rgba(44, 37, 35, 0.45);
+  --p-skeleton:  #ece7df;
+  --p-focus:     rgba(23, 107, 69, 0.20);
+  --p-scroll:    #d4ccbf;
   --p-scheme:    light;
   --p-option-bg: #ffffff;
 
-  --p-radius:   12px;
-  --p-radius-sm: 8px;
-  --p-shadow:   0 1px 2px rgba(16,24,40,0.05);
-  --p-shadow-md:0 4px 12px rgba(16,24,40,0.08);
-  --p-shadow-lg:0 12px 32px rgba(16,24,40,0.14);
+  --p-radius:   var(--radius-lg, 12px);
+  --p-radius-sm: var(--radius-md, 8px);
+  --p-shadow:   var(--shadow-sm);
+  --p-shadow-md:var(--shadow-md);
+  --p-shadow-lg:var(--shadow-lg);
 }
 
 /* =============================================================================
@@ -63,34 +61,33 @@
    ============================================================================= */
 body.theme-panel.theme-dark,
 html.theme-panel.theme-dark {
-  --p-bg:        #0b0c0e;
-  --p-surface:   #141619;
-  --p-surface-2: #1b1e23;
-  --p-border:    #262a30;
-  --p-border-2:  #363b43;
+  --p-bg:        var(--color-dark-bg, #141211);
+  --p-surface:   var(--color-dark-surface, #221f1d);
+  --p-surface-2: var(--color-dark-surface-hover, #2a2624);
+  --p-border:    var(--color-dark-border, rgba(255, 255, 255, 0.08));
+  --p-border-2:  rgba(255, 255, 255, 0.14);
 
-  --p-text:      #f1f5f9;
-  --p-text-2:    #a9b4c0;
-  --p-muted:     #6d7885;
+  --p-text:      var(--color-dark-text-primary, #fdfbf7);
+  --p-text-2:    var(--color-dark-text-secondary, #d6cdc7);
+  --p-muted:     var(--color-dark-text-muted, #9e928a);
 
-  /* On a near-black ground the full brand cyan is legible again (11:1), so
-     dark mode uses the real brand colour rather than the darkened step. */
-  --p-accent:      #22d3ee;
-  --p-accent-hov:  #67e8f9;
-  --p-accent-soft: rgba(34,211,238,0.12);
-  --p-accent-line: rgba(34,211,238,0.32);
+  /* On dark ground: vibrant athletic emerald accent */
+  --p-accent:      #1e8757;
+  --p-accent-hov:  #176b45;
+  --p-accent-soft: rgba(30, 135, 87, 0.14);
+  --p-accent-line: rgba(30, 135, 87, 0.32);
 
-  --p-ok:     #4ade80;  --p-ok-soft:     rgba(74,222,128,0.12);  --p-ok-line:     rgba(74,222,128,0.30);
-  --p-warn:   #fbbf24;  --p-warn-soft:   rgba(251,191,36,0.12);  --p-warn-line:   rgba(251,191,36,0.30);
-  --p-danger: #f87171;  --p-danger-soft: rgba(248,113,113,0.12); --p-danger-line: rgba(248,113,113,0.32);
-  --p-info:   #60a5fa;  --p-info-soft:   rgba(96,165,250,0.12);  --p-info-line:   rgba(96,165,250,0.30);
+  --p-ok:     #4e9462;  --p-ok-soft:     rgba(78, 148, 98, 0.12);  --p-ok-line:     rgba(78, 148, 98, 0.30);
+  --p-warn:   #d98a36;  --p-warn-soft:   rgba(217, 138, 54, 0.12); --p-warn-line:   rgba(217, 138, 54, 0.30);
+  --p-danger: #d95353;  --p-danger-soft: rgba(217, 83, 83, 0.12);  --p-danger-line: rgba(217, 83, 83, 0.32);
+  --p-info:   #9e928a;  --p-info-soft:   rgba(158, 146, 138, 0.12);--p-info-line:   rgba(158, 146, 138, 0.30);
 
   --p-overlay:   rgba(0,0,0,0.66);
-  --p-skeleton:  #22262c;
-  --p-focus:     rgba(34,211,238,0.18);
-  --p-scroll:    #333a43;
+  --p-skeleton:  #282422;
+  --p-focus:     rgba(30, 135, 87, 0.22);
+  --p-scroll:    #38322f;
   --p-scheme:    dark;
-  --p-option-bg: #141619;
+  --p-option-bg: #221f1d;
 
   --p-shadow:    0 1px 2px rgba(0,0,0,0.40);
   --p-shadow-md: 0 4px 12px rgba(0,0,0,0.45);
@@ -155,29 +152,105 @@ body.theme-panel :focus-visible {
 /* ── Buttons ─────────────────────────────────────────────────────────────── */
 .ui-btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  /* min-height as well as height: index.css sets a global 44px minimum on every
-     button/link for touch, which would otherwise stretch these out of shape. */
+  /* min-height as well as height: 44px touch compliance where appropriate */
   height: 40px; min-height: 40px; padding: 0 16px;
   border-radius: var(--p-radius-sm);
   font-size: 14px; font-weight: 600; font-family: inherit;
   border: 1px solid transparent;
   cursor: pointer;
   white-space: nowrap;
-  transition: background .15s, border-color .15s, color .15s;
+  position: relative;
+  overflow: hidden;
+  transition: background .15s, border-color .15s, color .15s, transform .15s cubic-bezier(0.16, 1, 0.3, 1), box-shadow .15s ease;
 }
-.ui-btn:disabled { opacity: .55; cursor: not-allowed; }
+.ui-btn:hover:not(:disabled) {
+  transform: translateY(-1.5px);
+  box-shadow: var(--p-shadow-md);
+}
+.ui-btn:active:not(:disabled) {
+  transform: translateY(0.5px);
+}
+.ui-btn:focus-visible {
+  outline: 2px solid var(--p-accent);
+  outline-offset: 2px;
+}
+.ui-btn:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
 
-.ui-btn-primary   { background: var(--p-accent); color: #fff; }
+.ui-btn-primary {
+  background: var(--p-accent);
+  color: #fff;
+}
+.ui-btn-primary::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.20), transparent);
+  transform: skewX(-20deg);
+  pointer-events: none;
+}
+.ui-btn-primary:hover:not(:disabled)::after {
+  left: 140%;
+  transition: left 0.75s ease-in-out;
+}
 .ui-btn-primary:hover:not(:disabled) { background: var(--p-accent-hov); }
 
 .ui-btn-secondary { background: var(--p-surface); color: var(--p-text-2); border-color: var(--p-border-2); }
-.ui-btn-secondary:hover:not(:disabled) { background: var(--p-surface-2); color: var(--p-text); }
+.ui-btn-secondary:hover:not(:disabled) { background: var(--p-surface-2); color: var(--p-text); border-color: var(--p-border-2); }
+
+.ui-btn-light {
+  background: #ffffff;
+  color: #141211;
+  border-color: #e6e0d8;
+  box-shadow: var(--p-shadow);
+}
+.ui-btn-light:hover:not(:disabled) {
+  background: #fbf9f6;
+  color: #141211;
+  border-color: #d4ccbf;
+}
+
+.ui-btn-dark {
+  background: #1c1917;
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.12);
+}
+.ui-btn-dark:hover:not(:disabled) {
+  background: #2b2624;
+  color: #ffffff;
+}
+
+.ui-btn-outline {
+  background: transparent;
+  color: var(--p-text);
+  border-color: var(--p-border-2);
+}
+.ui-btn-outline:hover:not(:disabled) {
+  background: var(--p-surface-2);
+  border-color: var(--p-text);
+}
 
 .ui-btn-ghost     { background: transparent; color: var(--p-text-2); }
 .ui-btn-ghost:hover:not(:disabled) { background: var(--p-surface-2); color: var(--p-text); }
 
 .ui-btn-danger    { background: var(--p-surface); color: var(--p-danger); border-color: var(--p-danger-line); }
-.ui-btn-danger:hover:not(:disabled) { background: var(--p-danger-soft); }
+.ui-btn-danger:hover:not(:disabled) { background: var(--p-danger-soft); border-color: var(--p-danger); }
+
+.ui-btn-destructive {
+  background: var(--p-danger);
+  color: #ffffff;
+  border-color: var(--p-danger);
+}
+.ui-btn-destructive:hover:not(:disabled) {
+  background: #b91c1c;
+}
 
 .ui-btn-sm { height: 34px; min-height: 34px; padding: 0 12px; font-size: 13px; }
 .ui-btn-block { width: 100%; }
@@ -498,7 +571,7 @@ body.theme-panel .panel-bar {
   min-height: 54px;
 }
 .panel-tab:hover { color: #cbd5e1; }
-.panel-tab-on    { color: #22d3ee; }
+.panel-tab-on    { color: var(--color-primary, #176b45); font-weight: 600; }
 body.theme-panel .panel-tab      { color: var(--p-muted); }
 body.theme-panel .panel-tab:hover{ color: var(--p-text-2); }
 body.theme-panel .panel-tab-on   { color: var(--p-accent); }

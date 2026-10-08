@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import AdminLayout from '../admin/AdminLayout';
 import {
   Users, Dumbbell, Salad, TrendingUp, Calendar,
-  UserCheck, ChevronRight, Activity, ArrowRight, Sparkles,
+  UserCheck, ChevronRight, ArrowRight,
 } from 'lucide-react';
 import { cachedGet } from '../../utils/api';
 import { useAuth } from '../../context/AuthContext';

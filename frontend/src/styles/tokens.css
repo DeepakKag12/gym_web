@@ -1,0 +1,166 @@
+/**
+ * =============================================================================
+ * DESIGN TOKENS (FitNation / Align and Flow Design System)
+ * Single Source of Truth for Colors, Radius, Spacing, Shadows, and Motion.
+ * =============================================================================
+ */
+
+:root {
+  /* ── 1. Color Palette (Semantic Tokens) ─────────────────────────────────── */
+  /* Primary Brand & CTA (Athletic Deep Forest Green - WCAG AAA Compliant) */
+  --color-primary:             #176b45;
+  --color-primary-hover:       #125638;
+  --color-primary-active:      #0e442c;
+  --color-primary-soft:        rgba(23, 107, 69, 0.09);
+  --color-primary-border:      rgba(23, 107, 69, 0.25);
+  --color-primary-glow:        rgba(23, 107, 69, 0.20);
+  --color-primary-contrast:    #ffffff;
+
+  /* Secondary Brand & Neutral Anchors (Warm Espresso Charcoal) */
+  --color-secondary:           #2c2523;
+  --color-secondary-hover:     #1f1a18;
+  --color-secondary-soft:      #ede8e1;
+
+  /* Brand Highlight & Accent (Performance Emerald) */
+  --color-accent:              #10b981;
+  --color-highlight:           #10b981;
+  --color-highlight-soft:      rgba(16, 185, 129, 0.12);
+
+  /* Dark Brand Ground */
+  --color-dark:                #141211;
+  --color-dark-hover:          #1f1b19;
+  --color-dark-brand:          #141211;
+
+  /* Surfaces & Backgrounds */
+  --color-bg:                  #f4f0ea;
+  --color-bg-subtle:           #ede7df;
+  --color-bg-elevated:         #fbf9f6;
+  --color-surface:             #ffffff;
+  --color-surface-hover:       #faf8f5;
+  --color-surface-glass:       rgba(255, 255, 255, 0.85);
+  --color-surface-dark:        #221f1d;
+
+  /* Borders */
+  --color-border:              #e6e0d8;
+  --color-border-subtle:       #ede8e1;
+  --color-border-strong:       #d4ccbf;
+
+  /* Typography Colors */
+  --color-text-primary:        #2c2523;
+  --color-text-secondary:      #524742;
+  --color-text-muted:          #756b65;
+  --color-text-disabled:       #a39891;
+  --color-text-on-dark:        #fdfbf7;
+  --color-text-on-primary:     #ffffff;
+
+  /* Contextual Button Tokens */
+  --color-btn-light-bg:        #ffffff;
+  --color-btn-light-text:      #141211;
+  --color-btn-light-hover:     #f5f2eb;
+  --color-btn-light-border:    rgba(0, 0, 0, 0.08);
+
+  --color-btn-dark-bg:         #1c1917;
+  --color-btn-dark-text:       #ffffff;
+  --color-btn-dark-hover:      #2b2624;
+  --color-btn-dark-border:     rgba(255, 255, 255, 0.12);
+
+  /* Status Tokens (WCAG AA compliant) */
+  --color-success:             #2e7d32;
+  --color-status-success:      #3b704a;
+  --color-status-success-soft: rgba(59, 112, 74, 0.10);
+  --color-status-success-text: #244b2f;
+
+  --color-warning:             #b86b1e;
+  --color-status-warning:      #b86b1e;
+  --color-status-warning-soft: rgba(184, 107, 30, 0.10);
+  --color-status-warning-text: #78430e;
+
+  --color-error:               #c53030;
+  --color-status-error:        #a83838;
+  --color-status-error-soft:   rgba(168, 56, 56, 0.10);
+  --color-status-error-text:   #731f1f;
+
+  --color-status-info:         #5c6b73;
+  --color-status-info-soft:    rgba(92, 107, 115, 0.10);
+  --color-status-info-text:    #374247;
+
+  /* ── 2. Dark Mode Overrides (Applied via .theme-dark) ─────────────────────── */
+  --color-dark-bg:             #141211;
+  --color-dark-bg-subtle:      #1a1716;
+  --color-dark-surface:        #221f1d;
+  --color-dark-surface-hover:  #2a2624;
+  --color-dark-surface-glass:  rgba(34, 31, 29, 0.88);
+  --color-dark-border:         rgba(255, 255, 255, 0.08);
+  --color-dark-border-strong:  rgba(255, 255, 255, 0.14);
+  --color-dark-text-primary:   #fdfbf7;
+  --color-dark-text-secondary: #d6cdc7;
+  --color-dark-text-muted:     #9e928a;
+
+  /* ── 3. Border Radii ──────────────────────────────────────────────────────── */
+  --radius-xs:                 4px;
+  --radius-sm:                 6px;
+  --radius-md:                 8px;      /* Standard modern button / input radius */
+  --radius-lg:                 12px;     /* Card radius */
+  --radius-xl:                 16px;     /* Modal / Container radius */
+  --radius-2xl:                24px;
+  --radius-full:               9999px;   /* Pills / Badges */
+
+  /* ── 4. Spacing Scale ─────────────────────────────────────────────────────── */
+  --space-0-5:                 0.125rem; /* 2px */
+  --space-1:                   0.25rem;  /* 4px */
+  --space-1-5:                 0.375rem; /* 6px */
+  --space-2:                   0.5rem;   /* 8px */
+  --space-2-5:                 0.625rem; /* 10px */
+  --space-3:                   0.75rem;  /* 12px */
+  --space-4:                   1rem;     /* 16px */
+  --space-5:                   1.25rem;  /* 20px */
+  --space-6:                   1.5rem;   /* 24px */
+  --space-8:                   2rem;     /* 32px */
+  --space-10:                  2.5rem;   /* 40px */
+  --space-12:                  3rem;     /* 48px */
+  --space-16:                  4rem;     /* 64px */
+
+  /* ── 5. Shadows ───────────────────────────────────────────────────────────── */
+  --shadow-xs:                 0 1px 2px rgba(44, 37, 35, 0.04);
+  --shadow-sm:                 0 2px 4px rgba(44, 37, 35, 0.06);
+  --shadow-md:                 0 4px 12px rgba(44, 37, 35, 0.08);
+  --shadow-lg:                 0 10px 24px -2px rgba(44, 37, 35, 0.12);
+  --shadow-xl:                 0 20px 32px -4px rgba(44, 37, 35, 0.16);
+  --shadow-glow:               0 0 24px rgba(23, 107, 69, 0.22);
+  --shadow-inner:              inset 0 1px 2px rgba(44, 37, 35, 0.06);
+
+  /* ── 6. Transitions & Motion ──────────────────────────────────────────────── */
+  --ease-standard:             cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out:               cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-fast:             150ms;
+  --duration-base:             240ms;
+  --duration-slow:             350ms;
+  --transition-transform:      transform var(--duration-base) var(--ease-standard);
+  --transition-colors:         background-color var(--duration-fast) ease, color var(--duration-fast) ease, border-color var(--duration-fast) ease;
+  --transition-interactive:    all var(--duration-fast) var(--ease-standard);
+
+  /* ── 7. Typography ────────────────────────────────────────────────────────── */
+  --font-display:              'Playfair Display', 'Cormorant Garamond', Georgia, serif;
+  --font-body:                 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Dark mode theme binding */
+html.theme-dark,
+body.theme-dark {
+  --color-bg:                  var(--color-dark-bg);
+  --color-bg-subtle:           var(--color-dark-bg-subtle);
+  --color-bg-elevated:         var(--color-dark-surface);
+  --color-surface:             var(--color-dark-surface);
+  --color-surface-hover:       var(--color-dark-surface-hover);
+  --color-surface-glass:       var(--color-dark-surface-glass);
+  --color-border:              var(--color-dark-border);
+  --color-border-subtle:       rgba(255, 255, 255, 0.05);
+  --color-border-strong:       var(--color-dark-border-strong);
+  --color-text-primary:        var(--color-dark-text-primary);
+  --color-text-secondary:      var(--color-dark-text-secondary);
+  --color-text-muted:          var(--color-dark-text-muted);
+
+  --shadow-sm:                 0 2px 4px rgba(0, 0, 0, 0.40);
+  --shadow-md:                 0 4px 12px rgba(0, 0, 0, 0.50);
+  --shadow-lg:                 0 10px 24px rgba(0, 0, 0, 0.60);
+}

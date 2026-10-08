@@ -1,14 +1,12 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { motion } from 'framer-motion';
 import {
-  TrendingUp, Users, Package, IndianRupee, Activity, BarChart3,
-  UserCheck, Clock, RefreshCw, CreditCard, ShoppingBag, ArrowUpRight,
-  ArrowDownRight, CheckCircle2, AlertTriangle, Layers, Percent, PieChart,
-  Calendar, Printer
+  TrendingUp, Users, IndianRupee,
+  UserCheck, Clock, RefreshCw, CreditCard, ShoppingBag,
+  CheckCircle2, Percent, Printer
 } from 'lucide-react';
 import { bustCache, freshGet } from '../../utils/api';
 import AdminLayout from './AdminLayout';
-import { Card, Button, StatCard, Stagger, FadeIn, Badge, Skeleton, EmptyState } from '../../components/ui';
+import { Card, Button, StatCard, Stagger, FadeIn, Skeleton, EmptyState } from '../../components/ui';
 
 const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -79,7 +77,7 @@ function RevenueBarChart({ data, timeRange = 'all' }) {
                 style={{ background: 'var(--p-surface-2)', border: '1px solid var(--p-border)', color: 'var(--p-text)' }}
               >
                 <div className="font-bold">{MONTH_NAMES[(d.month || 1) - 1]} {d.year}</div>
-                <div className="text-[11px] text-cyan-600">Memberships: ₹{mem.toLocaleString('en-IN')}</div>
+                <div className="text-[11px] text-primary font-medium">Memberships: ₹{mem.toLocaleString('en-IN')}</div>
                 <div className="text-[11px] text-emerald-600">Store: ₹{store.toLocaleString('en-IN')}</div>
                 <div className="font-semibold border-t pt-1 mt-1" style={{ borderColor: 'var(--p-border)' }}>
                   Total: ₹{tot.toLocaleString('en-IN')}

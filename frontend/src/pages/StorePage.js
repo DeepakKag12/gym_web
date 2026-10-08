@@ -91,13 +91,13 @@ function ProductCard({ product, onAdd }) {
       {/* ── Info ── */}
       <div className="p-4 flex flex-col flex-1">
         {product.brand && (
-          <div className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--cyan)' }}>
+          <div className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--muted)' }}>
             {product.brand}
           </div>
         )}
 
         <Link to={`/store/${product._id}`}>
-          <h3 className="font-semibold text-sm leading-snug mb-2 line-clamp-2 transition-colors hover:text-cyan-400"
+          <h3 className="font-semibold text-sm leading-snug mb-2 line-clamp-2 transition-colors hover:text-primary"
             style={{ color: 'var(--text)' }}>
             {product.name}
           </h3>
@@ -133,7 +133,7 @@ function ProductCard({ product, onAdd }) {
             <>
               <span className="line-through text-sm" style={{ color: 'var(--muted)' }}>₹{product.price}</span>
               <span className="text-xs font-semibold px-1.5 py-0.5 rounded"
-                style={{ background: 'rgba(34,211,238,0.1)', color: 'var(--cyan)' }}>
+                style={{ background: 'var(--color-status-success-bg, rgba(46,125,50,0.12))', color: 'var(--color-status-success, #2e7d32)' }}>
                 Save ₹{product.price - product.discountPrice}
               </span>
             </>
@@ -197,7 +197,7 @@ export default function StorePage() {
   const handleAdd = (product) => {
     addToCart(product, 1);
     toast.success(`${product.name} added!`, {
-      iconTheme: { primary: '#22d3ee', secondary: '#000' },
+      iconTheme: { primary: 'var(--color-primary, #176b45)', secondary: '#fff' },
     });
   };
 
@@ -226,9 +226,9 @@ export default function StorePage() {
       <div className="relative overflow-hidden" style={{ background: 'var(--bg2)', borderBottom: '1px solid var(--border)' }}>
         {/* Glow accents */}
         <div className="absolute -top-20 -left-20 w-72 h-72 rounded-full pointer-events-none"
-          style={{ background: 'radial-gradient(circle, rgba(34,211,238,0.08) 0%, transparent 70%)' }} />
+          style={{ background: 'radial-gradient(circle, rgba(148,62,58,0.12) 0%, transparent 70%)' }} />
         <div className="absolute -bottom-10 right-10 w-56 h-56 rounded-full pointer-events-none"
-          style={{ background: 'radial-gradient(circle, rgba(129,140,248,0.07) 0%, transparent 70%)' }} />
+          style={{ background: 'radial-gradient(circle, rgba(196,125,117,0.10) 0%, transparent 70%)' }} />
 
         <div className="max-w-7xl mx-auto px-6 py-14 relative">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
@@ -248,7 +248,7 @@ export default function StorePage() {
             <div className="grid grid-cols-2 gap-3">
               {TRUST_BADGES.map((b, i) => (
                 <div key={i} className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl"
-                  style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--cyan)' }}>
+                  style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--muted)' }}>
                   {b.icon}
                   <span className="text-xs font-medium whitespace-nowrap" style={{ color: 'var(--muted2)' }}>{b.label}</span>
                 </div>
@@ -303,8 +303,8 @@ export default function StorePage() {
             <ShoppingCart size={16} />
             Cart
             {count > 0 && (
-              <span className="w-5 h-5 text-[10px] font-bold rounded-full flex items-center justify-center"
-                style={{ background: 'var(--cyan)', color: '#000' }}>
+              <span className="w-5 h-5 text-[10px] font-bold rounded-full flex items-center justify-center text-white"
+                style={{ background: 'var(--color-primary, #176b45)' }}>
                 {count}
               </span>
             )}
@@ -332,7 +332,7 @@ export default function StorePage() {
             )}
           </p>
           {search && (
-            <span className="text-sm font-medium" style={{ color: 'var(--cyan)' }}>
+            <span className="text-sm font-medium" style={{ color: 'var(--color-primary, #176b45)' }}>
               Results for "<strong>{search}</strong>"
             </span>
           )}
@@ -348,7 +348,7 @@ export default function StorePage() {
             <ShoppingBag size={52} className="mx-auto mb-4" style={{ color: 'var(--border)' }} />
             <h3 className="font-semibold text-lg mb-2" style={{ color: 'var(--muted2)' }}>No products found</h3>
             <p className="text-sm mb-5" style={{ color: 'var(--muted)' }}>Try a different category or search term</p>
-            <button onClick={() => { setSearch(''); setCategory('all'); }} className="btn-fire text-sm px-6 py-2.5">
+            <button onClick={() => { setSearch(''); setCategory('all'); }} className="btn-secondary text-sm px-6 py-2.5">
               Show all products
             </button>
           </div>

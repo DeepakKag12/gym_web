@@ -7,7 +7,7 @@ import { img } from '../utils/img';
 const GOAL_COLORS = {
   'weight-loss': 'text-red-400 bg-red-400/10',
   'muscle-gain': 'text-orange-400 bg-orange-400/10',
-  'maintenance': 'text-blue-400 bg-blue-400/10',
+  'maintenance': 'text-emerald-400 bg-emerald-400/10',
   'endurance': 'text-green-400 bg-green-400/10',
   'general': 'text-purple-400 bg-purple-400/10',
 };
@@ -15,7 +15,7 @@ const GOAL_COLORS = {
 function DietCard({ plan }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="glass rounded-xl overflow-hidden hover:border-orange-500/30 transition-all">
+    <div className="glass rounded-xl overflow-hidden hover:border-primary/40 transition-all">
       <div className="p-5">
         {plan.image && <img src={img(plan.image, 500)} alt={plan.title} loading="lazy" decoding="async" className="w-full h-40 object-cover rounded-lg mb-4" />}
         <div className="flex items-start justify-between mb-2">
@@ -35,7 +35,7 @@ function DietCard({ plan }) {
         {plan.meals?.length > 0 && (
           <button
             onClick={() => setOpen(!open)}
-            className="mt-4 flex items-center gap-1 text-orange-400 text-sm hover:text-orange-300 transition-colors"
+            className="mt-4 flex items-center gap-1 text-gray-300 text-sm hover:text-white transition-colors"
           >
             {open ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
             {open ? 'Hide Meals' : `View ${plan.meals.length} Meals`}
@@ -48,7 +48,7 @@ function DietCard({ plan }) {
             {plan.meals.map((meal, i) => (
               <div key={i} className="bg-white/3 rounded-lg p-3">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-orange-400 font-semibold text-sm capitalize">{meal.mealType}</span>
+                  <span className="text-white font-semibold text-sm capitalize">{meal.mealType}</span>
                   {meal.time && <span className="text-gray-500 text-xs">{meal.time}</span>}
                 </div>
                 {meal.items?.length > 0 && (
@@ -101,7 +101,7 @@ export default function DietPage() {
               key={g}
               onClick={() => setFilter(g)}
               className={`px-4 py-2 rounded-full text-sm font-medium capitalize transition-all ${
-                filter === g ? 'bg-orange-500 text-white' : 'bg-white/5 text-gray-400 hover:bg-white/10 border border-white/10'
+                filter === g ? 'bg-primary text-white shadow-sm' : 'bg-white/5 text-gray-400 hover:bg-white/10 border border-white/10'
               }`}
             >
               {g.replace('-', ' ')}
@@ -111,7 +111,7 @@ export default function DietPage() {
 
         {loading ? (
           <div className="flex justify-center py-20">
-            <div className="w-10 h-10 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
+            <div className="w-10 h-10 border-2 border-primary border-t-transparent rounded-full animate-spin" />
           </div>
         ) : filtered.length === 0 ? (
           <div className="text-center py-20 text-gray-500">No diet plans available</div>

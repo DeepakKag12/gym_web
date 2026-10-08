@@ -68,7 +68,7 @@ export default function CheckoutPage() {
       {placedTotal !== null && (
         <p className="text-white font-semibold text-lg">Amount due on pickup: ₹{Number(placedTotal).toFixed(0)}</p>
       )}
-      <button onClick={() => navigate('/store')} className="btn-fire px-10 py-3">Continue Shopping</button>
+      <button onClick={() => navigate('/store')} className="btn-secondary px-10 py-3">Continue Shopping</button>
     </div>
   );
 
@@ -76,7 +76,7 @@ export default function CheckoutPage() {
     <div className="min-h-screen bg-[#0a0a0f] pt-20">
       <div className="max-w-3xl mx-auto px-6 py-10">
         <h1 className="text-white font-bold text-3xl flex items-center gap-3 mb-8">
-          <ShoppingBag className="text-orange-500" size={28} /> Checkout
+          <ShoppingBag className="text-primary" size={28} /> Checkout
         </h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -102,8 +102,8 @@ export default function CheckoutPage() {
                 <span className="font-semibold text-sm">Collect from Gym</span>
               </div>
               <p className="text-gray-400 text-sm">Pick up your order directly at the gym. Pay cash when you collect.</p>
-              <div className="flex items-center gap-2.5 mt-2 px-3 py-2.5 rounded-lg bg-orange-500/10 border border-orange-500/20">
-                <span className="text-orange-400 font-semibold text-sm">Cash on Delivery</span>
+              <div className="flex items-center gap-2.5 mt-2 px-3 py-2.5 rounded-lg bg-primary/10 border border-primary/20">
+                <span className="text-primary font-semibold text-sm">Cash on Delivery</span>
               </div>
             </div>
 
@@ -126,7 +126,7 @@ export default function CheckoutPage() {
                     {(item.flavor || item.weight) && (
                       <div className="text-gray-500 text-xs">{[item.flavor, item.weight].filter(Boolean).join(' · ')}</div>
                     )}
-                    <div className="text-orange-400 text-xs">₹{item.discountPrice || item.price} × {item.qty}</div>
+                    <div className="text-primary text-xs">₹{item.discountPrice || item.price} × {item.qty}</div>
                   </div>
                   <div className="text-white font-bold text-sm flex-shrink-0">
                     ₹{((item.discountPrice || item.price) * item.qty).toFixed(0)}
@@ -142,7 +142,7 @@ export default function CheckoutPage() {
                 <span>Delivery</span><span className="text-green-400">Collect from Gym</span>
               </div>
               <div className="flex justify-between text-sm text-gray-400">
-                <span>Payment</span><span className="text-orange-400">Cash on Delivery</span>
+                <span>Payment</span><span className="text-primary">Cash on Delivery</span>
               </div>
               <div className="flex justify-between font-bold text-lg border-t border-white/10 pt-2 mt-2">
                 <span className="text-gray-300">Total</span>

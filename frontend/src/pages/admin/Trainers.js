@@ -80,7 +80,7 @@ export default function AdminTrainers() {
 
       {loading ? (
         <div className="flex justify-center py-20">
-          <div className="w-10 h-10 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: 'var(--cyan)', borderTopColor: 'transparent' }} />
+          <div className="w-10 h-10 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: 'var(--color-primary, #176b45)', borderTopColor: 'transparent' }} />
         </div>
       ) : trainers.length === 0 ? (
         <div className="text-center py-20" style={{ color: 'var(--muted)' }}>No trainers yet. Add one!</div>
@@ -96,8 +96,8 @@ export default function AdminTrainers() {
                 }
               </div>
               {/* Avatar */}
-              <div className="w-14 h-14 rounded-full flex items-center justify-center text-black font-bold text-xl mx-auto mb-3"
-                style={{ background: 'linear-gradient(135deg, var(--cyan), #818cf8)' }}>
+              <div className="w-14 h-14 rounded-full flex items-center justify-center text-white font-bold text-xl mx-auto mb-3"
+                style={{ background: 'linear-gradient(135deg, var(--color-primary, #176b45), var(--color-secondary, #10b981))' }}>
                 {t.name?.[0]?.toUpperCase()}
               </div>
               <h3 className="font-semibold mb-0.5" style={{ color: 'var(--text)' }}>{t.name}</h3>
@@ -106,7 +106,7 @@ export default function AdminTrainers() {
               {t.gender && <p className="text-xs mb-1 capitalize" style={{ color: 'var(--muted)' }}>{t.gender}</p>}
               {t.specialization && <p className="text-xs mb-2 italic" style={{ color: 'var(--muted)' }}>{t.specialization}</p>}
               <div className="text-xs font-bold uppercase tracking-widest px-3 py-0.5 rounded-full inline-block mb-4"
-                style={{ background: 'rgba(34,211,238,0.1)', color: 'var(--cyan)', border: '1px solid rgba(34,211,238,0.2)' }}>
+                style={{ background: 'var(--color-primary-soft, rgba(23,107,69,0.12))', color: 'var(--color-primary, #176b45)', border: '1px solid var(--color-primary-border, rgba(23,107,69,0.25))' }}>
                 Trainer
               </div>
 
@@ -115,7 +115,7 @@ export default function AdminTrainers() {
                 <button
                   onClick={() => openEdit(t)}
                   className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all"
-                  style={{ background: 'rgba(34,211,238,0.1)', color: 'var(--cyan)', border: '1px solid rgba(34,211,238,0.2)' }}
+                  style={{ background: 'var(--color-primary-soft, rgba(23,107,69,0.12))', color: 'var(--color-primary, #176b45)', border: '1px solid var(--color-primary-border, rgba(23,107,69,0.25))' }}
                 >
                   <Edit2 size={12} /> Edit
                 </button>

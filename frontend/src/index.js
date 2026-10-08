@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import './styles/tokens.css';  // core design tokens (single source of truth)
 import './index.css';
 import './styles/theme.css';   // public palette + light-mode compat
 import './styles/panel.css';  // admin panel palette

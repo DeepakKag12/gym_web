@@ -7,7 +7,7 @@ import { thumb } from '../../utils/img';
 
 // Gym-pickup order flow statuses
 const STATUS_MAP = {
-  placed:    { icon: Clock,        color: 'text-blue-400 bg-blue-500/10 border border-blue-500/20',     label: 'Order Placed' },
+  placed:    { icon: Clock,        color: 'text-sky-400 bg-sky-500/10 border border-sky-500/20',     label: 'Order Placed' },
   confirmed: { icon: CheckCircle,  color: 'text-yellow-400 bg-yellow-500/10 border border-yellow-500/20', label: 'Confirmed' },
   ready:     { icon: Package,      color: 'text-purple-400 bg-purple-500/10 border border-purple-500/20', label: 'Ready for Pickup' },
   collected: { icon: CheckCircle,  color: 'text-green-400 bg-green-500/10 border border-green-500/20',    label: 'Collected' },
@@ -32,17 +32,17 @@ function OrderProgress({ status }) {
           <div className="flex flex-col items-center gap-1" style={{ flex: '0 0 auto' }}>
             <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold border-2 transition-all ${
               i <= current
-                ? 'bg-[#22d3ee] border-[#22d3ee] text-black'
+                ? 'bg-primary border-primary text-white shadow-sm'
                 : 'bg-transparent border-white/15 text-gray-600'
             }`}>
               {i < current ? <Check size={12} strokeWidth={3} /> : i + 1}
             </div>
-            <span className={`text-[9px] text-center whitespace-nowrap ${i <= current ? 'text-[#22d3ee]' : 'text-gray-600'}`}>
+            <span className={`text-[9px] text-center whitespace-nowrap ${i <= current ? 'text-primary font-medium' : 'text-gray-600'}`}>
               {labels[i]}
             </span>
           </div>
           {i < STEPS.length - 1 && (
-            <div className={`h-0.5 flex-1 mx-1 mb-3.5 transition-all ${i < current ? 'bg-[#22d3ee]' : 'bg-white/8'}`} />
+            <div className={`h-0.5 flex-1 mx-1 mb-3.5 transition-all ${i < current ? 'bg-primary' : 'bg-white/8'}`} />
           )}
         </React.Fragment>
       ))}
@@ -66,14 +66,14 @@ export default function MyOrders() {
       <div className="max-w-2xl mx-auto px-4 py-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
           <h1 className="gym-font text-3xl text-white flex items-center gap-2">
-            <ShoppingBag size={28} className="text-[#22d3ee]" /> My Orders
+            <ShoppingBag size={28} className="text-primary" /> My Orders
           </h1>
           <p className="text-gray-400 text-sm mt-1">Track your supplement orders</p>
         </motion.div>
 
         {loading ? (
           <div className="flex justify-center py-16">
-            <div className="w-8 h-8 border-2 border-[#22d3ee] border-t-transparent rounded-full animate-spin" />
+            <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
           </div>
         ) : orders.length === 0 ? (
           <div className="glass rounded-2xl p-12 text-center">

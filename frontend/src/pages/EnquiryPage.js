@@ -31,7 +31,7 @@ export default function EnquiryPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0f] pt-20">
-      <div className="relative bg-gradient-to-br from-red-900/20 to-transparent border-b border-white/10 py-16">
+      <div className="relative bg-gradient-to-br from-stone-900/40 via-stone-900/20 to-transparent border-b border-white/10 py-16">
         <div className="max-w-7xl mx-auto px-6 text-center">
           <MessageCircle size={40} className="text-green-400 mx-auto mb-4" />
           <h1 className="gym-font text-6xl text-white mb-3">GET IN <span className="gradient-text">TOUCH</span></h1>

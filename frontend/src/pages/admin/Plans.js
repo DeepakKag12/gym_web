@@ -4,6 +4,7 @@ import { Plus, Edit2, Trash2, Tag, CheckCircle, Star } from 'lucide-react';
 import toast from 'react-hot-toast';
 import API, { cachedGet, bustCache, freshGet } from '../../utils/api';
 import AdminLayout from './AdminLayout';
+import { ConfirmDialog } from '../../components/ui';
 
 function PlanModal({ plan, onClose, onSaved }) {
   const [form, setForm] = useState(plan ? { ...plan, features: plan.features?.join('\n') || '' } : {
@@ -75,6 +76,8 @@ export default function AdminPlans() {
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState(null);
+  const [planToDelete, setPlanToDelete] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   const fetchPlans = (force = false) => {
     setLoading(true);
@@ -83,14 +86,17 @@ export default function AdminPlans() {
   };
   useEffect(fetchPlans, []);
 
-  const deletePlan = async (id) => {
-    if (!window.confirm('Delete this plan?')) return;
+  const handleDeleteConfirm = async () => {
+    if (!planToDelete) return;
+    setDeleting(true);
     try {
-      await API.delete(`/plans/${id}`);
-      setPlans(prev => prev.filter(p => p._id !== id));
+      await API.delete(`/plans/${planToDelete._id}`);
+      setPlans(prev => prev.filter(p => p._id !== planToDelete._id));
       bustCache('/plans');
-      toast.success('Deleted');
+      toast.success('Plan deleted');
+      setPlanToDelete(null);
     } catch (err) { toast.error(err.response?.data?.message || 'Delete failed'); }
+    finally { setDeleting(false); }
   };
 
   return (
@@ -103,7 +109,7 @@ export default function AdminPlans() {
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-16"><div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" /></div>
+        <div className="flex justify-center py-16"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>
       ) : plans.length === 0 ? (
         <div className="glass rounded-2xl p-12 text-center">
           <Tag size={40} className="text-gray-600 mx-auto mb-3" />
@@ -113,9 +119,9 @@ export default function AdminPlans() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {plans.map((plan, i) => (
             <motion.div key={plan._id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}
-              className={`glass rounded-2xl p-5 relative ${plan.isPopular ? 'border-blue-500/40' : ''}`}>
+              className={`glass rounded-2xl p-5 relative ${plan.isPopular ? 'border-primary/50 ring-1 ring-primary/40' : ''}`}>
               {plan.isPopular && (
-                <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-blue-500 text-white text-xs font-semibold px-3 py-0.5 rounded-full flex items-center gap-1">
+                <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-primary text-white text-xs font-semibold px-3 py-0.5 rounded-full flex items-center gap-1 shadow-md">
                   <Star size={11} /> Popular
                 </div>
               )}
@@ -125,22 +131,24 @@ export default function AdminPlans() {
                   <div className="text-gray-500 text-xs">{plan.durationDays} days</div>
                 </div>
                 <div className="text-right">
-                  <div className="text-blue-400 font-bold text-xl">₹{plan.price?.toLocaleString('en-IN')}</div>
-                  {!plan.isActive && <span className="text-xs text-gray-600">Inactive</span>}
+                  <div className={`font-bold text-xl ${plan.isPopular ? 'text-primary' : 'text-white'}`}>
+                    ₹{plan.price?.toLocaleString('en-IN')}
+                  </div>
+                  {!plan.isActive && <span className="text-xs text-gray-500">Inactive</span>}
                 </div>
               </div>
               <ul className="space-y-1.5 mb-4">
                 {(plan.features || []).map((f, j) => (
                   <li key={j} className="flex items-start gap-2 text-gray-300 text-xs">
-                    <CheckCircle size={12} className="text-green-400 mt-0.5 flex-shrink-0" /> {f}
+                    <CheckCircle size={12} className={`mt-0.5 flex-shrink-0 ${plan.isPopular ? 'text-emerald-400' : 'text-gray-500'}`} /> {f}
                   </li>
                 ))}
               </ul>
               <div className="flex gap-2 pt-2 border-t border-white/10">
-                <button onClick={() => setModal(plan)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-blue-400 transition-colors">
+                <button onClick={() => setModal(plan)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-white transition-colors">
                   <Edit2 size={13} /> Edit
                 </button>
-                <button onClick={() => deletePlan(plan._id)} className="flex items-center gap-1 text-xs text-gray-500 hover:text-red-400 transition-colors ml-auto">
+                <button onClick={() => setPlanToDelete(plan)} className="flex items-center gap-1 text-xs text-gray-500 hover:text-red-400 transition-colors ml-auto">
                   <Trash2 size={13} /> Delete
                 </button>
               </div>
@@ -151,6 +159,19 @@ export default function AdminPlans() {
 
       {modal && (
         <PlanModal plan={modal === 'new' ? null : modal} onClose={() => setModal(null)} onSaved={() => { bustCache('/plans'); setModal(null); fetchPlans(true); }} />
+      )}
+
+      {planToDelete && (
+        <ConfirmDialog
+          title="Delete Plan"
+          message={`Are you sure you want to delete "${planToDelete.name}"? Members currently on this plan will not be affected, but no new members will be able to select it.`}
+          confirmLabel="Delete Plan"
+          cancelLabel="Cancel"
+          tone="danger"
+          loading={deleting}
+          onConfirm={handleDeleteConfirm}
+          onCancel={() => setPlanToDelete(null)}
+        />
       )}
     </AdminLayout>
   );

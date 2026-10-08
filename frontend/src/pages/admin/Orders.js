@@ -9,13 +9,13 @@ import AdminLayout from './AdminLayout';
 import toast from 'react-hot-toast';
 import { thumb } from '../../utils/img';
 import { downloadPdf, fetchPdfBlobUrl } from '../../utils/pdf';
-import { PdfViewerModal, Button, StatCard, Stagger, Input } from '../../components/ui';
+import { PdfViewerModal, Button, Input } from '../../components/ui';
 
 // Gym-pickup order flow
 const STATUSES = ['placed', 'confirmed', 'ready', 'collected', 'cancelled'];
 
 const STATUS_META = {
-  placed:    { label: 'Order Placed',        color: 'text-blue-400 bg-blue-400/10 border-blue-400/20' },
+  placed:    { label: 'Order Placed',        color: 'text-sky-400 bg-sky-400/10 border-sky-400/20' },
   confirmed: { label: 'Confirmed',           color: 'text-yellow-400 bg-yellow-400/10 border-yellow-400/20' },
   ready:     { label: 'Ready for Pickup',    color: 'text-purple-400 bg-purple-400/10 border-purple-400/20' },
   collected: { label: 'Collected',           color: 'text-green-400 bg-green-400/10 border-green-400/20' },
@@ -329,7 +329,7 @@ export default function AdminOrders() {
               onClick={() => setFilterStatus('all')}
               className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
                 filterStatus === 'all'
-                  ? 'bg-[#22d3ee] text-black shadow-sm font-bold'
+                  ? 'bg-primary text-white shadow-sm font-semibold'
                   : 'bg-white/5 text-gray-400 border border-white/10 hover:border-white/20'
               }`}
             >
@@ -341,7 +341,7 @@ export default function AdminOrders() {
                 onClick={() => setFilterStatus(s)}
                 className={`px-3 py-1.5 rounded-full text-xs font-semibold capitalize transition-all flex items-center gap-1.5 ${
                   filterStatus === s
-                    ? 'bg-[#22d3ee] text-black shadow-sm font-bold'
+                    ? 'bg-primary text-white shadow-sm font-semibold'
                     : 'bg-white/5 text-gray-400 border border-white/10 hover:border-white/20'
                 }`}
               >
@@ -355,7 +355,7 @@ export default function AdminOrders() {
         {/* Orders list */}
         {loading ? (
           <div className="flex justify-center py-20">
-            <div className="w-10 h-10 border-2 border-[#22d3ee] border-t-transparent rounded-full animate-spin" />
+            <div className="w-10 h-10 border-2 border-primary border-t-transparent rounded-full animate-spin" />
           </div>
         ) : filtered.length === 0 ? (
           <div className="text-center py-20 text-gray-500 ui-card ui-card-pad">
@@ -397,8 +397,8 @@ export default function AdminOrders() {
 
                     <div className="flex items-center gap-2">
                       <div className="text-right mr-1">
-                        <div className="text-[#22d3ee] font-bold text-base">₹{o.totalAmount}</div>
-                        <div className="text-[11px] text-orange-400 font-semibold uppercase">
+                        <div className="font-bold text-base" style={{ color: 'var(--p-text)' }}>₹{o.totalAmount}</div>
+                        <div className="text-[11px] font-semibold uppercase" style={{ color: 'var(--p-muted)' }}>
                           {o.paymentMethod || 'COD'}
                         </div>
                       </div>
@@ -425,7 +425,7 @@ export default function AdminOrders() {
 
                   {/* Customer info */}
                   <div className="flex items-center gap-2.5 mb-3 pb-3 border-b border-white/5">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-xs flex-shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white font-bold text-xs flex-shrink-0">
                       {(o.shippingAddress?.name || o.user?.name || '?')[0].toUpperCase()}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -515,7 +515,7 @@ export default function AdminOrders() {
                         <button
                           type="button"
                           onClick={() => updateOrderStatus(o._id, 'confirmed')}
-                          className="text-[11px] px-2.5 py-1 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20 hover:bg-blue-500/20 transition-colors"
+                          className="text-[11px] px-2.5 py-1 rounded-lg bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-colors font-medium"
                         >
                           Confirm Order
                         </button>

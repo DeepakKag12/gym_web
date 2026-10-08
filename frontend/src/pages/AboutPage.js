@@ -89,7 +89,7 @@ export default function AboutPage() {
             className="flex flex-wrap gap-4 mt-8">
             <a href={site.telHref}
               className="flex items-center gap-2 bg-white/10 border border-white/20 backdrop-blur-sm rounded-full px-4 py-2 text-sm text-white hover:bg-white/20 transition-all">
-              <Phone size={14} className="text-cyan-400" /> {site.phone}
+              <Phone size={14} className="text-gray-300" /> {site.phone}
             </a>
             <a href={site.instagramHref} target="_blank" rel="noreferrer"
               className="flex items-center gap-2 bg-white/10 border border-white/20 backdrop-blur-sm rounded-full px-4 py-2 text-sm text-white hover:bg-white/20 transition-all">
@@ -131,8 +131,8 @@ export default function AboutPage() {
               <div className="absolute inset-0 bg-gradient-to-t from-[#0b0c0e]/80 via-transparent to-transparent"/>
               {/* Floating badge */}
               <div className="absolute bottom-6 left-6 right-6">
-                <div className="glass rounded-2xl p-4 border border-cyan-500/20">
-                  <div className="text-cyan-400 text-xs font-bold uppercase tracking-widest mb-1">Founder & Head Trainer</div>
+                <div className="glass rounded-2xl p-4 border border-primary/20">
+                  <div className="text-secondary text-xs font-bold uppercase tracking-widest mb-1">Founder & Head Trainer</div>
                   <div className="text-white font-bold text-xl">Ajeet Singh</div>
                   <div className="text-gray-400 text-sm mt-0.5">10+ years · Certified Coach</div>
                 </div>
@@ -153,7 +153,7 @@ export default function AboutPage() {
             <ul className="mt-6 space-y-2">
               {['500+ Active Members', 'Expert Certified Trainers', '10+ Years of Experience', 'Personalised Programs', 'Modern Equipment', 'Hygienic Facility'].map((f, i) => (
                 <li key={i} className="flex items-center gap-2 text-sm text-gray-300">
-                  <CheckCircle size={15} className="text-[#22d3ee] flex-shrink-0"/> {f}
+                  <CheckCircle size={15} className="text-primary flex-shrink-0"/> {f}
                 </li>
               ))}
             </ul>
@@ -231,7 +231,7 @@ export default function AboutPage() {
                 { icon: Sparkles,   title: 'Keep Gym Clean', sub: 'Maintain hygiene & discipline' },
               ].map((n, i) => (
                 <div key={i} className="flex items-center gap-4 px-6 py-5">
-                  <n.icon size={20} className="flex-shrink-0 mt-0.5 text-[#22d3ee]" />
+                  <n.icon size={20} className="flex-shrink-0 mt-0.5 text-primary" />
                   <div>
                     <div className="text-white font-semibold text-sm">{n.title}</div>
                     <div className="text-gray-500 text-xs mt-0.5">{n.sub}</div>
@@ -258,8 +258,8 @@ export default function AboutPage() {
                   initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }} transition={{ delay: i * 0.1 }}
                   whileHover={{ y: -4 }}
-                  className="glass rounded-2xl p-6 border border-white/5 hover:border-[#22d3ee]/20 transition-all">
-                  <div className="w-11 h-11 rounded-xl bg-[#22d3ee]/10 border border-[#22d3ee]/20 flex items-center justify-center text-[#22d3ee] mb-4">
+                  className="glass rounded-2xl p-6 border border-white/5 hover:border-primary/30 transition-all">
+                  <div className="w-11 h-11 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary mb-4">
                     <Icon size={20} />
                   </div>
                   <h3 className="text-white font-semibold mb-2">{v.title}</h3>
@@ -285,15 +285,15 @@ export default function AboutPage() {
                 initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }} transition={{ delay: i * 0.1 }}
                 whileHover={{ y: -5 }}
-                className="glass rounded-2xl overflow-hidden group border border-white/5 hover:border-[#22d3ee]/25 transition-all">
+                className="glass rounded-2xl overflow-hidden group border border-white/5 hover:border-primary/30 transition-all">
                 <div className="relative h-52 overflow-hidden">
                   <img src={t.img} alt={t.name} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"/>
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0b0c0e] via-transparent to-transparent"/>
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#22d3ee] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"/>
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"/>
                 </div>
                 <div className="p-4">
                   <div className="text-white font-bold text-base">{t.name}</div>
-                  <div className="text-[#22d3ee] text-xs font-semibold mt-0.5">{t.role}</div>
+                  <div className="text-secondary text-xs font-semibold mt-0.5">{t.role}</div>
                   <div className="text-gray-600 text-xs mt-2">{t.spec}</div>
                   <div className="text-gray-700 text-xs mt-0.5">{t.exp} experience</div>
                 </div>
@@ -316,9 +316,9 @@ export default function AboutPage() {
             {/* Phone */}
             <motion.a href={site.telHref}
               initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0 }}
-              whileHover={{ y: -4, borderColor: 'rgba(34,211,238,0.4)' }}
+              whileHover={{ y: -4, borderColor: 'var(--color-primary-border, rgba(148,62,58,0.4))' }}
               className="glass rounded-2xl p-6 border border-white/8 flex items-start gap-4 transition-all group">
-              <div className="w-12 h-12 rounded-2xl bg-cyan-400/10 border border-cyan-400/20 flex items-center justify-center text-cyan-400 flex-shrink-0 group-hover:bg-cyan-400/20 transition-all">
+              <div className="w-12 h-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary flex-shrink-0 group-hover:bg-primary/20 transition-all">
                 <Phone size={20} />
               </div>
               <div>
@@ -326,7 +326,7 @@ export default function AboutPage() {
                 <div className="text-white font-bold text-lg">{site.phone || 'Contact us'}</div>
                 <div className="text-gray-500 text-xs mt-1">Available Mon–Sat</div>
               </div>
-              <ChevronRight size={16} className="text-gray-600 group-hover:text-cyan-400 ml-auto mt-1 transition-colors" />
+              <ChevronRight size={16} className="text-gray-600 group-hover:text-primary ml-auto mt-1 transition-colors" />
             </motion.a>
 
             {/* Instagram */}
@@ -369,7 +369,7 @@ export default function AboutPage() {
             className="mt-5 glass-cyan rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
               <div className="text-white font-bold text-lg">Let's build a stronger community together</div>
-              <div className="text-cyan-300/70 text-sm mt-0.5">Message us on WhatsApp for any query or to join {site.gymName || 'FITNATION'}</div>
+              <div className="text-emerald-300/80 text-sm mt-0.5">Message us on WhatsApp for any query or to join {site.gymName || 'FITNATION'}</div>
             </div>
             <a href={site.waHref} target="_blank" rel="noreferrer"
               className="btn-fire px-6 py-3 flex-shrink-0 flex items-center gap-2">
