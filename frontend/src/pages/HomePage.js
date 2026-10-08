@@ -217,7 +217,7 @@ function KineticPerformanceEngine({ progress, isDark }) {
       <div
         className={`relative w-64 h-64 rounded-3xl p-4 backdrop-blur-xl border transition-all duration-300 shadow-xl flex items-center justify-center ${isDark
             ? 'bg-[#15191c]/80 border-white/10 shadow-black/40'
-            : 'bg-white/85 border-slate-200/80 shadow-slate-300/40'
+            : 'bg-[#fcf8f2]/95 border-[#e2dacf] shadow-[#ded6ca]/40'
           }`}
       >
         {/* Animated Concentric SVG HUD */}
@@ -296,7 +296,7 @@ function KineticPerformanceEngine({ progress, isDark }) {
         <motion.div
           animate={{ y: [0, -3, 0] }}
           transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-          className={`absolute -top-3 -right-3 rounded-xl px-2.5 py-1.5 text-[11px] font-semibold border backdrop-blur-md shadow-md flex items-center gap-1.5 ${isDark ? 'bg-[#181d21]/90 border-white/12 text-white' : 'bg-white/95 border-slate-200 text-slate-800'
+          className={`absolute -top-3 -right-3 rounded-xl px-2.5 py-1.5 text-[11px] font-semibold border backdrop-blur-md shadow-md flex items-center gap-1.5 ${isDark ? 'bg-[#181d21]/90 border-white/12 text-white' : 'bg-[#fcf8f2]/95 border-[#e2dacf] text-slate-800'
             }`}
         >
           <Zap size={12} className="text-emerald-400" />
@@ -307,7 +307,7 @@ function KineticPerformanceEngine({ progress, isDark }) {
         <motion.div
           animate={{ y: [0, 3, 0] }}
           transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
-          className={`absolute -bottom-3 -left-3 rounded-xl px-2.5 py-1.5 text-[11px] font-semibold border backdrop-blur-md shadow-md flex items-center gap-1.5 ${isDark ? 'bg-[#181d21]/90 border-white/12 text-white' : 'bg-white/95 border-slate-200 text-slate-800'
+          className={`absolute -bottom-3 -left-3 rounded-xl px-2.5 py-1.5 text-[11px] font-semibold border backdrop-blur-md shadow-md flex items-center gap-1.5 ${isDark ? 'bg-[#181d21]/90 border-white/12 text-white' : 'bg-[#fcf8f2]/95 border-[#e2dacf] text-slate-800'
             }`}
         >
           <Flame size={12} className="text-amber-500" />
@@ -388,7 +388,9 @@ export default function HomePage() {
 
   return (
     <div
-      className={`min-h-screen relative overflow-x-hidden transition-colors duration-300 ${isDark ? 'text-white' : 'text-slate-900'}`}
+      className={`min-h-screen relative overflow-x-hidden transition-colors duration-300 ${
+        isDark ? 'text-white' : 'text-slate-900 bg-[#f5f1eb]'
+      }`}
       style={{ isolation: 'isolate' }}
     >
       {/* ── WHOLE-PAGE FLASHLIGHT BACKGROUND ─────────── */}
@@ -419,8 +421,9 @@ export default function HomePage() {
         </div>
 
         {/* ── MARQUEE ───────────────────────────────── */}
-        <div className={`py-4 border-y overflow-hidden backdrop-blur-[3px] transition-colors ${isDark ? 'border-white/10 bg-black/30' : 'border-slate-300/40 bg-white/40'
-          }`}>
+        <div className={`py-4 border-y overflow-hidden backdrop-blur-[3px] transition-colors ${
+          isDark ? 'border-white/10 bg-black/30' : 'border-[#e0d8cb]/80 bg-[#ede5d8]/40'
+        }`}>
           <div className="flex animate-marquee gap-12 w-max">
             {[...marqueeItems, ...marqueeItems].map((item, i) => (
               <span key={i} className={`gym-font text-2xl tracking-widest flex items-center gap-4 ${isDark ? 'text-white/30' : 'text-slate-700/40'
@@ -463,8 +466,9 @@ export default function HomePage() {
         </section>
 
         {/* ── GYM TIMING SECTION ────────────────────── */}
-        <section className={`py-20 px-6 border-y backdrop-blur-[3px] transition-colors ${isDark ? 'border-white/10 bg-black/35' : 'border-slate-200/60 bg-white/45'
-          }`}>
+        <section className={`py-20 px-6 border-y backdrop-blur-[3px] transition-colors ${
+          isDark ? 'border-white/10 bg-black/35' : 'border-[#e0d8cb]/80 bg-[#ede5d8]/40'
+        }`}>
           <div className="max-w-5xl mx-auto">
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
               <span className="section-pill">Gym Timing</span>
@@ -476,8 +480,9 @@ export default function HomePage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-10">
               {/* Morning */}
               <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
-                className={`rounded-2xl p-7 border backdrop-blur-md transition-all ${isDark ? 'bg-white/5 border-white/10 hover:border-primary/40' : 'bg-white/70 border-slate-200/80 hover:border-primary/40 shadow-sm'
-                  }`}>
+                className={`rounded-2xl p-7 border backdrop-blur-md transition-all ${
+                  isDark ? 'bg-white/5 border-white/10 hover:border-primary/40' : 'bg-[#fcf8f2]/95 border-[#e2dacf] hover:border-primary/40 shadow-sm'
+                }`}>
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 rounded-xl bg-amber-400/10 text-amber-400 flex items-center justify-center"><Sun size={18} /></div>
                   <div>
@@ -491,8 +496,9 @@ export default function HomePage() {
 
               {/* Evening */}
               <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
-                className={`rounded-2xl p-7 border backdrop-blur-md transition-all ${isDark ? 'bg-white/5 border-white/10 hover:border-primary/40' : 'bg-white/70 border-slate-200/80 hover:border-primary/40 shadow-sm'
-                  }`}>
+                className={`rounded-2xl p-7 border backdrop-blur-md transition-all ${
+                  isDark ? 'bg-white/5 border-white/10 hover:border-primary/40' : 'bg-[#fcf8f2]/95 border-[#e2dacf] hover:border-primary/40 shadow-sm'
+                }`}>
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 rounded-xl bg-indigo-400/10 text-indigo-400 flex items-center justify-center"><Moon size={18} /></div>
                   <div>
@@ -507,8 +513,9 @@ export default function HomePage() {
 
             {/* Important notes */}
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-              className={`rounded-2xl p-6 border backdrop-blur-md ${isDark ? 'bg-white/5 border-yellow-500/20' : 'bg-white/70 border-yellow-500/30 shadow-sm'
-                }`}>
+              className={`rounded-2xl p-6 border backdrop-blur-md ${
+                isDark ? 'bg-white/5 border-yellow-500/20' : 'bg-[#fcf8f2]/95 border-yellow-500/30 shadow-sm'
+              }`}>
               <div className="text-yellow-500 text-xs font-bold uppercase tracking-widest mb-4">Important Notes</div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
                 {[
@@ -531,8 +538,9 @@ export default function HomePage() {
 
         {/* ── MOTIVATION SPOTLIGHT REVEAL ───────────── */}
         <section className="py-16 px-6">
-          <div className={`max-w-6xl mx-auto rounded-3xl overflow-hidden border relative shadow-2xl transition-all duration-300 ${isDark ? 'border-white/15 bg-black shadow-primary/10' : 'border-slate-300/80 bg-slate-100 shadow-slate-300/30'
-            }`}>
+          <div className={`max-w-6xl mx-auto rounded-3xl overflow-hidden border relative shadow-2xl transition-all duration-300 ${
+            isDark ? 'border-white/15 bg-black shadow-primary/10' : 'border-[#dfd6c8] bg-[#ede5d8] shadow-slate-300/20'
+          }`}>
             <FlashlightTextReveal
               text={"UNLEASH YOUR\nINNER BEAST\nFITNATION"}
               height="58vh"
@@ -598,16 +606,16 @@ export default function HomePage() {
                       animate={{ opacity: active ? 1 : 0.4, x: active ? 0 : 12 }}
                       transition={{ duration: 0.35 }}
                       className={`relative flex items-start gap-4 p-4 rounded-2xl border transition-all duration-300 ${active
-                          ? (isDark ? 'bg-white/5 border-white/15 shadow-sm' : 'bg-white border-slate-200/90 shadow-sm')
+                          ? (isDark ? 'bg-white/5 border-white/15 shadow-sm' : 'bg-[#fcf8f2] border-[#e2dacf] shadow-sm')
                           : (isDark ? 'border-transparent' : 'border-transparent')
                         }`}
                     >
                       <div
                         className="w-10 h-10 rounded-full border-2 flex-shrink-0 flex items-center justify-center font-bold text-sm transition-all duration-300 z-10"
                         style={{
-                          borderColor: active ? 'var(--color-primary, #176b45)' : (isDark ? '#2c2523' : '#cbd5e1'),
-                          background: active ? 'var(--color-primary, #176b45)' : (isDark ? '#141211' : '#f4f0ea'),
-                          color: active ? '#ffffff' : (isDark ? '#756b65' : '#94a3b8'),
+                          borderColor: active ? 'var(--color-primary, #176b45)' : (isDark ? '#2c2523' : '#d5cdbf'),
+                          background: active ? 'var(--color-primary, #176b45)' : (isDark ? '#141211' : '#ede5d8'),
+                          color: active ? '#ffffff' : (isDark ? '#756b65' : '#887d72'),
                           boxShadow: active ? '0 0 16px rgba(23,107,69,0.30)' : 'none',
                         }}
                       >
@@ -647,8 +655,9 @@ export default function HomePage() {
               ].map((item, i) => (
                 <motion.div key={i} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
                   <Link to={item.path}
-                    className={`group block bg-gradient-to-br ${item.color} backdrop-blur-md rounded-2xl p-7 transition-all duration-300 h-full ${isDark ? 'border border-white/8 hover:border-white/20' : 'border border-slate-300/70 hover:border-slate-400 shadow-sm'
-                      } ${item.border}`}>
+                    className={`group block bg-gradient-to-br ${item.color} backdrop-blur-md rounded-2xl p-7 transition-all duration-300 h-full ${
+                      isDark ? 'border border-white/8 hover:border-white/20' : 'border border-[#e2dacf] hover:border-primary/40 shadow-sm'
+                    } ${item.border}`}>
                     <div className={`${item.accent} mb-4 group-hover:scale-110 transition-transform inline-block`}>{item.icon}</div>
                     <h3 className={`font-bold text-xl mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>{item.title}</h3>
                     <p className={`text-sm leading-relaxed mb-4 ${isDark ? 'text-gray-400' : 'text-slate-600'}`}>{item.desc}</p>

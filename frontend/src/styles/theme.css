@@ -43,7 +43,7 @@
   --shadow-2:           0 10px 30px rgba(0, 0, 0, 0.45);
 }
 
-/* ── 2. LIGHT PALETTE (Warm Linen & Forest Green) ──────────────────────────── */
+/* ── 2. LIGHT PALETTE (Warm Linen, Cream & Forest Green) ─────────────────── */
 html.theme-light:not(.theme-panel),
 body.theme-light:not(.theme-panel) {
   --primary:            #176b45;
@@ -62,20 +62,21 @@ body.theme-light:not(.theme-panel) {
   --highlight:          #059669;
   --highlight-soft:     rgba(16, 185, 129, 0.10);
 
-  --bg:                 #fbfaf9;
-  --bg2:                #ffffff;
-  --bg3:                #f4f0ea;
-  --surface:            #ffffff;
-  --surface-card:       #ffffff;
-  --border:             rgba(44, 37, 35, 0.12);
+  /* Refined off-white / cream palette — soft, warm, anti-glare, ultra-professional */
+  --bg:                 #f5f1eb;
+  --bg2:                #fbf7f0;
+  --bg3:                #ebe4d8;
+  --surface:            #faf5ee;
+  --surface-card:       #fcf8f2;
+  --border:             rgba(44, 37, 35, 0.11);
   --border-primary:     rgba(23, 107, 69, 0.24);
 
-  --text:               #2c2523;
-  --muted:              #756b65;
-  --muted2:             #524742;
+  --text:               #231f1e;
+  --muted:              #766c66;
+  --muted2:             #554b45;
 
-  --shadow-1:           0 1px 3px rgba(44, 37, 35, 0.06);
-  --shadow-2:           0 8px 24px rgba(44, 37, 35, 0.08);
+  --shadow-1:           0 1px 3px rgba(44, 37, 35, 0.05);
+  --shadow-2:           0 8px 24px rgba(44, 37, 35, 0.07);
 }
 
 /* ── 3. LIGHT MODE UTILITY REMAPPINGS ─────────────────────────────────────────
@@ -155,6 +156,15 @@ body.theme-light:not(.theme-panel) .bg-white\/10,
 body.theme-light:not(.theme-panel) .bg-white\/15,
 body.theme-light:not(.theme-panel) .bg-white\/20 {
   background-color: var(--surface) !important;
+}
+
+body.theme-light:not(.theme-panel) .bg-white:not(.btn-fire):not(.btn-primary):not(.badge-discount):not([class*="bg-red-500"]):not([class*="bg-green-500"]):not([class*="bg-emerald-500"]):not([class*="bg-rose-500"]):not(.site-footer *):not(.site-footer),
+body.theme-light:not(.theme-panel) .bg-white\/70:not(.site-footer *),
+body.theme-light:not(.theme-panel) .bg-white\/80:not(.site-footer *),
+body.theme-light:not(.theme-panel) .bg-white\/85:not(.site-footer *),
+body.theme-light:not(.theme-panel) .bg-white\/90:not(.site-footer *),
+body.theme-light:not(.theme-panel) .bg-white\/95:not(.site-footer *) {
+  background-color: var(--surface-card) !important;
 }
 
 body.theme-light:not(.theme-panel) .border-white\/4,

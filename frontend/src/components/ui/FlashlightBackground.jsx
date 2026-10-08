@@ -280,19 +280,19 @@ export default function FlashlightBackground({ isDark: isDarkProp, className = "
         drift: 0.025,
       };
     } else {
-      // Soft athletic mist & cool silver-slate
+      // Warm, luxurious cream / off-white linen mist — eliminating harsh white glare
       return {
-        colors: ["#f8fafc", "#f1f5f9", "#e2e8f0", "#cbd5e1", "#bae6fd"],
+        colors: ["#f5f1ea", "#ede5d8", "#e4dac9", "#ded2be", "#fbf8f2"],
         radius: 0.46,
-        strength: 1.35,
-        contrast: 1.12,
-        brightness: -0.05,
-        saturation: 1.1,
-        grain: 0.04,
+        strength: 1.25,
+        contrast: 1.04,
+        brightness: -0.04,
+        saturation: 1.08,
+        grain: 0.03,
         blur: 0.016,
         speed: 0.75,
         scale: 2.3,
-        intensity: 0.58,
+        intensity: 0.52,
         warp: 0.0,
         drift: 0.025,
       };
