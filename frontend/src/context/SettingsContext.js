@@ -17,7 +17,7 @@ import { cachedGet } from '../utils/api';
 
 const FALLBACK = {
   gymName: 'FitNation by Ajeet',
-  ownerName: 'Ajeet Kag',
+  ownerName: 'Ajeet Jamadari',
   tagline: 'Uniting a healthier world',
   phone: '9630906906',
   whatsapp: '9630906906',

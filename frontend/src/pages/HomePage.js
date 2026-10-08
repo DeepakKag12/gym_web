@@ -52,7 +52,7 @@ const MUSCLES = [
   },
   {
     key: 'shoulders', label: 'Shoulders',
-    img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRrM_kTQbW_Mqt1pc7qwqjlKEk24YirRggfsIuqxaxXKQ&s=10',
+    img: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=600&q=80',
     accent: '#f59e0b',
   },
   {
@@ -62,7 +62,7 @@ const MUSCLES = [
   },
   {
     key: 'legs', label: 'Legs',
-    img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQghoE_TchvbG-34tHJxnha8e6oVRNf6QjqJQH3_Tcp5g&s=10',
+    img: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=600&q=80',
     accent: '#22c55e',
   },
   {
@@ -368,9 +368,12 @@ export default function HomePage() {
   const [prog, setProg] = useState(0);
   useEffect(() => cableProgress.on('change', v => setProg(v)), [cableProgress]);
 
-  // Dynamically inject custom gym photography configured by the admin in Settings
+  // Dynamically inject custom gym photography and brand configured by the admin in Settings
   const heroContent = useMemo(() => ({
     ...HERO_DEFAULTS,
+    description: site.gymName
+      ? `${site.gymName.toUpperCase()} — expert trainers, personalised plans, and a community that pushes you beyond limits.`
+      : HERO_DEFAULTS.description,
     cards: [
       {
         ...HERO_DEFAULTS.cards[0],
@@ -381,7 +384,7 @@ export default function HomePage() {
         image: site.heroJoinImage || HERO_DEFAULTS.cards[1].image,
       },
     ],
-  }), [site.heroWorkoutImage, site.heroJoinImage]);
+  }), [site.gymName, site.heroWorkoutImage, site.heroJoinImage]);
 
   return (
     <div

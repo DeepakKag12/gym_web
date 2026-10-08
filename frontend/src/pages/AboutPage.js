@@ -43,8 +43,7 @@ function HeroGallery() {
   );
 }
 
-const team = [
-  { name: 'Ajeet Singh',  role: 'Head Trainer & Founder', exp: '10+ years', spec: 'Strength & Conditioning', img: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&q=80' },
+const otherTrainers = [
   { name: 'Rahul Sharma', role: 'Nutrition Expert',        exp: '6 years',  spec: 'Diet & Meal Planning',    img: 'https://images.unsplash.com/photo-1593079831268-3381b0db4a77?w=400&q=80' },
   { name: 'Pooja Gupta',  role: 'Yoga & Flexibility',      exp: '5 years',  spec: 'Flexibility & Core',      img: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400&q=80' },
   { name: 'Vikram Yadav', role: 'Cardio Specialist',       exp: '7 years',  spec: 'Cardio & Fat Loss',       img: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&q=80' },
@@ -66,6 +65,23 @@ const achievements = [
 
 export default function AboutPage() {
   const site = useSettings();
+  const founderName = site.ownerName || 'Ajeet Jamadari';
+  const founderFirstName = founderName.split(' ')[0] || founderName;
+  const gymName = site.gymName || 'FITNATION';
+  const gymBrandUpper = (site.gymName || 'FITNATION').toUpperCase();
+  const founderImg = site.heroJoinImage || 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=700&q=80';
+
+  const team = [
+    {
+      name: founderName,
+      role: 'Head Trainer & Founder',
+      exp: '10+ years',
+      spec: 'Strength & Conditioning',
+      img: site.heroJoinImage || 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&q=80',
+    },
+    ...otherTrainers,
+  ];
+
   return (
     <div className="min-h-screen bg-[#0b0c0e] text-white pt-16">
 
@@ -77,10 +93,10 @@ export default function AboutPage() {
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
             <span className="section-pill mb-4 inline-block">Est. 2026</span>
             <h1 className="gym-font text-6xl md:text-8xl text-white leading-none">
-              ABOUT <span className="gradient-text">FITNATION</span>
+              ABOUT <span className="gradient-text">{gymName.split(' ')[0]?.toUpperCase() || 'FITNATION'}</span>
             </h1>
             <p className="text-gray-300 text-lg mt-4 max-w-xl leading-relaxed">
-              Born from passion. Built with dedication. FITNATION BY AJEET is more than a gym — it's your transformation partner.
+              Born from passion. Built with dedication. {gymBrandUpper} is more than a gym — it's your transformation partner.
             </p>
           </motion.div>
 
@@ -126,14 +142,14 @@ export default function AboutPage() {
           <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
             className="lg:col-span-2">
             <div className="relative rounded-3xl overflow-hidden">
-              <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=700&q=80"
-                alt="Ajeet Singh" className="w-full object-cover aspect-[3/4]" />
+              <img src={founderImg}
+                alt={founderName} className="w-full object-cover aspect-[3/4]" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0b0c0e]/80 via-transparent to-transparent"/>
               {/* Floating badge */}
               <div className="absolute bottom-6 left-6 right-6">
                 <div className="glass rounded-2xl p-4 border border-primary/20">
                   <div className="text-secondary text-xs font-bold uppercase tracking-widest mb-1">Founder & Head Trainer</div>
-                  <div className="text-white font-bold text-xl">Ajeet Singh</div>
+                  <div className="text-white font-bold text-xl">{founderName}</div>
                   <div className="text-gray-400 text-sm mt-0.5">10+ years · Certified Coach</div>
                 </div>
               </div>
@@ -146,8 +162,8 @@ export default function AboutPage() {
             <span className="section-pill">Our Story</span>
             <h2 className="gym-font text-5xl text-white mt-3 mb-6">HOW IT <span className="gradient-text">STARTED</span></h2>
             <div className="space-y-4 text-gray-400 text-sm leading-relaxed">
-              <p>FITNATION was founded by Ajeet Singh — a certified personal trainer who believed that professional-grade fitness coaching should be accessible to everyone, regardless of background.</p>
-              <p>Starting from a small setup with big dreams, Ajeet built this gym from the ground up. Today, we're home to 500+ active members, an expert team of trainers, and a fully equipped facility.</p>
+              <p>{gymName} was founded by {founderName} — a certified personal trainer who believed that professional-grade fitness coaching should be accessible to everyone, regardless of background.</p>
+              <p>Starting from a small setup with big dreams, {founderFirstName} built this gym from the ground up. Today, we're home to 500+ active members, an expert team of trainers, and a fully equipped facility.</p>
               <p>Our approach goes beyond lifting weights. We combine strength training, nutrition science, flexibility work, and mental wellness to deliver transformations that actually last.</p>
             </div>
             <ul className="mt-6 space-y-2">
