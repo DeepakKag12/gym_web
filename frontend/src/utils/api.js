@@ -71,7 +71,25 @@ API.interceptors.response.use(
 // ── Client-side in-memory cache ────────────────────────────────────────────────
 // TTL defaults to 60 s. bustCache() immediately expires all matching keys so
 // the very next cachedGet() skips the cache and fetches fresh from the network.
+// Bounded with LRU eviction to prevent memory growth over long single-page sessions.
+const MAX_CLIENT_CACHE_ENTRIES = 100;
 const _clientCache = new Map();
+
+function _evictClientCacheIfNeeded() {
+  if (_clientCache.size <= MAX_CLIENT_CACHE_ENTRIES) return;
+  const now = Date.now();
+  // Pass 1: Prune expired entries
+  for (const [k, v] of _clientCache.entries()) {
+    if (now >= v.expiresAt) {
+      _clientCache.delete(k);
+    }
+  }
+  // Pass 2: If still above cap, evict oldest entries (Map preserves insertion order)
+  while (_clientCache.size > MAX_CLIENT_CACHE_ENTRIES) {
+    const oldestKey = _clientCache.keys().next().value;
+    _clientCache.delete(oldestKey);
+  }
+}
 
 /**
  * The key answers: "would the server give THIS caller the same bytes?"
@@ -117,10 +135,14 @@ export async function cachedGet(url, config = {}) {
   const now   = Date.now();
 
   if (entry && now < entry.expiresAt) {
+    // Touch to keep LRU order accurate
+    _clientCache.delete(key);
+    _clientCache.set(key, entry);
     return entry.promise;
   }
   // Kick off fresh request and store it
   const promise = API.get(url, config);
+  _evictClientCacheIfNeeded();
   _clientCache.set(key, { promise, expiresAt: now + ttl * 1000 });
   // On error: remove so the next call retries
   promise.catch(() => _clientCache.delete(key));
@@ -150,6 +172,7 @@ export async function freshGet(url, config = {}) {
   bustCache(url);
   const promise = API.get(url, config);
   const key = _cacheKey(url);
+  _evictClientCacheIfNeeded();
   _clientCache.set(key, { promise, expiresAt: Date.now() + ((config.cache ?? 60) * 1000) });
   promise.catch(() => _clientCache.delete(key));
   return promise;
