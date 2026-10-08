@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Play, Dumbbell, Clock, TrendingDown, TrendingUp, User, Sparkles } from 'lucide-react';
+import { X, Play, Clock, TrendingDown, TrendingUp, User, Sparkles } from 'lucide-react';
 import { cachedGet } from '../utils/api';
 import { img } from '../utils/img';
 

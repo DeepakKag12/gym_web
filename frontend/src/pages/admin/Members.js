@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import {
   UserPlus, Search, RefreshCw, AlertTriangle, UserSquare2, Pencil,
-  CalendarPlus, Eye, Send, Download, FileText, CheckCircle2, Clock,
+  CalendarPlus, Eye, Download, FileText, CheckCircle2, Clock,
   CalendarClock, IndianRupee, Users as UsersIcon, MessageSquare, Mail,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
