@@ -150,6 +150,7 @@ export function Hero08({
   animation = 'none',
   variant = 'standard',
   titleClassName,
+  className,
 }) {
   const reduce = useReducedMotion();
   const animate = animation === 'subtle' && !reduce;
@@ -198,7 +199,7 @@ export function Hero08({
   ) : null;
 
   return (
-    <section className="bg-background relative isolate w-full overflow-hidden">
+    <section className={cn('relative isolate w-full overflow-hidden', className || 'bg-background')}>
       <motion.div
         className={cn('relative z-10 mx-auto flex max-w-6xl flex-col px-6', vs.section, vs.content)}
         variants={animate ? container : undefined}

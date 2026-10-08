@@ -6,7 +6,10 @@ import {
   Phone, Instagram, Sun, Moon, Footprints, Sparkles,
 } from 'lucide-react';
 import Hero08 from '../components/ui/hero-08';
+import FlashlightBackground from '../components/ui/FlashlightBackground';
+import FlashlightTextReveal from '../components/ui/flashlight-text-reveal';
 import { useSettings } from '../context/SettingsContext';
+import { useTheme } from '../context/ThemeContext';
 
 
 /* ── Counter ──────────────────────────────── */
@@ -82,6 +85,7 @@ const MUSCLES = [
 /* ── Auto-rotating muscle showcase ──────────── */
 function MuscleShowcase() {
   const [active, setActive] = useState(0);
+  const { isDark } = useTheme();
 
   useEffect(() => {
     const id = setInterval(() => setActive(p => (p + 1) % MUSCLES.length), 2000);
@@ -94,7 +98,7 @@ function MuscleShowcase() {
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
 
       {/* Big featured card - auto switches */}
-      <div className="relative rounded-3xl overflow-hidden aspect-[4/5] max-w-md mx-auto w-full">
+      <div className="relative rounded-3xl overflow-hidden aspect-[4/5] max-w-md mx-auto w-full shadow-2xl">
         <AnimatePresence mode="wait">
           <motion.img
             key={active}
@@ -151,7 +155,9 @@ function MuscleShowcase() {
             to={`/exercises?muscle=${muscle.key}`}
             onClick={() => setActive(i)}
             className={`group relative overflow-hidden rounded-2xl border transition-all duration-300 ${
-              active === i ? 'border-white/30 scale-[1.02]' : 'border-white/8 hover:border-white/20'
+              active === i 
+                ? (isDark ? 'border-white/30 scale-[1.02]' : 'border-slate-400 scale-[1.02]')
+                : (isDark ? 'border-white/8 hover:border-white/20' : 'border-slate-200/80 hover:border-slate-300')
             }`}
           >
             {/* Thumbnail */}
@@ -164,9 +170,9 @@ function MuscleShowcase() {
                   layoutId="activeOverlay" transition={{ duration: 0.3 }} />
               )}
             </div>
-            <div className="px-3 py-2 bg-[#111318]">
-              <div className="text-white text-sm font-semibold">{muscle.label}</div>
-              <div className="text-gray-500 text-xs flex items-center gap-1 mt-0.5">
+            <div className={`px-3 py-2 transition-colors ${isDark ? 'bg-[#111318]/90 text-white' : 'bg-white/90 text-slate-900'} backdrop-blur-sm`}>
+              <div className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-slate-900'}`}>{muscle.label}</div>
+              <div className={`text-xs flex items-center gap-1 mt-0.5 ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>
                 View exercises <ChevronRight size={10} className="group-hover:translate-x-0.5 transition-transform" />
               </div>
             </div>
@@ -246,6 +252,7 @@ const marqueeItems = ['STRENGTH', 'ENDURANCE', 'TRANSFORM', 'NUTRITION', 'CARDIO
 
 export default function HomePage() {
   const site = useSettings();
+  const { isDark } = useTheme();
   const cableRef = useRef(null);
   const { scrollYProgress } = useScroll({ target: cableRef, offset: ['start end', 'end start'] });
   const cableProgress = useTransform(scrollYProgress, [0.1, 0.7], [0, 1]);
@@ -253,218 +260,275 @@ export default function HomePage() {
   useEffect(() => cableProgress.on('change', v => setProg(v)), [cableProgress]);
 
   return (
-    <div className="min-h-screen bg-[#0b0c0e] text-white overflow-x-hidden">
+    <div
+      className={`min-h-screen relative overflow-x-hidden transition-colors duration-300 ${isDark ? 'text-white' : 'text-slate-900'}`}
+      style={{ isolation: 'isolate' }}
+    >
+      {/* ── WHOLE-PAGE FLASHLIGHT BACKGROUND ─────────── */}
+      <FlashlightBackground isDark={isDark} />
 
-      {/* ── HERO ───────────────────────────────────── */}
-      <Hero08 {...HERO} titleClassName="gym-font text-5xl sm:text-6xl md:text-7xl leading-none" />
+      <div className="relative z-10">
+        {/* ── HERO ───────────────────────────────────── */}
+        <Hero08
+          {...HERO}
+          className="bg-transparent"
+          titleClassName="gym-font text-5xl sm:text-6xl md:text-7xl leading-none"
+        />
 
-      {/* Contact details kept from the previous hero — a phone number, the
-          Instagram handle and opening hours are the most-used facts on the
-          page and hero-08 has no slot for them. */}
-      {/* `relative z-20` is load-bearing: hero-08's inner wrapper is
-          `relative z-10` inside an `isolate` section, and the negative margin
-          tucks this bar into that wrapper's bottom padding. Without its own
-          stacking position this bar renders behind it and is invisible. */}
-      <div className="relative z-20 max-w-6xl mx-auto px-6 pb-14 -mt-6 sm:-mt-10">
-        <div className="flex flex-wrap gap-5 text-sm text-gray-400 items-center">
-          <a href={site.telHref} className="flex items-center gap-2 hover:text-cyan-400 transition-colors">
-            <Phone size={13} className="text-cyan-400" /> {site.phone}
-          </a>
-          <a href={site.instagramHref} target="_blank" rel="noreferrer"
-            className="flex items-center gap-2 hover:text-cyan-400 transition-colors">
-            <Instagram size={13} className="text-cyan-400" /> @{site.instagram}
-          </a>
-          <span className="flex items-center gap-2">
-            <span className="glow-dot" /> {site.hours[0] || ''}
-          </span>
-        </div>
-      </div>
-
-      {/* ── MARQUEE ───────────────────────────────── */}
-      <div className="py-4 border-y border-white/5 overflow-hidden bg-[#0b0c0e]">
-        <div className="flex animate-marquee gap-12 w-max">
-          {[...marqueeItems, ...marqueeItems].map((item, i) => (
-            <span key={i} className="gym-font text-2xl text-gray-700 tracking-widest flex items-center gap-4">
-              {item}
+        {/* Contact details */}
+        <div className="relative z-20 max-w-6xl mx-auto px-6 pb-14 -mt-6 sm:-mt-10">
+          <div className={`flex flex-wrap gap-5 text-sm items-center ${isDark ? 'text-gray-400' : 'text-slate-600'}`}>
+            <a href={site.telHref} className="flex items-center gap-2 hover:text-cyan-400 transition-colors">
+              <Phone size={13} className="text-cyan-400" /> {site.phone}
+            </a>
+            <a href={site.instagramHref} target="_blank" rel="noreferrer"
+              className="flex items-center gap-2 hover:text-cyan-400 transition-colors">
+              <Instagram size={13} className="text-cyan-400" /> @{site.instagram}
+            </a>
+            <span className="flex items-center gap-2">
+              <span className="glow-dot" /> {site.hours[0] || ''}
             </span>
-          ))}
-        </div>
-      </div>
-
-      {/* ── STATS ─────────────────────────────────── */}
-      <section className="py-20 px-6">
-        <div className="max-w-4xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            <StatCard value="500" label="Active Members" delay={0} />
-            <StatCard value="10"  label="Years Experience" suffix="+" delay={0.1} />
-            <StatCard value="8"   label="Expert Trainers"  suffix="+" delay={0.2} />
-            <StatCard value="1000" label="Transformations" suffix="+" delay={0.3} />
           </div>
         </div>
-      </section>
 
-      {/* ── MUSCLE CATEGORIES ─────────────────────── */}
-      <section className="py-20 px-6">
-        <div className="max-w-7xl mx-auto">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-12 text-center">
-            <span className="section-pill">Exercise Library</span>
-            <h2 className="gym-font text-5xl text-white">TRAIN EVERY <span className="gradient-text">MUSCLE</span></h2>
-            <p className="text-gray-500 mt-3">Every muscle group. Curated exercises. Video guides. Auto-browsing every 2 seconds.</p>
-          </motion.div>
-          <MuscleShowcase />
-          <div className="text-center mt-10">
-            <Link to="/exercises" className="btn-outline px-8 py-3">Browse All Exercises <ArrowRight size={16} /></Link>
+        {/* ── MARQUEE ───────────────────────────────── */}
+        <div className={`py-4 border-y overflow-hidden backdrop-blur-[3px] transition-colors ${
+          isDark ? 'border-white/10 bg-black/30' : 'border-slate-300/40 bg-white/40'
+        }`}>
+          <div className="flex animate-marquee gap-12 w-max">
+            {[...marqueeItems, ...marqueeItems].map((item, i) => (
+              <span key={i} className={`gym-font text-2xl tracking-widest flex items-center gap-4 ${
+                isDark ? 'text-white/30' : 'text-slate-700/40'
+              }`}>
+                {item}
+              </span>
+            ))}
           </div>
         </div>
-      </section>
 
-      {/* ── GYM TIMING SECTION ────────────────────── */}
-      <section className="py-20 px-6 bg-[#0d0e11] border-y border-white/5">
-        <div className="max-w-5xl mx-auto">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
-            <span className="section-pill">Gym Timing</span>
-            <h2 className="gym-font text-5xl text-white">DISCIPLINE TODAY, <span className="gradient-text">STRENGTH TOMORROW</span></h2>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-10">
-            {/* Morning */}
-            <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
-              className="glass rounded-2xl p-7 border border-white/8 hover:border-cyan-500/30 transition-all">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-xl bg-amber-400/10 text-amber-400 flex items-center justify-center"><Sun size={18} /></div>
-                <div>
-                  <div className="text-white font-bold text-lg">Morning Session</div>
-                  <div className="text-gray-500 text-xs">Early risers welcome</div>
-                </div>
-              </div>
-              <div className="gym-font text-4xl text-white mb-3">5:00 AM – 11:00 AM</div>
-              <div className="text-gray-400 text-sm">Monday to Saturday &nbsp;·&nbsp; <span className="text-red-400">Sunday Closed</span></div>
-            </motion.div>
-
-            {/* Evening */}
-            <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
-              className="glass rounded-2xl p-7 border border-white/8 hover:border-cyan-500/30 transition-all">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-xl bg-indigo-400/10 text-indigo-400 flex items-center justify-center"><Moon size={18} /></div>
-                <div>
-                  <div className="text-white font-bold text-lg">Evening Session</div>
-                  <div className="text-gray-500 text-xs">After-work warriors</div>
-                </div>
-              </div>
-              <div className="gym-font text-4xl text-white mb-3">4:00 PM – 10:00 PM</div>
-              <div className="text-gray-400 text-sm">Monday to Saturday &nbsp;·&nbsp; <span className="text-red-400">Sunday Closed</span></div>
-            </motion.div>
-          </div>
-
-          {/* Important notes */}
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-            className="glass rounded-2xl p-6 border border-yellow-500/15">
-            <div className="text-yellow-400 text-xs font-bold uppercase tracking-widest mb-4">Important Notes</div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
-              {[
-                { icon: Footprints, title: 'Proper Gym Shoes', sub: 'Compulsory for all members' },
-                { icon: Dumbbell,   title: 'Rerack Your Weights', sub: 'After every set, every time' },
-                { icon: Sparkles,   title: 'Keep Gym Clean', sub: 'Maintain hygiene & discipline' },
-              ].map((n, i) => (
-                <div key={i} className="flex items-start gap-3">
-                  <n.icon size={18} className="flex-shrink-0 mt-0.5 text-[#22d3ee]" />
-                  <div>
-                    <div className="text-white font-semibold">{n.title}</div>
-                    <div className="text-gray-500 text-xs mt-0.5">{n.sub}</div>
-                  </div>
-                </div>
-              ))}
+        {/* ── STATS ─────────────────────────────────── */}
+        <section className="py-20 px-6">
+          <div className="max-w-4xl mx-auto">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+              <StatCard value="500" label="Active Members" delay={0} />
+              <StatCard value="10"  label="Years Experience" suffix="+" delay={0.1} />
+              <StatCard value="8"   label="Expert Trainers"  suffix="+" delay={0.2} />
+              <StatCard value="1000" label="Transformations" suffix="+" delay={0.3} />
             </div>
-          </motion.div>
-        </div>
-      </section>
+          </div>
+        </section>
 
-      {/* ── CABLE SCROLL SECTION ──────────────────── */}
-      <section ref={cableRef} className="py-24 px-6 relative" style={{ minHeight: '500px' }}>
-        <div className="max-w-5xl mx-auto">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-14">
-            <span className="section-pill">Philosophy</span>
-            <h2 className="gym-font text-5xl text-white">THE PULL TO <span className="gradient-text">GREATNESS</span></h2>
-            <p className="text-gray-500 mt-3">Scroll to pull the cable — every rep counts</p>
-          </motion.div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
-            <div className="h-64 max-w-xs mx-auto w-full"><CableMachine progress={prog} /></div>
-            <div className="space-y-8">
-              {[
-                { p: 0.1, title: 'Set your goal',   desc: 'Define what you want. Write it. Own it.' },
-                { p: 0.4, title: 'Build the habit', desc: 'Show up every day. Consistency beats intensity.' },
-                { p: 0.7, title: 'Earn the result', desc: 'Transformation belongs to those who persist.' },
-              ].map((tp, i) => (
-                <motion.div key={i} animate={{ opacity: prog >= tp.p ? 1 : 0.18, x: prog >= tp.p ? 0 : 16 }}
-                  transition={{ duration: 0.4 }} className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-full border-2 flex-shrink-0 flex items-center justify-center font-bold text-sm transition-all duration-500"
-                    style={{ borderColor: prog >= tp.p ? '#22d3ee' : '#1e3a4a', background: prog >= tp.p ? 'rgba(34,211,238,0.12)' : 'transparent', color: prog >= tp.p ? '#22d3ee' : '#334155' }}>
-                    {i + 1}
-                  </div>
+        {/* ── MUSCLE CATEGORIES ─────────────────────── */}
+        <section className="py-20 px-6">
+          <div className="max-w-7xl mx-auto">
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-12 text-center">
+              <span className="section-pill">Exercise Library</span>
+              <h2 className={`gym-font text-5xl ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                TRAIN EVERY <span className="gradient-text">MUSCLE</span>
+              </h2>
+              <p className={`mt-3 ${isDark ? 'text-gray-400' : 'text-slate-600'}`}>
+                Every muscle group. Curated exercises. Video guides. Auto-browsing every 2 seconds.
+              </p>
+            </motion.div>
+            <MuscleShowcase />
+            <div className="text-center mt-10">
+              <Link to="/exercises" className="btn-outline px-8 py-3">Browse All Exercises <ArrowRight size={16} /></Link>
+            </div>
+          </div>
+        </section>
+
+        {/* ── GYM TIMING SECTION ────────────────────── */}
+        <section className={`py-20 px-6 border-y backdrop-blur-[3px] transition-colors ${
+          isDark ? 'border-white/10 bg-black/35' : 'border-slate-200/60 bg-white/45'
+        }`}>
+          <div className="max-w-5xl mx-auto">
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
+              <span className="section-pill">Gym Timing</span>
+              <h2 className={`gym-font text-5xl ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                DISCIPLINE TODAY, <span className="gradient-text">STRENGTH TOMORROW</span>
+              </h2>
+            </motion.div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-10">
+              {/* Morning */}
+              <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
+                className={`rounded-2xl p-7 border backdrop-blur-md transition-all ${
+                  isDark ? 'bg-white/5 border-white/10 hover:border-cyan-500/30' : 'bg-white/70 border-slate-200/80 hover:border-cyan-500/40 shadow-sm'
+                }`}>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-amber-400/10 text-amber-400 flex items-center justify-center"><Sun size={18} /></div>
                   <div>
-                    <div className="text-white font-bold text-lg">{tp.title}</div>
-                    <div className="text-gray-500 text-sm mt-1">{tp.desc}</div>
+                    <div className={`font-bold text-lg ${isDark ? 'text-white' : 'text-slate-900'}`}>Morning Session</div>
+                    <div className={`text-xs ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>Early risers welcome</div>
                   </div>
+                </div>
+                <div className={`gym-font text-4xl mb-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>5:00 AM – 11:00 AM</div>
+                <div className={`text-sm ${isDark ? 'text-gray-400' : 'text-slate-600'}`}>Monday to Saturday &nbsp;·&nbsp; <span className="text-red-500 font-semibold">Sunday Closed</span></div>
+              </motion.div>
+
+              {/* Evening */}
+              <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
+                className={`rounded-2xl p-7 border backdrop-blur-md transition-all ${
+                  isDark ? 'bg-white/5 border-white/10 hover:border-cyan-500/30' : 'bg-white/70 border-slate-200/80 hover:border-cyan-500/40 shadow-sm'
+                }`}>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-indigo-400/10 text-indigo-400 flex items-center justify-center"><Moon size={18} /></div>
+                  <div>
+                    <div className={`font-bold text-lg ${isDark ? 'text-white' : 'text-slate-900'}`}>Evening Session</div>
+                    <div className={`text-xs ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>After-work warriors</div>
+                  </div>
+                </div>
+                <div className={`gym-font text-4xl mb-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>4:00 PM – 10:00 PM</div>
+                <div className={`text-sm ${isDark ? 'text-gray-400' : 'text-slate-600'}`}>Monday to Saturday &nbsp;·&nbsp; <span className="text-red-500 font-semibold">Sunday Closed</span></div>
+              </motion.div>
+            </div>
+
+            {/* Important notes */}
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+              className={`rounded-2xl p-6 border backdrop-blur-md ${
+                isDark ? 'bg-white/5 border-yellow-500/20' : 'bg-white/70 border-yellow-500/30 shadow-sm'
+              }`}>
+              <div className="text-yellow-500 text-xs font-bold uppercase tracking-widest mb-4">Important Notes</div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+                {[
+                  { icon: Footprints, title: 'Proper Gym Shoes', sub: 'Compulsory for all members' },
+                  { icon: Dumbbell,   title: 'Rerack Your Weights', sub: 'After every set, every time' },
+                  { icon: Sparkles,   title: 'Keep Gym Clean', sub: 'Maintain hygiene & discipline' },
+                ].map((n, i) => (
+                  <div key={i} className="flex items-start gap-3">
+                    <n.icon size={18} className="flex-shrink-0 mt-0.5 text-[#22d3ee]" />
+                    <div>
+                      <div className={`font-semibold ${isDark ? 'text-white' : 'text-slate-900'}`}>{n.title}</div>
+                      <div className={`text-xs mt-0.5 ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>{n.sub}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* ── MOTIVATION SPOTLIGHT REVEAL ───────────── */}
+        <section className="py-16 px-6">
+          <div className={`max-w-6xl mx-auto rounded-3xl overflow-hidden border relative shadow-2xl transition-all duration-300 ${
+            isDark ? 'border-white/15 bg-black shadow-cyan-500/10' : 'border-slate-300/80 bg-slate-100 shadow-slate-300/30'
+          }`}>
+            <FlashlightTextReveal
+              text={"UNLEASH YOUR\nINNER BEAST\nFITNATION"}
+              height="58vh"
+              fontSize="clamp(2.5rem, 7.5vw, 6.5rem)"
+              textColor={isDark ? "#f8fafc" : "#0f172a"}
+              ghost={isDark ? 0.06 : 0.12}
+              colors={isDark ? ["#0b0c0e", "#1e293b", "#0f172a"] : ["#e2e8f0", "#cbd5e1", "#94a3b8", "#38bdf8"]}
+              radius={isDark ? 0.38 : 0.44}
+              strength={isDark ? 1.25 : 1.5}
+              contrast={isDark ? 0.91 : 1.15}
+              brightness={isDark ? -0.08 : -0.10}
+            >
+              <div className="absolute bottom-7 left-0 right-0 flex justify-center items-center pointer-events-auto">
+                <Link to="/enquiry" className="btn-fire px-7 py-3 text-sm flex items-center gap-2 shadow-xl hover:scale-105 transition-all">
+                  Start Training Today <ArrowRight size={16} />
+                </Link>
+              </div>
+            </FlashlightTextReveal>
+          </div>
+        </section>
+
+        {/* ── CABLE SCROLL SECTION ──────────────────── */}
+        <section ref={cableRef} className="py-24 px-6 relative" style={{ minHeight: '500px' }}>
+          <div className="max-w-5xl mx-auto">
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-14">
+              <span className="section-pill">Philosophy</span>
+              <h2 className={`gym-font text-5xl ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                THE PULL TO <span className="gradient-text">GREATNESS</span>
+              </h2>
+              <p className={`mt-3 ${isDark ? 'text-gray-400' : 'text-slate-600'}`}>
+                Scroll to pull the cable — every rep counts
+              </p>
+            </motion.div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+              <div className="h-64 max-w-xs mx-auto w-full"><CableMachine progress={prog} /></div>
+              <div className="space-y-8">
+                {[
+                  { p: 0.1, title: 'Set your goal',   desc: 'Define what you want. Write it. Own it.' },
+                  { p: 0.4, title: 'Build the habit', desc: 'Show up every day. Consistency beats intensity.' },
+                  { p: 0.7, title: 'Earn the result', desc: 'Transformation belongs to those who persist.' },
+                ].map((tp, i) => (
+                  <motion.div key={i} animate={{ opacity: prog >= tp.p ? 1 : 0.18, x: prog >= tp.p ? 0 : 16 }}
+                    transition={{ duration: 0.4 }} className="flex items-start gap-4">
+                    <div className="w-10 h-10 rounded-full border-2 flex-shrink-0 flex items-center justify-center font-bold text-sm transition-all duration-500"
+                      style={{ borderColor: prog >= tp.p ? '#22d3ee' : (isDark ? '#1e3a4a' : '#cbd5e1'), background: prog >= tp.p ? 'rgba(34,211,238,0.12)' : 'transparent', color: prog >= tp.p ? '#22d3ee' : (isDark ? '#334155' : '#94a3b8') }}>
+                      {i + 1}
+                    </div>
+                    <div>
+                      <div className={`font-bold text-lg ${isDark ? 'text-white' : 'text-slate-900'}`}>{tp.title}</div>
+                      <div className={`text-sm mt-1 ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>{tp.desc}</div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── QUICK LINKS ───────────────────────────── */}
+        <section className="py-20 px-6">
+          <div className="max-w-7xl mx-auto">
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-12 text-center">
+              <span className="section-pill">Everything you need</span>
+              <h2 className={`gym-font text-5xl ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                YOUR FITNESS <span className="gradient-text">HUB</span>
+              </h2>
+            </motion.div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              {[
+                { icon: <Salad size={28} />, title: 'Diet Plans', desc: 'Goal-based nutrition plans crafted by our experts for your body type.', path: '/diet', color: 'from-green-500/15 to-transparent', border: 'hover:border-green-500/30', accent: 'text-green-400' },
+                { icon: <ShoppingBag size={28} />, title: 'Supplement Store', desc: '100% authentic proteins, creatine, pre-workout and more. Fast delivery.', path: '/store', color: 'from-purple-500/15 to-transparent', border: 'hover:border-purple-500/30', accent: 'text-purple-400' },
+                { icon: <Dumbbell size={28} />, title: 'Transformations', desc: 'Real results from real people. Before & after gallery of our members.', path: '/transformations', color: 'from-amber-500/15 to-transparent', border: 'hover:border-amber-500/30', accent: 'text-amber-400' },
+              ].map((item, i) => (
+                <motion.div key={i} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
+                  <Link to={item.path}
+                    className={`group block bg-gradient-to-br ${item.color} backdrop-blur-md rounded-2xl p-7 transition-all duration-300 h-full ${
+                      isDark ? 'border border-white/8 hover:border-white/20' : 'border border-slate-300/70 hover:border-slate-400 shadow-sm'
+                    } ${item.border}`}>
+                    <div className={`${item.accent} mb-4 group-hover:scale-110 transition-transform inline-block`}>{item.icon}</div>
+                    <h3 className={`font-bold text-xl mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>{item.title}</h3>
+                    <p className={`text-sm leading-relaxed mb-4 ${isDark ? 'text-gray-400' : 'text-slate-600'}`}>{item.desc}</p>
+                    <span className={`${item.accent} text-sm font-semibold flex items-center gap-1 group-hover:gap-2 transition-all`}>
+                      Explore <ArrowRight size={14} />
+                    </span>
+                  </Link>
                 </motion.div>
               ))}
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ── QUICK LINKS ───────────────────────────── */}
-      <section className="py-20 px-6">
-        <div className="max-w-7xl mx-auto">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-12 text-center">
-            <span className="section-pill">Everything you need</span>
-            <h2 className="gym-font text-5xl text-white">YOUR FITNESS <span className="gradient-text">HUB</span></h2>
-          </motion.div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            {[
-              { icon: <Salad size={28} />, title: 'Diet Plans', desc: 'Goal-based nutrition plans crafted by our experts for your body type.', path: '/diet', color: 'from-green-500/15 to-transparent', border: 'hover:border-green-500/30', accent: 'text-green-400' },
-              { icon: <ShoppingBag size={28} />, title: 'Supplement Store', desc: '100% authentic proteins, creatine, pre-workout and more. Fast delivery.', path: '/store', color: 'from-purple-500/15 to-transparent', border: 'hover:border-purple-500/30', accent: 'text-purple-400' },
-              { icon: <Dumbbell size={28} />, title: 'Transformations', desc: 'Real results from real people. Before & after gallery of our members.', path: '/transformations', color: 'from-amber-500/15 to-transparent', border: 'hover:border-amber-500/30', accent: 'text-amber-400' },
-            ].map((item, i) => (
-              <motion.div key={i} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
-                <Link to={item.path}
-                  className={`group block bg-gradient-to-br ${item.color} border border-white/8 ${item.border} rounded-2xl p-7 transition-all duration-300 h-full`}>
-                  <div className={`${item.accent} mb-4 group-hover:scale-110 transition-transform inline-block`}>{item.icon}</div>
-                  <h3 className="text-white font-bold text-xl mb-2">{item.title}</h3>
-                  <p className="text-gray-500 text-sm leading-relaxed mb-4">{item.desc}</p>
-                  <span className={`${item.accent} text-sm font-semibold flex items-center gap-1 group-hover:gap-2 transition-all`}>
-                    Explore <ArrowRight size={14} />
-                  </span>
-                </Link>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── CTA BANNER ────────────────────────────── */}
-      <section className="py-24 px-6">
-        <div className="max-w-4xl mx-auto">
-          <motion.div initial={{ opacity: 0, scale: 0.96 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}
-            className="relative rounded-3xl overflow-hidden">
-            <img src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=1200&q=80" alt="cta"
-              className="w-full h-72 object-cover object-center"/>
-            <div className="absolute inset-0 bg-gradient-to-r from-[#0b0c0e]/95 via-[#0b0c0e]/70 to-transparent flex items-center px-10">
-              <div>
-                <h2 className="gym-font text-5xl text-white mb-3">START YOUR<br /><span className="gradient-text">TRANSFORMATION</span></h2>
-                <p className="text-gray-300 mb-6 max-w-sm">Talk to us on WhatsApp and get a free consultation with our head trainer.</p>
-                <div className="flex flex-wrap gap-3">
-                  <a href={site.waHref} target="_blank" rel="noreferrer" className="btn-fire text-base px-7 py-3.5">
-                    <MessageCircle size={18} /> Chat on WhatsApp
-                  </a>
-                  <a href={site.telHref} className="btn-outline text-base px-7 py-3.5">
-                    <Phone size={16} /> {site.phone}
-                  </a>
+        {/* ── CTA BANNER ────────────────────────────── */}
+        <section className="py-24 px-6">
+          <div className="max-w-4xl mx-auto">
+            <motion.div initial={{ opacity: 0, scale: 0.96 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}
+              className="relative rounded-3xl overflow-hidden shadow-2xl">
+              <img src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=1200&q=80" alt="cta"
+                className="w-full h-72 object-cover object-center"/>
+              <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/75 to-transparent flex items-center px-10">
+                <div>
+                  <h2 className="gym-font text-5xl text-white mb-3">START YOUR<br /><span className="gradient-text">TRANSFORMATION</span></h2>
+                  <p className="text-gray-200 mb-6 max-w-sm">Talk to us on WhatsApp and get a free consultation with our head trainer.</p>
+                  <div className="flex flex-wrap gap-3">
+                    <a href={site.waHref} target="_blank" rel="noreferrer" className="btn-fire text-base px-7 py-3.5">
+                      <MessageCircle size={18} /> Chat on WhatsApp
+                    </a>
+                    <a href={site.telHref} className="btn-outline text-base px-7 py-3.5 border-white/40 text-white hover:bg-white/10">
+                      <Phone size={16} /> {site.phone}
+                    </a>
+                  </div>
                 </div>
               </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
+            </motion.div>
+          </div>
+        </section>
+      </div>
     </div>
   );
 }

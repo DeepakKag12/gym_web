@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import {
   MessageSquare, Search, RefreshCw, AlertTriangle, Trash2, Reply,
-  Phone, Mail, CheckCircle2, Clock,
+  Phone, Mail, CheckCircle2, Clock, UserPlus,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -183,6 +183,155 @@ export default function AdminEnquiries() {
       subtitle="People asking about joining your gym"
       actions={<Button icon={RefreshCw} onClick={refresh} disabled={loading}>Refresh</Button>}
     >
+      {/* Quick Status Section Division Cards — All Enquiries, New, Contacted, Joined */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-5">
+        <button
+          type="button"
+          onClick={() => setTab('all')}
+          className={`p-3.5 sm:p-4 rounded-xl border text-left transition cursor-pointer relative overflow-hidden ${
+            tab === 'all'
+              ? 'ring-2 ring-[var(--p-accent)] shadow-md'
+              : 'hover:border-[var(--p-border-2)]'
+          }`}
+          style={{ background: 'var(--p-surface)', borderColor: 'var(--p-border)' }}
+        >
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--p-text-2)' }}>
+              All Inquiries
+            </span>
+            <span className="p-1 rounded-md" style={{ background: 'var(--p-surface-2)', color: 'var(--p-text-2)' }}>
+              <MessageSquare size={14} />
+            </span>
+          </div>
+          <div className="text-2xl font-bold tracking-tight" style={{ color: 'var(--p-text)' }}>
+            {counts.all || 0}
+          </div>
+          <p className="text-[11.5px] mt-0.5 truncate" style={{ color: 'var(--p-muted)' }}>
+            Total prospective leads
+          </p>
+          {tab === 'all' && (
+            <div className="absolute bottom-0 left-0 right-0 h-1 bg-[var(--p-accent)]" />
+          )}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setTab('new')}
+          className={`p-3.5 sm:p-4 rounded-xl border text-left transition cursor-pointer relative overflow-hidden ${
+            tab === 'new'
+              ? 'ring-2 ring-amber-500 shadow-md'
+              : 'hover:border-[var(--p-border-2)]'
+          }`}
+          style={{ background: 'var(--p-surface)', borderColor: 'var(--p-border)' }}
+        >
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs font-semibold uppercase tracking-wider text-amber-400">
+              New Leads
+            </span>
+            <span className="p-1 rounded-md bg-amber-500/10 text-amber-400">
+              <Clock size={14} />
+            </span>
+          </div>
+          <div className="text-2xl font-bold tracking-tight text-amber-400">
+            {counts.new || 0}
+          </div>
+          <p className="text-[11.5px] mt-0.5 truncate text-amber-400/70">
+            Awaiting first response
+          </p>
+          {tab === 'new' && (
+            <div className="absolute bottom-0 left-0 right-0 h-1 bg-amber-500" />
+          )}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setTab('contacted')}
+          className={`p-3.5 sm:p-4 rounded-xl border text-left transition cursor-pointer relative overflow-hidden ${
+            tab === 'contacted'
+              ? 'ring-2 ring-blue-500 shadow-md'
+              : 'hover:border-[var(--p-border-2)]'
+          }`}
+          style={{ background: 'var(--p-surface)', borderColor: 'var(--p-border)' }}
+        >
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs font-semibold uppercase tracking-wider text-blue-400">
+              Contacted
+            </span>
+            <span className="p-1 rounded-md bg-blue-500/10 text-blue-400">
+              <Reply size={14} />
+            </span>
+          </div>
+          <div className="text-2xl font-bold tracking-tight text-blue-400">
+            {counts.contacted || 0}
+          </div>
+          <p className="text-[11.5px] mt-0.5 truncate text-blue-400/70">
+            Discussion in progress
+          </p>
+          {tab === 'contacted' && (
+            <div className="absolute bottom-0 left-0 right-0 h-1 bg-blue-500" />
+          )}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setTab('converted')}
+          className={`p-3.5 sm:p-4 rounded-xl border text-left transition cursor-pointer relative overflow-hidden ${
+            tab === 'converted'
+              ? 'ring-2 ring-emerald-500 shadow-md'
+              : 'hover:border-[var(--p-border-2)]'
+          }`}
+          style={{ background: 'var(--p-surface)', borderColor: 'var(--p-border)' }}
+        >
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs font-semibold uppercase tracking-wider text-emerald-400">
+              Joined Gym
+            </span>
+            <span className="p-1 rounded-md bg-emerald-500/10 text-emerald-400">
+              <CheckCircle2 size={14} />
+            </span>
+          </div>
+          <div className="text-2xl font-bold tracking-tight text-emerald-400">
+            {counts.converted || 0}
+          </div>
+          <p className="text-[11.5px] mt-0.5 truncate text-emerald-400/70">
+            Converted athletes
+          </p>
+          {tab === 'converted' && (
+            <div className="absolute bottom-0 left-0 right-0 h-1 bg-emerald-500" />
+          )}
+        </button>
+      </div>
+
+      {/* Active Section Info Banner */}
+      <div className="flex items-center justify-between p-3 mb-4 rounded-xl text-xs font-medium"
+        style={{ background: 'var(--p-surface-2)', border: '1px solid var(--p-border)' }}>
+        <div className="flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full" style={{
+            background: tab === 'new' ? 'var(--p-warn)' :
+                        tab === 'contacted' ? 'var(--p-info)' :
+                        tab === 'converted' ? 'var(--p-ok)' :
+                        tab === 'closed' ? 'var(--p-muted)' : 'var(--p-accent)'
+          }} />
+          <span style={{ color: 'var(--p-text)' }}>
+            {tab === 'new' && `New Leads Section (${counts.new || 0}) — Direct replies and WhatsApp follow-up needed`}
+            {tab === 'contacted' && `Contacted Leads Section (${counts.contacted || 0}) — In discussion`}
+            {tab === 'converted' && `Joined Athletes Section (${counts.converted || 0}) — Successfully enrolled`}
+            {tab === 'closed' && `Closed Inquiries Section (${counts.closed || 0}) — Archived`}
+            {tab === 'all' && `All Inquiries Section (${counts.all || 0}) — Full lead pipeline`}
+          </span>
+        </div>
+        {tab !== 'all' && (
+          <button
+            type="button"
+            onClick={() => setTab('all')}
+            className="text-[11.5px] underline hover:opacity-80 cursor-pointer"
+            style={{ color: 'var(--p-accent)' }}
+          >
+            Show All
+          </button>
+        )}
+      </div>
+
       <div className="ui-toolbar">
         <div className="ui-search">
           <Search size={18} />
@@ -272,6 +421,14 @@ export default function AdminEnquiries() {
                   <div className="flex items-center gap-2 mt-3 flex-wrap">
                     <Button variant="primary" size="sm" icon={Reply} onClick={() => setReplyTo(e)}>
                       Reply
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      icon={UserPlus}
+                      to={`/admin/users?add=1&name=${encodeURIComponent(e.name)}&email=${encodeURIComponent(e.email || '')}&phone=${encodeURIComponent(e.phone || '')}`}
+                    >
+                      Convert to Member
                     </Button>
                     <Button size="sm" variant="ghost" icon={Trash2} onClick={() => setConfirm(e)}
                       aria-label={`Delete enquiry from ${e.name}`} title="Delete"

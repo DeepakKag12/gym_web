@@ -2,69 +2,125 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Dumbbell, Salad, TrendingUp, ShoppingBag, Package, Calendar, Settings,
-  Bell, AlertTriangle, ArrowRight,
+  Bell, AlertTriangle, ArrowRight, IndianRupee, Flame, UserCheck, MessageCircle,
+  Play, Sparkles, CheckCircle2,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useSettings } from '../../context/SettingsContext';
 import { cachedGet } from '../../utils/api';
 import MemberPage from '../../components/MemberPage';
 import { Card, Badge, Button, EmptyState, Skeleton, STATUS_TONE, timeAgo } from '../../components/ui';
 import { daysUntil, fmtDate, daysLeftLabel, expiryTone, membershipProgress } from '../../utils/membership';
 
-/** The six places a member actually goes. Icons only for recognition, no colour party. */
 const ACTIONS = [
-  { to: '/my-workout',   icon: Dumbbell,   label: 'My workout',  hint: 'Split & planner' },
-  { to: '/my-diet',      icon: Salad,      label: 'My diet',     hint: 'Assigned plans' },
-  { to: '/my-progress',  icon: TrendingUp, label: 'Progress',    hint: 'Log your numbers' },
-  { to: '/my-exercises', icon: Calendar,   label: 'Exercises',   hint: 'Assigned to me' },
-  { to: '/store',        icon: ShoppingBag,label: 'Store',       hint: 'Supplements' },
-  { to: '/my-orders',    icon: Package,    label: 'My orders',   hint: 'Order history' },
+  { to: '/my-workout',   icon: Dumbbell,   label: 'My Workout',   hint: 'Split & daily routine' },
+  { to: '/my-diet',      icon: Salad,      label: 'My Diet',      hint: 'Nutrition & meals' },
+  { to: '/my-progress',  icon: TrendingUp, label: 'Body Progress',hint: 'Weight & measurements' },
+  { to: '/my-exercises', icon: Calendar,   label: 'Exercises',    hint: 'Form & video guides' },
+  { to: '/store',        icon: ShoppingBag,label: 'Gym Store',    hint: 'Supplements & gear' },
+  { to: '/my-orders',    icon: Package,    label: 'My Orders',    hint: 'Counter pickups & bills' },
 ];
+
+const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 export default function MemberDashboard() {
   const { user } = useAuth();
+  const settings = useSettings();
   const [notifications, setNotifications] = useState([]);
+  const [todayRoutine, setTodayRoutine] = useState(null);
+  const [assignedDiet, setAssignedDiet] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    cachedGet('/notifications', { cache: 30 })
-      .then(r => setNotifications(r.data.slice(0, 3)))
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
+  const todayDayName = DAYS[new Date().getDay()];
 
-  // Shared with the admin panel (src/utils/membership.js) so a member and the
-  // person renewing them always see the same number of days.
+  useEffect(() => {
+    let alive = true;
+    Promise.allSettled([
+      cachedGet('/notifications', { cache: 30 }),
+      cachedGet('/splits/me', { cache: 60 }),
+      cachedGet('/diet/my', { cache: 60 }),
+    ]).then(([notifRes, splitRes, dietRes]) => {
+      if (!alive) return;
+      if (notifRes.status === 'fulfilled') {
+        setNotifications((notifRes.value.data || []).slice(0, 3));
+      }
+      if (splitRes.status === 'fulfilled' && splitRes.value.data?.days) {
+        const found = splitRes.value.data.days.find(d => d.day === todayDayName);
+        if (found) setTodayRoutine(found);
+      }
+      if (dietRes.status === 'fulfilled' && Array.isArray(dietRes.value.data) && dietRes.value.data.length > 0) {
+        setAssignedDiet(dietRes.value.data[0]);
+      }
+    }).finally(() => alive && setLoading(false));
+
+    return () => { alive = false; };
+  }, [todayDayName]);
+
   const daysLeft = daysUntil(user?.membershipEnd);
   const progress = membershipProgress(user?.membershipStart, user?.membershipEnd);
   const tone = expiryTone(user?.membershipEnd);
-  // Includes negatives on purpose: an already-expired member is exactly who
-  // most needs the prompt, and the previous `>= 0` bound meant they were the
-  // only ones who never saw it.
   const needsRenewal = daysLeft !== null && daysLeft <= 7;
+
+  // Due calculation
+  const hasDue = Number(user?.feeDueAmount) > 0 || (user?.feePaid === false && Number(user?.feeAmount) > 0);
+  const dueAmount = Number(user?.feeDueAmount) > 0 ? Number(user?.feeDueAmount) : Number(user?.feeAmount || 0);
 
   return (
     <MemberPage
-      title={`Hi ${user?.name?.split(' ')[0] || 'there'}`}
-      subtitle="Here is where your membership stands"
-      actions={<Button icon={Settings} size="sm" to="/settings">Profile</Button>}
+      title={`Hi, ${user?.name?.split(' ')[0] || 'Athlete'}`}
+      subtitle="Welcome to your personal training cockpit"
+      actions={<Button icon={Settings} size="sm" to="/settings">Account</Button>}
     >
-      {/* Membership */}
+      {/* Outstanding Balance Alert Banner */}
+      {hasDue && (
+        <Card className="mb-4 border-l-4 border-l-red-500" style={{ background: 'var(--p-surface)' }}>
+          <div className="flex items-start justify-between gap-3 flex-wrap">
+            <div className="flex items-start gap-3">
+              <span className="p-2 rounded-xl flex items-center justify-center" style={{ background: 'var(--p-danger-soft)', color: 'var(--p-danger)' }}>
+                <IndianRupee size={20} />
+              </span>
+              <div>
+                <p className="text-[14px] font-bold" style={{ color: 'var(--p-text)' }}>
+                  Outstanding Membership Fee: ₹{dueAmount.toLocaleString('en-IN')}
+                </p>
+                <p className="text-[12.5px] mt-0.5" style={{ color: 'var(--p-text-2)' }}>
+                  Please settle at the front desk or via UPI.
+                  {settings?.upiId && (
+                    <span className="ml-1 font-semibold text-[var(--p-accent)]">
+                      UPI ID: {settings.upiId}
+                    </span>
+                  )}
+                </p>
+              </div>
+            </div>
+            <Badge tone="danger">Payment Due</Badge>
+          </div>
+        </Card>
+      )}
+
+      {/* Membership Status & Expiry Bar */}
       <Card className="mb-4">
         <div className="flex items-start justify-between gap-3 flex-wrap mb-3">
           <div>
-            <p className="ui-section-label">Membership</p>
+            <p className="ui-section-label">Active Plan</p>
             <p className="text-[18px] font-semibold capitalize mt-0.5" style={{ color: 'var(--p-text)' }}>
-              {user?.membershipPlan || 'No plan'}
+              {user?.membershipPlan || 'General Membership'}
             </p>
+            {user?.assignedTrainer?.name && (
+              <p className="text-[12.5px] mt-1 flex items-center gap-1.5" style={{ color: 'var(--p-text-2)' }}>
+                <UserCheck size={14} style={{ color: 'var(--p-accent)' }} />
+                Trainer: <strong style={{ color: 'var(--p-text)' }}>{user.assignedTrainer.name}</strong>
+              </p>
+            )}
           </div>
-          <Badge tone={STATUS_TONE[user?.membershipStatus] || 'neutral'}>{user?.membershipStatus || 'pending'}</Badge>
+          <Badge tone={STATUS_TONE[user?.membershipStatus] || 'neutral'}>{user?.membershipStatus || 'active'}</Badge>
         </div>
 
         {daysLeft !== null && (
           <>
             <div className="flex justify-between text-[13px] mb-1.5">
               <span style={{ color: 'var(--p-text-2)' }}>{daysLeftLabel(user.membershipEnd)}</span>
-              <span style={{ color: 'var(--p-muted)' }}>until {fmtDate(user.membershipEnd)}</span>
+              <span style={{ color: 'var(--p-muted)' }}>Valid until {fmtDate(user.membershipEnd)}</span>
             </div>
             {progress !== null && (
               <div style={{ height: 6, background: 'var(--p-surface-2)', borderRadius: 99, overflow: 'hidden' }}>
@@ -81,14 +137,11 @@ export default function MemberDashboard() {
         )}
 
         {needsRenewal && (() => {
-          // Three distinct states. Collapsing "ends today" into the expired
-          // branch told a member with a valid day left that they had already
-          // lost access.
           const urgent = daysLeft <= 0;
           const line = daysLeft < 0
             ? `Your membership expired ${Math.abs(daysLeft)} day${Math.abs(daysLeft) === 1 ? '' : 's'} ago. Renew at the gym to keep training.`
             : daysLeft === 0
-              ? 'Your membership ends today. Renew at the front desk to keep training.'
+              ? 'Your membership ends today. Renew at the front desk to keep training without interruption.'
               : `Your membership ends in ${daysLeft} day${daysLeft === 1 ? '' : 's'}. Talk to the front desk to renew.`;
           return (
             <div
@@ -106,7 +159,68 @@ export default function MemberDashboard() {
         })()}
       </Card>
 
-      {/* Shortcuts */}
+      {/* Today's Workout & Nutrition Highlights Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+        {/* Today's Workout Routine Card */}
+        <Card padded={true} className="flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <span className="ui-section-label">Today's Workout</span>
+              <Badge tone="accent">{todayDayName}</Badge>
+            </div>
+            <h3 className="text-[16px] font-bold" style={{ color: 'var(--p-text)' }}>
+              {todayRoutine?.focus || 'Scheduled Workout'}
+            </h3>
+            <p className="text-[13px] mt-1" style={{ color: 'var(--p-muted)' }}>
+              {todayRoutine?.exercises?.length
+                ? `${todayRoutine.exercises.length} exercises programmed for today`
+                : 'Tap below to check your workout split and exercises'}
+            </p>
+          </div>
+          <div className="mt-4 pt-3 border-t flex items-center justify-between" style={{ borderColor: 'var(--p-border)' }}>
+            <Link
+              to="/my-workout"
+              className="text-[13px] font-semibold flex items-center gap-1.5 transition hover:opacity-80"
+              style={{ color: 'var(--p-accent)' }}
+            >
+              <Play size={14} /> Open Today's Routine <ArrowRight size={13} />
+            </Link>
+            <span className="text-xs" style={{ color: 'var(--p-muted)' }}>Weekly Split</span>
+          </div>
+        </Card>
+
+        {/* Assigned Diet Plan Highlight */}
+        <Card padded={true} className="flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <span className="ui-section-label">Nutrition Target</span>
+              <Badge tone={assignedDiet ? 'ok' : 'neutral'}>
+                {assignedDiet ? 'Trainer Assigned' : 'General'}
+              </Badge>
+            </div>
+            <h3 className="text-[16px] font-bold" style={{ color: 'var(--p-text)' }}>
+              {assignedDiet?.title || 'Daily Nutrition Plan'}
+            </h3>
+            <p className="text-[13px] mt-1" style={{ color: 'var(--p-muted)' }}>
+              {assignedDiet?.targetCalories
+                ? `Target: ${assignedDiet.targetCalories} kcal · ${assignedDiet.meals?.length || 0} meals structured`
+                : 'Follow balanced protein and hydration targets for peak performance'}
+            </p>
+          </div>
+          <div className="mt-4 pt-3 border-t flex items-center justify-between" style={{ borderColor: 'var(--p-border)' }}>
+            <Link
+              to="/my-diet"
+              className="text-[13px] font-semibold flex items-center gap-1.5 transition hover:opacity-80"
+              style={{ color: 'var(--p-ok)' }}
+            >
+              <Salad size={14} /> View Meal Breakdown <ArrowRight size={13} />
+            </Link>
+            <span className="text-xs" style={{ color: 'var(--p-muted)' }}>Macros & Meals</span>
+          </div>
+        </Card>
+      </div>
+
+      {/* Six Main Shortcuts */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
         {ACTIONS.map(a => {
           const Icon = a.icon;
@@ -120,9 +234,9 @@ export default function MemberDashboard() {
         })}
       </div>
 
-      {/* Latest notifications */}
+      {/* Latest Notifications / Announcements */}
       <Card
-        title="Latest updates"
+        title="Gym Announcements & Updates"
         padded={false}
         action={
           <Link to="/notifications" className="text-[13px] font-medium inline-flex items-center gap-1" style={{ color: 'var(--p-accent)' }}>
@@ -134,7 +248,7 @@ export default function MemberDashboard() {
           {loading ? (
             <div className="py-3 space-y-3">{Array.from({ length: 2 }, (_, i) => <Skeleton key={i} h={40} />)}</div>
           ) : notifications.length === 0 ? (
-            <EmptyState icon={Bell} title="Nothing new" hint="Messages from your gym will show up here." />
+            <EmptyState icon={Bell} title="No unread messages" hint="Gym announcements and reminders will appear here." />
           ) : (
             <ul>
               {notifications.map((n, i) => (

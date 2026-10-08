@@ -26,6 +26,7 @@ const TransformationsPage = lazy(() => import('./pages/TransformationsPage'));
 const EnquiryPage         = lazy(() => import('./pages/EnquiryPage'));
 const LoginPage           = lazy(() => import('./pages/LoginPage'));
 const SettingsPage        = lazy(() => import('./pages/SettingsPage'));
+const FlashlightDemo      = lazy(() => import('./components/ui/demo'));
 
 // Member
 const MemberDashboard  = lazy(() => import('./pages/member/Dashboard'));
@@ -174,6 +175,9 @@ function AppRoutes() {
           <Route path="/checkout"           element={<CheckoutPage />} />
           <Route path="/transformations"    element={<TransformationsPage />} />
           <Route path="/enquiry"            element={<EnquiryPage />} />
+          <Route path="/plans"              element={<Navigate to="/enquiry" replace />} />
+          <Route path="/demo"               element={<FlashlightDemo />} />
+          <Route path="/demo/flashlight"    element={<FlashlightDemo />} />
 
           {/* ── Guest-only ── */}
           <Route path="/login"              element={<GuestRoute><LoginPage /></GuestRoute>} />

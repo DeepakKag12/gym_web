@@ -434,6 +434,9 @@ body.theme-panel .admin-input:focus {
 body.theme-panel select.input-dark,
 body.theme-panel select.admin-input {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23667085' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 34px;
 }
 
 body.theme-panel .btn-fire { background: var(--p-accent); color: #fff; box-shadow: none; border-radius: var(--p-radius-sm); }
@@ -655,3 +658,57 @@ body.theme-panel [class*="bg-purple-500/"]  { background-color: var(--p-accent-s
 .ui-menu-item:hover { background: var(--p-surface-2); color: var(--p-text); }
 .ui-menu-item-danger { color: var(--p-danger); }
 .ui-menu-item-danger:hover { background: var(--p-danger-soft); color: var(--p-danger); }
+
+/* ── Modern Dashboard & Glassmorphism Utilities ────────────────────────────── */
+.ui-stat-card {
+  position: relative;
+  overflow: hidden;
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+.ui-stat-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--p-border-2);
+  box-shadow: var(--p-shadow-md);
+}
+.ui-stat-glow {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 90px;
+  height: 90px;
+  border-radius: 99px;
+  filter: blur(28px);
+  opacity: 0.15;
+  pointer-events: none;
+}
+.ui-action-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--p-border);
+  background: var(--p-surface);
+  color: var(--p-text);
+  font-size: 12.5px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: all .15s ease;
+  cursor: pointer;
+}
+.ui-action-chip:hover {
+  border-color: var(--p-accent);
+  background: var(--p-surface-2);
+  transform: translateY(-1px);
+}
+.ui-pill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 99px;
+  letter-spacing: .02em;
+}
+

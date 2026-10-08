@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Trash2, X, Package, Edit2, Upload, ImageIcon, Star, ToggleLeft, ToggleRight } from 'lucide-react';
+import { Plus, Trash2, X, Package, Edit2, Upload, ImageIcon, Star, ToggleLeft, ToggleRight, Search } from 'lucide-react';
 import API, { cachedGet, bustCache, freshGet } from '../../utils/api';
 import AdminLayout from './AdminLayout';
+import { Button, Input, Select } from '../../components/ui';
 import toast from 'react-hot-toast';
 import { img } from '../../utils/img';
 
@@ -169,7 +170,7 @@ export default function AdminStore() {
 
   const load = (force = false) => {
     setLoading(true);
-    const fetcher = force ? freshGet('/store', { cache: 60 }) : cachedGet('/store', { cache: 60 });
+    const fetcher = force ? freshGet('/store?all=1', { cache: 60 }) : cachedGet('/store?all=1', { cache: 60 });
     fetcher.then(r => setProducts(r.data)).catch(() => {}).finally(() => setLoading(false));
   };
   useEffect(load, []);
@@ -202,23 +203,44 @@ export default function AdminStore() {
   });
 
   return (
-    <AdminLayout title="Supplement Store">
+    <AdminLayout
+      title="Supplement Store"
+      subtitle="Manage inventory, stock levels, discounts, and product visibility"
+      actions={
+        <Button variant="primary" icon={Plus} onClick={() => setModal('new')}>
+          Add Product
+        </Button>
+      }
+    >
       {/* Toolbar */}
-      <div className="flex flex-wrap gap-3 mb-5 items-center justify-between">
-        <div className="flex gap-2 flex-wrap">
-          <div className="relative">
-            <Package size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
-            <input className="input-dark pl-9 py-2 text-sm w-48" placeholder="Search products…"
-              value={search} onChange={e => setSearch(e.target.value)} />
+      <div className="ui-toolbar flex-wrap gap-2.5 mb-6 items-center justify-between">
+        <div className="flex items-center gap-2.5 flex-1 min-w-[280px]">
+          <div className="ui-search flex-1 max-w-sm">
+            <Search size={18} />
+            <Input
+              placeholder="Search products by name or brand…"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              aria-label="Search products"
+            />
           </div>
-          <select className="input-dark py-2 text-sm" value={catFilter} onChange={e => setCatFilter(e.target.value)}>
+          <Select
+            value={catFilter}
+            onChange={e => setCatFilter(e.target.value)}
+            style={{ width: 190, height: 42 }}
+            aria-label="Filter by category"
+          >
             <option value="all">All Categories</option>
-            {CATEGORIES.map(c => <option key={c} value={c} className="capitalize">{c}</option>)}
-          </select>
+            {CATEGORIES.map(c => (
+              <option key={c} value={c} className="capitalize">
+                {c.charAt(0).toUpperCase() + c.slice(1).replace(/-/g, ' ')}
+              </option>
+            ))}
+          </Select>
         </div>
-        <button onClick={() => setModal('new')} className="btn-fire text-sm py-2 px-4 gap-2">
-          <Plus size={15} /> Add Product
-        </button>
+        <Button variant="primary" icon={Plus} onClick={() => setModal('new')}>
+          Add Product
+        </Button>
       </div>
 
       {loading ? (

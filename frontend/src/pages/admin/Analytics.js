@@ -1,83 +1,158 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { TrendingUp, Users, Package, IndianRupee, Activity, BarChart2, UserCheck, Clock, RefreshCw } from 'lucide-react';
+import {
+  TrendingUp, Users, Package, IndianRupee, Activity, BarChart3,
+  UserCheck, Clock, RefreshCw, CreditCard, ShoppingBag, ArrowUpRight,
+  ArrowDownRight, CheckCircle2, AlertTriangle, Layers, Percent, PieChart,
+  Calendar, Printer
+} from 'lucide-react';
 import { bustCache, freshGet } from '../../utils/api';
 import AdminLayout from './AdminLayout';
+import { Card, Button, StatCard, Stagger, FadeIn, Badge, Skeleton, EmptyState } from '../../components/ui';
 
-const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-function MiniBarChart({ data, valueKey, labelFn, color = '#3b82f6', height = 100 }) {
-  if (!data || data.length === 0) return <div className="text-gray-600 text-sm text-center py-6">No data yet</div>;
-  const maxVal = Math.max(...data.map(d => d[valueKey] || 0)) || 1;
+const PLAN_THEME = {
+  monthly:     { label: 'Monthly',     color: '#0e7490', bg: 'rgba(14,116,144,0.12)' },
+  quarterly:   { label: 'Quarterly',   color: '#3b82f6', bg: 'rgba(59,130,246,0.12)' },
+  'half-yearly':{ label: 'Half-Yearly',color: '#8b5cf6', bg: 'rgba(139,92,246,0.12)' },
+  yearly:      { label: 'Yearly (VIP)',color: '#10b981', bg: 'rgba(16,185,129,0.12)' },
+  standard:    { label: 'Standard',    color: '#f59e0b', bg: 'rgba(245,158,11,0.12)' },
+};
+
+const METHOD_LABELS = {
+  cash:    { label: 'Cash (Desk Counter)', color: '#10b981' },
+  upi:     { label: 'UPI (GPay / PhonePe)', color: '#0e7490' },
+  card:    { label: 'Card (POS Machine)',   color: '#3b82f6' },
+  online:  { label: 'Online Gateway',       color: '#8b5cf6' },
+  other:   { label: 'Other Settlement',     color: '#f59e0b' },
+};
+
+function RevenueBarChart({ data, timeRange = 'all' }) {
+  const displayData = useMemo(() => {
+    if (!data || data.length === 0) return [];
+    if (timeRange === '6m') return data.slice(-6);
+    if (timeRange === '3m') return data.slice(-3);
+    return data.slice(-12);
+  }, [data, timeRange]);
+
+  if (displayData.length === 0) {
+    return (
+      <div className="py-12 text-center text-sm" style={{ color: 'var(--p-muted)' }}>
+        No revenue records found for this period.
+      </div>
+    );
+  }
+
+  const maxTotal = Math.max(...displayData.map(d => d.totalRevenue || 0)) || 1;
+
   return (
-    <div className="flex items-end gap-1.5 h-28 mt-3">
-      {data.map((d, i) => {
-        const pct = ((d[valueKey] || 0) / maxVal) * 100;
-        return (
-          <div key={i} className="flex-1 flex flex-col items-center gap-1 min-w-0">
-            <div className="text-gray-500 text-[10px] font-medium w-full text-center truncate">
-              {d[valueKey] > 0 ? (d[valueKey] >= 1000 ? `₹${(d[valueKey]/1000).toFixed(1)}k` : d[valueKey]) : ''}
+    <div className="space-y-4 pt-2">
+      {/* Legend */}
+      <div className="flex items-center gap-5 text-xs flex-wrap">
+        <div className="flex items-center gap-2">
+          <span className="w-3 h-3 rounded-sm" style={{ background: 'var(--p-accent, #0e7490)' }} />
+          <span style={{ color: 'var(--p-text-2)' }}>Membership Fees</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="w-3 h-3 rounded-sm" style={{ background: 'var(--p-ok, #10b981)' }} />
+          <span style={{ color: 'var(--p-text-2)' }}>Store & Supplement Orders</span>
+        </div>
+      </div>
+
+      {/* Bar Chart Canvas */}
+      <div className="flex items-end gap-2 sm:gap-3.5 h-48 pt-6 pb-2" style={{ borderBottom: '1px solid var(--p-border)' }}>
+        {displayData.map((d, i) => {
+          const tot = d.totalRevenue || 0;
+          const mem = d.membershipRevenue || 0;
+          const store = d.storeRevenue || 0;
+          const heightPct = Math.max(Math.round((tot / maxTotal) * 100), 5);
+          const memHeightPct = tot > 0 ? (mem / tot) * 100 : 0;
+          const storeHeightPct = tot > 0 ? (store / tot) * 100 : 0;
+          const isLatest = i === displayData.length - 1;
+
+          return (
+            <div key={i} className="flex-1 flex flex-col items-center gap-1.5 h-full justify-end min-w-0 group relative">
+              {/* Tooltip on hover */}
+              <div
+                className="opacity-0 group-hover:opacity-100 transition-opacity absolute bottom-full mb-2 z-20 pointer-events-none p-2 rounded-lg text-xs shadow-lg whitespace-nowrap"
+                style={{ background: 'var(--p-surface-2)', border: '1px solid var(--p-border)', color: 'var(--p-text)' }}
+              >
+                <div className="font-bold">{MONTH_NAMES[(d.month || 1) - 1]} {d.year}</div>
+                <div className="text-[11px] text-cyan-600">Memberships: ₹{mem.toLocaleString('en-IN')}</div>
+                <div className="text-[11px] text-emerald-600">Store: ₹{store.toLocaleString('en-IN')}</div>
+                <div className="font-semibold border-t pt-1 mt-1" style={{ borderColor: 'var(--p-border)' }}>
+                  Total: ₹{tot.toLocaleString('en-IN')}
+                </div>
+              </div>
+
+              {/* Value Label */}
+              <span className="text-[10px] font-semibold truncate" style={{ color: 'var(--p-text-2)' }}>
+                {tot > 0 ? (tot >= 1000 ? `₹${(tot / 1000).toFixed(0)}k` : `₹${tot}`) : '₹0'}
+              </span>
+
+              {/* Stacked Bar */}
+              <div
+                className="w-full max-w-[42px] rounded-t-md overflow-hidden flex flex-col justify-end transition-all duration-300 shadow-sm"
+                style={{
+                  height: `${heightPct}%`,
+                  opacity: isLatest ? 1 : 0.85,
+                  background: 'var(--p-surface-2)',
+                }}
+              >
+                {/* Store segment on top */}
+                <div
+                  style={{
+                    height: `${storeHeightPct}%`,
+                    background: 'var(--p-ok, #10b981)',
+                  }}
+                  title={`Store: ₹${store.toLocaleString('en-IN')}`}
+                />
+                {/* Membership segment on bottom */}
+                <div
+                  style={{
+                    height: `${memHeightPct}%`,
+                    background: 'var(--p-accent, #0e7490)',
+                  }}
+                  title={`Membership: ₹${mem.toLocaleString('en-IN')}`}
+                />
+              </div>
+
+              {/* Month Label */}
+              <span className={`text-[11px] truncate mt-1 ${isLatest ? 'font-bold' : ''}`} style={{ color: isLatest ? 'var(--p-text)' : 'var(--p-muted)' }}>
+                {MONTH_NAMES[(d.month || 1) - 1]}
+              </span>
             </div>
-            <div className="w-full rounded-t-md transition-all" style={{ height: `${Math.max(pct, 4)}%`, background: color, opacity: i === data.length - 1 ? 1 : 0.55 }} />
-            <div className="text-gray-600 text-[10px] w-full text-center truncate">{labelFn(d)}</div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
 }
 
-function DonutChart({ segments, size = 100 }) {
-  let total = segments.reduce((s, seg) => s + seg.value, 0);
-  if (!total) return <div className="text-gray-600 text-sm text-center py-4">No data</div>;
-  let angle = -90;
-  const r = 40, cx = 50, cy = 50;
-  return (
-    <svg width={size} height={size} viewBox="0 0 100 100">
-      {segments.map((seg, i) => {
-        const frac = seg.value / total;
-        const sweep = frac * 360;
-        const rad1 = (angle * Math.PI) / 180;
-        const rad2 = ((angle + sweep) * Math.PI) / 180;
-        const x1 = cx + r * Math.cos(rad1), y1 = cy + r * Math.sin(rad1);
-        const x2 = cx + r * Math.cos(rad2), y2 = cy + r * Math.sin(rad2);
-        const large = sweep > 180 ? 1 : 0;
-        const d = `M${cx},${cy} L${x1},${y1} A${r},${r},0,${large},1,${x2},${y2} Z`;
-        angle += sweep;
-        return <path key={i} d={d} fill={seg.color} opacity="0.85" />;
-      })}
-      <circle cx={cx} cy={cy} r={r * 0.55} fill="#0d0d14" />
-    </svg>
-  );
-}
-
-const PLAN_COLORS = { monthly: '#38bdf8', quarterly: '#a78bfa', 'half-yearly': '#34d399', yearly: '#fb923c' };
-
 export default function AdminAnalytics() {
-  const [summary,        setSummary]        = useState(null);
-  const [revenueMonthly, setRevenueMonthly] = useState([]);
-  const [membershipStats,setMembershipStats] = useState([]);
-  const [newMembers,     setNewMembers]      = useState([]);
-  const [loading,        setLoading]         = useState(true);
-  const [refreshing,     setRefreshing]      = useState(false);
+  const [summary, setSummary] = useState(null);
+  const [fullData, setFullData] = useState(null);
+  const [timeRange, setTimeRange] = useState('all'); // 'all', '6m', '3m'
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   const loadData = useCallback(async (fresh = false) => {
-    // Always treat as fresh on initial load — client cache must not serve stale analytics
-    const getter = fresh ? freshGet : freshGet;
     if (fresh) setRefreshing(true); else setLoading(true);
     try {
-      const [s, r, m, n] = await Promise.all([
-        getter('/analytics/summary',            { cache: 60 }),
-        getter('/analytics/revenue-monthly',    { cache: 60 }),
-        getter('/analytics/membership-stats',   { cache: 60 }),
-        getter('/analytics/new-members-monthly',{ cache: 60 }),
+      const [sumRes, fullRes] = await Promise.allSettled([
+        freshGet('/analytics/summary', { cache: 30 }),
+        freshGet('/analytics/revenue-full', { cache: 30 }),
       ]);
-      setSummary(s.data);
-      setRevenueMonthly(r.data);
-      setMembershipStats(m.data);
-      setNewMembers(n.data);
-    } catch (e) {
-      // keep existing data on error
+
+      if (sumRes.status === 'fulfilled') {
+        setSummary(sumRes.value.data);
+      }
+      if (fullRes.status === 'fulfilled') {
+        setFullData(fullRes.value.data);
+      }
+    } catch (_) {
+      // Keep existing data on error
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -87,128 +162,368 @@ export default function AdminAnalytics() {
   useEffect(() => { loadData(false); }, [loadData]);
 
   const handleRefresh = () => {
-    bustCache('analytics');
-    bustCache('members');
+    bustCache('/analytics');
+    bustCache('/payments');
+    bustCache('/orders');
     loadData(true);
   };
 
-  const revData = revenueMonthly.map(d => ({ ...d, revenue: d.revenue || 0 }));
-  const memData = newMembers.map(d => ({ ...d, count: d.count || 0 }));
+  const handlePrintReport = () => {
+    window.print();
+  };
 
-  const planSegments = membershipStats.map(p => ({
-    label: p._id || 'unknown', value: p.count, color: PLAN_COLORS[p._id] || '#6b7280'
-  }));
+  // Aggregated data
+  const totalRevenue = summary?.revenue || fullData?.summary?.totalRevenue || 0;
+  const storeRevenue = summary?.storeRevenue || fullData?.summary?.storeRevenue || 0;
+  const membershipRevenue = summary?.membershipRevenue || fullData?.summary?.membershipRevenue || Math.max(0, totalRevenue - storeRevenue);
+  const monthlyRevenue = summary?.monthlyRevenue || 0;
+  const lastMonthRevenue = summary?.lastMonthRevenue || 0;
+  const pendingFees = summary?.pendingFees || 0;
+  const pendingFeeCount = summary?.pendingFeeCount || 0;
+
+  // Month-over-month growth rate
+  const momGrowth = useMemo(() => {
+    if (!lastMonthRevenue || lastMonthRevenue <= 0) return null;
+    const diff = monthlyRevenue - lastMonthRevenue;
+    return Math.round((diff / lastMonthRevenue) * 100);
+  }, [monthlyRevenue, lastMonthRevenue]);
+
+  // Fee collection efficiency
+  const collectionEfficiency = useMemo(() => {
+    const totalDue = membershipRevenue + pendingFees;
+    if (!totalDue || totalDue <= 0) return 100;
+    return Math.min(100, Math.round((membershipRevenue / totalDue) * 100));
+  }, [membershipRevenue, pendingFees]);
+
+  // Payment methods breakdown
+  const paymentMethods = useMemo(() => {
+    const list = fullData?.paymentMethods || [];
+    const total = list.reduce((s, m) => s + (m.revenue || 0), 0) || 1;
+    return list.map(m => {
+      const info = METHOD_LABELS[m._id?.toLowerCase()] || { label: m._id || 'Direct', color: '#6b7280' };
+      return {
+        ...m,
+        label: info.label,
+        color: info.color,
+        percentage: Math.round(((m.revenue || 0) / total) * 100),
+      };
+    }).sort((a, b) => b.revenue - a.revenue);
+  }, [fullData]);
+
+  // Plan popularity breakdown
+  const planBreakdown = useMemo(() => {
+    const list = fullData?.planBreakdown || [];
+    const totalAthletes = list.reduce((s, p) => s + (p.count || 0), 0) || 1;
+    return list.map(p => {
+      const key = (p._id || 'standard').toLowerCase();
+      const info = PLAN_THEME[key] || PLAN_THEME.standard;
+      return {
+        ...p,
+        name: info.label,
+        color: info.color,
+        percentage: Math.round(((p.count || 0) / totalAthletes) * 100),
+      };
+    }).sort((a, b) => b.count - a.count);
+  }, [fullData]);
 
   return (
-    <AdminLayout title="Analytics & Revenue">
-      {/* Refresh button */}
-      <div className="flex justify-end mb-5">
-        <button
-          onClick={handleRefresh}
-          disabled={refreshing}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-gray-400 text-xs hover:border-white/20 hover:text-white transition-all disabled:opacity-50"
+    <AdminLayout
+      title="Gym Intelligence & Financial Analytics"
+      subtitle="Complete performance metrics on membership subscriptions, supplement sales, and counter payments"
+      actions={
+        <div className="flex items-center gap-2 flex-wrap">
+          <Button
+            size="sm"
+            variant="outline"
+            icon={Printer}
+            onClick={handlePrintReport}
+            className="hidden sm:inline-flex"
+          >
+            Print Report
+          </Button>
+          <Button
+            size="sm"
+            variant="secondary"
+            icon={RefreshCw}
+            onClick={handleRefresh}
+            disabled={refreshing}
+          >
+            {refreshing ? 'Updating…' : 'Refresh Metrics'}
+          </Button>
+        </div>
+      }
+    >
+      <div className="space-y-6 max-w-7xl">
+        {/* Period Selector & Quick Filters */}
+        <div
+          className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-xl border shadow-sm"
+          style={{ background: 'var(--p-surface)', borderColor: 'var(--p-border)' }}
         >
-          <RefreshCw size={12} className={refreshing ? 'animate-spin' : ''} />
-          {refreshing ? 'Refreshing…' : 'Refresh Data'}
-        </button>
-      </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--p-muted)' }}>
+              Analysis Period:
+            </span>
+            <div className="flex items-center gap-1">
+              {[
+                { id: 'all', label: 'Last 12 Months' },
+                { id: '6m', label: 'Last 6 Months' },
+                { id: '3m', label: 'Last Quarter (3m)' },
+              ].map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setTimeRange(tab.id)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
+                    timeRange === tab.id
+                      ? 'shadow-sm'
+                      : 'hover:bg-[var(--p-surface-2)]'
+                  }`}
+                  style={{
+                    background: timeRange === tab.id ? 'var(--p-accent)' : 'transparent',
+                    color: timeRange === tab.id ? '#ffffff' : 'var(--p-text-2)',
+                  }}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          </div>
 
-      {loading ? (
-        <div className="flex justify-center py-20"><div className="w-10 h-10 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" /></div>
-      ) : (
-        <>
-          {/* KPI Cards */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            {[
-              { icon: Users, label: 'Total Members', value: summary?.totalMembers ?? 0, color: 'bg-blue-500/10 text-blue-400' },
-              { icon: UserCheck, label: 'Active Members', value: summary?.activeMembers ?? 0, color: 'bg-green-500/10 text-green-400' },
-              { icon: Clock, label: 'Expiring (7d)', value: summary?.expiringIn7 ?? 0, color: 'bg-yellow-500/10 text-yellow-400' },
-              { icon: Package, label: 'Total Orders', value: summary?.totalOrders ?? 0, color: 'bg-purple-500/10 text-purple-400' },
-            ].map((k, i) => (
-              <motion.div key={i} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}
-                className="glass rounded-xl p-5">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${k.color}`}>
-                  <k.icon size={18} />
+          <div className="flex items-center gap-3 text-xs" style={{ color: 'var(--p-muted)' }}>
+            <span>Live Aggregation: <strong>Automatic Cache Sync</strong></span>
+          </div>
+        </div>
+
+        {/* Primary Health Metric Cards — 4 Column Grid */}
+        <Stagger className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <StatCard
+            label="Total Gross Income"
+            value={`₹${totalRevenue.toLocaleString('en-IN')}`}
+            hint="Combined subscriptions + store"
+            icon={IndianRupee}
+            tone="accent"
+            trend={momGrowth !== null ? `${momGrowth >= 0 ? '+' : ''}${momGrowth}% MoM` : 'All Time'}
+            loading={loading}
+          />
+          <StatCard
+            label="Current Month Revenue"
+            value={`₹${monthlyRevenue.toLocaleString('en-IN')}`}
+            hint={`Last month: ₹${lastMonthRevenue.toLocaleString('en-IN')}`}
+            icon={TrendingUp}
+            tone="ok"
+            trend={monthlyRevenue > 0 ? 'Pacing Active' : 'Beginning'}
+            loading={loading}
+          />
+          <StatCard
+            label="Outstanding Dues"
+            value={`₹${pendingFees.toLocaleString('en-IN')}`}
+            hint={`${pendingFeeCount} members with pending balance`}
+            icon={CreditCard}
+            tone={pendingFees > 0 ? 'danger' : 'ok'}
+            trend={pendingFees > 0 ? `${pendingFeeCount} due` : '100% Paid'}
+            loading={loading}
+          />
+          <StatCard
+            label="Active Athletes"
+            value={summary?.activeMembers ?? 0}
+            hint={`Of ${summary?.totalMembers ?? 0} total enrolled`}
+            icon={UserCheck}
+            tone="info"
+            trend="Floor Active"
+            loading={loading}
+          />
+        </Stagger>
+
+        {/* Secondary Operational KPIs — 4 Column Grid */}
+        <Stagger className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <StatCard
+            label="Membership Fees"
+            value={`₹${membershipRevenue.toLocaleString('en-IN')}`}
+            hint={`${totalRevenue > 0 ? Math.round((membershipRevenue / totalRevenue) * 100) : 100}% of gross revenue`}
+            icon={Users}
+            tone="accent"
+            trend="Subscriptions"
+            loading={loading}
+          />
+          <StatCard
+            label="Store Retail Sales"
+            value={`₹${storeRevenue.toLocaleString('en-IN')}`}
+            hint={`${summary?.totalOrders ?? fullData?.summary?.totalOrders ?? 0} customer orders fulfilled`}
+            icon={ShoppingBag}
+            tone="ok"
+            trend="Supplements"
+            loading={loading}
+          />
+          <StatCard
+            label="Expiring in 7 Days"
+            value={summary?.expiringIn7 ?? 0}
+            hint="Urgent renewal window"
+            icon={Clock}
+            tone={(summary?.expiringIn7 ?? 0) > 0 ? 'warn' : 'ok'}
+            trend={(summary?.expiringIn7 ?? 0) > 0 ? 'Needs Followup' : 'All Set'}
+            loading={loading}
+          />
+          <StatCard
+            label="Collection Efficiency"
+            value={`${collectionEfficiency}%`}
+            hint="Paid fees vs total billed"
+            icon={Percent}
+            tone={collectionEfficiency >= 90 ? 'ok' : 'warn'}
+            trend="Health Score"
+            loading={loading}
+          />
+        </Stagger>
+
+        {/* Main Chart Section: Monthly Revenue Growth */}
+        <FadeIn delay={0.08}>
+          <Card
+            title="Monthly Revenue Trend & Stream Comparison"
+            subtitle="Side-by-side progression of membership fees and supplement store sales"
+            padded={true}
+          >
+            {loading ? (
+              <div className="h-48 flex items-center justify-center">
+                <Skeleton h={160} className="w-full" />
+              </div>
+            ) : (
+              <RevenueBarChart
+                data={fullData?.months || []}
+                timeRange={timeRange}
+              />
+            )}
+          </Card>
+        </FadeIn>
+
+        {/* Deep Dive Breakdown Section: 2 Columns */}
+        <div className="grid gap-5 lg:grid-cols-2">
+          {/* Payment Channels Ledger */}
+          <FadeIn delay={0.1}>
+            <Card
+              title="Payment Channel Distribution"
+              subtitle="Incoming revenue collected via Cash, UPI, Cards, and Online"
+              padded={true}
+            >
+              {loading ? (
+                <div className="space-y-3 py-2">
+                  <Skeleton h={32} />
+                  <Skeleton h={32} />
+                  <Skeleton h={32} />
                 </div>
-                <div className="text-white font-bold text-3xl mb-1">{k.value}</div>
-                <div className="text-gray-400 text-sm">{k.label}</div>
-              </motion.div>
-            ))}
-          </div>
-
-          {/* Revenue KPIs */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-              className="glass rounded-xl p-5">
-              <div className="flex items-center gap-2 mb-2">
-                <IndianRupee size={16} className="text-green-400" />
-                <span className="text-gray-400 text-sm">Total Revenue</span>
-              </div>
-              <div className="text-white font-bold text-3xl">₹{(summary?.revenue || 0).toLocaleString('en-IN')}</div>
-              <div className="text-gray-600 text-xs mt-1">From paid orders</div>
-            </motion.div>
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
-              className="glass rounded-xl p-5">
-              <div className="flex items-center gap-2 mb-2">
-                <Activity size={16} className="text-cyan-400" />
-                <span className="text-gray-400 text-sm">This Month</span>
-              </div>
-              <div className="text-white font-bold text-3xl">₹{(summary?.monthlyRevenue || 0).toLocaleString('en-IN')}</div>
-              <div className="text-gray-600 text-xs mt-1">Current month revenue</div>
-            </motion.div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            {/* Revenue Chart */}
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
-              className="glass rounded-xl p-5">
-              <div className="flex items-center gap-2 mb-1">
-                <BarChart2 size={16} className="text-blue-400" />
-                <span className="text-white font-semibold text-sm">Monthly Revenue (₹)</span>
-              </div>
-              <div className="text-gray-500 text-xs mb-2">Last 6 months</div>
-              <MiniBarChart data={revData} valueKey="revenue" color="#3b82f6"
-                labelFn={d => MONTHS[(d._id?.month || 1) - 1]} />
-            </motion.div>
-
-            {/* New Members Chart */}
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }}
-              className="glass rounded-xl p-5">
-              <div className="flex items-center gap-2 mb-1">
-                <Users size={16} className="text-purple-400" />
-                <span className="text-white font-semibold text-sm">New Members/Month</span>
-              </div>
-              <div className="text-gray-500 text-xs mb-2">Last 6 months</div>
-              <MiniBarChart data={memData} valueKey="count" color="#a78bfa"
-                labelFn={d => MONTHS[(d._id?.month || 1) - 1]} />
-            </motion.div>
-          </div>
+              ) : paymentMethods.length === 0 ? (
+                <EmptyState icon={CreditCard} title="No payment records yet" hint="Processed payments will appear here." />
+              ) : (
+                <div className="space-y-4 pt-1">
+                  {paymentMethods.map(m => (
+                    <div key={m._id || 'other'} className="space-y-1.5">
+                      <div className="flex justify-between text-xs">
+                        <span className="font-semibold flex items-center gap-1.5" style={{ color: 'var(--p-text)' }}>
+                          <span className="w-2.5 h-2.5 rounded-full" style={{ background: m.color }} />
+                          {m.label}
+                        </span>
+                        <span className="font-bold" style={{ color: 'var(--p-text)' }}>
+                          ₹{Number(m.revenue || 0).toLocaleString('en-IN')}
+                          <span className="text-[11px] font-normal ml-1" style={{ color: 'var(--p-muted)' }}>
+                            ({m.percentage}%) • {m.count} txns
+                          </span>
+                        </span>
+                      </div>
+                      <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: 'var(--p-surface-2)' }}>
+                        <div
+                          className="h-full rounded-full transition-all duration-500"
+                          style={{
+                            width: `${Math.max(m.percentage, 3)}%`,
+                            background: m.color,
+                          }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Card>
+          </FadeIn>
 
           {/* Membership Plan Distribution */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
-            className="glass rounded-xl p-5">
-            <div className="flex items-center gap-2 mb-4">
-              <TrendingUp size={16} className="text-green-400" />
-              <span className="text-white font-semibold text-sm">Membership Plan Distribution</span>
-            </div>
-            <div className="flex flex-col sm:flex-row items-center gap-6">
-              <div className="flex-shrink-0">
-                <DonutChart segments={planSegments} size={110} />
+          <FadeIn delay={0.12}>
+            <Card
+              title="Membership Plan Popularity"
+              subtitle="Athlete breakdown by subscription duration"
+              padded={true}
+            >
+              {loading ? (
+                <div className="space-y-3 py-2">
+                  <Skeleton h={32} />
+                  <Skeleton h={32} />
+                  <Skeleton h={32} />
+                </div>
+              ) : planBreakdown.length === 0 ? (
+                <EmptyState icon={Users} title="No member plans recorded" hint="Active memberships will appear here." />
+              ) : (
+                <div className="space-y-4 pt-1">
+                  {planBreakdown.map(p => (
+                    <div key={p._id || 'standard'} className="space-y-1.5">
+                      <div className="flex justify-between text-xs">
+                        <span className="font-semibold flex items-center gap-1.5" style={{ color: 'var(--p-text)' }}>
+                          <span className="w-2.5 h-2.5 rounded-full" style={{ background: p.color }} />
+                          {p.name}
+                        </span>
+                        <span className="font-bold" style={{ color: 'var(--p-text)' }}>
+                          {p.count} Athlete{p.count !== 1 ? 's' : ''}
+                          <span className="text-[11px] font-normal ml-1" style={{ color: 'var(--p-muted)' }}>
+                            ({p.percentage}%) • ₹{Number(p.revenue || 0).toLocaleString('en-IN')}
+                          </span>
+                        </span>
+                      </div>
+                      <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: 'var(--p-surface-2)' }}>
+                        <div
+                          className="h-full rounded-full transition-all duration-500"
+                          style={{
+                            width: `${Math.max(p.percentage, 3)}%`,
+                            background: p.color,
+                          }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Card>
+          </FadeIn>
+        </div>
+
+        {/* Financial Highlights & Health Summary */}
+        <FadeIn delay={0.14}>
+          <div
+            className="p-5 rounded-2xl border shadow-sm flex flex-col md:flex-row items-center justify-between gap-4"
+            style={{ background: 'var(--p-surface)', borderColor: 'var(--p-border)' }}
+          >
+            <div className="flex items-center gap-3.5">
+              <span
+                className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0"
+                style={{ background: 'var(--p-ok-soft)', color: 'var(--p-ok)' }}
+              >
+                <CheckCircle2 size={24} />
+              </span>
+              <div>
+                <h4 className="text-[15px] font-bold" style={{ color: 'var(--p-text)' }}>
+                  Gym Financial Operations Status: Healthy
+                </h4>
+                <p className="text-[13px] mt-0.5" style={{ color: 'var(--p-text-2)' }}>
+                  {collectionEfficiency}% fee collection efficiency. {summary?.activeMembers ?? 0} active athletes maintaining consistent workouts.
+                </p>
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-1 gap-2 w-full sm:w-auto">
-                {planSegments.map((seg, i) => (
-                  <div key={i} className="flex items-center gap-2">
-                    <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: seg.color }} />
-                    <span className="text-gray-300 text-sm capitalize">{seg.label}</span>
-                    <span className="text-white font-semibold ml-auto sm:ml-2">{seg.value}</span>
-                  </div>
-                ))}
-                {planSegments.length === 0 && <div className="text-gray-600 text-sm col-span-2">No members yet</div>}
-              </div>
             </div>
-          </motion.div>
-        </>
-      )}
+
+            <div className="flex items-center gap-2.5 flex-shrink-0">
+              <Button size="sm" variant="secondary" to="/admin/payments?tab=dues">
+                Review Dues
+              </Button>
+              <Button size="sm" variant="primary" to="/admin/orders">
+                Fulfill Orders
+              </Button>
+            </div>
+          </div>
+        </FadeIn>
+      </div>
     </AdminLayout>
   );
 }

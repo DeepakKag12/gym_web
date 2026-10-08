@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   Bell, CheckCheck, RefreshCw, Send, AlertTriangle, MessageCircle, Mail, Monitor, Zap, Trash2,
 } from 'lucide-react';
@@ -59,26 +59,111 @@ function DeliveryChips({ notif }) {
   );
 }
 
+const PRESET_TEMPLATES = [
+  {
+    label: '⚡ WhatsApp Meta Template',
+    sub: 'Uses approved "fitnation_by_ajeet" (Name & Days variables)',
+    type: 'fee-reminder',
+    title: 'Membership renewal reminder',
+    message: 'Hello! 👋 Friendly reminder from FitNation by Ajeet 💪 Your gym membership is set to expire soon. Please renew your membership to continue your fitness journey with us! 🏋️‍♂️🔥\n\n💳 Renew your membership today and keep training without a break!\n\nFor more details or assistance, please contact Ajeet at 9630906906 📞\n\nStay Fit. Stay Strong. 💪',
+    defaultWA: true,
+  },
+  {
+    label: '📢 Custom Announcement (Email)',
+    sub: 'Free broadcast — deliver custom text to inboxes & app',
+    type: 'announcement',
+    title: 'Important Gym Announcement',
+    message: 'Dear FitNation athletes, please take note of this update regarding gym timings, fitness classes, and equipment maintenance. Stay Fit. Stay Strong! 💪',
+    defaultWA: false,
+  },
+  {
+    label: '⚠️ Membership Expired Notice',
+    sub: 'Targeted to expired members (WhatsApp + Email)',
+    type: 'membership-expired',
+    title: 'Membership has expired',
+    message: 'Hello! Your FitNation by Ajeet gym membership has expired. Please renew your membership to resume training without interruption! Contact Ajeet at 9630906906 for quick renewal. 💪',
+    defaultWA: true,
+  },
+  {
+    label: '💳 Pending Fee Balance (Email)',
+    sub: 'Custom fee collection alert for members with dues',
+    type: 'fee-reminder',
+    title: 'Pending gym fee reminder',
+    message: 'Dear member, you have a pending membership fee balance. Please clear your dues at the gym reception desk or via online payment.',
+    defaultWA: false,
+  },
+];
+
 /* ─── Compose ───────────────────────────────────────────────────────────── */
 function ComposeModal({ members, onClose, onSent }) {
   const [form, setForm] = useState({
-    title: '', message: '', type: 'announcement', memberId: '',
+    title: '', message: '', type: 'fee-reminder',
+    target: 'expiring_2d', memberId: '',
     sendWhatsApp: true, sendEmail: true,
   });
   const [sending, setSending] = useState(false);
 
-  const broadcast = !form.memberId;
+  // Compute live audience counts
+  const now = useMemo(() => new Date(), []);
+  const in2Days = useMemo(() => new Date(Date.now() + 2 * 86400000), []);
+  const in7Days = useMemo(() => new Date(Date.now() + 7 * 86400000), []);
+
+  const expiring2dCount = useMemo(() => members.filter(m => {
+    if (!m.membershipEnd || m.membershipStatus === 'expired') return false;
+    const d = new Date(m.membershipEnd);
+    return d >= now && d <= in2Days;
+  }).length, [members, now, in2Days]);
+
+  const expiring7dCount = useMemo(() => members.filter(m => {
+    if (!m.membershipEnd || m.membershipStatus === 'expired') return false;
+    const d = new Date(m.membershipEnd);
+    return d >= now && d <= in7Days;
+  }).length, [members, now, in7Days]);
+
+  const expiredCount = useMemo(() => members.filter(m => {
+    if (m.membershipStatus === 'expired') return true;
+    if (!m.membershipEnd) return false;
+    return new Date(m.membershipEnd) < now;
+  }).length, [members, now]);
+
+  const recipientCount = useMemo(() => {
+    if (form.target === 'single') return form.memberId ? 1 : 0;
+    if (form.target === 'expiring_2d') return expiring2dCount;
+    if (form.target === 'expiring_7d') return expiring7dCount;
+    if (form.target === 'expired') return expiredCount;
+    return members.length;
+  }, [form.target, form.memberId, expiring2dCount, expiring7dCount, expiredCount, members.length]);
+
+  const isBroadcastAll = form.target === 'all';
 
   const send = async () => {
     if (!form.title || !form.message) return toast.error('Add a title and a message');
-    if (broadcast && !window.confirm(`Send this to all ${members.length} members by app, WhatsApp and email?`)) return;
+    if (form.target === 'single' && !form.memberId) return toast.error('Select a member');
+    if (recipientCount === 0) return toast.error('No members found in selected audience');
+
+    if (isBroadcastAll && form.sendWhatsApp) {
+      if (!window.confirm(`⚠️ WhatsApp is a paid Meta service.\n\nAre you sure you want to send WhatsApp to all ${members.length} members? You can switch to Email-only or select "Expiring Members" to save costs.`)) {
+        return;
+      }
+    } else if (isBroadcastAll && !window.confirm(`Send notification to all ${members.length} members?`)) {
+      return;
+    }
+
     setSending(true);
     try {
-      const { data } = await API.post('/notifications/admin/send', form);
-      toast.success(data.message || 'Notification sent');
+      const payload = {
+        title: form.title,
+        message: form.message,
+        type: form.type,
+        sendWhatsApp: form.sendWhatsApp,
+        sendEmail: form.sendEmail,
+        ...(form.target === 'single' ? { memberId: form.memberId } : { target: form.target }),
+      };
+      const { data } = await API.post('/notifications/admin/send', payload);
+      toast.success(data.message || 'Notification dispatched');
       onSent();
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Could not send');
+      toast.error(err.response?.data?.message || 'Could not send notification');
     } finally {
       setSending(false);
     }
@@ -86,41 +171,150 @@ function ComposeModal({ members, onClose, onSent }) {
 
   return (
     <Modal
-      title="Send a notification"
+      title="Send Member Notification"
       onClose={onClose}
-      width={520}
+      width={560}
       footer={
         <>
           <Button onClick={onClose}>Cancel</Button>
           <Button variant="primary" icon={Send} onClick={send} loading={sending}>
-            {broadcast ? `Send to ${members.length} members` : 'Send'}
+            {recipientCount > 1 ? `Send to ${recipientCount} members` : 'Send now'}
           </Button>
         </>
       }
     >
-      <div className="space-y-3">
-        <Field label="Send to">
-          <Select value={form.memberId} onChange={e => setForm(p => ({ ...p, memberId: e.target.value }))}>
-            <option value="">Everyone ({members.length} members)</option>
-            {members.map(m => <option key={m._id} value={m._id}>{m.name} — {m.email}</option>)}
-          </Select>
-        </Field>
-        <Field label="Type">
-          <Select value={form.type} onChange={e => setForm(p => ({ ...p, type: e.target.value }))}>
-            {TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
-          </Select>
-        </Field>
-        <Field label="Title" required>
-          <Input value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))} placeholder="Gym closed on Sunday" />
-        </Field>
-        <Field label="Message" required>
-          <Textarea rows={4} value={form.message} onChange={e => setForm(p => ({ ...p, message: e.target.value }))} placeholder="Write the message members will receive…" />
+      <div className="space-y-3.5">
+        {/* 1-Click Template presets */}
+        <div>
+          <label className="text-[12px] font-semibold block mb-1.5" style={{ color: 'var(--p-text-2)' }}>
+            ⚡ 1-Click Ready Templates (No typing needed)
+          </label>
+          <div className="grid grid-cols-2 gap-1.5">
+            {PRESET_TEMPLATES.map((tpl, i) => (
+              <button
+                key={i}
+                type="button"
+                className="text-left text-[12px] p-2 rounded transition-all flex flex-col justify-between"
+                style={{
+                  background: form.title === tpl.title ? 'var(--p-primary-soft)' : 'var(--p-bg-subtle)',
+                  color: form.title === tpl.title ? 'var(--p-primary)' : 'var(--p-text)',
+                  border: form.title === tpl.title ? '1px solid var(--p-primary)' : '1px solid var(--p-border)',
+                }}
+                onClick={() => {
+                  setForm(p => ({
+                    ...p,
+                    type: tpl.type,
+                    title: tpl.title,
+                    message: tpl.message,
+                    // Safety: uncheck WhatsApp if broadcasting to all, unless targeted
+                    sendWhatsApp: p.target === 'all' ? false : tpl.defaultWA,
+                    sendEmail: true,
+                  }));
+                  toast.success(`Template loaded: ${tpl.title}`);
+                }}
+              >
+                <span className="font-semibold truncate">{tpl.label}</span>
+                <span className="text-[11px] opacity-75 mt-0.5 line-clamp-1">{tpl.sub || tpl.title}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Audience Selector */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <Field label="Target Audience">
+            <Select
+              value={form.target}
+              onChange={e => {
+                const target = e.target.value;
+                setForm(p => ({
+                  ...p,
+                  target,
+                  // When switching to 'all', default WhatsApp to false to save Meta costs
+                  sendWhatsApp: target === 'all' ? false : p.sendWhatsApp,
+                }));
+              }}
+            >
+              <option value="expiring_2d">Expiring in 2 Days ({expiring2dCount} members)</option>
+              <option value="expiring_7d">Expiring in 7 Days ({expiring7dCount} members)</option>
+              <option value="expired">Expired Members ({expiredCount} members)</option>
+              <option value="all">Everyone ({members.length} members) — Email Recommended</option>
+              <option value="single">Single Specific Member</option>
+            </Select>
+          </Field>
+
+          <Field label="Category / Type">
+            <Select value={form.type} onChange={e => setForm(p => ({ ...p, type: e.target.value }))}>
+              {TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+            </Select>
+          </Field>
+        </div>
+
+        {form.target === 'single' && (
+          <Field label="Select Member" required>
+            <Select value={form.memberId} onChange={e => setForm(p => ({ ...p, memberId: e.target.value }))}>
+              <option value="">Choose a member…</option>
+              {members.map(m => (
+                <option key={m._id} value={m._id}>
+                  {m.name} ({m.phone || 'No phone'} · {m.membershipStatus || 'active'})
+                </option>
+              ))}
+            </Select>
+          </Field>
+        )}
+
+        <Field label="Notification Title" required>
+          <Input
+            value={form.title}
+            onChange={e => setForm(p => ({ ...p, title: e.target.value }))}
+            placeholder="e.g. Membership renewal reminder"
+          />
         </Field>
 
-        <p className="ui-section-label pt-1">Also send by</p>
-        <CheckRow checked={form.sendWhatsApp} onChange={v => setForm(p => ({ ...p, sendWhatsApp: v }))} label="WhatsApp" hint="Delivered at the same time as email" />
-        <CheckRow checked={form.sendEmail} onChange={v => setForm(p => ({ ...p, sendEmail: v }))} label="Email" hint="Branded email with the same message" />
-        <p className="ui-hint">Everyone always gets it in the app as well.</p>
+        <Field label="Message Text" required>
+          <Textarea
+            rows={4}
+            value={form.message}
+            onChange={e => setForm(p => ({ ...p, message: e.target.value }))}
+            placeholder="Type your message or click a 1-Click template above…"
+          />
+        </Field>
+
+        {/* WhatsApp Paid Cost Notice when Broadcast to All */}
+        {isBroadcastAll && form.sendWhatsApp && (
+          <div
+            className="p-2.5 rounded text-[12px] flex items-start gap-2"
+            style={{
+              background: 'rgba(234, 179, 8, 0.12)',
+              color: '#d97706',
+              border: '1px solid rgba(234, 179, 8, 0.3)',
+            }}
+          >
+            <AlertTriangle size={16} className="flex-shrink-0 mt-0.5" />
+            <span>
+              <strong>Meta WhatsApp Cost Alert:</strong> WhatsApp Cloud API charges per conversation. To save costs, send WhatsApp to <strong>Expiring Members</strong> or specific individuals. Broadcast to all is recommended via Email & in-app.
+            </span>
+          </div>
+        )}
+
+        <div>
+          <p className="ui-section-label pt-1 font-semibold text-[13px]">Delivery Channels</p>
+          <div className="space-y-1.5 mt-1">
+            <CheckRow
+              checked={form.sendWhatsApp}
+              onChange={v => setForm(p => ({ ...p, sendWhatsApp: v }))}
+              label="WhatsApp (Meta Cloud API)"
+              hint={isBroadcastAll ? '⚠️ Paid per message. Best for expiring / selected members.' : 'Sent directly via Meta WhatsApp to recipient'}
+            />
+            <CheckRow
+              checked={form.sendEmail}
+              onChange={v => setForm(p => ({ ...p, sendEmail: v }))}
+              label="Email (Brevo SMTP)"
+              hint="Free, branded email delivered to members inbox"
+            />
+          </div>
+          <p className="ui-hint mt-1.5">Members always receive this notification in their gym portal account.</p>
+        </div>
       </div>
     </Modal>
   );
@@ -138,16 +332,18 @@ function ChannelStatus({ health, onTest, testing }) {
     return (
       <Card className="mb-4">
         <div className="flex items-center justify-between gap-3 flex-wrap">
-          <p className="text-[14px] flex items-center gap-2" style={{ color: 'var(--p-text-2)' }}>
-            <Badge tone="ok">Live</Badge>
-            WhatsApp and email are both set up. Members receive every notification on all three channels.
-          </p>
+          <div className="flex items-center gap-2 flex-wrap">
+            <Badge tone="ok">Meta WhatsApp Live</Badge>
+            <span className="text-[14px]" style={{ color: 'var(--p-text-2)' }}>
+              Meta Cloud API (Template: {health?.whatsapp?.template || 'fitnation_by_ajeet'} · Phone ID: {health?.whatsapp?.from || '1399463199911717'}) & Email active.
+            </span>
+          </div>
           <Button size="sm" icon={Zap} onClick={onTest} loading={testing}>Send test</Button>
         </div>
         {warnings.map(c => (
           <p key={c} className="ui-hint mt-2 flex items-start gap-1.5">
             <AlertTriangle size={13} style={{ color: 'var(--p-warn)' }} className="flex-shrink-0 mt-0.5" />
-            <span className="capitalize">{c}</span>: {health[c].warning}
+            <span className="capitalize">{c}</span>: {health[c]?.warning}
           </p>
         ))}
       </Card>

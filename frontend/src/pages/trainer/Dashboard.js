@@ -3,24 +3,13 @@ import { Link } from 'react-router-dom';
 import AdminLayout from '../admin/AdminLayout';
 import {
   Users, Dumbbell, Salad, TrendingUp, Calendar,
-  UserCheck, ChevronRight, Activity
+  UserCheck, ChevronRight, Activity, ArrowRight, Sparkles,
 } from 'lucide-react';
 import { cachedGet } from '../../utils/api';
 import { useAuth } from '../../context/AuthContext';
-
-function StatCard({ icon: Icon, label, value, color = 'text-cyan-400', bg = 'bg-cyan-400/10' }) {
-  return (
-    <div className="glass rounded-2xl p-5 flex items-center gap-4">
-      <div className={`${bg} ${color} rounded-xl p-3`}>
-        <Icon size={22} />
-      </div>
-      <div>
-        <div className="text-white font-bold text-2xl">{value ?? '–'}</div>
-        <div className="text-gray-500 text-sm">{label}</div>
-      </div>
-    </div>
-  );
-}
+import {
+  Card, Badge, Avatar, Button, Skeleton, StatCard, Stagger, FadeIn,
+} from '../../components/ui';
 
 export default function TrainerDashboard() {
   const { user } = useAuth();
@@ -33,106 +22,149 @@ export default function TrainerDashboard() {
       cachedGet('/analytics/trainer-summary', { cache: 120 }),
       cachedGet('/members/roster', { cache: 60 }),
     ]).then(([sr, mr]) => {
-      setStats(sr.data);
-      setRecentMembers((mr.data || []).slice(0, 5));
+      setStats(sr.data || null);
+      setRecentMembers((mr.data || []).slice(0, 6));
     }).catch(() => {}).finally(() => setLoading(false));
   }, []);
 
   const quickActions = [
-    { to: '/admin/exercises',       icon: Dumbbell,   label: 'Manage Exercises',    color: 'text-cyan-400',   bg: 'bg-cyan-400/10' },
-    { to: '/admin/diet',            icon: Salad,       label: 'Manage Diet Plans',   color: 'text-green-400',  bg: 'bg-green-400/10' },
-    { to: '/admin/splits',          icon: Calendar,    label: 'Workout Splits',      color: 'text-purple-400', bg: 'bg-purple-400/10' },
-    { to: '/admin/transformations', icon: TrendingUp,  label: 'Transformations',     color: 'text-orange-400', bg: 'bg-orange-400/10' },
+    { to: '/admin/exercises',       icon: Dumbbell,   label: 'Exercise Library',   hint: 'Demonstrations & videos', tone: 'accent' },
+    { to: '/admin/diet',            icon: Salad,      label: 'Diet Plans',         hint: 'Nutritional meal sheets', tone: 'ok' },
+    { to: '/admin/splits',          icon: Calendar,   label: 'Workout Splits',     hint: 'Weekly exercise programs', tone: 'info' },
+    { to: '/admin/transformations', icon: TrendingUp, label: 'Transformations',    hint: 'Client success stories',  tone: 'warn' },
   ];
 
   return (
-    <AdminLayout title="Trainer Dashboard">
-      <div className="space-y-8">
-
-        {/* Welcome */}
-        <div className="glass-cyan rounded-2xl p-6">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-cyan-400/20 flex items-center justify-center text-2xl font-black text-white">
-              {user?.name?.[0]?.toUpperCase()}
+    <AdminLayout
+      title="Trainer Cockpit"
+      subtitle={`Welcome back, ${user?.name || 'Coach'}. Manage workouts, nutrition, and athletes.`}
+    >
+      <div className="space-y-6 max-w-6xl">
+        {/* Welcome Coach Card */}
+        <Card padded={true} className="border-l-4" style={{ borderLeftColor: 'var(--p-accent)' }}>
+          <div className="flex items-center gap-4 flex-wrap">
+            <Avatar name={user?.name} size={52} />
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <h2 className="text-[18px] font-bold" style={{ color: 'var(--p-text)' }}>
+                  Coach {user?.name}
+                </h2>
+                <Badge tone="accent">Certified Trainer</Badge>
+              </div>
+              <p className="text-[13px] mt-0.5" style={{ color: 'var(--p-muted)' }}>
+                {user?.specialization ? `Specialization: ${user.specialization} • ` : ''}
+                Empower members with tailored workout programming and meal schedules.
+              </p>
             </div>
-            <div>
-              <h2 className="text-white font-bold text-xl">Welcome back, {user?.name}!</h2>
-              <p className="text-cyan-300/70 text-sm">Trainer Panel — Manage your clients' workouts and nutrition</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Stats */}
-        {loading ? (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {[...Array(4)].map((_,i) => <div key={i} className="h-20 rounded-2xl bg-white/5 animate-pulse" />)}
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <StatCard icon={Users}     label="Total Members"   value={stats?.totalMembers}    color="text-cyan-400"   bg="bg-cyan-400/10" />
-            <StatCard icon={UserCheck} label="Active Members"  value={stats?.activeMembers}   color="text-green-400"  bg="bg-green-400/10" />
-            <StatCard icon={Dumbbell}  label="Total Exercises" value={stats?.totalExercises}  color="text-orange-400" bg="bg-orange-400/10" />
-            <StatCard icon={Salad}     label="Diet Plans"      value={stats?.totalDietPlans}  color="text-purple-400" bg="bg-purple-400/10" />
-          </div>
-        )}
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Quick Actions */}
-          <div>
-            <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
-              <Activity size={16} className="text-cyan-400" /> Quick Actions
-            </h3>
-            <div className="grid grid-cols-2 gap-3">
-              {quickActions.map(({ to, icon: Icon, label, color, bg }) => (
-                <Link key={to} to={to}
-                  className="glass rounded-xl p-4 hover:border-cyan-500/30 border border-transparent transition-all group">
-                  <div className={`${bg} ${color} rounded-xl p-2.5 w-fit mb-3`}>
-                    <Icon size={18} />
-                  </div>
-                  <div className="text-white text-sm font-medium">{label}</div>
-                  <ChevronRight size={14} className="text-gray-600 group-hover:text-cyan-400 transition-colors mt-1" />
-                </Link>
-              ))}
+            <div className="flex items-center gap-2">
+              <Button size="sm" variant="outline" to="/admin/exercises">Add Exercise</Button>
+              <Button size="sm" variant="primary" to="/admin/splits">Create Split</Button>
             </div>
           </div>
+        </Card>
 
-          {/* Recent Members */}
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-white font-semibold flex items-center gap-2">
-                <Users size={16} className="text-cyan-400" /> Recent Members
-              </h3>
-              <Link to="/admin/members" className="text-cyan-400 text-xs hover:underline">View All</Link>
-            </div>
-            <div className="glass rounded-2xl overflow-hidden">
+        {/* Primary Stats Grid */}
+        <Stagger className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          <StatCard
+            icon={Users}
+            label="Total Members"
+            value={stats?.totalMembers ?? '–'}
+            hint="Enrolled athletes"
+            tone="info"
+            loading={loading}
+          />
+          <StatCard
+            icon={UserCheck}
+            label="Active Members"
+            value={stats?.activeMembers ?? '–'}
+            hint="Active gym passes"
+            tone="ok"
+            loading={loading}
+          />
+          <StatCard
+            icon={Dumbbell}
+            label="Total Exercises"
+            value={stats?.totalExercises ?? '–'}
+            hint="Video & form database"
+            tone="accent"
+            to="/admin/exercises"
+            loading={loading}
+          />
+          <StatCard
+            icon={Salad}
+            label="Diet Plans"
+            value={stats?.totalDietPlans ?? '–'}
+            hint="Published diet guides"
+            tone="warn"
+            to="/admin/diet"
+            loading={loading}
+          />
+        </Stagger>
+
+        {/* 2-Column Operational Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {/* Quick Program Tools */}
+          <FadeIn delay={0.08}>
+            <Card title="Program Tools & Management" padded={true}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {quickActions.map(({ to, icon: Icon, label, hint }) => (
+                  <Link
+                    key={to}
+                    to={to}
+                    className="ui-card ui-card-link ui-card-pad group transition"
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="ui-stat-icon" style={{ background: 'var(--p-accent-soft)', color: 'var(--p-accent)', width: 34, height: 34 }}>
+                        <Icon size={17} />
+                      </span>
+                      <ChevronRight size={14} style={{ color: 'var(--p-muted)' }} />
+                    </div>
+                    <div className="text-[14px] font-semibold" style={{ color: 'var(--p-text)' }}>{label}</div>
+                    <div className="text-[12px] mt-0.5" style={{ color: 'var(--p-muted)' }}>{hint}</div>
+                  </Link>
+                ))}
+              </div>
+            </Card>
+          </FadeIn>
+
+          {/* Member Roster Peek */}
+          <FadeIn delay={0.1}>
+            <Card
+              title="Recent Gym Members"
+              subtitle="Athletes on floor"
+              padded={false}
+              action={<Button size="sm" to="/admin/members">All members <ArrowRight size={14} /></Button>}
+            >
               {loading ? (
                 <div className="p-4 space-y-3">
-                  {[...Array(4)].map((_,i) => <div key={i} className="h-10 rounded-lg bg-white/5 animate-pulse" />)}
+                  {Array.from({ length: 4 }, (_, i) => <Skeleton key={i} h={38} />)}
                 </div>
               ) : recentMembers.length === 0 ? (
-                <div className="p-8 text-center text-gray-500 text-sm">No members yet</div>
+                <div className="p-8 text-center" style={{ color: 'var(--p-muted)' }}>No members registered yet</div>
               ) : (
-                <div className="divide-y divide-white/5">
-                  {recentMembers.map(m => (
-                    <div key={m._id} className="flex items-center justify-between px-4 py-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white font-bold text-xs">
-                          {m.name?.[0]?.toUpperCase()}
-                        </div>
-                        <div>
-                          <div className="text-white text-sm font-medium">{m.name}</div>
-                          <div className="text-gray-500 text-xs">{m.membershipPlan || 'No plan'}</div>
+                <ul>
+                  {recentMembers.map((m, i) => (
+                    <li
+                      key={m._id}
+                      className="flex items-center justify-between px-4 py-3 hover:bg-[var(--p-surface-2)] transition"
+                      style={{ borderTop: i ? '1px solid var(--p-border)' : 'none' }}
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <Avatar name={m.name} size={32} />
+                        <div className="min-w-0">
+                          <div className="text-[14px] font-semibold truncate" style={{ color: 'var(--p-text)' }}>{m.name}</div>
+                          <div className="text-[12px] capitalize" style={{ color: 'var(--p-muted)' }}>{m.membershipPlan || 'Standard'}</div>
                         </div>
                       </div>
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${
-                        m.membershipStatus === 'active' ? 'bg-green-400/10 text-green-400' : 'bg-gray-500/10 text-gray-500'
-                      }`}>{m.membershipStatus || 'inactive'}</span>
-                    </div>
+                      <Badge tone={m.membershipStatus === 'active' ? 'ok' : 'neutral'}>
+                        {m.membershipStatus || 'active'}
+                      </Badge>
+                    </li>
                   ))}
-                </div>
+                </ul>
               )}
-            </div>
-          </div>
+            </Card>
+          </FadeIn>
         </div>
       </div>
     </AdminLayout>

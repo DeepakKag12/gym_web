@@ -404,7 +404,7 @@ export function StaggerItem({ children, className = '', ...rest }) {
  * One number and what it means. `hint` carries the plain-language explanation
  * so the admin never has to work out what "active" counts.
  */
-export function StatCard({ label, value, hint, icon: Icon, tone = 'accent', loading }) {
+export function StatCard({ label, value, hint, icon: Icon, tone = 'accent', trend, to, loading }) {
   const m = useMotion();
   const color = {
     accent: 'var(--p-accent)',
@@ -412,35 +412,49 @@ export function StatCard({ label, value, hint, icon: Icon, tone = 'accent', load
     warn: 'var(--p-warn)',
     danger: 'var(--p-danger)',
     info: 'var(--p-info)',
-  }[tone];
+  }[tone] || 'var(--p-accent)';
   const soft = {
     accent: 'var(--p-accent-soft)',
     ok: 'var(--p-ok-soft)',
     warn: 'var(--p-warn-soft)',
     danger: 'var(--p-danger-soft)',
     info: 'var(--p-info-soft)',
-  }[tone];
+  }[tone] || 'var(--p-accent-soft)';
 
-  return (
-    <motion.div className="ui-card ui-card-pad" variants={m.item} whileHover={m.hover}>
+  const content = (
+    <div className="ui-card ui-card-pad ui-stat-card relative">
+      <span className="ui-stat-glow" style={{ background: color }} />
       <div className="flex items-start gap-3">
         {Icon && (
           <span className="ui-stat-icon" style={{ background: soft, color }}>
             <Icon size={19} />
           </span>
         )}
-        <div className="min-w-0">
-          <p className="text-[13px] font-medium" style={{ color: 'var(--p-text-2)' }}>{label}</p>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center justify-between gap-1">
+            <p className="text-[13px] font-medium" style={{ color: 'var(--p-text-2)' }}>{label}</p>
+            {trend && (
+              <span className="ui-pill-badge" style={{ background: soft, color }}>
+                {trend}
+              </span>
+            )}
+          </div>
           {loading ? (
             <Skeleton h={30} w={72} className="mt-1.5" />
           ) : (
-            <p className="text-[30px] font-bold leading-tight mt-0.5" style={{ color: 'var(--p-text)' }}>
+            <p className="text-[28px] font-bold leading-tight mt-0.5 tracking-tight" style={{ color: 'var(--p-text)' }}>
               {value}
             </p>
           )}
-          {hint && <p className="text-[12px] mt-0.5" style={{ color: 'var(--p-muted)' }}>{hint}</p>}
+          {hint && <p className="text-[12px] mt-0.5 truncate" style={{ color: 'var(--p-muted)' }}>{hint}</p>}
         </div>
       </div>
+    </div>
+  );
+
+  return (
+    <motion.div variants={m.item} whileHover={m.hover}>
+      {to ? <Link to={to} className="block no-underline">{content}</Link> : content}
     </motion.div>
   );
 }
@@ -503,3 +517,7 @@ export function FadeIn({ children, delay = 0, className = '', ...rest }) {
 }
 
 export { default as WhatsAppButton } from './WhatsAppButton';
+export { default as PdfViewerModal } from './PdfViewerModal';
+export { default as FlashlightTextReveal } from './flashlight-text-reveal';
+export { default as FlashlightBackground } from './FlashlightBackground';
+

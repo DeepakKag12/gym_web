@@ -4,6 +4,7 @@ import { AnimatePresence } from 'framer-motion';
 import {
   UserPlus, Search, Pencil, Trash2, Ban, CheckCircle2, Eye, Users as UsersIcon,
   RefreshCw, AlertTriangle, KeyRound, Shield, EyeOff, MoreVertical,
+  CalendarClock, Clock,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import AdminLayout from './AdminLayout';
@@ -12,12 +13,12 @@ import { apiError } from '../../utils/api';
 import {
   Card, Button, Badge, Avatar, Field, Input, Select,
   Modal, ConfirmDialog, EmptyState, SkeletonList, Table, TableRow, FadeIn,
-  WhatsAppButton, Check,
+  WhatsAppButton, Check, Tabs,
 } from '../../components/ui';
 import {
   ROLES, PLANS, loadUsers, statusOf, fmtDate, calcExpiry, bustUserCaches,
   createUser, updateUser, setUserActive, resetPassword, changeRole, deleteUser,
-  buildCredentialsMessage, waLink,
+  buildCredentialsMessage, waLink, daysUntil,
 } from './userService';
 
 /**
@@ -40,7 +41,7 @@ const blank = {
   paymentMethod: 'cash',
 };
 
-function UserForm({ editing, onClose, onSaved }) {
+function UserForm({ editing, initial, onClose, onSaved }) {
   const isEdit = Boolean(editing);
   const [form, setForm] = useState(() => (isEdit
     ? {
@@ -58,7 +59,11 @@ function UserForm({ editing, onClose, onSaved }) {
         paymentDue: editing.feePaid === false,
         paymentMethod: 'cash',
       }
-    : { ...blank }));
+    : {
+        ...blank,
+        ...(initial || {}),
+        membershipStart: initial?.membershipStart || blank.membershipStart,
+      }));
   const [errors, setErrors] = useState({});
   const [saving, setSaving] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -416,9 +421,9 @@ function RowActions({ user, isSelf, on }) {
   }, [open]);
 
   return (
-    <div className="ui-row-actions">
+    <div className="ui-row-actions flex items-center justify-end gap-1 flex-nowrap">
       <Button size="sm" variant="ghost" icon={Eye} onClick={() => on.view(user)}
-        aria-label={`View ${user.name}`} title="View user" />
+        aria-label={`View ${user.name}`} title="View user details" />
       <Button size="sm" variant="ghost" icon={Pencil} onClick={() => on.edit(user)}
         aria-label={`Edit ${user.name}`} title="Edit user" />
 
@@ -532,8 +537,50 @@ export default function AdminUsers() {
   const [error, setError] = useState(null);
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
+  const [statusSection, setStatusSection] = useState('all'); // 'all', 'active', 'expiring5', 'expired', 'staff'
+
+  const counts = useMemo(() => {
+    let active = 0;
+    let expiring5 = 0;
+    let expired = 0;
+    let staff = 0;
+
+    users.forEach(u => {
+      if (u.role && u.role !== 'member') {
+        staff++;
+        return;
+      }
+      const left = daysUntil(u.membershipEnd);
+      if (left === null) return;
+      if (left < 0) {
+        expired++;
+      } else {
+        active++;
+        if (left <= 5) {
+          expiring5++;
+        }
+      }
+    });
+
+    return {
+      all: users.length,
+      active,
+      expiring5,
+      expired,
+      staff,
+    };
+  }, [users]);
 
   const [formFor, setFormFor] = useState(params.get('add') ? 'new' : null);
+  const initialFromParams = useMemo(() => {
+    if (!params.get('add')) return null;
+    return {
+      name: params.get('name') || '',
+      email: params.get('email') || '',
+      phone: params.get('phone') || '',
+      role: 'member',
+    };
+  }, [params]);
   const [viewing, setViewing] = useState(null);
   const [pwFor, setPwFor] = useState(null);
   const [roleFor, setRoleFor] = useState(null);
@@ -566,12 +613,31 @@ export default function AdminUsers() {
     const q = search.trim().toLowerCase();
     return users.filter(u => {
       if (roleFilter !== 'all' && u.role !== roleFilter) return false;
+
+      if (statusSection === 'active') {
+        if (u.role !== 'member') return false;
+        const left = daysUntil(u.membershipEnd);
+        if (left === null || left < 0) return false;
+      } else if (statusSection === 'expiring5') {
+        if (u.role !== 'member') return false;
+        const left = daysUntil(u.membershipEnd);
+        if (left === null || left < 0 || left > 5) return false;
+      } else if (statusSection === 'expired') {
+        if (u.role !== 'member') return false;
+        const left = daysUntil(u.membershipEnd);
+        if (left === null || left >= 0) return false;
+      } else if (statusSection === 'staff') {
+        if (u.role === 'member') return false;
+      }
+
       if (!q) return true;
-      return u.name?.toLowerCase().includes(q)
-        || u.email?.toLowerCase().includes(q)
-        || u.phone?.includes(q);
+      return (
+        u.name?.toLowerCase().includes(q) ||
+        u.email?.toLowerCase().includes(q) ||
+        u.phone?.includes(q)
+      );
     });
-  }, [users, search, roleFilter]);
+  }, [users, search, roleFilter, statusSection]);
 
   const isSelf = u => u._id === me?._id;
 
@@ -598,22 +664,175 @@ export default function AdminUsers() {
   };
 
   const columns = [
-    { key: 'name',   label: 'Name' },
-    { key: 'email',  label: 'Email' },
-    { key: 'phone',  label: 'Phone', width: 130 },
-    { key: 'role',   label: 'Role', width: 100 },
-    { key: 'status', label: 'Membership', width: 130 },
-    { key: 'joined', label: 'Join date', width: 130 },
-    { key: 'expiry', label: 'Expiry date', width: 130 },
-    { key: 'act',    label: 'Actions', width: 140, align: 'right' },
+    { key: 'name',   label: 'Member',              width: 210 },
+    { key: 'email',  label: 'Email',               width: 190 },
+    { key: 'role',   label: 'Role',                width: 90 },
+    { key: 'status', label: 'Membership & Expiry', width: 160 },
+    { key: 'joined', label: 'Joined',              width: 95 },
+    { key: 'act',    label: 'Actions',             width: 105, align: 'right' },
   ];
+
+  const renderStatusBadge = u => {
+    if (u.isActive === false) return <Badge tone="neutral">Disabled</Badge>;
+    if (u.role && u.role !== 'member') return <Badge tone="ok">Active</Badge>;
+    const left = daysUntil(u.membershipEnd);
+    if (left === null) return <Badge tone="warn">No Plan</Badge>;
+    if (left < 0) return <Badge tone="danger">Expired</Badge>;
+    if (left === 0) return <Badge tone="danger">Ends Today</Badge>;
+    if (left <= 5) return <Badge tone="warn">{left}d left</Badge>;
+    if (left <= 30) return <Badge tone="warn">{left}d left</Badge>;
+    return <Badge tone="ok">Active</Badge>;
+  };
 
   return (
     <AdminLayout
-      title="Users"
-      subtitle="Everyone with an account"
+      title="Users & Athletes"
+      subtitle="Complete account directory with dedicated active, expiring, and expired membership sections"
       actions={<Button variant="primary" icon={UserPlus} onClick={() => setFormFor('new')}>Add user</Button>}
     >
+      {/* Quick Status Section Cards — Active, Expiring in 5 Days, Expired, All Accounts */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-5">
+        <button
+          type="button"
+          onClick={() => setStatusSection('all')}
+          className={`p-4 rounded-xl border text-left transition cursor-pointer relative overflow-hidden ${
+            statusSection === 'all'
+              ? 'ring-2 ring-[var(--p-accent)] shadow-md'
+              : 'hover:border-[var(--p-border-2)]'
+          }`}
+          style={{ background: 'var(--p-surface)', borderColor: 'var(--p-border)' }}
+        >
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--p-text-2)' }}>
+              All Accounts
+            </span>
+            <span className="p-1.5 rounded-lg" style={{ background: 'var(--p-accent-soft)', color: 'var(--p-accent)' }}>
+              <UsersIcon size={16} />
+            </span>
+          </div>
+          <div className="text-2xl font-bold leading-tight" style={{ color: 'var(--p-text)' }}>
+            {counts.all}
+          </div>
+          <span className="text-[11.5px] mt-0.5 block" style={{ color: 'var(--p-muted)' }}>
+            Athletes + staff on record
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setStatusSection('active')}
+          className={`p-4 rounded-xl border text-left transition cursor-pointer relative overflow-hidden ${
+            statusSection === 'active'
+              ? 'ring-2 ring-[var(--p-ok)] shadow-md'
+              : 'hover:border-[var(--p-border-2)]'
+          }`}
+          style={{ background: 'var(--p-surface)', borderColor: 'var(--p-border)' }}
+        >
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--p-ok)' }}>
+              Active Members
+            </span>
+            <span className="p-1.5 rounded-lg" style={{ background: 'var(--p-ok-soft)', color: 'var(--p-ok)' }}>
+              <CheckCircle2 size={16} />
+            </span>
+          </div>
+          <div className="text-2xl font-bold leading-tight" style={{ color: 'var(--p-ok)' }}>
+            {counts.active}
+          </div>
+          <span className="text-[11.5px] mt-0.5 block" style={{ color: 'var(--p-muted)' }}>
+            Floor training athletes
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setStatusSection('expiring5')}
+          className={`p-4 rounded-xl border text-left transition cursor-pointer relative overflow-hidden ${
+            statusSection === 'expiring5'
+              ? 'ring-2 ring-[var(--p-warn)] shadow-md'
+              : 'hover:border-[var(--p-border-2)]'
+          }`}
+          style={{ background: 'var(--p-surface)', borderColor: 'var(--p-border)' }}
+        >
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--p-warn)' }}>
+              Expiring in ≤ 5 Days
+            </span>
+            <span className="p-1.5 rounded-lg" style={{ background: 'var(--p-warn-soft)', color: 'var(--p-warn)' }}>
+              <CalendarClock size={16} />
+            </span>
+          </div>
+          <div className="text-2xl font-bold leading-tight" style={{ color: 'var(--p-warn)' }}>
+            {counts.expiring5}
+          </div>
+          <span className="text-[11.5px] mt-0.5 block" style={{ color: 'var(--p-muted)' }}>
+            Urgent renewal reminder
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setStatusSection('expired')}
+          className={`p-4 rounded-xl border text-left transition cursor-pointer relative overflow-hidden ${
+            statusSection === 'expired'
+              ? 'ring-2 ring-[var(--p-danger)] shadow-md'
+              : 'hover:border-[var(--p-border-2)]'
+          }`}
+          style={{ background: 'var(--p-surface)', borderColor: 'var(--p-border)' }}
+        >
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--p-danger)' }}>
+              Expired Members
+            </span>
+            <span className="p-1.5 rounded-lg" style={{ background: 'var(--p-danger-soft)', color: 'var(--p-danger)' }}>
+              <Clock size={16} />
+            </span>
+          </div>
+          <div className="text-2xl font-bold leading-tight" style={{ color: 'var(--p-danger)' }}>
+            {counts.expired}
+          </div>
+          <span className="text-[11.5px] mt-0.5 block" style={{ color: 'var(--p-muted)' }}>
+            Membership plan ended
+          </span>
+        </button>
+      </div>
+
+      {/* Status Filter Navigation Tabs */}
+      <div className="mb-4">
+        <Tabs
+          value={statusSection}
+          onChange={setStatusSection}
+          options={[
+            { value: 'all', label: `All Users (${counts.all})` },
+            { value: 'active', label: `Active (${counts.active})` },
+            { value: 'expiring5', label: `Expiring in ≤ 5 Days (${counts.expiring5})` },
+            { value: 'expired', label: `Expired (${counts.expired})` },
+            { value: 'staff', label: `Staff & Trainers (${counts.staff})` },
+          ]}
+        />
+      </div>
+
+      {/* Immediate Alert Callout when Expiring in 5 Days is Active */}
+      {statusSection === 'expiring5' && counts.expiring5 > 0 && (
+        <div
+          className="p-3.5 rounded-xl border mb-4 flex items-center justify-between gap-3 flex-wrap"
+          style={{ background: 'var(--p-warn-soft)', borderColor: 'var(--p-warn-line)' }}
+        >
+          <div className="flex items-center gap-2.5">
+            <CalendarClock size={20} style={{ color: 'var(--p-warn)' }} />
+            <div className="text-xs">
+              <span className="font-bold text-[13px] block" style={{ color: 'var(--p-text)' }}>
+                {counts.expiring5} membership{counts.expiring5 !== 1 ? 's' : ''} ending in 5 days or less
+              </span>
+              <span style={{ color: 'var(--p-text-2)' }}>
+                Follow up with these members directly via phone or WhatsApp to renew before their access lapses.
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Search & Role Filter Toolbar */}
       <div className="ui-toolbar">
         <div className="ui-search">
           <Search size={18} />
@@ -641,15 +860,35 @@ export default function AdminUsers() {
       ) : shown.length === 0 ? (
         <Card>
           <EmptyState
-            icon={UsersIcon}
-            title={users.length === 0 ? 'No users yet' : 'Nobody matches'}
-            hint={users.length === 0
-              ? 'Add your first user and they can sign in straight away.'
-              : 'Try part of a name, an email address or a phone number.'}
+            icon={statusSection === 'expiring5' ? CalendarClock : statusSection === 'expired' ? Clock : UsersIcon}
+            title={
+              statusSection === 'expiring5'
+                ? 'No memberships expiring in 5 days'
+                : statusSection === 'expired'
+                ? 'No expired members'
+                : statusSection === 'active'
+                ? 'No active members'
+                : users.length === 0
+                ? 'No users yet'
+                : 'Nobody matches this filter'
+            }
+            hint={
+              statusSection === 'expiring5'
+                ? 'Good news! All active gym members have more than 5 days remaining before their renewal.'
+                : statusSection === 'expired'
+                ? 'Great! There are no lapsed or expired member accounts.'
+                : users.length === 0
+                ? 'Add your first user and they can sign in straight away.'
+                : 'Try clearing your search query or selecting a different section.'
+            }
           >
-            {users.length === 0
-              ? <Button variant="primary" icon={UserPlus} onClick={() => setFormFor('new')}>Add user</Button>
-              : <Button onClick={() => { setSearch(''); setRoleFilter('all'); }}>Clear filters</Button>}
+            {users.length === 0 ? (
+              <Button variant="primary" icon={UserPlus} onClick={() => setFormFor('new')}>Add user</Button>
+            ) : (
+              <Button onClick={() => { setSearch(''); setRoleFilter('all'); setStatusSection('all'); }}>
+                Reset all filters
+              </Button>
+            )}
           </EmptyState>
         </Card>
       ) : (
@@ -657,33 +896,46 @@ export default function AdminUsers() {
           <Card padded={false} className="hidden md:block">
             <Table columns={columns}>
               {shown.map(u => {
-                const status = statusOf(u);
                 const role = ROLES[u.role] || ROLES.member;
                 return (
                   <TableRow key={u._id}>
                     <td>
-                      <div className="flex items-center gap-2.5">
+                      <div className="flex items-center gap-2.5 min-w-0">
                         <Avatar name={u.name} size={34} />
-                        <span className="min-w-0">
-                          <span className="block font-semibold" style={{ color: 'var(--p-text)' }}>
+                        <div className="min-w-0 max-w-[170px]">
+                          <div className="font-semibold truncate text-[13.5px]" style={{ color: 'var(--p-text)' }}>
                             {u.name}
-                            {isSelf(u) && <span className="text-[12px] font-normal ml-1.5" style={{ color: 'var(--p-muted)' }}>(you)</span>}
-                          </span>
-                          {/* Two members can genuinely share a name; the number
-                              is what tells them apart at a glance. */}
-                          <span className="block text-[12px]" style={{ color: 'var(--p-muted)' }}>
+                            {isSelf(u) && <span className="text-[11px] font-normal ml-1.5" style={{ color: 'var(--p-muted)' }}>(you)</span>}
+                          </div>
+                          <div className="text-[12px] truncate" style={{ color: 'var(--p-muted)' }}>
                             {u.phone || 'No phone'}
-                          </span>
-                        </span>
+                          </div>
+                        </div>
                       </div>
                     </td>
-                    <td style={{ wordBreak: 'break-all' }}>{u.email}</td>
-                    <td style={{ whiteSpace: 'nowrap' }}>{u.phone || '—'}</td>
+                    <td title={u.email}>
+                      <div className="max-w-[185px] truncate text-[13px]" style={{ color: 'var(--p-text-2)' }}>
+                        {u.email}
+                      </div>
+                    </td>
                     <td><Badge tone={role.tone}>{role.label}</Badge></td>
-                    <td><Badge tone={status.tone}>{status.label}</Badge></td>
-                    <td style={{ whiteSpace: 'nowrap' }}>{fmtDate(u.createdAt)}</td>
-                    <td style={{ whiteSpace: 'nowrap' }}>{u.role === 'member' ? fmtDate(u.membershipEnd) : '—'}</td>
-                    <td><RowActions user={u} isSelf={isSelf(u)} on={on} /></td>
+                    <td>
+                      <div className="flex flex-col items-start gap-0.5">
+                        {renderStatusBadge(u)}
+                        {u.role === 'member' && u.membershipEnd && (
+                          <span className="text-[11.5px] whitespace-nowrap" style={{ color: 'var(--p-muted)' }}>
+                            {daysUntil(u.membershipEnd) < 0 ? 'Ended ' : 'Ends '}
+                            {fmtDate(u.membershipEnd)}
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="text-[12.5px] whitespace-nowrap" style={{ color: 'var(--p-text-2)' }}>
+                      {fmtDate(u.createdAt)}
+                    </td>
+                    <td style={{ textAlign: 'right' }}>
+                      <RowActions user={u} isSelf={isSelf(u)} on={on} />
+                    </td>
                   </TableRow>
                 );
               })}
@@ -694,7 +946,6 @@ export default function AdminUsers() {
           <Card padded={false} className="md:hidden">
             <ul>
               {shown.map((u, i) => {
-                const status = statusOf(u);
                 const role = ROLES[u.role] || ROLES.member;
                 return (
                   <li key={u._id} className="px-4 py-3.5" style={{ borderTop: i ? '1px solid var(--p-border)' : 'none' }}>
@@ -710,7 +961,7 @@ export default function AdminUsers() {
                       </div>
                       <div className="flex flex-col items-end gap-1.5">
                         <Badge tone={role.tone}>{role.label}</Badge>
-                        <Badge tone={status.tone}>{status.label}</Badge>
+                        {renderStatusBadge(u)}
                       </div>
                     </div>
                     <div className="mt-2.5"><RowActions user={u} isSelf={isSelf(u)} on={on} /></div>
@@ -731,6 +982,7 @@ export default function AdminUsers() {
           <UserForm
             key="form"
             editing={formFor === 'new' ? null : formFor}
+            initial={formFor === 'new' ? initialFromParams : null}
             onClose={() => setFormFor(null)}
             onSaved={(msg, creds) => {
               setFormFor(null);

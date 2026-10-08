@@ -19,7 +19,9 @@ export const DAY = 86400000;
  */
 export function daysUntil(d) {
   if (!d) return null;
-  const end = new Date(d);
+  const end = typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d)
+    ? new Date(d + 'T00:00:00')
+    : new Date(d);
   if (Number.isNaN(end.getTime())) return null;
   end.setHours(0, 0, 0, 0);
   const today = new Date();

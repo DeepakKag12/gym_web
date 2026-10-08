@@ -3,6 +3,8 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Users, UserSquare2, Tag, IndianRupee, Bell,
   BarChart3, Settings, LogOut, Menu, X, MoreHorizontal,
+  ShoppingBag, Package, MessageSquare, Dumbbell, Utensils,
+  Sparkles, Building2, ShieldCheck, Flame,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { Avatar, ThemeToggle, PageTransition } from '../../components/ui';
@@ -10,29 +12,65 @@ import { Avatar, ThemeToggle, PageTransition } from '../../components/ui';
 /**
  * Admin / trainer shell.
  *
- * The nav lists the nine places an admin actually works, in the order the job
- * happens: see the gym, manage the people, then the money, then the tools.
- * Each entry says what it holds in plain words — "Payments", not "Orders";
- * "Reports", not "Analytics".
- *
- * The theme toggle in the top-right is the panel's only appearance control.
+ * Categorized navigation organized so the admin can manage the entire application:
+ * People & Members, Billing & Store, Workouts & Diets, and System Settings.
  */
-const NAV = [
-  { path: '/admin',               icon: LayoutDashboard, label: 'Dashboard',        roles: ['admin', 'trainer'] },
-  { path: '/admin/users',         icon: Users,           label: 'Users',            roles: ['admin'] },
-  { path: '/admin/members',       icon: UserSquare2,     label: 'Members',          roles: ['admin'] },
-  { path: '/admin/plans',         icon: Tag,             label: 'Membership Plans', roles: ['admin'] },
-  { path: '/admin/payments',      icon: IndianRupee,     label: 'Payments',         roles: ['admin'] },
-  { path: '/admin/notifications', icon: Bell,            label: 'Notifications',    roles: ['admin'] },
-  { path: '/admin/analytics',     icon: BarChart3,       label: 'Reports',          roles: ['admin'] },
-  { path: '/admin/settings',      icon: Settings,        label: 'Settings',         roles: ['admin', 'trainer'] },
+const NAV_SECTIONS = [
+  {
+    title: null,
+    items: [
+      { path: '/admin', icon: LayoutDashboard, label: 'Dashboard', roles: ['admin', 'trainer'] },
+    ],
+  },
+  {
+    title: 'Members & People',
+    items: [
+      { path: '/admin/members',   icon: UserSquare2, label: 'Members',     roles: ['admin'] },
+      { path: '/admin/users',     icon: Users,       label: 'All Users',   roles: ['admin'] },
+      { path: '/admin/trainers',  icon: ShieldCheck, label: 'Trainers',    roles: ['admin'] },
+      { path: '/admin/enquiries', icon: MessageSquare, label: 'Enquiries', roles: ['admin'] },
+    ],
+  },
+  {
+    title: 'Billing & Store',
+    items: [
+      { path: '/admin/payments',  icon: IndianRupee, label: 'Payments & Dues', roles: ['admin'] },
+      { path: '/admin/orders',    icon: ShoppingBag, label: 'Store Orders',   roles: ['admin'] },
+      { path: '/admin/store',     icon: Package,     label: 'Products & Stock', roles: ['admin'] },
+      { path: '/admin/plans',     icon: Tag,         label: 'Membership Plans', roles: ['admin'] },
+    ],
+  },
+  {
+    title: 'Workout & Fitness',
+    items: [
+      { path: '/admin/splits',          icon: Flame,    label: 'Workout Splits', roles: ['admin', 'trainer'] },
+      { path: '/admin/exercises',       icon: Dumbbell, label: 'Exercise Library', roles: ['admin', 'trainer'] },
+      { path: '/admin/diet',            icon: Utensils, label: 'Diet Plans',     roles: ['admin', 'trainer'] },
+      { path: '/admin/transformations', icon: Sparkles, label: 'Transformations', roles: ['admin', 'trainer'] },
+    ],
+  },
+  {
+    title: 'System & Reports',
+    items: [
+      { path: '/admin/analytics',     icon: BarChart3,   label: 'Reports & Stats', roles: ['admin'] },
+      { path: '/admin/notifications', icon: Bell,        label: 'Notifications',   roles: ['admin'] },
+      { path: '/admin/gym',           icon: Building2,   label: 'Gym Profile',     roles: ['admin'] },
+      { path: '/admin/settings',      icon: Settings,    label: 'Settings',        roles: ['admin', 'trainer'] },
+    ],
+  },
 ];
 
-/** Trainers cannot open /admin — it is admin-only and would bounce them. */
+function navSectionsFor(role) {
+  return NAV_SECTIONS.map(sec => ({
+    ...sec,
+    items: sec.items
+      .filter(it => it.roles.includes(role))
+      .map(it => (role === 'trainer' && it.path === '/admin' ? { ...it, path: '/trainer' } : it)),
+  })).filter(sec => sec.items.length > 0);
+}
+
 function navFor(role) {
-  return NAV
-    .filter(l => l.roles.includes(role))
-    .map(l => (role === 'trainer' && l.path === '/admin' ? { ...l, path: '/trainer' } : l));
+  return navSectionsFor(role).flatMap(sec => sec.items);
 }
 
 function isCurrent(pathname, linkPath) {
@@ -44,7 +82,7 @@ function SideMenu({ onNavigate }) {
   const { user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-  const links = navFor(user?.role);
+  const sections = navSectionsFor(user?.role);
 
   return (
     <div className="flex flex-col h-full">
@@ -59,26 +97,34 @@ function SideMenu({ onNavigate }) {
         </Link>
       </div>
 
-      {/* Nine items can exceed a short laptop screen, so the list scrolls and
-          the account block below stays pinned. */}
-      <nav className="flex-1 overflow-y-auto px-3 py-3 space-y-0.5">
-        {links.map(link => {
-          const Icon = link.icon;
-          const active = isCurrent(location.pathname, link.path);
-          return (
-            <Link
-              key={link.path}
-              to={link.path}
-              onClick={onNavigate}
-              aria-current={active ? 'page' : undefined}
-              className={`panel-link ${active ? 'panel-link-on' : ''}`}
-              style={{ fontSize: 14.5, padding: '10px 12px' }}
-            >
-              <Icon size={18} />
-              {link.label}
-            </Link>
-          );
-        })}
+      <nav className="flex-1 overflow-y-auto px-3 py-2 space-y-3">
+        {sections.map((sec, idx) => (
+          <div key={idx} className="space-y-0.5">
+            {sec.title && (
+              <p className="px-3 pt-2 pb-1 text-[10.5px] font-bold uppercase tracking-wider"
+                 style={{ color: 'var(--p-muted)' }}>
+                {sec.title}
+              </p>
+            )}
+            {sec.items.map(link => {
+              const Icon = link.icon;
+              const active = isCurrent(location.pathname, link.path);
+              return (
+                <Link
+                  key={link.path}
+                  to={link.path}
+                  onClick={onNavigate}
+                  aria-current={active ? 'page' : undefined}
+                  className={`panel-link ${active ? 'panel-link-on' : ''}`}
+                  style={{ fontSize: 13.5, padding: '7px 11px' }}
+                >
+                  <Icon size={16} />
+                  {link.label}
+                </Link>
+              );
+            })}
+          </div>
+        ))}
       </nav>
 
       <div className="p-3 flex-shrink-0" style={{ borderTop: '1px solid var(--p-border)' }}>

@@ -7,10 +7,7 @@ import {
   ChevronRight, ArrowRight
 } from 'lucide-react';
 
-const GYM_PHONE     = '9589730151';
-const GYM_WA        = '919589730151';
-const GYM_INSTAGRAM = 'fitnation.by.ajeet';
-// GYM_ADDRESS removed (unused)
+import { useSettings } from '../context/SettingsContext';
 
 /* ── Sliding hero gallery ───────────────── */
 const HERO_IMGS = [
@@ -68,6 +65,7 @@ const achievements = [
 ];
 
 export default function AboutPage() {
+  const site = useSettings();
   return (
     <div className="min-h-screen bg-[#0b0c0e] text-white pt-16">
 
@@ -89,15 +87,15 @@ export default function AboutPage() {
           {/* Quick contact bar */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
             className="flex flex-wrap gap-4 mt-8">
-            <a href={`tel:${GYM_PHONE}`}
+            <a href={site.telHref}
               className="flex items-center gap-2 bg-white/10 border border-white/20 backdrop-blur-sm rounded-full px-4 py-2 text-sm text-white hover:bg-white/20 transition-all">
-              <Phone size={14} className="text-cyan-400" /> {GYM_PHONE}
+              <Phone size={14} className="text-cyan-400" /> {site.phone}
             </a>
-            <a href={`https://instagram.com/${GYM_INSTAGRAM}`} target="_blank" rel="noreferrer"
+            <a href={site.instagramHref} target="_blank" rel="noreferrer"
               className="flex items-center gap-2 bg-white/10 border border-white/20 backdrop-blur-sm rounded-full px-4 py-2 text-sm text-white hover:bg-white/20 transition-all">
-              <Instagram size={14} className="text-pink-400" /> @{GYM_INSTAGRAM}
+              <Instagram size={14} className="text-pink-400" /> @{site.instagram}
             </a>
-            <a href={`https://wa.me/${GYM_WA}`} target="_blank" rel="noreferrer"
+            <a href={site.waHref} target="_blank" rel="noreferrer"
               className="flex items-center gap-2 bg-green-500/20 border border-green-500/40 backdrop-blur-sm rounded-full px-4 py-2 text-sm text-green-300 hover:bg-green-500/30 transition-all">
               <MessageCircle size={14} /> WhatsApp Us
             </a>
@@ -316,7 +314,7 @@ export default function AboutPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
 
             {/* Phone */}
-            <motion.a href={`tel:${GYM_PHONE}`}
+            <motion.a href={site.telHref}
               initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0 }}
               whileHover={{ y: -4, borderColor: 'rgba(34,211,238,0.4)' }}
               className="glass rounded-2xl p-6 border border-white/8 flex items-start gap-4 transition-all group">
@@ -325,14 +323,14 @@ export default function AboutPage() {
               </div>
               <div>
                 <div className="text-gray-400 text-xs uppercase tracking-wider mb-1">Call / WhatsApp</div>
-                <div className="text-white font-bold text-lg">{GYM_PHONE}</div>
+                <div className="text-white font-bold text-lg">{site.phone || 'Contact us'}</div>
                 <div className="text-gray-500 text-xs mt-1">Available Mon–Sat</div>
               </div>
               <ChevronRight size={16} className="text-gray-600 group-hover:text-cyan-400 ml-auto mt-1 transition-colors" />
             </motion.a>
 
             {/* Instagram */}
-            <motion.a href={`https://instagram.com/${GYM_INSTAGRAM}`} target="_blank" rel="noreferrer"
+            <motion.a href={site.instagramHref} target="_blank" rel="noreferrer"
               initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}
               whileHover={{ y: -4 }}
               className="glass rounded-2xl p-6 border border-white/8 flex items-start gap-4 transition-all group">
@@ -341,7 +339,7 @@ export default function AboutPage() {
               </div>
               <div>
                 <div className="text-gray-400 text-xs uppercase tracking-wider mb-1">Follow Us</div>
-                <div className="text-white font-bold text-lg">@{GYM_INSTAGRAM}</div>
+                <div className="text-white font-bold text-lg">@{site.instagram || 'fitnation'}</div>
                 <div className="text-gray-500 text-xs mt-1">Daily motivation & updates</div>
               </div>
               <ChevronRight size={16} className="text-gray-600 group-hover:text-pink-400 ml-auto mt-1 transition-colors" />
@@ -357,9 +355,11 @@ export default function AboutPage() {
               </div>
               <div>
                 <div className="text-gray-400 text-xs uppercase tracking-wider mb-1">Location</div>
-                <div className="text-white font-bold">FITNATION BY AJEET</div>
-                <div className="text-gray-400 text-sm mt-1">Your Fitness, Our Mission</div>
-                <div className="text-gray-500 text-xs mt-1">Mon–Sat: 5AM–11AM &amp; 4PM–10PM</div>
+                <div className="text-white font-bold">{site.gymName || 'FITNATION'}</div>
+                <div className="text-gray-400 text-sm mt-1">{site.address || site.tagline || 'Your Fitness, Our Mission'}</div>
+                <div className="text-gray-500 text-xs mt-1 space-y-0.5">
+                  {(site.hours || []).map((h, i) => <div key={i}>{h}</div>)}
+                </div>
               </div>
             </motion.div>
           </div>
@@ -369,9 +369,9 @@ export default function AboutPage() {
             className="mt-5 glass-cyan rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
               <div className="text-white font-bold text-lg">Let's build a stronger community together</div>
-              <div className="text-cyan-300/70 text-sm mt-0.5">Message us on WhatsApp for any query or to join FITNATION BY AJEET</div>
+              <div className="text-cyan-300/70 text-sm mt-0.5">Message us on WhatsApp for any query or to join {site.gymName || 'FITNATION'}</div>
             </div>
-            <a href={`https://wa.me/${GYM_WA}`} target="_blank" rel="noreferrer"
+            <a href={site.waHref} target="_blank" rel="noreferrer"
               className="btn-fire px-6 py-3 flex-shrink-0 flex items-center gap-2">
               <MessageCircle size={16} /> Chat on WhatsApp
             </a>
@@ -385,12 +385,12 @@ export default function AboutPage() {
           <motion.div initial={{ opacity: 0, scale: 0.96 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}
             className="glass rounded-3xl p-10 border border-white/8">
             <h2 className="gym-font text-5xl text-white mb-4">READY TO <span className="gradient-text">START?</span></h2>
-            <p className="text-gray-400 mb-7">Join hundreds of members who have transformed with FITNATION BY AJEET.</p>
+            <p className="text-gray-400 mb-7">Join hundreds of members who have transformed with {site.gymName || 'FITNATION'}.</p>
             <div className="flex flex-wrap gap-3 justify-center">
               <Link to="/enquiry" className="btn-fire px-8 py-3.5 flex items-center gap-2">
                 Enquire to Join <ArrowRight size={16} />
               </Link>
-              <a href={`https://wa.me/${GYM_WA}`} target="_blank" rel="noreferrer"
+              <a href={site.waHref} target="_blank" rel="noreferrer"
                 className="btn-outline px-8 py-3.5 flex items-center gap-2">
                 <MessageCircle size={16}/> WhatsApp Us
               </a>

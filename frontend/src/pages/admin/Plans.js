@@ -78,7 +78,7 @@ export default function AdminPlans() {
 
   const fetchPlans = (force = false) => {
     setLoading(true);
-    const fetcher = force ? freshGet('/plans', { cache: 300 }) : cachedGet('/plans', { cache: 300 });
+    const fetcher = force ? freshGet('/plans?all=1', { cache: 300 }) : cachedGet('/plans?all=1', { cache: 300 });
     fetcher.then(r => setPlans(r.data)).catch(() => {}).finally(() => setLoading(false));
   };
   useEffect(fetchPlans, []);

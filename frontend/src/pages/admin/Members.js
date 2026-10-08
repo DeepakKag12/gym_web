@@ -3,7 +3,8 @@ import { useSearchParams } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import {
   UserPlus, Search, RefreshCw, AlertTriangle, UserSquare2, Pencil,
-  CalendarPlus, Eye, Send,
+  CalendarPlus, Eye, Send, Download, FileText, CheckCircle2, Clock,
+  CalendarClock, IndianRupee, Users as UsersIcon,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import AdminLayout from './AdminLayout';
@@ -11,12 +12,14 @@ import { apiError } from '../../utils/api';
 import {
   Card, Button, Badge, Avatar, Field, Input, Select, Modal,
   EmptyState, SkeletonList, Table, TableRow, FadeIn, Tabs, WhatsAppButton, timeAgo, Check,
+  PdfViewerModal,
 } from '../../components/ui';
 import {
   PLANS, loadUsers, statusOf, daysUntil, fmtDate, calcExpiry,
   EXPIRY_FILTERS, bustUserCaches, updateUser, sendReminder, runReminderSweep,
   whatsappPending,
 } from './userService';
+import { downloadPdf, fetchPdfBlobUrl } from '../../utils/pdf';
 
 /**
  * Members — the gym-membership view of the same people the Users screen lists.
@@ -66,7 +69,7 @@ function RenewModal({ member, onClose, onSaved }) {
         {
           name: member.name, email: member.email, phone: member.phone || '',
           membershipPlan: plan, membershipStart: start, membershipEnd: end,
-          feePaid: feeDue || Number(initialPayment || 0) < Number(fee || 0),
+          feePaid: !feeDue && Number(initialPayment || 0) >= Number(fee || 0),
           feeAmount: fee === '' ? undefined : fee,
           initialPayment: initialPayment === '' ? undefined : initialPayment,
           paymentMethod,
@@ -148,14 +151,30 @@ function RenewModal({ member, onClose, onSaved }) {
 
 /* ── View ───────────────────────────────────────────────────────────────── */
 
-function MemberDetails({ member, onClose, onRenew }) {
+function MemberDetails({ member, onClose, onRenew, onViewStatement, onDownloadStatement }) {
   const status = statusOf(member);
   const left = daysUntil(member.membershipEnd);
   const row = (l, v) => <div className="ui-dl-row"><dt>{l}</dt><dd>{v}</dd></div>;
 
   return (
-    <Modal title="Member details" onClose={onClose} width={430}
-      footer={<Button variant="primary" icon={CalendarPlus} onClick={onRenew}>Renew membership</Button>}>
+    <Modal
+      title="Member details"
+      onClose={onClose}
+      width={460}
+      footer={
+        <div className="flex items-center justify-between w-full gap-2">
+          <div className="flex items-center gap-1.5">
+            <Button size="sm" variant="secondary" icon={FileText} onClick={() => onViewStatement(member)}>
+              Statement
+            </Button>
+            <Button size="sm" variant="secondary" icon={Download} onClick={() => onDownloadStatement(member)}>
+              PDF
+            </Button>
+          </div>
+          <Button variant="primary" icon={CalendarPlus} onClick={onRenew}>Renew membership</Button>
+        </div>
+      }
+    >
       <div className="flex items-center gap-3 mb-4">
         <Avatar name={member.name} size={48} />
         <div className="min-w-0">
@@ -196,6 +215,30 @@ export default function AdminMembers() {
   const [viewing, setViewing] = useState(null);
   const [renewing, setRenewing] = useState(null);
   const [sweeping, setSweeping] = useState(false);
+  const [pdfPreview, setPdfPreview] = useState(null);
+
+  const viewStatement = async member => {
+    try {
+      const { blobUrl, filename } = await fetchPdfBlobUrl(`/payments/${member._id}/statement`);
+      setPdfPreview({
+        blobUrl,
+        title: `Statement: ${member.name || 'Member'}`,
+        subtitle: `Plan: ${(member.membershipPlan || 'Standard').toUpperCase()} · Expires: ${fmtDate(member.membershipEnd)}`,
+        fileName: filename || `${(member.name || 'member').replace(/\s+/g, '-')}-statement.pdf`,
+        endpoint: `/payments/${member._id}/statement`,
+      });
+    } catch (err) {
+      toast.error(apiError(err, 'Could not load member statement.'));
+    }
+  };
+
+  const downloadStatement = async member => {
+    await downloadPdf({
+      endpoint: `/payments/${member._id}/statement`,
+      defaultFilename: `${(member.name || 'member').replace(/\s+/g, '-')}-statement.pdf`,
+      toastMessage: `Statement for ${member.name || 'member'} downloaded.`,
+    });
+  };
 
   const load = useCallback((force = false) => {
     setLoading(true);
@@ -236,13 +279,10 @@ export default function AdminMembers() {
   }, [users, filter, search]);
 
   const columns = [
-    { key: 'name',   label: 'Member' },
-    { key: 'phone',  label: 'Phone', width: 130 },
-    { key: 'plan',   label: 'Plan', width: 110 },
-    { key: 'start',  label: 'Started', width: 130 },
-    { key: 'end',    label: 'Expires', width: 130 },
-    { key: 'status', label: 'Status', width: 120 },
-    { key: 'act',    label: 'Actions', width: 130, align: 'right' },
+    { key: 'name',   label: 'Member',            width: 220 },
+    { key: 'plan',   label: 'Plan & Status',     width: 170 },
+    { key: 'period', label: 'Membership Period', width: 160 },
+    { key: 'act',    label: 'Actions',           width: 150, align: 'right' },
   ];
 
   return (
@@ -251,14 +291,194 @@ export default function AdminMembers() {
       subtitle="Memberships, renewals and expiry"
       actions={<Button variant="primary" icon={UserPlus} to="/admin/users?add=1">Add member</Button>}
     >
-      <div className="ui-toolbar">
-        <div className="ui-search">
+      {/* Quick Status Section Division Cards — All Members, Active, Expiring in 5 Days, Expired, Fee Due */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 mb-5">
+        <button
+          type="button"
+          onClick={() => setFilter('all')}
+          className={`p-3.5 sm:p-4 rounded-xl border text-left transition cursor-pointer relative overflow-hidden ${
+            filter === 'all'
+              ? 'ring-2 ring-[var(--p-accent)] shadow-md'
+              : 'hover:border-[var(--p-border-2)]'
+          }`}
+          style={{ background: 'var(--p-surface)', borderColor: 'var(--p-border)' }}
+        >
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--p-text-2)' }}>
+              All Members
+            </span>
+            <span className="p-1 rounded-md" style={{ background: 'var(--p-surface-2)', color: 'var(--p-text-2)' }}>
+              <UsersIcon size={14} />
+            </span>
+          </div>
+          <div className="text-2xl font-bold tracking-tight" style={{ color: 'var(--p-text)' }}>
+            {users.length}
+          </div>
+          <p className="text-[11.5px] mt-0.5 truncate" style={{ color: 'var(--p-muted)' }}>
+            Complete roster
+          </p>
+          {filter === 'all' && (
+            <div className="absolute bottom-0 left-0 right-0 h-1 bg-[var(--p-accent)]" />
+          )}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setFilter('active')}
+          className={`p-3.5 sm:p-4 rounded-xl border text-left transition cursor-pointer relative overflow-hidden ${
+            filter === 'active'
+              ? 'ring-2 ring-emerald-500 shadow-md'
+              : 'hover:border-[var(--p-border-2)]'
+          }`}
+          style={{ background: 'var(--p-surface)', borderColor: 'var(--p-border)' }}
+        >
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs font-semibold uppercase tracking-wider text-emerald-400">
+              Active
+            </span>
+            <span className="p-1 rounded-md bg-emerald-500/10 text-emerald-400">
+              <CheckCircle2 size={14} />
+            </span>
+          </div>
+          <div className="text-2xl font-bold tracking-tight text-emerald-400">
+            {counts.active || 0}
+          </div>
+          <p className="text-[11.5px] mt-0.5 truncate text-emerald-400/70">
+            Valid & training
+          </p>
+          {filter === 'active' && (
+            <div className="absolute bottom-0 left-0 right-0 h-1 bg-emerald-500" />
+          )}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setFilter('expiring5')}
+          className={`p-3.5 sm:p-4 rounded-xl border text-left transition cursor-pointer relative overflow-hidden ${
+            filter === 'expiring5'
+              ? 'ring-2 ring-amber-500 shadow-md'
+              : 'hover:border-[var(--p-border-2)]'
+          }`}
+          style={{ background: 'var(--p-surface)', borderColor: 'var(--p-border)' }}
+        >
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs font-semibold uppercase tracking-wider text-amber-400">
+              Expiring ≤ 5d
+            </span>
+            <span className="p-1 rounded-md bg-amber-500/10 text-amber-400">
+              <CalendarClock size={14} />
+            </span>
+          </div>
+          <div className="text-2xl font-bold tracking-tight text-amber-400">
+            {counts.expiring5 || 0}
+          </div>
+          <p className="text-[11.5px] mt-0.5 truncate text-amber-400/70">
+            Needs renewal
+          </p>
+          {filter === 'expiring5' && (
+            <div className="absolute bottom-0 left-0 right-0 h-1 bg-amber-500" />
+          )}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setFilter('expired')}
+          className={`p-3.5 sm:p-4 rounded-xl border text-left transition cursor-pointer relative overflow-hidden ${
+            filter === 'expired'
+              ? 'ring-2 ring-rose-500 shadow-md'
+              : 'hover:border-[var(--p-border-2)]'
+          }`}
+          style={{ background: 'var(--p-surface)', borderColor: 'var(--p-border)' }}
+        >
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs font-semibold uppercase tracking-wider text-rose-400">
+              Expired
+            </span>
+            <span className="p-1 rounded-md bg-rose-500/10 text-rose-400">
+              <Clock size={14} />
+            </span>
+          </div>
+          <div className="text-2xl font-bold tracking-tight text-rose-400">
+            {counts.expired || 0}
+          </div>
+          <p className="text-[11.5px] mt-0.5 truncate text-rose-400/70">
+            Lapsed plans
+          </p>
+          {filter === 'expired' && (
+            <div className="absolute bottom-0 left-0 right-0 h-1 bg-rose-500" />
+          )}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setFilter('due')}
+          className={`p-3.5 sm:p-4 rounded-xl border text-left transition cursor-pointer relative overflow-hidden col-span-2 sm:col-span-1 ${
+            filter === 'due'
+              ? 'ring-2 ring-purple-500 shadow-md'
+              : 'hover:border-[var(--p-border-2)]'
+          }`}
+          style={{ background: 'var(--p-surface)', borderColor: 'var(--p-border)' }}
+        >
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs font-semibold uppercase tracking-wider text-purple-400">
+              Fee Due
+            </span>
+            <span className="p-1 rounded-md bg-purple-500/10 text-purple-400">
+              <IndianRupee size={14} />
+            </span>
+          </div>
+          <div className="text-2xl font-bold tracking-tight text-purple-400">
+            {counts.due || 0}
+          </div>
+          <p className="text-[11.5px] mt-0.5 truncate text-purple-400/70">
+            Pending fees
+          </p>
+          {filter === 'due' && (
+            <div className="absolute bottom-0 left-0 right-0 h-1 bg-purple-500" />
+          )}
+        </button>
+      </div>
+
+      {/* Active Section Info Banner */}
+      <div className="flex items-center justify-between p-3 mb-4 rounded-xl text-xs font-medium"
+        style={{ background: 'var(--p-surface-2)', border: '1px solid var(--p-border)' }}>
+        <div className="flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full" style={{
+            background: filter === 'active' ? 'var(--p-ok)' :
+                        filter === 'expiring5' ? 'var(--p-warn)' :
+                        filter === 'expired' ? 'var(--p-danger)' :
+                        filter === 'due' ? '#a855f7' : 'var(--p-accent)'
+          }} />
+          <span style={{ color: 'var(--p-text)' }}>
+            {filter === 'active' && `Active Members Section (${counts.active || 0}) — Fully paid and valid`}
+            {filter === 'expiring5' && `Expiring in ≤ 5 Days Section (${counts.expiring5 || 0}) — Immediate renewal follow-up required`}
+            {filter === 'expired' && `Expired Members Section (${counts.expired || 0}) — Lapsed members for re-activation`}
+            {filter === 'due' && `Fee Due Section (${counts.due || 0}) — Members with pending dues`}
+            {filter === 'towhatsapp' && `WhatsApp Pending Section (${counts.towhatsapp || 0}) — Awaiting reminder`}
+            {filter === 'all' && `All Members Section (${users.length}) — Complete member roster`}
+          </span>
+        </div>
+        {filter !== 'all' && (
+          <button
+            type="button"
+            onClick={() => setFilter('all')}
+            className="text-[11.5px] underline hover:opacity-80 cursor-pointer"
+            style={{ color: 'var(--p-accent)' }}
+          >
+            Show All
+          </button>
+        )}
+      </div>
+
+      <div className="ui-toolbar flex-wrap gap-2.5">
+        <div className="ui-search flex-1 min-w-[220px]">
           <Search size={18} />
           <Input placeholder="Search by name, email or phone" value={search}
             onChange={e => setSearch(e.target.value)} aria-label="Search members" />
         </div>
         <Button icon={RefreshCw} onClick={refresh} disabled={loading}>Refresh</Button>
         <Button
+          variant={filter === 'expiring5' ? 'primary' : 'secondary'}
           icon={Send}
           loading={sweeping}
           onClick={async () => {
@@ -315,37 +535,53 @@ export default function AdminMembers() {
                 return (
                   <TableRow key={m._id}>
                     <td>
-                      <div className="flex items-center gap-2.5">
+                      <div className="flex items-center gap-2.5 min-w-0">
                         <Avatar name={m.name} size={32} />
-                        <span className="min-w-0">
-                          <span className="block font-semibold" style={{ color: 'var(--p-text)' }}>{m.name}</span>
-                          <span className="block text-[12px] truncate" style={{ color: 'var(--p-muted)' }}>{m.email}</span>
-                        </span>
+                        <div className="min-w-0 max-w-[170px]">
+                          <div className="font-semibold truncate text-[13.5px]" style={{ color: 'var(--p-text)' }}>{m.name}</div>
+                          <div className="text-[12px] truncate" style={{ color: 'var(--p-muted)' }}>
+                            {m.phone || m.email || '—'}
+                          </div>
+                        </div>
                       </div>
                     </td>
-                    <td style={{ whiteSpace: 'nowrap' }}>{m.phone || '—'}</td>
-                    <td>{PLANS[m.membershipPlan] || '—'}</td>
-                    <td style={{ whiteSpace: 'nowrap' }}>{fmtDate(m.membershipStart || m.createdAt)}</td>
-                    <td style={{ whiteSpace: 'nowrap' }}>{fmtDate(m.membershipEnd)}</td>
                     <td>
-                      <Badge tone={status.tone}>{status.label}</Badge>
-                      {/* Only meaningful while a reminder is actually due */}
-                      {whatsappPending(m) ? (
-                        <span className="block text-[11.5px] mt-1" style={{ color: 'var(--p-warn)' }}>
-                          WhatsApp pending
-                        </span>
-                      ) : m.lastWhatsAppAt ? (
-                        <span className="block text-[11.5px] mt-1" style={{ color: 'var(--p-muted)' }}>
-                          WhatsApp {timeAgo(m.lastWhatsAppAt)}
-                        </span>
-                      ) : null}
+                      <div className="flex flex-col items-start gap-1">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="font-semibold text-[13px]" style={{ color: 'var(--p-text)' }}>
+                            {PLANS[m.membershipPlan] || 'Standard'}
+                          </span>
+                          <Badge tone={status.tone}>{status.label}</Badge>
+                        </div>
+                        {whatsappPending(m) ? (
+                          <span className="text-[11px]" style={{ color: 'var(--p-warn)' }}>
+                            WhatsApp pending
+                          </span>
+                        ) : m.lastWhatsAppAt ? (
+                          <span className="text-[11px]" style={{ color: 'var(--p-muted)' }}>
+                            WhatsApp {timeAgo(m.lastWhatsAppAt)}
+                          </span>
+                        ) : null}
+                      </div>
                     </td>
                     <td>
-                      <div className="ui-row-actions">
+                      <div className="text-[12.5px] whitespace-nowrap" style={{ color: 'var(--p-text)' }}>
+                        Ends <span className="font-semibold">{fmtDate(m.membershipEnd)}</span>
+                      </div>
+                      <div className="text-[11.5px] whitespace-nowrap" style={{ color: 'var(--p-muted)' }}>
+                        Started {fmtDate(m.membershipStart || m.createdAt)}
+                      </div>
+                    </td>
+                    <td style={{ textAlign: 'right' }}>
+                      <div className="ui-row-actions flex items-center justify-end gap-1 flex-nowrap">
                         <Button size="sm" variant="ghost" icon={Eye} onClick={() => setViewing(m)}
-                          aria-label={`View ${m.name}`} title="View member" />
+                          aria-label={`View ${m.name}`} title="View member details" />
+                        <Button size="sm" variant="ghost" icon={FileText} onClick={() => viewStatement(m)}
+                          aria-label={`View statement for ${m.name}`} title="View PDF statement" />
                         <Button size="sm" variant="ghost" icon={CalendarPlus} onClick={() => setRenewing(m)}
                           aria-label={`Renew ${m.name}`} title="Renew membership" />
+                        <Button size="sm" variant="ghost" icon={Pencil} to={`/admin/users?edit=${m._id}`}
+                          aria-label={`Edit ${m.name}`} title="Edit member" />
                         <WhatsAppButton
                           size="sm"
                           variant="ghost"
@@ -357,8 +593,6 @@ export default function AdminMembers() {
                           }}
                           buildHref={r => r?.whatsappUrl}
                         />
-                        <Button size="sm" variant="ghost" icon={Pencil} to={`/admin/users?edit=${m._id}`}
-                          aria-label={`Edit ${m.name}`} title="Edit in Users" />
                       </div>
                     </td>
                   </TableRow>
@@ -417,7 +651,9 @@ export default function AdminMembers() {
                         }}
                         buildHref={r => r?.whatsappUrl}
                       />
-                      <span className="flex gap-2 ml-auto">
+                      <span className="flex gap-1.5 ml-auto">
+                        <Button size="sm" icon={FileText} onClick={() => viewStatement(m)}
+                          aria-label={`Statement ${m.name}`} title="View statement" />
                         <Button size="sm" icon={Eye} onClick={() => setViewing(m)}
                           aria-label={`View ${m.name}`} title="View member" />
                         <Button size="sm" icon={Pencil} to={`/admin/users?edit=${m._id}`}
@@ -444,6 +680,8 @@ export default function AdminMembers() {
             member={viewing}
             onClose={() => setViewing(null)}
             onRenew={() => { setRenewing(viewing); setViewing(null); }}
+            onViewStatement={viewStatement}
+            onDownloadStatement={downloadStatement}
           />
         )}
         {renewing && (
@@ -452,6 +690,27 @@ export default function AdminMembers() {
             member={renewing}
             onClose={() => setRenewing(null)}
             onSaved={msg => { setRenewing(null); toast.success(msg); refresh(); }}
+          />
+        )}
+        {pdfPreview && (
+          <PdfViewerModal
+            key="member-pdf-preview"
+            title={pdfPreview.title}
+            subtitle={pdfPreview.subtitle}
+            blobUrl={pdfPreview.blobUrl}
+            fileName={pdfPreview.fileName}
+            onClose={() => {
+              if (pdfPreview?.blobUrl) URL.revokeObjectURL(pdfPreview.blobUrl);
+              setPdfPreview(null);
+            }}
+            onDownload={() => {
+              const a = document.createElement('a');
+              a.href = pdfPreview.blobUrl;
+              a.download = pdfPreview.fileName;
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+            }}
           />
         )}
       </AnimatePresence>

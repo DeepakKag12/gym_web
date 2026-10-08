@@ -1,17 +1,19 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
+import { AnimatePresence } from 'framer-motion';
 import {
   IndianRupee, ShoppingBag, UserSquare2, RefreshCw, AlertTriangle, Search, TrendingUp,
-  UserPlus, CheckCircle2, FileText, Share2, Eye,
+  UserPlus, CheckCircle2, FileText, Share2, Eye, Download, FileSpreadsheet,
 } from 'lucide-react';
 
 import API, { cachedGet, freshGet, bustCache, apiError } from '../../utils/api';
 import AdminLayout from './AdminLayout';
 import {
   Card, Button, Badge, Avatar, Input, EmptyState, SkeletonList, Table, TableRow,
-  Tabs, FadeIn, Stagger, StatCard, timeAgo, Modal, Field, Select,
+  Tabs, FadeIn, Stagger, StatCard, timeAgo, Modal, Field, Select, PdfViewerModal,
 } from '../../components/ui';
 import { fmtDate } from '../../utils/membership';
+import { downloadPdf, fetchPdfBlobUrl } from '../../utils/pdf';
 
 /**
  * Payments — money in, split by where it came from.
@@ -49,6 +51,8 @@ export default function AdminPayments() {
   const [statementSending, setStatementSending] = useState(null);
   const [statementSharing, setStatementSharing] = useState(null);
   const [statementViewing, setStatementViewing] = useState(null);
+  const [pdfPreview, setPdfPreview] = useState(null); // { blobUrl, title, subtitle, fileName, endpoint }
+  const [dateRange, setDateRange] = useState('all'); // 'all', 'today', 'week', 'month'
 
   // Pay / Adjust Due modal state
   const [payDueMember, setPayDueMember] = useState(null);
@@ -258,46 +262,125 @@ export default function AdminPayments() {
   const viewStatement = async member => {
     setStatementViewing(member._id);
     try {
-      // Use the GET endpoint that streams the PDF directly from the server.
-      // We fetch it as a blob and open a local object URL so the browser
-      // displays it without a separate authentication step.
-      const response = await fetch(`${API.defaults.baseURL}/payments/${member._id}/statement`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+      const { blobUrl, filename } = await fetchPdfBlobUrl(`/payments/${member._id}/statement`);
+      setPdfPreview({
+        blobUrl,
+        title: `Statement: ${member.name || 'Member'}`,
+        subtitle: `Membership Plan: ${(member.membershipPlan || 'Standard').toUpperCase()} · Phone: ${member.phone || '—'}`,
+        fileName: filename || `${(member.name || 'member').replace(/\s+/g, '-')}-statement.pdf`,
+        endpoint: `/payments/${member._id}/statement`,
       });
-      if (!response.ok) {
-        const json = await response.json().catch(() => ({}));
-        throw new Error(json.message || `Server error ${response.status}`);
-      }
-      const blob = await response.blob();
-      const objectUrl = URL.createObjectURL(blob);
-      const win = window.open(objectUrl, '_blank', 'noopener,noreferrer');
-      // Revoke after 60 s — long enough for the PDF tab to load.
-      setTimeout(() => URL.revokeObjectURL(objectUrl), 60_000);
-      if (!win) {
-        // Pop-up blocked: download instead
-        const a = document.createElement('a');
-        a.href = objectUrl;
-        a.download = `${(member.name || 'member').replace(/\s+/g, '-')}-statement.pdf`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        toast.success('PDF downloaded.');
-      }
     } catch (err) {
-      toast.error(apiError(err, 'Could not open the statement.'));
+      toast.error(apiError(err, 'Could not open the statement PDF.'));
     } finally { setStatementViewing(null); }
+  };
+
+  const downloadStatement = async member => {
+    await downloadPdf({
+      endpoint: `/payments/${member._id}/statement`,
+      defaultFilename: `${(member.name || 'member').replace(/\s+/g, '-')}-statement.pdf`,
+      toastMessage: `Statement for ${member.name || 'member'} downloaded.`,
+    });
+  };
+
+  const viewReceipt = async payment => {
+    try {
+      const { blobUrl, filename } = await fetchPdfBlobUrl(`/payments/${payment._id}/receipt`);
+      setPdfPreview({
+        blobUrl,
+        title: `Payment Receipt: ${payment.member?.name || 'Member'}`,
+        subtitle: `Amount: ₹${Number(payment.amount).toLocaleString('en-IN')} · Ref: REC-${String(payment._id).slice(-6).toUpperCase()}`,
+        fileName: filename || `receipt-${payment._id}.pdf`,
+        endpoint: `/payments/${payment._id}/receipt`,
+      });
+    } catch (err) {
+      toast.error(apiError(err, 'Could not open payment receipt.'));
+    }
+  };
+
+  const downloadReceipt = async payment => {
+    await downloadPdf({
+      endpoint: `/payments/${payment._id}/receipt`,
+      defaultFilename: `receipt-${(payment.member?.name || 'member').replace(/[^a-z0-9]/gi, '-')}-${String(payment._id).slice(-6)}.pdf`,
+      toastMessage: 'Payment receipt downloaded.',
+    });
+  };
+
+  const viewOrderInvoice = async row => {
+    const orderId = row.order || (typeof row._id === 'string' && row._id.startsWith('order:') ? row._id.replace('order:', '') : row._id);
+    try {
+      const { blobUrl, filename } = await fetchPdfBlobUrl(`/orders/${orderId}/invoice`);
+      setPdfPreview({
+        blobUrl,
+        title: `Order Invoice #${String(orderId).slice(-6).toUpperCase()}`,
+        subtitle: `Customer: ${row.member?.name || 'Customer'} · Total: ₹${Number(row.amount).toLocaleString('en-IN')}`,
+        fileName: filename || `order-invoice-${orderId}.pdf`,
+        endpoint: `/orders/${orderId}/invoice`,
+      });
+    } catch (err) {
+      toast.error(apiError(err, 'Could not open order invoice.'));
+    }
+  };
+
+  const downloadOrderInvoice = async row => {
+    const orderId = row.order || (typeof row._id === 'string' && row._id.startsWith('order:') ? row._id.replace('order:', '') : row._id);
+    await downloadPdf({
+      endpoint: `/orders/${orderId}/invoice`,
+      defaultFilename: `order-invoice-${String(orderId).slice(-6)}.pdf`,
+      toastMessage: 'Order invoice downloaded.',
+    });
+  };
+
+  const exportCsv = () => {
+    if (!shown.length) {
+      toast.error('No payments to export.');
+      return;
+    }
+    const headers = ['Date', 'Customer/Member', 'Phone', 'Source', 'Particulars', 'Payment Method', 'Amount (INR)', 'Note'];
+    const lines = shown.map(r => [
+      `"${new Date(r.createdAt).toLocaleDateString('en-IN')}"`,
+      `"${(r.member?.name || '').replace(/"/g, '""')}"`,
+      `"${r.member?.phone || ''}"`,
+      `"${r.source || ''}"`,
+      `"${(KIND[r.kind] || r.kind || '').replace(/"/g, '""')}"`,
+      `"${(r.method || 'cash').toUpperCase()}"`,
+      r.amount || 0,
+      `"${(r.note || '').replace(/"/g, '""')}"`,
+    ]);
+    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...lines.map(e => e.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `payments-report-${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success('Payments exported to CSV.');
   };
 
   const shown = useMemo(() => {
     const q = search.trim().toLowerCase();
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    const weekStart = now.getTime() - 7 * 86400000;
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+
     return rows.filter(r => {
       if (source !== 'all' && r.source !== source) return false;
+      if (dateRange !== 'all') {
+        const time = new Date(r.createdAt).getTime();
+        if (dateRange === 'today' && time < todayStart) return false;
+        if (dateRange === 'week' && time < weekStart) return false;
+        if (dateRange === 'month' && time < monthStart) return false;
+      }
       if (!q) return true;
       return r.member?.name?.toLowerCase().includes(q)
         || r.member?.phone?.includes(q)
-        || String(r.amount).includes(q);
+        || String(r.amount).includes(q)
+        || (r.note && r.note.toLowerCase().includes(q))
+        || (r.kind && r.kind.toLowerCase().includes(q));
     });
-  }, [rows, source, search]);
+  }, [rows, source, search, dateRange]);
 
   const shownTotal = useMemo(() => shown.reduce((n, r) => n + (r.amount || 0), 0), [shown]);
 
@@ -319,6 +402,7 @@ export default function AdminPayments() {
       subtitle="Membership fees and shop orders, kept apart"
       actions={
         <>
+          <Button icon={FileSpreadsheet} onClick={exportCsv} disabled={!shown.length} title="Export current filtered list to CSV">Export CSV</Button>
           <Button icon={UserPlus} onClick={() => setDueFormOpen(true)}>Add fee due</Button>
           <Button icon={RefreshCw} onClick={refresh} disabled={loading}>Refresh</Button>
         </>
@@ -418,6 +502,14 @@ export default function AdminPayments() {
                     <Button
                       size="sm"
                       variant="ghost"
+                      icon={Download}
+                      onClick={event => { event.preventDefault(); event.stopPropagation(); downloadStatement(member); }}
+                      aria-label={`Download ${member.name}'s statement`}
+                      title="Download PDF statement"
+                    />
+                    <Button
+                      size="sm"
+                      variant="ghost"
                       icon={Eye}
                       loading={statementViewing === member._id}
                       onClick={event => { event.preventDefault(); event.stopPropagation(); viewStatement(member); }}
@@ -430,14 +522,115 @@ export default function AdminPayments() {
             )}
           </Card>
 
-          <Stagger className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-            <StatCard label="Membership fees" value={money(totals.membership)}
-              hint="Joining fees and renewals" icon={UserSquare2} tone="accent" loading={loading} />
-            <StatCard label="Shop orders" value={money(totals.store)}
-              hint="Paid orders only" icon={ShoppingBag} tone="info" loading={loading} />
-            <StatCard label="Total taken" value={money(totals.all)}
-              hint="Both sources together" icon={IndianRupee} tone="ok" loading={loading} />
-          </Stagger>
+          {/* Quick Revenue Section Division Cards — All Revenue, Membership, Shop, Outstanding Dues */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-2">
+            <button
+              type="button"
+              onClick={() => setSource('all')}
+              className={`p-3.5 sm:p-4 rounded-xl border text-left transition cursor-pointer relative overflow-hidden ${
+                source === 'all'
+                  ? 'ring-2 ring-emerald-500 shadow-md'
+                  : 'hover:border-[var(--p-border-2)]'
+              }`}
+              style={{ background: 'var(--p-surface)', borderColor: 'var(--p-border)' }}
+            >
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-xs font-semibold uppercase tracking-wider text-emerald-400">
+                  Total Taken
+                </span>
+                <span className="p-1 rounded-md bg-emerald-500/10 text-emerald-400">
+                  <IndianRupee size={14} />
+                </span>
+              </div>
+              <div className="text-2xl font-bold tracking-tight text-emerald-400">
+                {money(totals.all)}
+              </div>
+              <p className="text-[11.5px] mt-0.5 truncate text-emerald-400/70">
+                Both sources together
+              </p>
+              {source === 'all' && (
+                <div className="absolute bottom-0 left-0 right-0 h-1 bg-emerald-500" />
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setSource('membership')}
+              className={`p-3.5 sm:p-4 rounded-xl border text-left transition cursor-pointer relative overflow-hidden ${
+                source === 'membership'
+                  ? 'ring-2 ring-[var(--p-accent)] shadow-md'
+                  : 'hover:border-[var(--p-border-2)]'
+              }`}
+              style={{ background: 'var(--p-surface)', borderColor: 'var(--p-border)' }}
+            >
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--p-text-2)' }}>
+                  Membership Fees
+                </span>
+                <span className="p-1 rounded-md" style={{ background: 'var(--p-surface-2)', color: 'var(--p-text-2)' }}>
+                  <UserSquare2 size={14} />
+                </span>
+              </div>
+              <div className="text-2xl font-bold tracking-tight" style={{ color: 'var(--p-text)' }}>
+                {money(totals.membership)}
+              </div>
+              <p className="text-[11.5px] mt-0.5 truncate" style={{ color: 'var(--p-muted)' }}>
+                Joining fees & renewals
+              </p>
+              {source === 'membership' && (
+                <div className="absolute bottom-0 left-0 right-0 h-1 bg-[var(--p-accent)]" />
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setSource('store')}
+              className={`p-3.5 sm:p-4 rounded-xl border text-left transition cursor-pointer relative overflow-hidden ${
+                source === 'store'
+                  ? 'ring-2 ring-blue-500 shadow-md'
+                  : 'hover:border-[var(--p-border-2)]'
+              }`}
+              style={{ background: 'var(--p-surface)', borderColor: 'var(--p-border)' }}
+            >
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-xs font-semibold uppercase tracking-wider text-blue-400">
+                  Shop Orders
+                </span>
+                <span className="p-1 rounded-md bg-blue-500/10 text-blue-400">
+                  <ShoppingBag size={14} />
+                </span>
+              </div>
+              <div className="text-2xl font-bold tracking-tight text-blue-400">
+                {money(totals.store)}
+              </div>
+              <p className="text-[11.5px] mt-0.5 truncate text-blue-400/70">
+                Product sales revenue
+              </p>
+              {source === 'store' && (
+                <div className="absolute bottom-0 left-0 right-0 h-1 bg-blue-500" />
+              )}
+            </button>
+
+            <div
+              className="p-3.5 sm:p-4 rounded-xl border text-left relative overflow-hidden"
+              style={{ background: 'var(--p-surface)', borderColor: 'var(--p-border)' }}
+            >
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-xs font-semibold uppercase tracking-wider text-rose-400">
+                  Pending Dues
+                </span>
+                <span className="p-1 rounded-md bg-rose-500/10 text-rose-400">
+                  <AlertTriangle size={14} />
+                </span>
+              </div>
+              <div className="text-2xl font-bold tracking-tight text-rose-400">
+                {money(dueTotal)}
+              </div>
+              <p className="text-[11.5px] mt-0.5 truncate text-rose-400/70">
+                {due.length} members with balances
+              </p>
+            </div>
+          </div>
 
           {summary?.thisMonth && (
             <FadeIn delay={0.05}>
@@ -490,11 +683,37 @@ export default function AdminPayments() {
             </FadeIn>
           )}
 
-          <div className="ui-toolbar">
-            <div className="ui-search">
+          <div className="ui-toolbar flex-wrap gap-2">
+            <div className="ui-search flex-1 min-w-[200px]">
               <Search size={18} />
-              <Input placeholder="Search by member or amount" value={search}
+              <Input placeholder="Search member, phone, note or amount" value={search}
                 onChange={e => setSearch(e.target.value)} aria-label="Search payments" />
+            </div>
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {[
+                { id: 'all', label: 'All Time' },
+                { id: 'today', label: 'Today' },
+                { id: 'week', label: '7 Days' },
+                { id: 'month', label: 'This Month' },
+              ].map(t => (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => setDateRange(t.id)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border cursor-pointer ${
+                    dateRange === t.id
+                      ? 'shadow-sm font-bold'
+                      : 'hover:bg-[var(--p-surface-2)]'
+                  }`}
+                  style={{
+                    background: dateRange === t.id ? 'var(--p-accent)' : 'var(--p-surface)',
+                    color: dateRange === t.id ? '#ffffff' : 'var(--p-text-2)',
+                    borderColor: dateRange === t.id ? 'var(--p-accent)' : 'var(--p-border)',
+                  }}
+                >
+                  {t.label}
+                </button>
+              ))}
             </div>
           </div>
 
@@ -552,25 +771,43 @@ export default function AdminPayments() {
                         </span>
                       </td>
                       <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
-                        <div className="flex items-center justify-end gap-2">
+                        <div className="flex items-center justify-end gap-1.5">
                           <strong style={{ color: 'var(--p-text)' }}>{money(r.amount)}</strong>
-                          {r.source === 'membership' && r.member?._id && (
+                          {r.source === 'membership' ? (
                             <>
-                              <Button size="sm" variant="ghost" icon={FileText}
-                                loading={statementSending === r.member._id}
-                                onClick={() => sendStatement(r.member._id)}
-                                aria-label={`Send ${r.member.name}'s statement`}
-                                title="Send PDF statement on WhatsApp" />
-                              <Button size="sm" variant="ghost" icon={Share2}
-                                loading={statementSharing === r.member._id}
-                                onClick={() => shareStatement(r.member)}
-                                aria-label={`Share ${r.member.name}'s statement`}
-                                title="Share PDF statement" />
                               <Button size="sm" variant="ghost" icon={Eye}
-                                loading={statementViewing === r.member._id}
-                                onClick={() => viewStatement(r.member)}
-                                aria-label={`View ${r.member.name}'s statement`}
-                                title="View PDF statement" />
+                                onClick={() => viewReceipt(r)}
+                                aria-label="View payment receipt"
+                                title="View payment receipt PDF" />
+                              <Button size="sm" variant="ghost" icon={Download}
+                                onClick={() => downloadReceipt(r)}
+                                aria-label="Download payment receipt"
+                                title="Download payment receipt PDF" />
+                              {r.member?._id && (
+                                <>
+                                  <Button size="sm" variant="ghost" icon={FileText}
+                                    loading={statementSending === r.member._id}
+                                    onClick={() => sendStatement(r.member._id)}
+                                    aria-label={`Send ${r.member.name}'s statement on WhatsApp`}
+                                    title="Send statement on WhatsApp" />
+                                  <Button size="sm" variant="ghost" icon={Share2}
+                                    loading={statementSharing === r.member._id}
+                                    onClick={() => shareStatement(r.member)}
+                                    aria-label={`Share ${r.member.name}'s statement`}
+                                    title="Share statement" />
+                                </>
+                              )}
+                            </>
+                          ) : (
+                            <>
+                              <Button size="sm" variant="ghost" icon={Eye}
+                                onClick={() => viewOrderInvoice(r)}
+                                aria-label="View order invoice"
+                                title="View order invoice PDF" />
+                              <Button size="sm" variant="ghost" icon={Download}
+                                onClick={() => downloadOrderInvoice(r)}
+                                aria-label="Download order invoice"
+                                title="Download order invoice PDF" />
                             </>
                           )}
                         </div>
@@ -599,25 +836,38 @@ export default function AdminPayments() {
                         <Badge tone={r.source === 'membership' ? 'accent' : 'info'}>
                           {r.source === 'membership' ? 'Membership' : 'Shop'}
                         </Badge>
-                        {r.source === 'membership' && r.member?._id && (
-                          <span className="flex justify-end gap-1 mt-1">
-                            <Button size="sm" variant="ghost" icon={FileText}
-                              loading={statementSending === r.member._id}
-                              onClick={() => sendStatement(r.member._id)}
-                              aria-label={`Send ${r.member.name}'s statement`}
-                              title="Send PDF statement on WhatsApp" />
-                            <Button size="sm" variant="ghost" icon={Share2}
-                              loading={statementSharing === r.member._id}
-                              onClick={() => shareStatement(r.member)}
-                              aria-label={`Share ${r.member.name}'s statement`}
-                              title="Share PDF statement" />
-                            <Button size="sm" variant="ghost" icon={Eye}
-                              loading={statementViewing === r.member._id}
-                              onClick={() => viewStatement(r.member)}
-                              aria-label={`View ${r.member.name}'s statement`}
-                              title="View PDF statement" />
-                          </span>
-                        )}
+                        <span className="flex justify-end gap-1 mt-1">
+                          {r.source === 'membership' ? (
+                            <>
+                              <Button size="sm" variant="ghost" icon={Eye}
+                                onClick={() => viewReceipt(r)}
+                                aria-label="View receipt"
+                                title="View payment receipt PDF" />
+                              <Button size="sm" variant="ghost" icon={Download}
+                                onClick={() => downloadReceipt(r)}
+                                aria-label="Download receipt"
+                                title="Download payment receipt PDF" />
+                              {r.member?._id && (
+                                <Button size="sm" variant="ghost" icon={FileText}
+                                  loading={statementSending === r.member._id}
+                                  onClick={() => sendStatement(r.member._id)}
+                                  aria-label="Send WhatsApp"
+                                  title="Send statement on WhatsApp" />
+                              )}
+                            </>
+                          ) : (
+                            <>
+                              <Button size="sm" variant="ghost" icon={Eye}
+                                onClick={() => viewOrderInvoice(r)}
+                                aria-label="View invoice"
+                                title="View order invoice PDF" />
+                              <Button size="sm" variant="ghost" icon={Download}
+                                onClick={() => downloadOrderInvoice(r)}
+                                aria-label="Download invoice"
+                                title="Download order invoice PDF" />
+                            </>
+                          )}
+                        </span>
                       </span>
                     </li>
                   ))}
@@ -872,6 +1122,30 @@ export default function AdminPayments() {
           </div>
         </Modal>
       )}
+
+      <AnimatePresence>
+        {pdfPreview && (
+          <PdfViewerModal
+            key="pdf-preview-modal"
+            title={pdfPreview.title}
+            subtitle={pdfPreview.subtitle}
+            blobUrl={pdfPreview.blobUrl}
+            fileName={pdfPreview.fileName}
+            onClose={() => {
+              if (pdfPreview?.blobUrl) URL.revokeObjectURL(pdfPreview.blobUrl);
+              setPdfPreview(null);
+            }}
+            onDownload={() => {
+              const a = document.createElement('a');
+              a.href = pdfPreview.blobUrl;
+              a.download = pdfPreview.fileName;
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+            }}
+          />
+        )}
+      </AnimatePresence>
     </AdminLayout>
   );
 }

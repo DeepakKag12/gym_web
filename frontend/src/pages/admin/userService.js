@@ -29,12 +29,23 @@ export const PLAN_MONTHS = { monthly: 1, quarterly: 3, 'half-yearly': 6, yearly:
 
 
 
-/** Expiry date implied by a start date and a plan length. */
+/** Expiry date implied by a start date and a plan length, with month-end clamping. */
 export function calcExpiry(start, plan) {
   if (!start || !plan) return '';
-  const d = new Date(start);
-  d.setMonth(d.getMonth() + (PLAN_MONTHS[plan] || 1));
-  return d.toISOString().split('T')[0];
+  const d = typeof start === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(start)
+    ? new Date(start + 'T00:00:00')
+    : new Date(start);
+  if (Number.isNaN(d.getTime())) return '';
+  const months = PLAN_MONTHS[plan] || 1;
+  const originalDate = d.getDate();
+  d.setMonth(d.getMonth() + months);
+  if (d.getDate() !== originalDate) {
+    d.setDate(0);
+  }
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
 }
 
 /**
@@ -101,15 +112,13 @@ export function whatsappPending(user, windowDays = 4) {
 
 /** Filters offered on the Members screen. Each is a plain predicate. */
 export const EXPIRY_FILTERS = [
-  { value: 'all',      label: 'Everyone',        test: () => true },
-  { value: 'active',   label: 'Active',          test: u => ['active', 'month', 'week', 'today'].includes(statusOf(u).key) },
-  { value: 'today',    label: 'Expiring today',  test: u => statusOf(u).key === 'today' },
-  { value: 'week',     label: 'This week',       test: u => { const d = daysUntil(u.membershipEnd); return d !== null && d >= 0 && d <= 7; } },
-  { value: 'month',    label: 'This month',      test: u => { const d = daysUntil(u.membershipEnd); return d !== null && d >= 0 && d <= 30; } },
-  { value: 'expired',  label: 'Expired',         test: isMembershipExpired },
-  // The working list: due a reminder and not yet contacted on WhatsApp.
-  { value: 'towhatsapp', label: 'To WhatsApp',    test: u => whatsappPending(u) },
-  { value: 'disabled', label: 'Disabled',        test: u => u.isActive === false },
+  { value: 'all',        label: 'All Members',       test: () => true },
+  { value: 'active',     label: 'Active',            test: u => ['active', 'month', 'week', 'today'].includes(statusOf(u).key) },
+  { value: 'expiring5',  label: 'Expiring ≤ 5 Days', test: u => { const d = daysUntil(u.membershipEnd); return d !== null && d >= 0 && d <= 5; } },
+  { value: 'expired',    label: 'Expired',           test: isMembershipExpired },
+  { value: 'due',        label: 'Fee Due',           test: u => Number(u.feeDueAmount) > 0 || (u.feePaid === false && Number(u.feeAmount) > 0) },
+  { value: 'towhatsapp', label: 'WhatsApp Pending',  test: u => whatsappPending(u) },
+  { value: 'disabled',   label: 'Disabled',          test: u => u.isActive === false },
 ];
 
 /* ── Reads ──────────────────────────────────────────────────────────────── */
@@ -123,6 +132,13 @@ export const EXPIRY_FILTERS = [
  */
 export async function loadUsers({ force = false } = {}) {
   const get = force ? freshGet : cachedGet;
+  try {
+    const res = await get('/members?all=1', { cache: 60 });
+    if (Array.isArray(res.data)) {
+      return res.data.map(u => ({ ...u, role: u.role || 'member' }))
+        .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+    }
+  } catch {}
   const [m, t] = await Promise.all([
     get('/members', { cache: 60 }),
     get('/trainers', { cache: 180 }),

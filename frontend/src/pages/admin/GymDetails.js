@@ -119,6 +119,9 @@ export default function GymDetails() {
                 <Field label="Address">
                   <Input {...bind('address')} placeholder="Street, city" />
                 </Field>
+                <Field label="Gym UPI ID" hint="Used for fee collection & statements (e.g. 9630906906@upi or gym@okaxis)">
+                  <Input {...bind('upiId')} placeholder="gymname@upi" />
+                </Field>
               </div>
             </Card>
 

@@ -1,5 +1,6 @@
 import React from 'react';
 import { useSettings } from '../context/SettingsContext';
+import { useTheme } from '../context/ThemeContext';
 import { Link } from 'react-router-dom';
 import { Instagram, Phone, MessageCircle, Clock, Code2, Mail } from 'lucide-react';
 
@@ -31,8 +32,19 @@ function Logo({ size = 30 }) {
 
 export default function Footer() {
   const site = useSettings();
+  let isDark = true;
+  try {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const themeCtx = useTheme();
+    if (themeCtx) isDark = themeCtx.isDark;
+  } catch (e) {
+    isDark = true;
+  }
+
   return (
-    <footer className="bg-[#0d0e11] border-t border-white/6 mt-16 sm:mt-20">
+    <footer className={`relative z-20 border-t mt-16 sm:mt-20 transition-colors ${
+      isDark ? 'bg-[#0d0e11]/95 border-white/8 text-gray-300' : 'bg-slate-100/95 border-slate-300 text-slate-700'
+    }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
 
         {/* Grid — 1 col mobile, 2 col sm, 4 col lg */}
