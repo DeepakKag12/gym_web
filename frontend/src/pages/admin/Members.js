@@ -4,7 +4,7 @@ import { AnimatePresence } from 'framer-motion';
 import {
   UserPlus, Search, RefreshCw, AlertTriangle, UserSquare2, Pencil,
   CalendarPlus, Eye, Send, Download, FileText, CheckCircle2, Clock,
-  CalendarClock, IndianRupee, Users as UsersIcon,
+  CalendarClock, IndianRupee, Users as UsersIcon, MessageSquare, Mail,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import AdminLayout from './AdminLayout';
@@ -224,7 +224,8 @@ export default function AdminMembers() {
 
   const [viewing, setViewing] = useState(null);
   const [renewing, setRenewing] = useState(null);
-  const [sweeping, setSweeping] = useState(false);
+  const [sweepingEmail, setSweepingEmail] = useState(false);
+  const [sweepingWA, setSweepingWA] = useState(false);
   const [pdfPreview, setPdfPreview] = useState(null);
 
   const viewStatement = async member => {
@@ -489,17 +490,35 @@ export default function AdminMembers() {
         <Button icon={RefreshCw} onClick={refresh} disabled={loading}>Refresh</Button>
         <Button
           variant={filter === 'expiring5' ? 'primary' : 'secondary'}
-          icon={Send}
-          loading={sweeping}
+          icon={MessageSquare}
+          loading={sweepingWA}
+          className="hover:border-emerald-500/50"
           onClick={async () => {
-            setSweeping(true);
+            setSweepingWA(true);
             try {
-              const r = await runReminderSweep();
-              toast.success(r.message || 'Reminders sent.');
+              const r = await runReminderSweep(['whatsapp'], 7);
+              toast.success(r.message || 'WhatsApp reminders dispatched.');
               refresh();
             } catch (err) {
-              toast.error(apiError(err, 'Could not send the reminders.'));
-            } finally { setSweeping(false); }
+              toast.error(apiError(err, 'Could not send WhatsApp reminders.'));
+            } finally { setSweepingWA(false); }
+          }}
+        >
+          WhatsApp everyone expiring
+        </Button>
+        <Button
+          variant="secondary"
+          icon={Mail}
+          loading={sweepingEmail}
+          onClick={async () => {
+            setSweepingEmail(true);
+            try {
+              const r = await runReminderSweep(['email'], 7);
+              toast.success(r.message || 'Email reminders dispatched.');
+              refresh();
+            } catch (err) {
+              toast.error(apiError(err, 'Could not send email reminders.'));
+            } finally { setSweepingEmail(false); }
           }}
         >
           Email everyone expiring

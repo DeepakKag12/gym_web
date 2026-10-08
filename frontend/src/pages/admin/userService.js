@@ -290,11 +290,11 @@ export async function sendReminder(member) {
   return data;
 }
 
-/** Email every active member whose membership ends within the next 7 days. */
-export async function runReminderSweep() {
+/** Send reminder to every active member whose membership ends within the given days. */
+export async function runReminderSweep(channels = ['whatsapp', 'email'], days = 7) {
   const { data } = await API.post('/members/bulk-reminder', {
-    days: 7,
-    channels: ['email'],
+    days,
+    channels: Array.isArray(channels) ? channels : [channels],
   });
   return data;
 }
