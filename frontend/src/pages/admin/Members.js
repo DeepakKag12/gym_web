@@ -15,7 +15,7 @@ import {
   PdfViewerModal,
 } from '../../components/ui';
 import {
-  PLANS, loadUsers, statusOf, daysUntil, fmtDate, calcExpiry,
+  PLANS, PLAN_PRICES, loadUsers, statusOf, daysUntil, fmtDate, calcExpiry,
   EXPIRY_FILTERS, bustUserCaches, updateUser, sendReminder, runReminderSweep,
   whatsappPending,
 } from './userService';
@@ -96,7 +96,17 @@ function RenewModal({ member, onClose, onSaved }) {
       <div className="space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Field label="Plan length">
-            <Select value={plan} onChange={e => setPlan(e.target.value)} autoFocus>
+            <Select
+              value={plan}
+              onChange={e => {
+                const nextPlan = e.target.value;
+                setPlan(nextPlan);
+                const standardFee = PLAN_PRICES[nextPlan] || '';
+                setFee(standardFee);
+                if (!feeDue) setInitialPayment(standardFee);
+              }}
+              autoFocus
+            >
               {Object.entries(PLANS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
             </Select>
           </Field>

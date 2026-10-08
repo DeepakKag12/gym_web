@@ -26,6 +26,7 @@ export const PLANS = {
 };
 
 export const PLAN_MONTHS = { monthly: 1, quarterly: 3, 'half-yearly': 6, yearly: 12 };
+export const PLAN_PRICES = { monthly: 1500, quarterly: 3500, 'half-yearly': 6000, yearly: 10000 };
 
 
 

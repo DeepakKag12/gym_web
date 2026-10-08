@@ -16,7 +16,7 @@ import {
   WhatsAppButton, Check, Tabs,
 } from '../../components/ui';
 import {
-  ROLES, PLANS, loadUsers, statusOf, fmtDate, calcExpiry, bustUserCaches,
+  ROLES, PLANS, PLAN_PRICES, loadUsers, statusOf, fmtDate, calcExpiry, bustUserCaches,
   createUser, updateUser, setUserActive, resetPassword, changeRole, deleteUser,
   buildCredentialsMessage, waLink, daysUntil,
 } from './userService';
@@ -35,8 +35,8 @@ const blank = {
   name: '', email: '', phone: '', password: '', role: 'member',
   membershipPlan: 'monthly',
   membershipStart: new Date().toISOString().split('T')[0],
-  feeAmount: '',
-  initialPayment: '',
+  feeAmount: 1500,
+  initialPayment: 1500,
   paymentDue: false,
   paymentMethod: 'cash',
 };
@@ -74,6 +74,14 @@ function UserForm({ editing, initial, onClose, onSaved }) {
       // The admin never works out an expiry date by hand.
       if (name === 'membershipPlan' || name === 'membershipStart') {
         next.membershipEnd = calcExpiry(next.membershipStart, next.membershipPlan);
+      }
+      if (name === 'membershipPlan' && !isEdit) {
+        if (!prev.feeAmount || Number(prev.feeAmount) === PLAN_PRICES[prev.membershipPlan]) {
+          next.feeAmount = PLAN_PRICES[value] || '';
+          if (next.initialPayment && Number(next.initialPayment) === PLAN_PRICES[prev.membershipPlan]) {
+            next.initialPayment = PLAN_PRICES[value] || '';
+          }
+        }
       }
       return next;
     });
