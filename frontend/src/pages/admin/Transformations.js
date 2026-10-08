@@ -6,7 +6,7 @@ import AdminLayout from './AdminLayout';
 import toast from 'react-hot-toast';
 import { img } from '../../utils/img';
 
-const emptyForm = { title: '', description: '', duration: '', weightLost: '', muscleGained: '', isPublic: true, member: '' };
+const emptyForm = { title: '', description: '', duration: '', weightLost: '', muscleGained: '', isPublic: true, member: '', videoUrl: '' };
 
 export default function AdminTransformations() {
   const [transformations, setTransformations] = useState([]);
@@ -17,6 +17,7 @@ export default function AdminTransformations() {
   const [form, setForm] = useState(emptyForm);
   const [beforeFile, setBeforeFile] = useState(null);
   const [afterFile, setAfterFile] = useState(null);
+  const [videoFile, setVideoFile] = useState(null);
   const [saving, setSaving] = useState(false);
 
   const load = (force = false) => {
@@ -27,14 +28,14 @@ export default function AdminTransformations() {
   };
   useEffect(load, []);
 
-  const openAdd = () => { setEditData(null); setForm(emptyForm); setBeforeFile(null); setAfterFile(null); setModal(true); };
+  const openAdd = () => { setEditData(null); setForm(emptyForm); setBeforeFile(null); setAfterFile(null); setVideoFile(null); setModal(true); };
   const openEdit = (t) => {
     setEditData(t);
-    setForm({ title: t.title, description: t.description || '', duration: t.duration || '', weightLost: t.weightLost || '', muscleGained: t.muscleGained || '', isPublic: t.isPublic !== false, member: t.member?._id || '' });
-    setBeforeFile(null); setAfterFile(null);
+    setForm({ title: t.title, description: t.description || '', duration: t.duration || '', weightLost: t.weightLost || '', muscleGained: t.muscleGained || '', isPublic: t.isPublic !== false, member: t.member?._id || '', videoUrl: t.videoUrl || '' });
+    setBeforeFile(null); setAfterFile(null); setVideoFile(null);
     setModal(true);
   };
-  const closeModal = () => { setModal(false); setEditData(null); setForm(emptyForm); setBeforeFile(null); setAfterFile(null); };
+  const closeModal = () => { setModal(false); setEditData(null); setForm(emptyForm); setBeforeFile(null); setAfterFile(null); setVideoFile(null); };
 
   const handleSave = async () => {
     if (!form.title || !form.member) { toast.error('Title and member are required'); return; }
@@ -45,6 +46,7 @@ export default function AdminTransformations() {
       Object.entries(form).forEach(([k, v]) => data.append(k, v));
       if (beforeFile) data.append('beforeImage', beforeFile);
       if (afterFile)  data.append('afterImage', afterFile);
+      if (videoFile)  data.append('video', videoFile);
       if (editData) {
         await API.put(`/transformations/${editData._id}`, data, { headers: { 'Content-Type': 'multipart/form-data' } });
         toast.success('Transformation updated!');
@@ -168,6 +170,25 @@ export default function AdminTransformations() {
                     <img src={editData.afterImage} alt="after" className="w-full h-16 rounded-lg object-cover mb-1" />
                   )}
                   <input type="file" accept="image/*" onChange={e => setAfterFile(e.target.files[0])} className="text-gray-400 text-xs w-full" />
+                </div>
+              </div>
+              <div className="p-3 bg-white/5 rounded-xl border border-white/10 space-y-3">
+                <span className="text-xs font-semibold text-orange-400 uppercase tracking-wider block">Video Showcase (Optional)</span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-gray-400 text-xs block mb-1">Upload Video File (.mp4)</label>
+                    <input type="file" accept="video/*" onChange={e => setVideoFile(e.target.files[0])} className="text-gray-400 text-xs w-full" />
+                  </div>
+                  <div>
+                    <label className="text-gray-400 text-xs block mb-1">Or YouTube / Video URL</label>
+                    <input
+                      type="url"
+                      placeholder="https://youtube.com/watch?v=..."
+                      value={form.videoUrl}
+                      onChange={e => setForm({ ...form, videoUrl: e.target.value })}
+                      className="input-dark text-xs py-2 w-full"
+                    />
+                  </div>
                 </div>
               </div>
               <label className="flex items-center gap-2 cursor-pointer">

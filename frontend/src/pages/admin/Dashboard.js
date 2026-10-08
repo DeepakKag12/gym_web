@@ -4,7 +4,7 @@ import {
   UserSquare2, CheckCircle2, CalendarClock, UserPlus,
   AlertTriangle, RefreshCw, ArrowRight, Ban, Activity, IndianRupee,
   ShoppingBag, CreditCard, Eye, Download, MessageSquare,
-  Package, TrendingUp, DollarSign
+  Package, TrendingUp,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import AdminLayout from './AdminLayout';
@@ -48,6 +48,8 @@ export default function AdminDashboard() {
   const [dueData, setDueData] = useState({ members: [], total: 0 });
   const [orders, setOrders] = useState([]);
   const [summaryData, setSummaryData] = useState(null);
+  const [paymentSummary, setPaymentSummary] = useState(null);
+  const [selectedMonth, setSelectedMonth] = useState('all');
   const [enquiries, setEnquiries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -73,8 +75,9 @@ export default function AdminDashboard() {
       API.get('/payments/due'),
       API.get('/orders'),
       API.get('/analytics/summary'),
+      API.get('/payments/summary'),
       API.get('/enquiries'),
-    ]).then(([usersRes, dueRes, ordersRes, analyticsRes, enquiriesRes]) => {
+    ]).then(([usersRes, dueRes, ordersRes, analyticsRes, paySumRes, enquiriesRes]) => {
       if (usersRes.status === 'fulfilled') {
         setUsers(usersRes.value || []);
       } else {
@@ -91,6 +94,10 @@ export default function AdminDashboard() {
 
       if (analyticsRes.status === 'fulfilled') {
         setSummaryData(analyticsRes.value.data || null);
+      }
+
+      if (paySumRes.status === 'fulfilled') {
+        setPaymentSummary(paySumRes.value.data || null);
       }
 
       if (enquiriesRes.status === 'fulfilled') {
@@ -297,7 +304,7 @@ export default function AdminDashboard() {
           <Button variant="outline" size="sm" icon={RefreshCw} onClick={() => load(true)}>
             Refresh
           </Button>
-          <Button variant="outline" size="sm" icon={DollarSign} onClick={() => openQuickPay()}>
+          <Button variant="outline" size="sm" icon={IndianRupee} onClick={() => openQuickPay()}>
             Collect Payment
           </Button>
           <Button variant="primary" size="sm" icon={UserPlus} to="/admin/users?add=1">
@@ -319,7 +326,7 @@ export default function AdminDashboard() {
             onClick={() => openQuickPay()}
             className="ui-action-chip hover:border-[var(--p-ok)] font-semibold cursor-pointer"
           >
-            <DollarSign size={14} style={{ color: 'var(--p-ok)' }} /> Collect Payment
+            <IndianRupee size={14} style={{ color: 'var(--p-ok)' }} /> Collect Payment
           </button>
           <Link
             to="/admin/users?add=1"
@@ -613,7 +620,7 @@ export default function AdminDashboard() {
                             title="Collect Fee at Counter"
                             className="px-2.5 py-1.5 rounded-lg text-xs flex items-center gap-1 font-semibold text-white bg-[var(--p-ok)] hover:opacity-90 transition cursor-pointer shadow-sm"
                           >
-                            <DollarSign size={13} /> Collect
+                            <IndianRupee size={13} /> Collect
                           </button>
                           <button
                             onClick={() => viewStatement(m)}
@@ -639,83 +646,156 @@ export default function AdminDashboard() {
               </Card>
             </FadeIn>
 
-            {/* Revenue Stream Breakdown */}
+            {/* Revenue Stream Breakdown & Month-wise Analytics */}
             <FadeIn delay={0.08}>
               <Card
-                title="Revenue streams & collections"
-                subtitle="Income split between gym membership subscriptions and counter retail shop"
+                title="Revenue Streams & Month-wise Collections"
+                subtitle="Filter income by specific calendar month or view all-time ledger"
                 padded={true}
                 action={
-                  <Button size="sm" variant="outline" to="/admin/revenue">
-                    Revenue breakdown <ArrowRight size={14} />
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    {paymentSummary?.series?.length > 0 && (
+                      <select
+                        value={selectedMonth}
+                        onChange={e => setSelectedMonth(e.target.value)}
+                        className="text-xs px-2.5 py-1 rounded-lg border bg-[var(--p-surface)] text-[var(--p-text)] border-[var(--p-border)] cursor-pointer"
+                        aria-label="Select month for revenue view"
+                      >
+                        <option value="all">All Time Combined</option>
+                        {paymentSummary.series.map(s => (
+                          <option key={s.month} value={s.month}>
+                            {s.month} ({`₹${(s.total || 0).toLocaleString('en-IN')}`})
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                    <Button size="sm" variant="outline" to="/admin/payments">
+                      Full Ledger <ArrowRight size={13} />
+                    </Button>
+                  </div>
                 }
               >
-                <div className="space-y-4">
-                  {/* Membership bar */}
-                  <div>
-                    <div className="flex justify-between text-xs mb-1.5">
-                      <span className="font-semibold" style={{ color: 'var(--p-text-2)' }}>Membership Fees & Subscriptions</span>
-                      <span className="font-bold" style={{ color: 'var(--p-text)' }}>
-                        ₹{stats.membershipRevenue.toLocaleString('en-IN')}
-                        <span className="text-[11px] font-normal ml-1" style={{ color: 'var(--p-muted)' }}>
-                          ({stats.totalRevenue > 0 ? Math.round((stats.membershipRevenue / stats.totalRevenue) * 100) : 100}%)
-                        </span>
-                      </span>
-                    </div>
-                    <div className="w-full h-2.5 rounded-full overflow-hidden" style={{ background: 'var(--p-surface-2)' }}>
-                      <div
-                        className="h-full rounded-full transition-all duration-500"
-                        style={{
-                          width: `${stats.totalRevenue > 0 ? (stats.membershipRevenue / stats.totalRevenue) * 100 : 100}%`,
-                          background: 'var(--p-accent)',
-                        }}
-                      />
-                    </div>
-                  </div>
+                {(() => {
+                  const activeSeries = selectedMonth === 'all'
+                    ? null
+                    : paymentSummary?.series?.find(s => s.month === selectedMonth);
 
-                  {/* Store bar */}
-                  <div>
-                    <div className="flex justify-between text-xs mb-1.5">
-                      <span className="font-semibold" style={{ color: 'var(--p-text-2)' }}>Supplement & Counter Shop</span>
-                      <span className="font-bold" style={{ color: 'var(--p-text)' }}>
-                        ₹{stats.storeRevenue.toLocaleString('en-IN')}
-                        <span className="text-[11px] font-normal ml-1" style={{ color: 'var(--p-muted)' }}>
-                          ({stats.totalRevenue > 0 ? Math.round((stats.storeRevenue / stats.totalRevenue) * 100) : 0}%)
-                        </span>
-                      </span>
-                    </div>
-                    <div className="w-full h-2.5 rounded-full overflow-hidden" style={{ background: 'var(--p-surface-2)' }}>
-                      <div
-                        className="h-full rounded-full transition-all duration-500"
-                        style={{
-                          width: `${stats.totalRevenue > 0 ? (stats.storeRevenue / stats.totalRevenue) * 100 : 0}%`,
-                          background: 'var(--p-ok)',
-                        }}
-                      />
-                    </div>
-                  </div>
+                  const displayTotal = activeSeries ? activeSeries.total : stats.totalRevenue;
+                  const displayMem = activeSeries ? activeSeries.membership : stats.membershipRevenue;
+                  const displayStore = activeSeries ? activeSeries.store : stats.storeRevenue;
+                  const memPct = displayTotal > 0 ? Math.round((displayMem / displayTotal) * 100) : 100;
+                  const storePct = displayTotal > 0 ? Math.round((displayStore / displayTotal) * 100) : 0;
 
-                  {/* Summary Metric Boxes */}
-                  <div className="pt-3 border-t grid grid-cols-2 gap-3" style={{ borderColor: 'var(--p-border)' }}>
-                    <div className="p-3.5 rounded-xl border text-center" style={{ borderColor: 'var(--p-border)', background: 'var(--p-surface-2)' }}>
-                      <span className="text-[11px] font-semibold block uppercase tracking-wider" style={{ color: 'var(--p-muted)' }}>
-                        This Month Total
-                      </span>
-                      <span className="text-[18px] font-bold block mt-0.5" style={{ color: 'var(--p-text)' }}>
-                        ₹{stats.monthlyRevenue.toLocaleString('en-IN')}
-                      </span>
+                  return (
+                    <div className="space-y-4">
+                      {/* Month-wise Trend Micro-Bars if series exists */}
+                      {paymentSummary?.series?.length > 1 && (
+                        <div className="p-3 rounded-xl border mb-3" style={{ background: 'var(--p-surface-2)', borderColor: 'var(--p-border)' }}>
+                          <span className="text-[11px] font-bold uppercase tracking-wider block mb-2" style={{ color: 'var(--p-muted)' }}>
+                            12-Month Performance Trend
+                          </span>
+                          <div className="flex items-end gap-1.5 h-14 pt-1">
+                            {paymentSummary.series.map(s => {
+                              const maxRev = Math.max(...paymentSummary.series.map(x => x.total || 0), 1);
+                              const heightPct = Math.max(12, Math.round(((s.total || 0) / maxRev) * 100));
+                              const isCur = selectedMonth === s.month;
+                              return (
+                                <button
+                                  key={s.month}
+                                  type="button"
+                                  onClick={() => setSelectedMonth(s.month)}
+                                  title={`${s.month}: ₹${s.total.toLocaleString('en-IN')}`}
+                                  className={`flex-1 flex flex-col justify-end items-center h-full group cursor-pointer transition-all rounded ${
+                                    isCur ? 'ring-2 ring-orange-500' : 'hover:opacity-80'
+                                  }`}
+                                >
+                                  <div
+                                    className="w-full rounded-t transition-all"
+                                    style={{
+                                      height: `${heightPct}%`,
+                                      background: isCur ? 'var(--p-accent)' : 'var(--p-border-2)',
+                                    }}
+                                  />
+                                  <span className="text-[9px] mt-1 text-gray-400 block truncate w-full text-center">
+                                    {s.month.slice(5)}
+                                  </span>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Membership bar */}
+                      <div>
+                        <div className="flex justify-between text-xs mb-1.5">
+                          <span className="font-semibold" style={{ color: 'var(--p-text-2)' }}>
+                            Membership Fees {selectedMonth !== 'all' ? `(${selectedMonth})` : ''}
+                          </span>
+                          <span className="font-bold" style={{ color: 'var(--p-text)' }}>
+                            ₹{displayMem.toLocaleString('en-IN')}
+                            <span className="text-[11px] font-normal ml-1" style={{ color: 'var(--p-muted)' }}>
+                              ({memPct}%)
+                            </span>
+                          </span>
+                        </div>
+                        <div className="w-full h-2.5 rounded-full overflow-hidden" style={{ background: 'var(--p-surface-2)' }}>
+                          <div
+                            className="h-full rounded-full transition-all duration-500"
+                            style={{
+                              width: `${memPct}%`,
+                              background: 'var(--p-accent)',
+                            }}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Store bar */}
+                      <div>
+                        <div className="flex justify-between text-xs mb-1.5">
+                          <span className="font-semibold" style={{ color: 'var(--p-text-2)' }}>
+                            Supplement & Counter Shop {selectedMonth !== 'all' ? `(${selectedMonth})` : ''}
+                          </span>
+                          <span className="font-bold" style={{ color: 'var(--p-text)' }}>
+                            ₹{displayStore.toLocaleString('en-IN')}
+                            <span className="text-[11px] font-normal ml-1" style={{ color: 'var(--p-muted)' }}>
+                              ({storePct}%)
+                            </span>
+                          </span>
+                        </div>
+                        <div className="w-full h-2.5 rounded-full overflow-hidden" style={{ background: 'var(--p-surface-2)' }}>
+                          <div
+                            className="h-full rounded-full transition-all duration-500"
+                            style={{
+                              width: `${storePct}%`,
+                              background: 'var(--p-ok)',
+                            }}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Summary Metric Boxes */}
+                      <div className="pt-3 border-t grid grid-cols-2 gap-3" style={{ borderColor: 'var(--p-border)' }}>
+                        <div className="p-3.5 rounded-xl border text-center" style={{ borderColor: 'var(--p-border)', background: 'var(--p-surface-2)' }}>
+                          <span className="text-[11px] font-semibold block uppercase tracking-wider" style={{ color: 'var(--p-muted)' }}>
+                            {selectedMonth === 'all' ? 'This Month Volume' : `${selectedMonth} Total`}
+                          </span>
+                          <span className="text-[18px] font-bold block mt-0.5" style={{ color: 'var(--p-text)' }}>
+                            ₹{(selectedMonth === 'all' ? stats.monthlyRevenue : displayTotal).toLocaleString('en-IN')}
+                          </span>
+                        </div>
+                        <div className="p-3.5 rounded-xl border text-center" style={{ borderColor: 'var(--p-border)', background: 'var(--p-surface-2)' }}>
+                          <span className="text-[11px] font-semibold block uppercase tracking-wider" style={{ color: 'var(--p-muted)' }}>
+                            Pending Dues
+                          </span>
+                          <span className="text-[18px] font-bold block mt-0.5" style={{ color: 'var(--p-danger)' }}>
+                            ₹{stats.dueTotal.toLocaleString('en-IN')}
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="p-3.5 rounded-xl border text-center" style={{ borderColor: 'var(--p-border)', background: 'var(--p-surface-2)' }}>
-                      <span className="text-[11px] font-semibold block uppercase tracking-wider" style={{ color: 'var(--p-muted)' }}>
-                        Pending To Collect
-                      </span>
-                      <span className="text-[18px] font-bold block mt-0.5" style={{ color: 'var(--p-danger)' }}>
-                        ₹{stats.dueTotal.toLocaleString('en-IN')}
-                      </span>
-                    </div>
-                  </div>
-                </div>
+                  );
+                })()}
               </Card>
             </FadeIn>
           </div>

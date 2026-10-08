@@ -34,15 +34,19 @@ export default function CartPage() {
           <div className="lg:col-span-2 space-y-3">
             {cart.map((item, i) => (
               <div key={i} className="glass rounded-2xl p-4 flex items-center gap-4">
-                {item.images?.[0] ? (
-                  <img src={thumb(item.images[0], 144)} loading="lazy" decoding="async" alt={item.name} className="w-[72px] h-[72px] object-cover rounded-xl flex-shrink-0 border border-white/10" />
-                ) : (
-                  <div className="w-[72px] h-[72px] bg-white/5 rounded-xl flex items-center justify-center flex-shrink-0 border border-white/10">
-                    <ShoppingBag size={24} className="text-gray-600" />
-                  </div>
-                )}
+                <Link to={`/product/${item._id}`} className="flex-shrink-0 group block">
+                  {item.images?.[0] ? (
+                    <img src={thumb(item.images[0], 144)} loading="lazy" decoding="async" alt={item.name} className="w-[72px] h-[72px] object-cover rounded-xl border border-white/10 group-hover:border-orange-500/50 transition-colors" />
+                  ) : (
+                    <div className="w-[72px] h-[72px] bg-white/5 rounded-xl flex items-center justify-center border border-white/10 group-hover:border-orange-500/50 transition-colors">
+                      <ShoppingBag size={24} className="text-gray-600" />
+                    </div>
+                  )}
+                </Link>
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-white font-semibold text-sm line-clamp-1">{item.name}</h3>
+                  <Link to={`/product/${item._id}`} className="hover:text-orange-400 transition-colors block">
+                    <h3 className="text-white font-semibold text-sm line-clamp-1">{item.name}</h3>
+                  </Link>
                   {(item.flavor || item.weight) && (
                     <p className="text-gray-500 text-xs mt-0.5">{[item.flavor, item.weight].filter(Boolean).join(' · ')}</p>
                   )}
