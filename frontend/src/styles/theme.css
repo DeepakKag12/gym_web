@@ -84,50 +84,50 @@ body.theme-light:not(.theme-panel) {
    light theme without having to edit every single markup file. */
 
 /* Typography */
-body.theme-light:not(.theme-panel) .text-white:not(.text-on-photo):not(.btn-fire):not(.btn-primary):not(.btn-dark):not(.btn-destructive):not(.badge-discount):not([class*="bg-red-500"]):not([class*="bg-green-500"]):not([class*="bg-emerald-500"]):not([class*="bg-rose-500"]) {
+body.theme-light:not(.theme-panel) .text-white:not(.text-on-photo):not(.btn-fire):not(.btn-primary):not(.btn-dark):not(.btn-destructive):not(.badge-discount):not([class*="bg-red-500"]):not([class*="bg-green-500"]):not([class*="bg-emerald-500"]):not([class*="bg-rose-500"]):not(.site-footer *):not(.site-footer) {
   color: var(--text) !important;
 }
 
-body.theme-light:not(.theme-panel) .text-gray-200,
-body.theme-light:not(.theme-panel) .text-gray-300 {
+body.theme-light:not(.theme-panel) .text-gray-200:not(.site-footer *),
+body.theme-light:not(.theme-panel) .text-gray-300:not(.site-footer *) {
   color: var(--text) !important;
 }
 
-body.theme-light:not(.theme-panel) .text-gray-400,
-body.theme-light:not(.theme-panel) .text-slate-400 {
+body.theme-light:not(.theme-panel) .text-gray-400:not(.site-footer *),
+body.theme-light:not(.theme-panel) .text-slate-400:not(.site-footer *) {
   color: var(--muted2) !important;
 }
 
-body.theme-light:not(.theme-panel) .text-gray-500,
-body.theme-light:not(.theme-panel) .text-gray-600,
-body.theme-light:not(.theme-panel) .text-slate-500 {
+body.theme-light:not(.theme-panel) .text-gray-500:not(.site-footer *),
+body.theme-light:not(.theme-panel) .text-gray-600:not(.site-footer *),
+body.theme-light:not(.theme-panel) .text-slate-500:not(.site-footer *) {
   color: var(--muted) !important;
 }
 
 /* Accent status text */
-body.theme-light:not(.theme-panel) .text-cyan-400,
-body.theme-light:not(.theme-panel) .text-sky-400,
-body.theme-light:not(.theme-panel) .text-\[\#22d3ee\] {
+body.theme-light:not(.theme-panel) .text-cyan-400:not(.site-footer *),
+body.theme-light:not(.theme-panel) .text-sky-400:not(.site-footer *),
+body.theme-light:not(.theme-panel) .text-\[\#22d3ee\]:not(.site-footer *) {
   color: var(--primary) !important;
 }
-body.theme-light:not(.theme-panel) .text-green-400,
-body.theme-light:not(.theme-panel) .text-emerald-400 {
+body.theme-light:not(.theme-panel) .text-green-400:not(.site-footer *),
+body.theme-light:not(.theme-panel) .text-emerald-400:not(.site-footer *) {
   color: #067647 !important;
 }
-body.theme-light:not(.theme-panel) .text-yellow-400,
-body.theme-light:not(.theme-panel) .text-amber-400,
-body.theme-light:not(.theme-panel) .text-orange-400,
-body.theme-light:not(.theme-panel) .text-orange-500 {
+body.theme-light:not(.theme-panel) .text-yellow-400:not(.site-footer *),
+body.theme-light:not(.theme-panel) .text-amber-400:not(.site-footer *),
+body.theme-light:not(.theme-panel) .text-orange-400:not(.site-footer *),
+body.theme-light:not(.theme-panel) .text-orange-500:not(.site-footer *) {
   color: #b54708 !important;
 }
-body.theme-light:not(.theme-panel) .text-red-400,
-body.theme-light:not(.theme-panel) .text-rose-400 {
+body.theme-light:not(.theme-panel) .text-red-400:not(.site-footer *),
+body.theme-light:not(.theme-panel) .text-rose-400:not(.site-footer *) {
   color: #b42318 !important;
 }
-body.theme-light:not(.theme-panel) .text-blue-400,
-body.theme-light:not(.theme-panel) .text-indigo-400,
-body.theme-light:not(.theme-panel) .text-purple-400,
-body.theme-light:not(.theme-panel) .text-pink-400 {
+body.theme-light:not(.theme-panel) .text-blue-400:not(.site-footer *),
+body.theme-light:not(.theme-panel) .text-indigo-400:not(.site-footer *),
+body.theme-light:not(.theme-panel) .text-purple-400:not(.site-footer *),
+body.theme-light:not(.theme-panel) .text-pink-400:not(.site-footer *) {
   color: #5b53d6 !important;
 }
 
@@ -142,8 +142,12 @@ body.theme-light:not(.theme-panel) .bg-\[\#0d0e11\] {
 body.theme-light:not(.theme-panel) .bg-\[\#111318\],
 body.theme-light:not(.theme-panel) .bg-\[\#181b22\],
 body.theme-light:not(.theme-panel) .bg-\[\#0f1218\],
-body.theme-light:not(.theme-panel) .bg-\[\#1a1b23\] {
-  background-color: var(--bg3) !important;
+body.theme-light:not(.theme-panel) .bg-\[\#1a1b23\],
+body.theme-light:not(.theme-panel) .bg-\[\#12141c\],
+body.theme-light:not(.theme-panel) .bg-\[\#13141c\],
+body.theme-light:not(.theme-panel) .bg-\[\#15191c\],
+body.theme-light:not(.theme-panel) .bg-\[\#181d21\] {
+  background-color: var(--surface-card) !important;
 }
 
 body.theme-light:not(.theme-panel) .bg-white\/2,
@@ -177,13 +181,13 @@ body.theme-light:not(.theme-panel) .border-white\/20 {
   border-color: var(--border) !important;
 }
 
-/* Hover remappings - CRITICAL: hover:text-white must never become white on light bg! */
+/* Hover remappings - CRITICAL: hover:text-white must never become white on light bg, but footer stays pure white! */
 body.theme-light:not(.theme-panel) .hover\:bg-white\/5:hover,
 body.theme-light:not(.theme-panel) .hover\:bg-white\/10:hover {
   background-color: var(--bg3) !important;
 }
 
-body.theme-light:not(.theme-panel) .hover\:text-white:hover {
+body.theme-light:not(.theme-panel) .hover\:text-white:not(.site-footer *):hover {
   color: var(--primary) !important;
 }
 
@@ -342,58 +346,118 @@ body.theme-switching *::after {
 /* ── 7. SITE FOOTER ISOLATION & HIGH VISIBILITY ──────────────────────────────
    The site footer is designed as a premium, sleek dark anchor in all themes,
    with glowing accent lines and high-contrast typography so it is distinctly
-   visible in dark mode without washed out contrast or low-light invisibility. */
-.site-footer {
-  background-color: #08090d;
-}
-
-body.theme-light:not(.theme-panel) .site-footer {
+   visible in both light and dark modes without washed-out contrast. */
+.site-footer,
+body.theme-light:not(.theme-panel) .site-footer,
+body.theme-dark .site-footer {
+  color-scheme: dark !important;
   background-color: #0b0f17 !important;
+  color: #e2e8f0 !important;
   border-top-color: rgba(255, 255, 255, 0.12) !important;
 }
 
+/* Headings, brand names, titles, and text-white elements in footer are crisp pure white */
+.site-footer h1,
+.site-footer h2,
+.site-footer h3,
+.site-footer h4,
+.site-footer .footer-heading,
+.site-footer .gym-font,
+.site-footer .text-white,
+.site-footer strong,
+.site-footer b,
+body.theme-light:not(.theme-panel) .site-footer h1,
+body.theme-light:not(.theme-panel) .site-footer h2,
+body.theme-light:not(.theme-panel) .site-footer h3,
+body.theme-light:not(.theme-panel) .site-footer h4,
 body.theme-light:not(.theme-panel) .site-footer .footer-heading,
-body.theme-light:not(.theme-panel) .site-footer .text-white {
+body.theme-light:not(.theme-panel) .site-footer .gym-font,
+body.theme-light:not(.theme-panel) .site-footer .text-white,
+body.theme-light:not(.theme-panel) .site-footer strong,
+body.theme-light:not(.theme-panel) .site-footer b {
   color: #ffffff !important;
 }
 
-body.theme-light:not(.theme-panel) .site-footer .text-slate-200,
-body.theme-light:not(.theme-panel) .site-footer .text-gray-200 {
-  color: #e2e8f0 !important;
+/* Footer links and regular text */
+.site-footer p,
+.site-footer li,
+.site-footer a,
+body.theme-light:not(.theme-panel) .site-footer p,
+body.theme-light:not(.theme-panel) .site-footer li,
+body.theme-light:not(.theme-panel) .site-footer a {
+  color: #cbd5e1 !important;
 }
 
+.site-footer .text-slate-200,
+.site-footer .text-gray-200,
+body.theme-light:not(.theme-panel) .site-footer .text-slate-200,
+body.theme-light:not(.theme-panel) .site-footer .text-gray-200 {
+  color: #f1f5f9 !important;
+}
+
+.site-footer .text-slate-300,
+.site-footer .text-gray-300,
 body.theme-light:not(.theme-panel) .site-footer .text-slate-300,
 body.theme-light:not(.theme-panel) .site-footer .text-gray-300 {
   color: #cbd5e1 !important;
 }
 
+.site-footer .text-slate-400,
+.site-footer .text-gray-400,
 body.theme-light:not(.theme-panel) .site-footer .text-slate-400,
 body.theme-light:not(.theme-panel) .site-footer .text-gray-400 {
   color: #94a3b8 !important;
 }
 
-body.theme-light:not(.theme-panel) .site-footer .text-emerald-400 {
-  color: #34d399 !important;
-}
-
-body.theme-light:not(.theme-panel) .site-footer .text-pink-400 {
-  color: #f472b6 !important;
-}
-
-body.theme-light:not(.theme-panel) .site-footer .text-amber-400 {
-  color: #fbbf24 !important;
-}
-
+/* Hover on footer links */
+.site-footer a:hover,
+.site-footer a:hover span,
+.site-footer .hover\:text-white:hover,
 body.theme-light:not(.theme-panel) .site-footer a:hover,
+body.theme-light:not(.theme-panel) .site-footer a:hover span,
 body.theme-light:not(.theme-panel) .site-footer .hover\:text-white:hover {
   color: #ffffff !important;
 }
 
+/* Accent colors in footer */
+.site-footer .text-emerald-400,
+body.theme-light:not(.theme-panel) .site-footer .text-emerald-400 {
+  color: #34d399 !important;
+}
+
+.site-footer .text-pink-400,
+body.theme-light:not(.theme-panel) .site-footer .text-pink-400 {
+  color: #f472b6 !important;
+}
+
+.site-footer .text-amber-400,
+body.theme-light:not(.theme-panel) .site-footer .text-amber-400 {
+  color: #fbbf24 !important;
+}
+
+.site-footer .bg-emerald-400,
+body.theme-light:not(.theme-panel) .site-footer .bg-emerald-400 {
+  background-color: #34d399 !important;
+}
+
+.site-footer .hover\:text-emerald-400:hover,
 body.theme-light:not(.theme-panel) .site-footer .hover\:text-emerald-400:hover {
   color: #34d399 !important;
 }
 
+.site-footer .hover\:text-emerald-300:hover,
+body.theme-light:not(.theme-panel) .site-footer .hover\:text-emerald-300:hover {
+  color: #6ee7b7 !important;
+}
+
+.site-footer .text-slate-100,
+body.theme-light:not(.theme-panel) .site-footer .text-slate-100 {
+  color: #f8fafc !important;
+}
+
+.site-footer .hover\:text-pink-400:hover,
 body.theme-light:not(.theme-panel) .site-footer .hover\:text-pink-400:hover {
   color: #f472b6 !important;
 }
+
 

@@ -32,12 +32,12 @@
   --color-dark-brand:          #141211;
 
   /* Surfaces & Backgrounds */
-  --color-bg:                  #f4f0ea;
-  --color-bg-subtle:           #ede7df;
-  --color-bg-elevated:         #fbf9f6;
-  --color-surface:             #ffffff;
-  --color-surface-hover:       #faf8f5;
-  --color-surface-glass:       rgba(255, 255, 255, 0.85);
+  --color-bg:                  #f5f1eb;
+  --color-bg-subtle:           #ebe4d8;
+  --color-bg-elevated:         #fbf7f0;
+  --color-surface:             #faf5ee;
+  --color-surface-hover:       #fcf8f2;
+  --color-surface-glass:       rgba(251, 247, 240, 0.90);
   --color-surface-dark:        #221f1d;
 
   /* Borders */

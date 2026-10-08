@@ -9,7 +9,7 @@ import { ChevronLeft } from 'lucide-react';
  */
 export default function MemberPage({ title, subtitle, backTo, actions, width = 'max-w-4xl', children }) {
   return (
-    <div className="min-h-screen pt-16 sm:pt-20 pb-24 lg:pb-10" style={{ background: 'var(--p-bg)' }}>
+    <div className="min-h-screen pt-16 sm:pt-20 pb-24 lg:pb-10" style={{ background: 'var(--bg)' }}>
       <div className={`${width} mx-auto px-4 sm:px-6 py-6`}>
         {(title || actions) && (
           <div className="flex flex-wrap items-start justify-between gap-3 mb-5">
