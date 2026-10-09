@@ -1,9 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { AnimatePresence } from 'framer-motion';
 import {
   IndianRupee, ShoppingBag, UserSquare2, RefreshCw, AlertTriangle, Search, TrendingUp,
-  UserPlus, CheckCircle2, FileText, Share2, Eye, Download, FileSpreadsheet,
+  UserPlus, CheckCircle2, Share2, Eye, Download, FileSpreadsheet,
 } from 'lucide-react';
 
 import API, { cachedGet, freshGet, bustCache, apiError } from '../../utils/api';
@@ -38,6 +39,10 @@ const KIND = {
 };
 
 export default function AdminPayments() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const currentTab = searchParams.get('tab') === 'dues' ? 'dues' : 'ledger';
+  const setTab = (t) => setSearchParams(t === 'dues' ? { tab: 'dues' } : {}, { replace: true });
+
   const [rows, setRows] = useState([]);
   const [totals, setTotals] = useState({ membership: 0, store: 0, all: 0 });
   const [summary, setSummary] = useState(null);
@@ -48,7 +53,6 @@ export default function AdminPayments() {
   const [dueFormOpen, setDueFormOpen] = useState(false);
   const [dueForm, setDueForm] = useState({ member: '', amount: '', paidAmount: '', method: 'cash', note: '' });
   const [settlementMethod, setSettlementMethod] = useState('cash');
-  const [statementSending, setStatementSending] = useState(null);
   const [statementSharing, setStatementSharing] = useState(null);
   const [statementViewing, setStatementViewing] = useState(null);
   const [pdfPreview, setPdfPreview] = useState(null); // { blobUrl, title, subtitle, fileName, endpoint }
@@ -201,15 +205,6 @@ export default function AdminPayments() {
       refresh();
     } catch (err) { toast.error(apiError(err, 'Could not settle the selected fees.')); }
     finally { setSettlingDue(false); }
-  };
-
-  const sendStatement = async memberId => {
-    setStatementSending(memberId);
-    try {
-      const { data } = await API.post(`/payments/${memberId}/statement/whatsapp`);
-      toast.success(data.message || 'Statement sent on WhatsApp.');
-    } catch (err) { toast.error(apiError(err, 'Could not send the statement.')); }
-    finally { setStatementSending(null); }
   };
 
   const shareStatement = async member => {
@@ -416,8 +411,18 @@ export default function AdminPayments() {
         </Card>
       ) : (
         <div className="space-y-4 max-w-5xl">
-          <Card
-            title={`Due fees${due.length ? ` (${due.length})` : ''}`}
+          <Tabs
+            value={currentTab}
+            onChange={setTab}
+            options={[
+              { value: 'ledger', label: 'Payment Ledger' },
+              { value: 'dues', label: 'Due Fees', count: due.length },
+            ]}
+          />
+
+          {currentTab === 'dues' ? (
+            <Card
+              title={`Due fees${due.length ? ` (${due.length})` : ''}`}
             action={selectedDue.length > 0 ? (
               <div className="flex items-center gap-2">
                 <Select value={settlementMethod} onChange={e => setSettlementMethod(e.target.value)} aria-label="Payment method">
@@ -481,15 +486,7 @@ export default function AdminPayments() {
                     >
                       Pay / Edit
                     </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      icon={FileText}
-                      loading={statementSending === member._id}
-                      onClick={event => { event.preventDefault(); event.stopPropagation(); sendStatement(member._id); }}
-                      aria-label={`Send ${member.name}'s statement`}
-                      title="Send PDF statement on WhatsApp"
-                    />
+
                     <Button
                       size="sm"
                       variant="ghost"
@@ -521,7 +518,8 @@ export default function AdminPayments() {
               </div>
             )}
           </Card>
-
+          ) : (
+            <>
           {/* Quick Revenue Section Division Cards — All Revenue, Membership, Shop, Outstanding Dues */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-2">
             <button
@@ -611,8 +609,10 @@ export default function AdminPayments() {
               )}
             </button>
 
-            <div
-              className="p-3.5 sm:p-4 rounded-xl border text-left relative overflow-hidden"
+            <button
+              type="button"
+              onClick={() => setTab('dues')}
+              className="p-3.5 sm:p-4 rounded-xl border text-left relative overflow-hidden transition hover:border-rose-400/50 cursor-pointer"
               style={{ background: 'var(--p-surface)', borderColor: 'var(--p-border)' }}
             >
               <div className="flex items-center justify-between mb-1">
@@ -627,9 +627,9 @@ export default function AdminPayments() {
                 {money(dueTotal)}
               </div>
               <p className="text-[11.5px] mt-0.5 truncate text-rose-400/70">
-                {due.length} members with balances
+                {due.length} members with balances · Click to view
               </p>
-            </div>
+            </button>
           </div>
 
           {summary?.thisMonth && (
@@ -785,11 +785,7 @@ export default function AdminPayments() {
                                 title="Download payment receipt PDF" />
                               {r.member?._id && (
                                 <>
-                                  <Button size="sm" variant="ghost" icon={FileText}
-                                    loading={statementSending === r.member._id}
-                                    onClick={() => sendStatement(r.member._id)}
-                                    aria-label={`Send ${r.member.name}'s statement on WhatsApp`}
-                                    title="Send statement on WhatsApp" />
+
                                   <Button size="sm" variant="ghost" icon={Share2}
                                     loading={statementSharing === r.member._id}
                                     onClick={() => shareStatement(r.member)}
@@ -847,13 +843,6 @@ export default function AdminPayments() {
                                 onClick={() => downloadReceipt(r)}
                                 aria-label="Download receipt"
                                 title="Download payment receipt PDF" />
-                              {r.member?._id && (
-                                <Button size="sm" variant="ghost" icon={FileText}
-                                  loading={statementSending === r.member._id}
-                                  onClick={() => sendStatement(r.member._id)}
-                                  aria-label="Send WhatsApp"
-                                  title="Send statement on WhatsApp" />
-                              )}
                             </>
                           ) : (
                             <>
@@ -879,6 +868,8 @@ export default function AdminPayments() {
                 {shown.length} payment{shown.length === 1 ? '' : 's'} shown · {money(shownTotal)}
               </p>
             </FadeIn>
+          )}
+          </>
           )}
         </div>
       )}

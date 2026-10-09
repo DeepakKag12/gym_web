@@ -69,9 +69,6 @@ function navSectionsFor(role) {
   })).filter(sec => sec.items.length > 0);
 }
 
-function navFor(role) {
-  return navSectionsFor(role).flatMap(sec => sec.items);
-}
 
 function isCurrent(pathname, linkPath) {
   if (linkPath === '/admin' || linkPath === '/trainer') return pathname === linkPath;
@@ -156,11 +153,25 @@ export default function AdminLayout({ title, subtitle, actions, children }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const { user } = useAuth();
   const location = useLocation();
-  const links = navFor(user?.role);
 
-  // Four fit across a phone; the rest live behind More, which opens the same
-  // drawer as the hamburger rather than being a second kind of menu.
-  const tabs = links.slice(0, 3);
+  // Primary operational tabs for mobile / tablet bottom bar.
+  // Puts Dashboard, Members, Payments, and Notifications directly at the admin's fingertips.
+  const tabs = React.useMemo(() => {
+    if (user?.role === 'trainer') {
+      return [
+        { path: '/trainer', icon: LayoutDashboard, label: 'Dashboard' },
+        { path: '/admin/splits', icon: Flame, label: 'Workouts' },
+        { path: '/admin/diet', icon: Utensils, label: 'Diets' },
+        { path: '/admin/exercises', icon: Dumbbell, label: 'Exercises' },
+      ];
+    }
+    return [
+      { path: '/admin', icon: LayoutDashboard, label: 'Dashboard' },
+      { path: '/admin/members', icon: UserSquare2, label: 'Members' },
+      { path: '/admin/payments', icon: IndianRupee, label: 'Payments' },
+      { path: '/admin/notifications', icon: Bell, label: 'Alerts' },
+    ];
+  }, [user?.role]);
 
   useEffect(() => { setMenuOpen(false); }, [location.pathname]);
   useEffect(() => {

@@ -4,14 +4,15 @@ import { AnimatePresence } from 'framer-motion';
 import {
   UserPlus, Search, RefreshCw, AlertTriangle, UserSquare2, Pencil,
   CalendarPlus, Eye, Download, FileText, CheckCircle2, Clock,
-  CalendarClock, IndianRupee, Users as UsersIcon, MessageSquare, Mail,
+  CalendarClock, IndianRupee, Users as UsersIcon,
+  Send, MessageCircle,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import AdminLayout from './AdminLayout';
 import { apiError } from '../../utils/api';
 import {
   Card, Button, Badge, Avatar, Field, Input, Select, Modal,
-  EmptyState, SkeletonList, Table, TableRow, FadeIn, Tabs, WhatsAppButton, timeAgo, Check,
+  EmptyState, SkeletonList, Table, TableRow, FadeIn, Tabs, timeAgo, Check,
   PdfViewerModal,
 } from '../../components/ui';
 import {
@@ -212,6 +213,325 @@ function MemberDetails({ member, onClose, onRenew, onViewStatement, onDownloadSt
   );
 }
 
+/* ── Notification Modals ─────────────────────────────────────────────────── */
+
+function SingleMemberNotifyModal({ member, onClose, onSent }) {
+  const [sendWhatsApp, setSendWhatsApp] = useState(Boolean(member.phone));
+  const [sendEmail, setSendEmail] = useState(Boolean(member.email));
+  const [sendInApp, setSendInApp] = useState(true);
+  const [sending, setSending] = useState(false);
+
+  const left = daysUntil(member.membershipEnd);
+  const expiryStr = fmtDate(member.membershipEnd);
+
+  const handleSend = async () => {
+    const channels = [
+      ...(sendWhatsApp ? ['whatsapp'] : []),
+      ...(sendEmail ? ['email'] : []),
+      ...(sendInApp ? ['website'] : []),
+    ];
+    if (!channels.length) {
+      toast.error('Select at least one delivery channel.');
+      return;
+    }
+    setSending(true);
+    try {
+      const res = await sendReminder(member, { channels });
+      toast.success(res.message || `Notification sent to ${member.name}.`);
+      onSent();
+    } catch (err) {
+      toast.error(apiError(err, `Could not notify ${member.name}.`));
+    } finally {
+      setSending(false);
+    }
+  };
+
+  return (
+    <Modal
+      title={`Notify ${member.name}`}
+      onClose={onClose}
+      width={500}
+      footer={
+        <div className="flex items-center justify-end w-full gap-2">
+          <Button onClick={onClose} disabled={sending}>Cancel</Button>
+          <Button variant="primary" icon={Send} onClick={handleSend} loading={sending}>
+            Send Notification
+          </Button>
+        </div>
+      }
+    >
+      <div className="space-y-4">
+        {/* Recipient summary card */}
+        <div className="p-3.5 rounded-xl border flex items-center justify-between gap-3 flex-wrap"
+          style={{ background: 'var(--p-surface-2)', borderColor: 'var(--p-border)' }}>
+          <div className="flex items-center gap-3">
+            <Avatar name={member.name} size={40} />
+            <div>
+              <p className="text-[14.5px] font-semibold" style={{ color: 'var(--p-text)' }}>{member.name}</p>
+              <p className="text-[12.5px]" style={{ color: 'var(--p-muted)' }}>
+                {member.phone ? `📱 ${member.phone}` : 'No mobile'} · {member.email || 'No email'}
+              </p>
+            </div>
+          </div>
+          <div className="text-right">
+            <Badge tone={left !== null && left <= 5 ? 'warn' : 'neutral'}>
+              {left === null ? 'No Plan' : left < 0 ? `${Math.abs(left)}d expired` : `${left}d remaining`}
+            </Badge>
+            <p className="text-[11.5px] mt-0.5" style={{ color: 'var(--p-muted)' }}>
+              Expiry: {expiryStr}
+            </p>
+          </div>
+        </div>
+
+        {/* WhatsApp Meta Cloud API Template Box */}
+        <div className="p-3.5 rounded-xl border text-[12.5px]"
+          style={{ background: 'rgba(16, 185, 129, 0.08)', borderColor: 'rgba(16, 185, 129, 0.3)' }}>
+          <div className="flex items-center gap-2 mb-1 text-emerald-500 font-semibold text-[13px]">
+            <MessageCircle size={16} />
+            <span>Official Meta WhatsApp Template Preview</span>
+            <Badge tone="ok" className="ml-auto text-[10px]">Verified Template</Badge>
+          </div>
+          <p className="text-emerald-400/90 leading-relaxed font-mono text-[12px] p-2.5 rounded-lg bg-black/20 mt-1.5">
+            "Hello <span className="underline font-bold">{member.name}</span>! 👋 Friendly reminder from FitNation by Ajeet. Your gym membership {left === 0 ? 'expires today' : left && left > 0 ? `expires in ${left} day(s)` : `expired ${Math.abs(left || 0)} day(s) ago`}. Expiry Date: <span className="underline font-bold">{expiryStr}</span>. Renew now to keep training without interruption!"
+          </p>
+          <p className="text-[11px] text-emerald-400/70 mt-1.5">
+            ✓ Sent directly via Meta Cloud API using pre-approved template <code>fitnation_membership_alert</code>.
+          </p>
+        </div>
+
+        {/* Channels */}
+        <div>
+          <label className="text-[12.5px] font-semibold block mb-2" style={{ color: 'var(--p-text)' }}>
+            Delivery Channels
+          </label>
+          <div className="space-y-2">
+            <label className="flex items-start gap-2.5 p-2.5 rounded-lg border cursor-pointer transition hover:bg-[var(--p-surface-2)]"
+              style={{ borderColor: 'var(--p-border)' }}>
+              <input
+                type="checkbox"
+                className="mt-1"
+                checked={sendWhatsApp}
+                disabled={!member.phone}
+                onChange={e => setSendWhatsApp(e.target.checked)}
+              />
+              <div className="text-[12.5px] min-w-0">
+                <span className="font-semibold block" style={{ color: 'var(--p-text)' }}>
+                  WhatsApp (Meta Cloud API Template)
+                </span>
+                <span style={{ color: 'var(--p-muted)' }}>
+                  {member.phone ? `Direct to ${member.phone}` : 'Disabled — no phone number on record'}
+                </span>
+              </div>
+            </label>
+
+            <label className="flex items-start gap-2.5 p-2.5 rounded-lg border cursor-pointer transition hover:bg-[var(--p-surface-2)]"
+              style={{ borderColor: 'var(--p-border)' }}>
+              <input
+                type="checkbox"
+                className="mt-1"
+                checked={sendEmail}
+                disabled={!member.email}
+                onChange={e => setSendEmail(e.target.checked)}
+              />
+              <div className="text-[12.5px] min-w-0">
+                <span className="font-semibold block" style={{ color: 'var(--p-text)' }}>
+                  Email (Brevo SMTP)
+                </span>
+                <span style={{ color: 'var(--p-muted)' }}>
+                  {member.email ? `Sent to ${member.email}` : 'Disabled — no email on record'}
+                </span>
+              </div>
+            </label>
+
+            <label className="flex items-start gap-2.5 p-2.5 rounded-lg border cursor-pointer transition hover:bg-[var(--p-surface-2)]"
+              style={{ borderColor: 'var(--p-border)' }}>
+              <input
+                type="checkbox"
+                className="mt-1"
+                checked={sendInApp}
+                onChange={e => setSendInApp(e.target.checked)}
+              />
+              <div className="text-[12.5px] min-w-0">
+                <span className="font-semibold block" style={{ color: 'var(--p-text)' }}>
+                  Member Portal (In-App Notification)
+                </span>
+                <span style={{ color: 'var(--p-muted)' }}>
+                  Saved in member's account inbox
+                </span>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
+function BulkExpiryModal({ members, counts, onClose, onSent }) {
+  const [days, setDays] = useState(5);
+  const [sendWhatsApp, setSendWhatsApp] = useState(true);
+  const [sendEmail, setSendEmail] = useState(true);
+  const [sending, setSending] = useState(false);
+
+  const targetCount = useMemo(() => {
+    if (days === 5) return counts.expiring5 || 0;
+    if (days === 7) return members.filter(m => {
+      const l = daysUntil(m.membershipEnd);
+      return l !== null && l >= 0 && l <= 7;
+    }).length;
+    if (days === 0) return counts.expired || 0;
+    return counts.expiring5 || 0;
+  }, [days, counts, members]);
+
+  const handleSend = async () => {
+    const channels = [
+      ...(sendWhatsApp ? ['whatsapp'] : []),
+      ...(sendEmail ? ['email'] : []),
+    ];
+    if (!channels.length) {
+      toast.error('Select at least one delivery channel.');
+      return;
+    }
+    if (targetCount === 0) {
+      toast.error('No members match the selected expiry timeframe.');
+      return;
+    }
+
+    setSending(true);
+    try {
+      const res = await runReminderSweep(channels, days);
+      toast.success(res.message || 'Expiry notifications dispatched.');
+      onSent();
+    } catch (err) {
+      toast.error(apiError(err, 'Could not dispatch expiry notifications.'));
+    } finally {
+      setSending(false);
+    }
+  };
+
+  return (
+    <Modal
+      title="Send Expiry Notifications"
+      onClose={onClose}
+      width={520}
+      footer={
+        <div className="flex items-center justify-end w-full gap-2">
+          <Button onClick={onClose} disabled={sending}>Cancel</Button>
+          <Button variant="primary" icon={Send} onClick={handleSend} loading={sending}>
+            {targetCount > 0 ? `Send to ${targetCount} Member${targetCount === 1 ? '' : 's'}` : 'Send Now'}
+          </Button>
+        </div>
+      }
+    >
+      <div className="space-y-4">
+        <div>
+          <label className="text-[12.5px] font-semibold block mb-1.5" style={{ color: 'var(--p-text)' }}>
+            Select Expiry Window
+          </label>
+          <div className="grid grid-cols-3 gap-2">
+            <button
+              type="button"
+              className={`p-3 rounded-xl border text-center transition cursor-pointer ${
+                days === 5 ? 'ring-2 ring-amber-500 font-bold' : 'hover:bg-[var(--p-surface-2)]'
+              }`}
+              style={{
+                background: days === 5 ? 'var(--p-surface-2)' : 'var(--p-surface)',
+                borderColor: days === 5 ? 'var(--p-warn)' : 'var(--p-border)',
+                color: 'var(--p-text)',
+              }}
+              onClick={() => setDays(5)}
+            >
+              <div className="text-xl font-bold text-amber-400">{counts.expiring5 || 0}</div>
+              <div className="text-[11.5px] mt-0.5" style={{ color: 'var(--p-text-2)' }}>≤ 5 Days Left</div>
+            </button>
+
+            <button
+              type="button"
+              className={`p-3 rounded-xl border text-center transition cursor-pointer ${
+                days === 7 ? 'ring-2 ring-blue-500 font-bold' : 'hover:bg-[var(--p-surface-2)]'
+              }`}
+              style={{
+                background: days === 7 ? 'var(--p-surface-2)' : 'var(--p-surface)',
+                borderColor: days === 7 ? 'var(--p-accent)' : 'var(--p-border)',
+                color: 'var(--p-text)',
+              }}
+              onClick={() => setDays(7)}
+            >
+              <div className="text-xl font-bold text-blue-400">
+                {members.filter(m => { const l = daysUntil(m.membershipEnd); return l !== null && l >= 0 && l <= 7; }).length}
+              </div>
+              <div className="text-[11.5px] mt-0.5" style={{ color: 'var(--p-text-2)' }}>≤ 7 Days Left</div>
+            </button>
+
+            <button
+              type="button"
+              className={`p-3 rounded-xl border text-center transition cursor-pointer ${
+                days === 0 ? 'ring-2 ring-rose-500 font-bold' : 'hover:bg-[var(--p-surface-2)]'
+              }`}
+              style={{
+                background: days === 0 ? 'var(--p-surface-2)' : 'var(--p-surface)',
+                borderColor: days === 0 ? 'var(--p-danger)' : 'var(--p-border)',
+                color: 'var(--p-text)',
+              }}
+              onClick={() => setDays(0)}
+            >
+              <div className="text-xl font-bold text-rose-400">{counts.expired || 0}</div>
+              <div className="text-[11.5px] mt-0.5" style={{ color: 'var(--p-text-2)' }}>Expired</div>
+            </button>
+          </div>
+        </div>
+
+        {/* Channels */}
+        <div>
+          <label className="text-[12.5px] font-semibold block mb-2" style={{ color: 'var(--p-text)' }}>
+            Channels to Dispatch
+          </label>
+          <div className="space-y-2">
+            <label className="flex items-start gap-2.5 p-3 rounded-lg border cursor-pointer transition hover:bg-[var(--p-surface-2)]"
+              style={{ borderColor: 'var(--p-border)' }}>
+              <input
+                type="checkbox"
+                className="mt-1"
+                checked={sendWhatsApp}
+                onChange={e => setSendWhatsApp(e.target.checked)}
+              />
+              <div className="text-[12.5px] min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="font-semibold" style={{ color: 'var(--p-text)' }}>
+                    WhatsApp (Meta Cloud API Template)
+                  </span>
+                  <Badge tone="ok" className="text-[10px]">Pre-approved</Badge>
+                </div>
+                <span className="text-[11.5px] block mt-0.5" style={{ color: 'var(--p-muted)' }}>
+                  Sends official <code>fitnation_membership_alert</code> template with member name & renewal date.
+                </span>
+              </div>
+            </label>
+
+            <label className="flex items-start gap-2.5 p-3 rounded-lg border cursor-pointer transition hover:bg-[var(--p-surface-2)]"
+              style={{ borderColor: 'var(--p-border)' }}>
+              <input
+                type="checkbox"
+                className="mt-1"
+                checked={sendEmail}
+                onChange={e => setSendEmail(e.target.checked)}
+              />
+              <div className="text-[12.5px] min-w-0">
+                <span className="font-semibold block" style={{ color: 'var(--p-text)' }}>
+                  Email (Brevo SMTP)
+                </span>
+                <span className="text-[11.5px] block mt-0.5" style={{ color: 'var(--p-muted)' }}>
+                  Sends branded renewal email reminder directly to member inboxes.
+                </span>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
 /* ── Page ───────────────────────────────────────────────────────────────── */
 
 export default function AdminMembers() {
@@ -224,8 +544,8 @@ export default function AdminMembers() {
 
   const [viewing, setViewing] = useState(null);
   const [renewing, setRenewing] = useState(null);
-  const [sweepingEmail, setSweepingEmail] = useState(false);
-  const [sweepingWA, setSweepingWA] = useState(false);
+  const [notifying, setNotifying] = useState(null);
+  const [bulkNotifyOpen, setBulkNotifyOpen] = useState(false);
   const [pdfPreview, setPdfPreview] = useState(null);
 
   const viewStatement = async member => {
@@ -489,39 +809,12 @@ export default function AdminMembers() {
         </div>
         <Button icon={RefreshCw} onClick={refresh} disabled={loading}>Refresh</Button>
         <Button
-          variant={filter === 'expiring5' ? 'primary' : 'secondary'}
-          icon={MessageSquare}
-          loading={sweepingWA}
-          className="hover:border-emerald-500/50"
-          onClick={async () => {
-            setSweepingWA(true);
-            try {
-              const r = await runReminderSweep(['whatsapp'], 7);
-              toast.success(r.message || 'WhatsApp reminders dispatched.');
-              refresh();
-            } catch (err) {
-              toast.error(apiError(err, 'Could not send WhatsApp reminders.'));
-            } finally { setSweepingWA(false); }
-          }}
+          variant={filter === 'expiring5' || filter === 'expired' ? 'primary' : 'secondary'}
+          icon={Send}
+          onClick={() => setBulkNotifyOpen(true)}
+          title="Send Meta WhatsApp & Email renewal notifications to expiring members"
         >
-          WhatsApp everyone expiring
-        </Button>
-        <Button
-          variant="secondary"
-          icon={Mail}
-          loading={sweepingEmail}
-          onClick={async () => {
-            setSweepingEmail(true);
-            try {
-              const r = await runReminderSweep(['email'], 7);
-              toast.success(r.message || 'Email reminders dispatched.');
-              refresh();
-            } catch (err) {
-              toast.error(apiError(err, 'Could not send email reminders.'));
-            } finally { setSweepingEmail(false); }
-          }}
-        >
-          Email everyone expiring
+          Send Expiry Reminders
         </Button>
       </div>
 
@@ -611,16 +904,14 @@ export default function AdminMembers() {
                           aria-label={`Renew ${m.name}`} title="Renew membership" />
                         <Button size="sm" variant="ghost" icon={Pencil} to={`/admin/users?edit=${m._id}`}
                           aria-label={`Edit ${m.name}`} title="Edit member" />
-                        <WhatsAppButton
+                        <Button
                           size="sm"
                           variant="ghost"
-                          label=""
-                          onBeforeOpen={async () => {
-                            const r = await sendReminder(m);
-                            toast.success(r.message || 'Reminder emailed.');
-                            return r;
-                          }}
-                          buildHref={r => r?.whatsappUrl}
+                          icon={Send}
+                          onClick={() => setNotifying(m)}
+                          aria-label={`Send notification to ${m.name}`}
+                          title="Send Meta WhatsApp & Email notification"
+                          style={{ color: whatsappPending(m) ? 'var(--p-warn)' : 'var(--p-accent)' }}
                         />
                       </div>
                     </td>
@@ -647,9 +938,6 @@ export default function AdminMembers() {
                       </div>
                       <span className="flex-shrink-0 text-right">
                         <Badge tone={status.tone}>{status.label}</Badge>
-                        {/* The reminder state drove the whole WhatsApp workflow but
-                            was printed in the desktop table only, so on a phone
-                            there was no way to tell who still needed messaging. */}
                         {whatsappPending(m) ? (
                           <span className="block text-[11px] mt-1" style={{ color: 'var(--p-warn)' }}>
                             WhatsApp pending
@@ -661,25 +949,9 @@ export default function AdminMembers() {
                         ) : null}
                       </span>
                     </div>
-                    {/* Every action the desktop table offers. These used to be
-                        View and Renew only, so sending a member their reminder
-                        on WhatsApp — the job this screen exists for — could not
-                        be done from a phone at all. */}
-                    {/* One row, so a hundred members stay scannable. The two
-                        actions with a name are the ones this screen is for;
-                        view and edit are icons with accessible labels. */}
                     <div className="mt-2.5 flex items-center gap-2">
                       <Button size="sm" variant="primary" icon={CalendarPlus} onClick={() => setRenewing(m)}>Renew</Button>
-                      <WhatsAppButton
-                        size="sm"
-                        label="WhatsApp"
-                        onBeforeOpen={async () => {
-                          const r = await sendReminder(m);
-                          toast.success(r.message || 'Reminder emailed.');
-                          return r;
-                        }}
-                        buildHref={r => r?.whatsappUrl}
-                      />
+                      <Button size="sm" variant="secondary" icon={Send} onClick={() => setNotifying(m)}>Notify</Button>
                       <span className="flex gap-1.5 ml-auto">
                         <Button size="sm" icon={FileText} onClick={() => viewStatement(m)}
                           aria-label={`Statement ${m.name}`} title="View statement" />
@@ -740,6 +1012,23 @@ export default function AdminMembers() {
               a.click();
               document.body.removeChild(a);
             }}
+          />
+        )}
+        {notifying && (
+          <SingleMemberNotifyModal
+            key="single-notify"
+            member={notifying}
+            onClose={() => setNotifying(null)}
+            onSent={() => { setNotifying(null); refresh(); }}
+          />
+        )}
+        {bulkNotifyOpen && (
+          <BulkExpiryModal
+            key="bulk-notify"
+            members={users}
+            counts={counts}
+            onClose={() => setBulkNotifyOpen(false)}
+            onSent={() => { setBulkNotifyOpen(false); refresh(); }}
           />
         )}
       </AnimatePresence>

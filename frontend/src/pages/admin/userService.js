@@ -281,20 +281,21 @@ export function buildCredentialsMessage({ name, email, password, usedPhone, logi
 
 /**
  * Ask the server to send the renewal reminder.
- *
- * The email and the in-app notification go out server-side; the response also
- * carries the WhatsApp text and a wa.me link so the caller can open the chat.
+ * Sent directly via Meta WhatsApp Cloud API template and Email.
  */
-export async function sendReminder(member) {
-  const { data } = await API.post(`/members/${member._id}/reminder`);
+export async function sendReminder(member, opts = {}) {
+  const { data } = await API.post(`/members/${member._id}/reminder`, opts);
+  bustUserCaches();
   return data;
 }
 
-/** Send reminder to every active member whose membership ends within the given days. */
-export async function runReminderSweep(channels = ['whatsapp', 'email'], days = 7) {
+/** Send reminder to active members whose membership ends within the given days. */
+export async function runReminderSweep(channels = ['whatsapp', 'email'], days = 7, customMessage = undefined) {
   const { data } = await API.post('/members/bulk-reminder', {
     days,
     channels: Array.isArray(channels) ? channels : [channels],
+    customMessage,
   });
+  bustUserCaches();
   return data;
 }

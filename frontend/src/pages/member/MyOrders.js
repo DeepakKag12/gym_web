@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Package, Clock, CheckCircle, XCircle, MapPin, ShoppingBag, Check } from 'lucide-react';
+import { Package, Clock, CheckCircle, XCircle, MapPin, ShoppingBag, Check, FileText } from 'lucide-react';
 import { cachedGet } from '../../utils/api';
 import { thumb } from '../../utils/img';
+import { downloadPdf } from '../../utils/pdf';
 
 // Gym-pickup order flow statuses
 const STATUS_MAP = {
@@ -157,11 +158,23 @@ export default function MyOrders() {
                         </span>
                       </div>
                     </div>
-                    <div className="text-right flex-shrink-0">
+                    <div className="text-right flex-shrink-0 flex flex-col items-end">
                       <div className="text-white font-bold text-lg gradient-text">₹{order.totalAmount}</div>
-                      <div className="text-gray-500 text-xs">
+                      <div className="text-gray-500 text-xs mb-1.5">
                         {order.items.reduce((s, it) => s + it.quantity, 0)} item(s)
                       </div>
+                      <button
+                        type="button"
+                        onClick={() => downloadPdf({
+                          endpoint: `/orders/${order._id}/invoice`,
+                          defaultFilename: `order-invoice-${order._id.slice(-6)}.pdf`,
+                          toastMessage: 'Invoice downloaded.',
+                        })}
+                        className="inline-flex items-center gap-1 text-[11px] font-medium text-primary hover:text-white px-2 py-0.5 rounded bg-white/5 hover:bg-white/10 transition border border-white/10 cursor-pointer"
+                        title="Download order invoice PDF"
+                      >
+                        <FileText size={11} /> Invoice
+                      </button>
                     </div>
                   </div>
                 </motion.div>

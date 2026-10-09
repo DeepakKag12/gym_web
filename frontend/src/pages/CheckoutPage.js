@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircle, ShoppingBag, MapPin } from 'lucide-react';
 import { useCart } from '../context/CartContext';
@@ -16,6 +16,7 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [placedTotal, setPlacedTotal] = useState(null);
+  const idempotencyKeyRef = useRef(`ord_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`);
 
   // Redirect unauthenticated users to login
   useEffect(() => {
@@ -46,11 +47,13 @@ export default function CheckoutPage() {
         items,
         shippingAddress: { name, phone, address: 'Collect from Gym', city: 'Gym', state: '', pincode: '000000' },
         paymentMethod: 'cod',
+        idempotencyKey: idempotencyKeyRef.current,
       });
       // Show what was actually charged — a cart restored from localStorage can
       // hold a stale price if the product changed since it was added.
       setPlacedTotal(order?.totalAmount ?? total);
       clearCart();
+      idempotencyKeyRef.current = `ord_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
       setSuccess(true);
     } catch (err) { toast.error(err.response?.data?.message || 'Order placement failed. Please try again.'); }
     finally { setLoading(false); }

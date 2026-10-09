@@ -177,7 +177,7 @@ function UserForm({ editing, initial, onClose, onSaved }) {
           <Input type="email" {...bind('email')} placeholder="name@gmail.com" autoComplete="email" />
         </Field>
 
-        <Field label="Mobile number" required error={errors.phone} hint="Used for WhatsApp reminders">
+        <Field label="Mobile number" required error={errors.phone} hint="Used for member alerts and official WhatsApp notifications">
           <Input type="tel" inputMode="numeric" {...bind('phone')} placeholder="9876543210" />
         </Field>
 
@@ -833,10 +833,13 @@ export default function AdminUsers() {
                 {counts.expiring5} membership{counts.expiring5 !== 1 ? 's' : ''} ending in 5 days or less
               </span>
               <span style={{ color: 'var(--p-text-2)' }}>
-                Follow up with these members directly via phone or WhatsApp to renew before their access lapses.
+                Send renewal notifications and official Meta WhatsApp templates directly from the Members section.
               </span>
             </div>
           </div>
+          <Button size="sm" variant="primary" to="/admin/members?filter=expiring5">
+            Notify in Members
+          </Button>
         </div>
       )}
 
