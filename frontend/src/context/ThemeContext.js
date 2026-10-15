@@ -43,12 +43,13 @@ export function readStoredTheme() {
 function applyTheme(theme) {
   const dark = theme === 'dark';
   [document.documentElement, document.body].forEach(el => {
+    el.classList.toggle('dark', dark);
     el.classList.toggle('theme-dark', dark);
     el.classList.toggle('theme-light', !dark);
   });
   // Keeps the mobile browser chrome (status bar, address bar) in step.
   const meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.setAttribute('content', dark ? '#0a0b0d' : '#fbfaf9');
+  if (meta) meta.setAttribute('content', dark ? '#0f172a' : '#f8fafc');
 }
 
 export function ThemeProvider({ children }) {

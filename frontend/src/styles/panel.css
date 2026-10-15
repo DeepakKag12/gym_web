@@ -12,43 +12,43 @@
 
 :root {
   /* Surfaces */
-  --p-bg:        var(--color-bg, #f4f0ea);   /* page background */
-  --p-surface:   var(--color-surface, #ffffff);   /* cards, inputs, sheets */
-  --p-surface-2: var(--color-surface-hover, #faf8f5);   /* subtle fills, table headers, hover */
-  --p-border:    var(--color-border, #e6e0d8);   /* hairlines */
-  --p-border-2:  var(--color-border-strong, #d4ccbf);   /* input borders, stronger dividers */
+  --p-bg:        var(--background, #f8fafc);   /* page background */
+  --p-surface:   var(--card, #ffffff);         /* cards, inputs, sheets */
+  --p-surface-2: var(--muted, #f3f4f6);        /* subtle fills, table headers, hover */
+  --p-border:    var(--border, #d1d5db);       /* hairlines */
+  --p-border-2:  var(--input, #d1d5db);        /* input borders, stronger dividers */
 
   /* Text — only three levels, on purpose */
-  --p-text:      var(--color-text-primary, #2c2523);   /* headings, values */
-  --p-text-2:    var(--color-text-secondary, #524742);   /* body copy */
-  --p-muted:     var(--color-text-muted, #756b65);   /* labels, meta, placeholders */
+  --p-text:      var(--foreground, #1e293b);   /* headings, values */
+  --p-text-2:    var(--muted-foreground, #6b7280); /* body copy */
+  --p-muted:     var(--muted-foreground, #6b7280); /* labels, meta, placeholders */
 
-  /* One accent: sophisticated athletic deep forest green */
-  --p-accent:      var(--color-primary, #176b45);
-  --p-accent-hov:  var(--color-primary-hover, #125638);
-  --p-accent-soft: var(--color-primary-soft, rgba(23, 107, 69, 0.08));
-  --p-accent-line: var(--color-primary-border, rgba(23, 107, 69, 0.24));
+  /* One accent: sophisticated athletic indigo */
+  --p-accent:      var(--primary, #6366f1);
+  --p-accent-hov:  var(--chart-2, #4f46e5);
+  --p-accent-soft: var(--accent, #e0e7ff);
+  --p-accent-line: var(--ring, #6366f1);
 
   /* Status */
-  --p-ok:     var(--color-status-success, #3b704a);  --p-ok-soft:     var(--color-status-success-soft, rgba(59, 112, 74, 0.10));  --p-ok-line:     #abefc6;
-  --p-warn:   var(--color-status-warning, #b86b1e);  --p-warn-soft:   var(--color-status-warning-soft, rgba(184, 107, 30, 0.10));  --p-warn-line:   #fde68a;
-  --p-danger: var(--color-status-error, #a83838);    --p-danger-soft: var(--color-status-error-soft, rgba(168, 56, 56, 0.10));  --p-danger-line: #fecaca;
-  --p-info:   var(--color-status-info, #5c6b73);    --p-info-soft:   var(--color-status-info-soft, rgba(92, 107, 115, 0.10));  --p-info-line:   #cbd5e1;
+  --p-ok:     #16a34a;  --p-ok-soft:     rgba(22, 163, 74, 0.10);  --p-ok-line:     #bbf7d0;
+  --p-warn:   #d97706;  --p-warn-soft:   rgba(217, 119, 6, 0.10);  --p-warn-line:   #fde68a;
+  --p-danger: #ef4444;  --p-danger-soft: rgba(239, 68, 68, 0.10);  --p-danger-line: #fecaca;
+  --p-info:   #6366f1;  --p-info-soft:   rgba(99, 102, 241, 0.10); --p-info-line:   #c7d2fe;
 
   /* Values the components used to hardcode — tokenised so the dark palette
      can override them in one place. */
-  --p-overlay:   rgba(44, 37, 35, 0.45);
-  --p-skeleton:  #ece7df;
-  --p-focus:     rgba(23, 107, 69, 0.20);
-  --p-scroll:    #d4ccbf;
+  --p-overlay:   rgba(15, 23, 42, 0.65);
+  --p-skeleton:  #e2e8f0;
+  --p-focus:     rgba(99, 102, 241, 0.25);
+  --p-scroll:    #cbd5e1;
   --p-scheme:    light;
   --p-option-bg: #ffffff;
 
-  --p-radius:   var(--radius-lg, 12px);
-  --p-radius-sm: var(--radius-md, 8px);
-  --p-shadow:   var(--shadow-sm);
-  --p-shadow-md:var(--shadow-md);
-  --p-shadow-lg:var(--shadow-lg);
+  --p-radius:   var(--radius, 0.5rem);
+  --p-radius-sm: calc(var(--radius, 0.5rem) - 2px);
+  --p-shadow:   var(--shadow-1);
+  --p-shadow-md:var(--shadow-2);
+  --p-shadow-lg:var(--shadow-2);
 }
 
 /* =============================================================================
@@ -60,38 +60,37 @@
    so a refresh never flashes the wrong colour.
    ============================================================================= */
 body.theme-panel.theme-dark,
-html.theme-panel.theme-dark {
-  --p-bg:        var(--color-dark-bg, #141211);
-  --p-surface:   var(--color-dark-surface, #221f1d);
-  --p-surface-2: var(--color-dark-surface-hover, #2a2624);
-  --p-border:    var(--color-dark-border, rgba(255, 255, 255, 0.08));
-  --p-border-2:  rgba(255, 255, 255, 0.14);
+html.theme-panel.theme-dark,
+body.theme-panel.dark,
+html.theme-panel.dark {
+  --p-bg:        var(--background, #0f172a);
+  --p-surface:   var(--card, #1e293b);
+  --p-surface-2: var(--muted, #152032);
+  --p-border:    var(--border, #4b5563);
+  --p-border-2:  var(--input, #4b5563);
 
-  --p-text:      var(--color-dark-text-primary, #fdfbf7);
-  --p-text-2:    var(--color-dark-text-secondary, #d6cdc7);
-  --p-muted:     var(--color-dark-text-muted, #9e928a);
+  --p-text:      var(--foreground, #e2e8f0);
+  --p-text-2:    var(--muted-foreground, #9ca3af);
+  --p-muted:     var(--muted-foreground, #9ca3af);
 
-  /* On dark ground: vibrant athletic emerald accent */
-  --p-accent:      #1e8757;
-  --p-accent-hov:  #176b45;
-  --p-accent-soft: rgba(30, 135, 87, 0.14);
-  --p-accent-line: rgba(30, 135, 87, 0.32);
+  /* On dark ground: vibrant indigo accent */
+  --p-accent:      var(--primary, #818cf8);
+  --p-accent-hov:  var(--chart-2, #6366f1);
+  --p-accent-soft: rgba(129, 140, 248, 0.15);
+  --p-accent-line: var(--ring, #818cf8);
 
-  --p-ok:     #4e9462;  --p-ok-soft:     rgba(78, 148, 98, 0.12);  --p-ok-line:     rgba(78, 148, 98, 0.30);
-  --p-warn:   #d98a36;  --p-warn-soft:   rgba(217, 138, 54, 0.12); --p-warn-line:   rgba(217, 138, 54, 0.30);
-  --p-danger: #d95353;  --p-danger-soft: rgba(217, 83, 83, 0.12);  --p-danger-line: rgba(217, 83, 83, 0.32);
-  --p-info:   #9e928a;  --p-info-soft:   rgba(158, 146, 138, 0.12);--p-info-line:   rgba(158, 146, 138, 0.30);
+  --p-ok:     #22c55e;  --p-ok-soft:     rgba(34, 197, 94, 0.12);  --p-ok-line:     rgba(34, 197, 94, 0.30);
+  --p-warn:   #f59e0b;  --p-warn-soft:   rgba(245, 158, 11, 0.12); --p-warn-line:   rgba(245, 158, 11, 0.30);
+  --p-danger: #ef4444;  --p-danger-soft: rgba(239, 68, 68, 0.12);  --p-danger-line: rgba(239, 68, 68, 0.32);
+  --p-info:   #818cf8;  --p-info-soft:   rgba(129, 140, 248, 0.12);--p-info-line:   rgba(129, 140, 248, 0.30);
 
-  --p-overlay:   rgba(0,0,0,0.66);
-  --p-skeleton:  #282422;
-  --p-focus:     rgba(30, 135, 87, 0.22);
-  --p-scroll:    #38322f;
-  --p-scheme:    dark;
-  --p-option-bg: #221f1d;
-
-  --p-shadow:    0 1px 2px rgba(0,0,0,0.40);
-  --p-shadow-md: 0 4px 12px rgba(0,0,0,0.45);
-  --p-shadow-lg: 0 12px 32px rgba(0,0,0,0.55);
+  --p-overlay:   rgba(0, 0, 0, 0.75);
+  --p-skeleton:  #1e293b;
+  --p-focus:     rgba(129, 140, 248, 0.28);
+  --p-scroll:    #334155;
+  --p-shadow:    var(--shadow-1);
+  --p-shadow-md: var(--shadow-2);
+  --p-shadow-lg: var(--shadow-2);
 }
 
 /* ── Theme switch transition ──────────────────────────────────────────────

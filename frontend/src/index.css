@@ -77,12 +77,12 @@ button, a, [role="button"] { min-height: 44px; }
 }
 
 .gradient-text {
-  color: var(--primary, #16a34a);
+  color: var(--primary, #6366f1);
   font-weight: inherit;
 }
 
 .gradient-text-warm {
-  color: var(--highlight, #22c55e);
+  color: var(--highlight, #818cf8);
   font-weight: inherit;
 }
 
@@ -105,7 +105,7 @@ button, a, [role="button"] { min-height: 44px; }
 ───────────────────────────────────────────────────── */
 .btn-fire,
 .btn-primary {
-  background: var(--primary, #16a34a);
+  background: var(--primary, #6366f1);
   color: var(--primary-contrast, #ffffff);
   padding: 0.625rem 1.25rem;
   border-radius: var(--radius-md, 8px);
@@ -125,28 +125,19 @@ button, a, [role="button"] { min-height: 44px; }
 }
 .btn-fire:hover:not(:disabled),
 .btn-primary:hover:not(:disabled) {
-  background: var(--primary-hover, #15803d);
+  background: var(--primary-hover, #4f46e5);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm, 0 2px 8px rgba(99, 102, 241, 0.25));
 }
 .btn-fire:focus-visible,
 .btn-primary:focus-visible {
-  outline: 2px solid var(--primary, #16a34a);
+  outline: 2px solid var(--primary, #6366f1);
   outline-offset: 2px;
-}
-.btn-fire:hover:not(:disabled),
-.btn-primary:hover:not(:disabled) {
-  background: var(--primary-hover, #125638);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-sm, 0 2px 8px rgba(23, 107, 69, 0.20));
 }
 .btn-fire:active:not(:disabled),
 .btn-primary:active:not(:disabled) {
   transform: translateY(0.5px);
-  background: var(--primary-active, #0e442c);
-}
-.btn-fire:focus-visible,
-.btn-primary:focus-visible {
-  outline: 2px solid var(--primary, #176b45);
-  outline-offset: 2px;
+  background: var(--primary-active, #4338ca);
 }
 .btn-fire:disabled,
 .btn-primary:disabled {
@@ -270,12 +261,12 @@ button, a, [role="button"] { min-height: 44px; }
 
 .btn-outline {
   background: transparent;
-  color: var(--primary, #176b45);
+  color: var(--primary, #6366f1);
   padding: 0.65rem 1.4rem;
   border-radius: var(--radius-md, 8px);
   font-weight: 600;
   font-size: 0.875rem;
-  border: 1.5px solid var(--primary, #176b45);
+  border: 1.5px solid var(--primary, #6366f1);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -285,9 +276,9 @@ button, a, [role="button"] { min-height: 44px; }
   transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .btn-outline:hover:not(:disabled) {
-  background: var(--primary-soft, rgba(23, 107, 69, 0.08));
-  color: var(--primary-hover, #125638);
-  border-color: var(--primary-hover, #125638);
+  background: var(--primary-soft, rgba(99, 102, 241, 0.12));
+  color: var(--primary-hover, #4f46e5);
+  border-color: var(--primary-hover, #4f46e5);
   transform: translateY(-1px);
   box-shadow: var(--shadow-sm);
 }
@@ -295,7 +286,7 @@ button, a, [role="button"] { min-height: 44px; }
   transform: translateY(0.5px);
 }
 .btn-outline:focus-visible {
-  outline: 2px solid var(--primary, #176b45);
+  outline: 2px solid var(--primary, #6366f1);
   outline-offset: 2px;
 }
 .btn-outline:disabled {
@@ -460,8 +451,8 @@ body.theme-light:not(.theme-panel) .nav-float {
 .input-dark:focus,
 .input-light:focus,
 .admin-input:focus {
-  border-color: var(--primary, #16a34a);
-  box-shadow: 0 0 0 3px var(--primary-soft, rgba(22,163,74,0.12));
+  border-color: var(--primary, #6366f1);
+  box-shadow: 0 0 0 3px var(--primary-soft, rgba(99, 102, 241, 0.18));
 }
 .input-dark::placeholder,
 .input-light::placeholder,
@@ -494,7 +485,7 @@ select option {
 select:not([multiple]) option:checked,
 select:not([multiple]) option:hover {
   background-color: #1e2533 !important;
-  color: var(--primary, #22c55e) !important;
+  color: var(--primary, #818cf8) !important;
 }
 
 /* ─────────────────────────────────────────────────────
@@ -504,9 +495,9 @@ select:not([multiple]) option:hover {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: var(--primary-soft, rgba(23, 107, 69, 0.09));
-  color: var(--primary, #176b45);
-  border: 1px solid var(--primary-border, rgba(23, 107, 69, 0.24));
+  background: var(--primary-soft, rgba(99, 102, 241, 0.12));
+  color: var(--primary, #6366f1);
+  border: 1px solid var(--primary-border, rgba(99, 102, 241, 0.28));
   border-radius: var(--radius-full, 9999px);
   padding: 4px 12px;
   font-size: 11px;
@@ -531,7 +522,7 @@ select:not([multiple]) option:hover {
 .badge-new {
   position: absolute;
   top: 10px; right: 10px;
-  background: var(--primary, #176b45);
+  background: var(--primary, #6366f1);
   color: #ffffff;
   font-size: 10px;
   font-weight: 700;

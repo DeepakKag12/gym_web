@@ -264,8 +264,8 @@ export default function FlashlightBackground({ isDark: isDarkProp, className = "
   const config = React.useMemo(() => {
     if (isDark) {
       return {
-        // Deep obsidian & charcoal gym wall with subtle emerald undertones
-        colors: ["#07090e", "#0e131d", "#141c2b", "#0d201a", "#101827"],
+        // Deep Slate & Indigo gym atmosphere
+        colors: ["#090d16", "#0f172a", "#1e1b4b", "#1e293b", "#312e81"],
         radius: 0.44,
         strength: 1.35,
         contrast: 0.98,
@@ -280,9 +280,9 @@ export default function FlashlightBackground({ isDark: isDarkProp, className = "
         drift: 0.025,
       };
     } else {
-      // Crisp, clean athletic silver-slate and soft emerald mist
+      // Crisp Slate & soft Indigo mist
       return {
-        colors: ["#ffffff", "#f8fafc", "#f1f5f9", "#e2e8f0", "#e6f4ea"],
+        colors: ["#ffffff", "#f8fafc", "#e0e7ff", "#e2e8f0", "#c7d2fe"],
         radius: 0.46,
         strength: 1.25,
         contrast: 1.04,

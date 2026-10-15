@@ -45,8 +45,8 @@ function StatCard({ icon: Icon, value, label, suffix = '+', delay = 0, isDark })
       <div
         className="inline-flex items-center justify-center w-10 h-10 rounded-xl mb-3 transition-transform duration-300 group-hover:scale-110"
         style={{
-          background: isDark ? 'rgba(16, 185, 129, 0.12)' : 'rgba(22, 163, 74, 0.10)',
-          color: isDark ? '#34d399' : '#15803d',
+          background: 'var(--primary-soft, rgba(99, 102, 241, 0.12))',
+          color: 'var(--primary, #6366f1)',
         }}
       >
         <Icon size={20} />
@@ -54,7 +54,7 @@ function StatCard({ icon: Icon, value, label, suffix = '+', delay = 0, isDark })
       <div className={`gym-font text-4xl sm:text-5xl font-bold tracking-tight mb-1 ${
         isDark ? 'text-white' : 'text-slate-900'
       }`}>
-        <span className="text-emerald-500">{num}</span>{suffix}
+        <span style={{ color: 'var(--primary, #6366f1)' }}>{num}</span>{suffix}
       </div>
       <div className={`text-xs font-semibold uppercase tracking-wider ${
         isDark ? 'text-slate-400' : 'text-slate-600'
@@ -169,7 +169,7 @@ function MuscleShowcase() {
           to={`/exercises?muscle=${m.key}`}
           className="absolute top-5 right-5 bg-black/60 hover:bg-black/80 border border-white/20 backdrop-blur-md rounded-full px-3.5 py-1.5 text-xs font-semibold text-white flex items-center gap-1.5 transition-all shadow-md hover:scale-105"
         >
-          View exercises <ArrowRight size={12} className="text-emerald-400" />
+          View exercises <ArrowRight size={12} className="text-primary" />
         </Link>
 
         {/* Interactive indicator dots */}
@@ -201,8 +201,8 @@ function MuscleShowcase() {
               className={`group relative overflow-hidden rounded-2xl border transition-all duration-300 ${
                 isSel
                   ? (isDark
-                      ? 'border-emerald-500/70 shadow-lg shadow-emerald-950/30 scale-[1.02]'
-                      : 'border-emerald-600 shadow-md shadow-emerald-500/15 scale-[1.02]')
+                      ? 'border-primary/80 shadow-lg shadow-indigo-950/30 scale-[1.02]'
+                      : 'border-primary shadow-md shadow-indigo-500/15 scale-[1.02]')
                   : (isDark
                       ? 'border-white/8 hover:border-white/25 hover:bg-white/[0.02]'
                       : 'border-slate-200/90 hover:border-slate-300 hover:bg-slate-50/80')
@@ -240,7 +240,7 @@ function MuscleShowcase() {
                   {muscle.label}
                 </div>
                 <div className={`text-xs flex items-center gap-1 mt-0.5 font-medium ${
-                  isDark ? 'text-slate-400 group-hover:text-emerald-400' : 'text-slate-500 group-hover:text-emerald-700'
+                  isDark ? 'text-slate-400 group-hover:text-primary' : 'text-slate-500 group-hover:text-primary'
                 } transition-colors`}>
                   View guides <ChevronRight size={11} className="group-hover:translate-x-0.5 transition-transform" />
                 </div>
@@ -278,8 +278,8 @@ function KineticPerformanceEngine({ progress, isDark }) {
         className="absolute w-56 h-56 rounded-full blur-3xl pointer-events-none transition-opacity duration-500"
         style={{
           background: isDark
-            ? 'radial-gradient(circle, rgba(16,185,129,0.22) 0%, rgba(22,163,74,0.06) 70%, transparent 100%)'
-            : 'radial-gradient(circle, rgba(22,163,74,0.16) 0%, rgba(16,185,129,0.05) 70%, transparent 100%)',
+            ? 'radial-gradient(circle, rgba(99,102,241,0.25) 0%, rgba(79,70,229,0.08) 70%, transparent 100%)'
+            : 'radial-gradient(circle, rgba(99,102,241,0.18) 0%, rgba(129,140,248,0.06) 70%, transparent 100%)',
           opacity: 0.7 + clampedProg * 0.3,
         }}
       />
@@ -296,8 +296,8 @@ function KineticPerformanceEngine({ progress, isDark }) {
         <svg className="w-52 h-52 -rotate-90" viewBox="0 0 160 160">
           <defs>
             <linearGradient id="kineticGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#10b981" />
-              <stop offset="100%" stopColor="#34d399" />
+              <stop offset="0%" stopColor="#6366f1" />
+              <stop offset="100%" stopColor="#818cf8" />
             </linearGradient>
             <filter id="dialGlow" x="-20%" y="-20%" width="140%" height="140%">
               <feGaussianBlur stdDeviation="3" result="blur" />
@@ -348,9 +348,9 @@ function KineticPerformanceEngine({ progress, isDark }) {
           <span
             className="text-[10px] font-bold tracking-widest uppercase px-2.5 py-0.5 rounded-full mb-1 transition-all"
             style={{
-              background: isDark ? 'rgba(16,185,129,0.15)' : 'rgba(22,163,74,0.12)',
-              color: isDark ? '#34d399' : '#15803d',
-              border: isDark ? '1px solid rgba(16,185,129,0.30)' : '1px solid rgba(22,163,74,0.25)',
+              background: isDark ? 'rgba(99,102,241,0.18)' : 'rgba(99,102,241,0.12)',
+              color: isDark ? '#818cf8' : '#4f46e5',
+              border: isDark ? '1px solid rgba(129,140,248,0.35)' : '1px solid rgba(99,102,241,0.25)',
             }}
           >
             {zoneText}
@@ -361,7 +361,7 @@ function KineticPerformanceEngine({ progress, isDark }) {
             {percent}%
           </div>
           <div className="text-[11px] font-semibold tracking-wider text-muted mt-1 flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
             CADENCE
           </div>
         </div>
@@ -374,7 +374,7 @@ function KineticPerformanceEngine({ progress, isDark }) {
             isDark ? 'bg-[#181d28]/95 border-white/12 text-white' : 'bg-white/95 border-slate-200 text-slate-800'
           }`}
         >
-          <Zap size={12} className="text-emerald-400" />
+          <Zap size={12} className="text-primary" />
           <span>{bpm} BPM</span>
         </motion.div>
 
@@ -392,7 +392,7 @@ function KineticPerformanceEngine({ progress, isDark }) {
       </div>
 
       <div className="text-xs text-center text-muted mt-4 font-medium flex items-center gap-2">
-        <Activity size={14} className="text-emerald-500" />
+        <Activity size={14} className="text-primary" />
         <span>Kinetic Cadence Engine • Active Rep Momentum</span>
       </div>
     </div>
@@ -484,17 +484,17 @@ export default function HomePage() {
           <div className={`inline-flex flex-wrap gap-5 text-sm items-center px-5 py-2.5 rounded-full backdrop-blur-md border ${
             isDark ? 'bg-[#121620]/80 border-white/10 text-slate-300' : 'bg-white/85 border-slate-200/90 text-slate-700 shadow-sm'
           }`}>
-            <a href={site.telHref} className={`flex items-center gap-2 font-medium transition-colors ${isDark ? 'hover:text-emerald-400' : 'hover:text-emerald-600'}`}>
-              <Phone size={13} className="text-emerald-500" /> {site.phone}
+            <a href={site.telHref} className="flex items-center gap-2 font-medium transition-colors hover:text-primary">
+              <Phone size={13} className="text-primary" /> {site.phone}
             </a>
             <span className="opacity-30">•</span>
             <a href={site.instagramHref} target="_blank" rel="noreferrer"
-              className={`flex items-center gap-2 font-medium transition-colors ${isDark ? 'hover:text-emerald-400' : 'hover:text-emerald-600'}`}>
-              <Instagram size={13} className="text-emerald-500" /> @{site.instagram}
+              className="flex items-center gap-2 font-medium transition-colors hover:text-primary">
+              <Instagram size={13} className="text-primary" /> @{site.instagram}
             </a>
             <span className="opacity-30">•</span>
             <span className="flex items-center gap-2 font-medium">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
               {site.hours[0] || 'Mon–Sat: 5:00 AM – 11:00 AM, 4:00 PM – 10:00 PM'}
             </span>
           </div>
@@ -510,7 +510,7 @@ export default function HomePage() {
                 isDark ? 'text-white/30' : 'text-slate-600/40'
               }`}>
                 {item}
-                <span className="text-xs text-emerald-500/60">◆</span>
+                <span className="text-xs text-primary/70">◆</span>
               </span>
             ))}
           </div>
@@ -569,8 +569,8 @@ export default function HomePage() {
               <motion.div initial={{ opacity: 0, x: -24 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
                 className={`rounded-2xl p-7 border backdrop-blur-md transition-all ${
                   isDark
-                    ? 'bg-[#121620]/80 border-white/10 hover:border-emerald-500/40 shadow-lg shadow-black/20'
-                    : 'bg-white/95 border-slate-200/90 hover:border-emerald-600/40 shadow-sm'
+                    ? 'bg-[#121620]/80 border-white/10 hover:border-primary/50 shadow-lg shadow-black/20'
+                    : 'bg-white/95 border-slate-200/90 hover:border-primary/50 shadow-sm'
                 }`}>
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
@@ -582,7 +582,7 @@ export default function HomePage() {
                       <div className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Early risers & fasted training</div>
                     </div>
                   </div>
-                  <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                  <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-primary/10 text-primary border border-primary/20">
                     SLOT 1
                   </span>
                 </div>
@@ -600,8 +600,8 @@ export default function HomePage() {
               <motion.div initial={{ opacity: 0, x: 24 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
                 className={`rounded-2xl p-7 border backdrop-blur-md transition-all ${
                   isDark
-                    ? 'bg-[#121620]/80 border-white/10 hover:border-emerald-500/40 shadow-lg shadow-black/20'
-                    : 'bg-white/95 border-slate-200/90 hover:border-emerald-600/40 shadow-sm'
+                    ? 'bg-[#121620]/80 border-white/10 hover:border-primary/50 shadow-lg shadow-black/20'
+                    : 'bg-white/95 border-slate-200/90 hover:border-primary/50 shadow-sm'
                 }`}>
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
@@ -613,7 +613,7 @@ export default function HomePage() {
                       <div className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>After-work intensity & power</div>
                     </div>
                   </div>
-                  <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                  <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-primary/10 text-primary border border-primary/20">
                     SLOT 2
                   </span>
                 </div>
@@ -633,7 +633,7 @@ export default function HomePage() {
               className={`rounded-2xl p-6 border backdrop-blur-md ${
                 isDark ? 'bg-[#121620]/60 border-white/10' : 'bg-white/90 border-slate-200/90 shadow-sm'
               }`}>
-              <div className="text-emerald-500 text-xs font-bold uppercase tracking-widest mb-4 flex items-center gap-2">
+              <div className="text-primary text-xs font-bold uppercase tracking-widest mb-4 flex items-center gap-2">
                 <ShieldCheck size={15} /> Gym Etiquette & Discipline Standards
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 text-sm">
@@ -643,7 +643,7 @@ export default function HomePage() {
                   { icon: Sparkles, title: 'Maintain Floor Discipline', sub: 'Bring your personal gym towel and keep bags in designated lockers.' },
                 ].map((n, i) => (
                   <div key={i} className="flex items-start gap-3">
-                    <n.icon size={18} className="flex-shrink-0 mt-0.5 text-emerald-500" />
+                    <n.icon size={18} className="flex-shrink-0 mt-0.5 text-primary" />
                     <div>
                       <div className={`font-semibold ${isDark ? 'text-white' : 'text-slate-900'}`}>{n.title}</div>
                       <div className={`text-xs mt-1 leading-relaxed ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{n.sub}</div>
@@ -658,7 +658,7 @@ export default function HomePage() {
         {/* ── MOTIVATION SPOTLIGHT REVEAL ───────────── */}
         <section className="py-20 px-6">
           <div className={`max-w-6xl mx-auto rounded-3xl overflow-hidden border relative shadow-2xl transition-all duration-300 ${
-            isDark ? 'border-white/15 bg-[#080a0f] shadow-emerald-950/20' : 'border-slate-300/80 bg-[#0c1017] shadow-slate-300/30'
+            isDark ? 'border-white/15 bg-[#080a0f] shadow-indigo-950/20' : 'border-slate-300/80 bg-[#0c1017] shadow-slate-300/30'
           }`}>
             <FlashlightTextReveal
               text={"UNLEASH YOUR\nINNER BEAST\nFITNATION"}
@@ -666,7 +666,7 @@ export default function HomePage() {
               fontSize="clamp(2.5rem, 7.5vw, 6.5rem)"
               textColor="#ffffff"
               ghost={0.07}
-              colors={["#080a0f", "#121824", "#064e3b", "#10b981"]}
+              colors={["#080a0f", "#0f172a", "#1e1b4b", "#6366f1"]}
               radius={0.42}
               strength={1.3}
               contrast={1.1}
@@ -709,7 +709,7 @@ export default function HomePage() {
                   className="absolute left-5 top-5 w-0.5 pointer-events-none transition-all duration-300"
                   style={{
                     height: `${Math.min(100, Math.max(0, (prog - 0.1) / 0.6 * 100))}%`,
-                    background: 'linear-gradient(to bottom, #10b981, #34d399)',
+                    background: 'linear-gradient(to bottom, #6366f1, #818cf8)',
                   }}
                 />
 
@@ -725,17 +725,17 @@ export default function HomePage() {
                       animate={{ opacity: active ? 1 : 0.4, x: active ? 0 : 12 }}
                       transition={{ duration: 0.35 }}
                       className={`relative flex items-start gap-4 p-4 rounded-2xl border transition-all duration-300 ${active
-                          ? (isDark ? 'bg-[#121620]/80 border-emerald-500/40 shadow-lg shadow-emerald-950/20' : 'bg-white border-emerald-600/40 shadow-sm')
+                          ? (isDark ? 'bg-[#121620]/80 border-primary/50 shadow-lg shadow-indigo-950/20' : 'bg-white border-primary/50 shadow-sm')
                           : (isDark ? 'border-transparent' : 'border-transparent')
                         }`}
                     >
                       <div
                         className="w-10 h-10 rounded-full border-2 flex-shrink-0 flex items-center justify-center font-bold text-sm transition-all duration-300 z-10"
                         style={{
-                          borderColor: active ? '#10b981' : (isDark ? '#262f40' : '#cbd5e1'),
-                          background: active ? '#10b981' : (isDark ? '#121620' : '#f1f5f9'),
+                          borderColor: active ? '#6366f1' : (isDark ? '#262f40' : '#cbd5e1'),
+                          background: active ? '#6366f1' : (isDark ? '#121620' : '#f1f5f9'),
                           color: active ? '#ffffff' : (isDark ? '#64748b' : '#94a3b8'),
-                          boxShadow: active ? '0 0 16px rgba(16,185,129,0.35)' : 'none',
+                          boxShadow: active ? '0 0 16px rgba(99,102,241,0.35)' : 'none',
                         }}
                       >
                         {active ? <CheckCircle2 size={18} /> : (i + 1)}
@@ -744,7 +744,7 @@ export default function HomePage() {
                         <div className={`font-bold text-lg flex items-center justify-between ${isDark ? 'text-white' : 'text-slate-900'}`}>
                           <span>{tp.title}</span>
                           {active && (
-                            <span className="text-[11px] font-semibold text-emerald-400 tracking-wider uppercase">Unlocked</span>
+                            <span className="text-[11px] font-semibold text-primary tracking-wider uppercase">Unlocked</span>
                           )}
                         </div>
                         <div className={`text-sm mt-1 leading-relaxed ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>{tp.desc}</div>
@@ -771,16 +771,16 @@ export default function HomePage() {
             </motion.div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
               {[
-                { icon: <Salad size={26} />, title: 'Diet Plans', desc: 'Goal-based nutrition plans crafted by our coaches for your body composition and metabolic rate.', path: '/diet', accent: 'text-emerald-500' },
-                { icon: <ShoppingBag size={26} />, title: 'Supplement Store', desc: '100% authentic proteins, creatine, pre-workout, and recovery essentials. Verified stock.', path: '/store', accent: 'text-teal-500' },
-                { icon: <Dumbbell size={26} />, title: 'Transformations', desc: 'Real results from real members. Verified before-and-after journeys with measurable strength gains.', path: '/transformations', accent: 'text-emerald-400' },
+                { icon: <Salad size={26} />, title: 'Diet Plans', desc: 'Goal-based nutrition plans crafted by our coaches for your body composition and metabolic rate.', path: '/diet', accent: 'text-primary' },
+                { icon: <ShoppingBag size={26} />, title: 'Supplement Store', desc: '100% authentic proteins, creatine, pre-workout, and recovery essentials. Verified stock.', path: '/store', accent: 'text-indigo-400' },
+                { icon: <Dumbbell size={26} />, title: 'Transformations', desc: 'Real results from real members. Verified before-and-after journeys with measurable strength gains.', path: '/transformations', accent: 'text-indigo-300' },
               ].map((item, i) => (
                 <motion.div key={i} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
                   <Link to={item.path}
                     className={`group block backdrop-blur-md rounded-2xl p-7 transition-all duration-300 h-full border ${
                       isDark
-                        ? 'bg-[#121620]/80 border-white/8 hover:border-emerald-500/40 hover:bg-[#161d2b]/90 shadow-lg shadow-black/20'
-                        : 'bg-white/95 border-slate-200/90 hover:border-emerald-600/40 hover:bg-white shadow-sm hover:shadow-md'
+                        ? 'bg-[#121620]/80 border-white/8 hover:border-primary/50 hover:bg-[#161d2b]/90 shadow-lg shadow-black/20'
+                        : 'bg-white/95 border-slate-200/90 hover:border-primary/50 hover:bg-white shadow-sm hover:shadow-md'
                     }`}>
                     <div className={`${item.accent} mb-4 group-hover:scale-110 transition-transform inline-block`}>
                       {item.icon}
@@ -809,7 +809,7 @@ export default function HomePage() {
               />
               <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/80 to-transparent flex items-center px-8 sm:px-12">
                 <div>
-                  <span className="text-xs font-bold uppercase tracking-widest text-emerald-400 mb-2 inline-block">
+                  <span className="text-xs font-bold uppercase tracking-widest text-indigo-400 mb-2 inline-block">
                     Take the First Step
                   </span>
                   <h2 className="gym-font text-4xl sm:text-5xl text-white mb-3">
@@ -820,7 +820,7 @@ export default function HomePage() {
                   </p>
                   <div className="flex flex-wrap gap-3">
                     <a href={site.waHref} target="_blank" rel="noreferrer" className="btn-light text-sm sm:text-base px-6 py-3 font-semibold flex items-center gap-2">
-                      <MessageCircle size={18} className="text-emerald-600" /> Chat on WhatsApp
+                      <MessageCircle size={18} className="text-primary" /> Chat on WhatsApp
                     </a>
                     <a href={site.telHref} className="btn-outline-light text-sm sm:text-base px-6 py-3 font-semibold flex items-center gap-2">
                       <Phone size={16} /> Call {site.phone}
