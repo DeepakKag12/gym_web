@@ -3,10 +3,11 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Users, UserSquare2, Tag, IndianRupee, Bell,
   BarChart3, Settings, LogOut, Menu, X, MoreHorizontal,
-  ShoppingBag, Package, MessageSquare, Dumbbell, Utensils,
+  ShoppingBag, Package, MessageSquare, MessageCircle, Dumbbell, Utensils,
   Sparkles, Building2, ShieldCheck, Flame,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useSocket } from '../../context/SocketContext';
 import { Avatar, ThemeToggle, PageTransition } from '../../components/ui';
 
 /**
@@ -25,10 +26,11 @@ const NAV_SECTIONS = [
   {
     title: 'Members & People',
     items: [
-      { path: '/admin/members',   icon: UserSquare2, label: 'Members',     roles: ['admin'] },
-      { path: '/admin/users',     icon: Users,       label: 'All Users',   roles: ['admin'] },
-      { path: '/admin/trainers',  icon: ShieldCheck, label: 'Trainers',    roles: ['admin'] },
-      { path: '/admin/enquiries', icon: MessageSquare, label: 'Enquiries', roles: ['admin'] },
+      { path: '/admin/members',   icon: UserSquare2, label: 'Members',         roles: ['admin'] },
+      { path: '/admin/messages',  icon: MessageCircle, label: 'Messages & Chat', roles: ['admin', 'trainer'] },
+      { path: '/admin/users',     icon: Users,       label: 'All Users',       roles: ['admin'] },
+      { path: '/admin/trainers',  icon: ShieldCheck, label: 'Trainers',        roles: ['admin'] },
+      { path: '/admin/enquiries', icon: MessageSquare, label: 'Enquiries',     roles: ['admin'] },
     ],
   },
   {
@@ -77,6 +79,7 @@ function isCurrent(pathname, linkPath) {
 
 function SideMenu({ onNavigate }) {
   const { user, logout } = useAuth();
+  const { unreadCount } = useSocket();
   const location = useLocation();
   const navigate = useNavigate();
   const sections = navSectionsFor(user?.role);
@@ -106,6 +109,7 @@ function SideMenu({ onNavigate }) {
             {sec.items.map(link => {
               const Icon = link.icon;
               const active = isCurrent(location.pathname, link.path);
+              const isMessages = link.path === '/admin/messages';
               return (
                 <Link
                   key={link.path}
@@ -116,7 +120,12 @@ function SideMenu({ onNavigate }) {
                   style={{ fontSize: 13.5, padding: '7px 11px' }}
                 >
                   <Icon size={16} />
-                  {link.label}
+                  <span className="flex-1 truncate">{link.label}</span>
+                  {isMessages && unreadCount > 0 && (
+                    <span className="px-1.5 py-0.2 rounded-full bg-emerald-500 text-white font-bold text-[10px] animate-pulse">
+                      {unreadCount}
+                    </span>
+                  )}
                 </Link>
               );
             })}

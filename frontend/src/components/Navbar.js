@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingCart, Bell, Menu, X, LogOut, LayoutDashboard, Phone, Instagram, Settings } from 'lucide-react';
+import { ShoppingCart, Bell, Menu, X, LogOut, LayoutDashboard, Phone, Instagram, Settings, MessageSquare } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useSocket } from '../context/SocketContext';
 import { useCart } from '../context/CartContext';
 import { cachedGet } from '../utils/api';
 import { isPanelRoute } from '../utils/routes';
@@ -81,6 +82,9 @@ export default function Navbar() {
   const isActive = (path) => location.pathname === path;
   const panelPath = user?.role === 'admin' ? '/admin' : user?.role === 'trainer' ? '/trainer' : '/dashboard';
 
+  const { unreadCount: unreadMessages } = useSocket();
+  const messagesPath = user?.role === 'admin' ? '/admin/messages' : '/my-messages';
+
   return (
     <>
       <motion.nav
@@ -138,6 +142,16 @@ export default function Navbar() {
 
               {user ? (
                 <>
+                  <Link to={messagesPath} className={`relative p-2 rounded-xl transition-all min-h-0 ${
+                    isDark ? 'text-gray-400 hover:text-white hover:bg-white/8' : 'text-slate-600 hover:text-slate-950 hover:bg-slate-200/60'
+                  }`} title="Live Messages & Chat">
+                    <MessageSquare size={19} />
+                    {unreadMessages > 0 && (
+                      <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 bg-emerald-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center px-0.5 animate-pulse">
+                        {unreadMessages}
+                      </span>
+                    )}
+                  </Link>
                   <Link to="/notifications" className={`relative p-2 rounded-xl transition-all min-h-0 ${
                     isDark ? 'text-gray-400 hover:text-white hover:bg-white/8' : 'text-slate-600 hover:text-slate-950 hover:bg-slate-200/60'
                   }`}>
@@ -176,8 +190,16 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* Mobile — cart + bell + hamburger */}
+            {/* Mobile — cart + messages + bell + hamburger */}
             <div className="flex items-center gap-1 lg:hidden">
+              {user && (
+                <Link to={messagesPath} className={`relative p-2 min-h-0 ${isDark ? 'text-gray-400' : 'text-slate-600'}`} title="Chat">
+                  <MessageSquare size={20} />
+                  {unreadMessages > 0 && (
+                    <span className="absolute top-1 right-1 w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+                  )}
+                </Link>
+              )}
               {user && unread > 0 && (
                 <Link to="/notifications" className={`relative p-2 min-h-0 ${isDark ? 'text-gray-400' : 'text-slate-600'}`}>
                   <Bell size={20} />

@@ -25,7 +25,7 @@ export const THEME_KEY = 'fn-panel-theme';
 const ThemeContext = createContext(null);
 
 /**
- * Reads the stored choice, defaulting to light.
+ * Reads the stored choice, defaulting to dark.
  *
  * Once a visitor picks a side it is remembered, so this only decides the very
  * first visit.
@@ -37,7 +37,7 @@ export function readStoredTheme() {
   } catch {
     /* Safari private mode throws on localStorage — fall through to the default. */
   }
-  return 'light';
+  return 'dark';
 }
 
 function applyTheme(theme) {

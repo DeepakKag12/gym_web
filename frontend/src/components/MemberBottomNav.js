@@ -13,7 +13,7 @@ const TABS = [
 ];
 
 // Pages that keep the bar visible even though they are not tabs themselves.
-const ALSO_SHOW = ['/my-orders', '/my-exercises', '/store', '/cart', '/settings'];
+const ALSO_SHOW = ['/my-orders', '/my-exercises', '/store', '/cart', '/settings', '/my-messages'];
 
 export default function MemberBottomNav() {
   const location = useLocation();

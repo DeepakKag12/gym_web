@@ -5,8 +5,8 @@ describe('ThemeContext stored theme reader', () => {
     localStorage.clear();
   });
 
-  test('defaults to light when no preference is saved', () => {
-    expect(readStoredTheme()).toBe('light');
+  test('defaults to dark when no preference is saved', () => {
+    expect(readStoredTheme()).toBe('dark');
   });
 
   test('reads dark theme when saved', () => {
@@ -19,8 +19,8 @@ describe('ThemeContext stored theme reader', () => {
     expect(readStoredTheme()).toBe('light');
   });
 
-  test('falls back to light when invalid theme is saved', () => {
+  test('falls back to dark when invalid theme is saved', () => {
     localStorage.setItem(THEME_KEY, 'invalid-mode');
-    expect(readStoredTheme()).toBe('light');
+    expect(readStoredTheme()).toBe('dark');
   });
 });

@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en" style="background:#fbfaf9;">
+<html lang="en" style="background:#0a0b0d;">
   <head>
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <!-- Match app background so status bar + address bar blend in on mobile -->
-    <meta name="theme-color" content="#fbfaf9" />
+    <meta name="theme-color" content="#0a0b0d" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -31,7 +31,7 @@
            THEME_KEY in src/context/ThemeContext.js. Dark is the default. */
         var theme = null;
         try { theme = localStorage.getItem('fn-panel-theme'); } catch (e) {}
-        if (theme !== 'light' && theme !== 'dark') theme = 'light';
+        if (theme !== 'light' && theme !== 'dark') theme = 'dark';
 
         var cls = ' ' + (theme === 'dark' ? 'theme-dark' : 'theme-light');
         if (panel) cls += ' theme-panel';
@@ -55,7 +55,7 @@
       html.theme-panel.theme-dark, html.theme-panel.theme-dark body, html.theme-panel.theme-dark #root { background: #0b0c0e !important; }
       html.theme-panel.theme-dark #root:empty::after { background: #0b0c0e !important; }
       html, body, #root {
-        background: #fbfaf9;
+        background: #0a0b0d;
         min-height: 100%;
         margin: 0;
         padding: 0;
@@ -66,11 +66,11 @@
         display: block;
         position: fixed;
         inset: 0;
-        background: #fbfaf9;
+        background: #0a0b0d;
       }
     </style>
   </head>
-  <body style="background:#fbfaf9; margin:0;">
+  <body style="background:#0a0b0d; margin:0;">
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
   </body>

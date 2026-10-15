@@ -1,6 +1,7 @@
 import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { SocketProvider } from './context/SocketContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { SettingsProvider } from './context/SettingsContext';
 import { CartProvider } from './context/CartContext';
@@ -10,6 +11,7 @@ import { isPanelRoute as isPanelPath } from './utils/routes';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import MemberBottomNav from './components/MemberBottomNav';
+import ChatWidget from './components/ChatWidget';
 
 // ── Lazy-loaded pages (code-splitting for faster initial load) ─────────────────
 // Public
@@ -36,6 +38,7 @@ const MyProgress       = lazy(() => import('./pages/member/MyProgress'));
 const MyWorkoutSplit   = lazy(() => import('./pages/member/MyWorkoutSplit'));
 const MyExercises      = lazy(() => import('./pages/member/MyExercises'));
 const MyDiet           = lazy(() => import('./pages/member/MyDiet'));
+const MyMessages       = lazy(() => import('./pages/member/MyMessages'));
 
 // Admin
 const AdminDashboard      = lazy(() => import('./pages/admin/Dashboard'));
@@ -56,6 +59,7 @@ const AdminNotifications  = lazy(() => import('./pages/admin/Notifications'));
 const AdminSettings       = lazy(() => import('./pages/admin/Settings'));
 const AdminGymDetails     = lazy(() => import('./pages/admin/GymDetails'));
 const AdminPayments       = lazy(() => import('./pages/admin/Payments'));
+const AdminMessages       = lazy(() => import('./pages/admin/Messages'));
 
 // Trainer
 const TrainerDashboard = lazy(() => import('./pages/trainer/Dashboard'));
@@ -194,6 +198,7 @@ function AppRoutes() {
           <Route path="/my-planner"         element={<Navigate to="/my-workout" replace />} />
           <Route path="/my-exercises"       element={<ProtectedRoute roles={['member']}><MyExercises /></ProtectedRoute>} />
           <Route path="/my-diet"            element={<ProtectedRoute roles={['member']}><MyDiet /></ProtectedRoute>} />
+          <Route path="/my-messages"        element={<ProtectedRoute roles={['member']}><MyMessages /></ProtectedRoute>} />
 
           {/* ── Trainer ── */}
           <Route path="/trainer"            element={<ProtectedRoute roles={['trainer']}><TrainerDashboard /></ProtectedRoute>} />
@@ -214,6 +219,7 @@ function AppRoutes() {
           <Route path="/admin/plans"              element={<AdminRoute><AdminPlans /></AdminRoute>} />
           <Route path="/admin/splits"             element={<AdminRoute allowTrainer><AdminSplits /></AdminRoute>} />
           <Route path="/admin/notifications"      element={<AdminRoute><AdminNotifications /></AdminRoute>} />
+          <Route path="/admin/messages"           element={<AdminRoute allowTrainer><AdminMessages /></AdminRoute>} />
           <Route path="/admin/settings"           element={<AdminRoute allowTrainer><AdminSettings /></AdminRoute>} />
           <Route path="/admin/gym"                element={<AdminRoute><AdminGymDetails /></AdminRoute>} />
           <Route path="/admin/payments"           element={<AdminRoute><AdminPayments /></AdminRoute>} />
@@ -228,6 +234,9 @@ function AppRoutes() {
 
       {/* Member bottom navigation (mobile only) */}
       {isMemberRoute && <MemberBottomNav />}
+
+      {/* Floating real-time chat widget */}
+      <ChatWidget />
     </>
   );
 }
@@ -237,11 +246,13 @@ function App() {
     <ThemeProvider>
       <SettingsProvider>
         <AuthProvider>
-          <CartProvider>
-            <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-              <AppRoutes />
-            </Router>
-          </CartProvider>
+          <SocketProvider>
+            <CartProvider>
+              <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+                <AppRoutes />
+              </Router>
+            </CartProvider>
+          </SocketProvider>
         </AuthProvider>
       </SettingsProvider>
     </ThemeProvider>
