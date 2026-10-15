@@ -220,37 +220,30 @@ export default function StorePage() {
   const activeLabel = CATEGORIES.find(c => c.key === category)?.label || 'All';
 
   return (
-    <div className="min-h-screen pt-16" style={{ background: 'var(--bg)' }}>
+    <div className="min-h-screen pt-16 transition-colors duration-200" style={{ background: 'var(--bg)' }}>
 
       {/* ── Hero ── */}
-      <div className="relative overflow-hidden" style={{ background: 'var(--bg2)', borderBottom: '1px solid var(--border)' }}>
-        {/* Glow accents */}
-        <div className="absolute -top-20 -left-20 w-72 h-72 rounded-full pointer-events-none"
-          style={{ background: 'radial-gradient(circle, rgba(148,62,58,0.12) 0%, transparent 70%)' }} />
-        <div className="absolute -bottom-10 right-10 w-56 h-56 rounded-full pointer-events-none"
-          style={{ background: 'radial-gradient(circle, rgba(196,125,117,0.10) 0%, transparent 70%)' }} />
-
+      <div className="relative overflow-hidden border-b border-[var(--border)] bg-[var(--surface)]">
         <div className="max-w-7xl mx-auto px-6 py-14 relative">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
             <div>
-              <div className="section-pill mb-3">
-                <Zap size={11} /> Premium Supplements
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-sm bg-[var(--surface-raised)] border border-[var(--border)] text-[var(--primary)] text-xs font-bold uppercase tracking-[0.16em] mb-3">
+                <Zap size={11} /> 100% Authentic Supplements
               </div>
-              <h1 className="gym-font text-5xl md:text-7xl mb-2">
-                SUPPLEMENT <span className="gradient-text">STORE</span>
+              <h1 className="gym-font text-5xl md:text-7xl mb-2 text-[var(--text-primary)]">
+                SUPPLEMENT STORE
               </h1>
-              <p className="text-base" style={{ color: 'var(--muted2)' }}>
-                Authentic products · Fast delivery · Best prices
+              <p className="text-sm sm:text-base text-[var(--text-secondary)]">
+                Lab-tested proteins, creatine, and pre-workouts · Fast direct gym dispatch
               </p>
             </div>
 
             {/* Trust badges */}
             <div className="grid grid-cols-2 gap-3">
               {TRUST_BADGES.map((b, i) => (
-                <div key={i} className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl"
-                  style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--muted)' }}>
-                  {b.icon}
-                  <span className="text-xs font-medium whitespace-nowrap" style={{ color: 'var(--muted2)' }}>{b.label}</span>
+                <div key={i} className="flex items-center gap-2.5 px-4 py-2.5 rounded-md border border-[var(--border)] bg-[var(--surface-raised)] text-[var(--text-secondary)]">
+                  <span className="text-[var(--primary)]">{b.icon}</span>
+                  <span className="text-xs font-medium whitespace-nowrap text-[var(--text-primary)]">{b.label}</span>
                 </div>
               ))}
             </div>

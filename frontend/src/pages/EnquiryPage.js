@@ -30,100 +30,105 @@ export default function EnquiryPage() {
   const whatsappMessage = `Hi ${site.gymName || 'FitNation'}! My name is ${form.name || '[Your Name]'}. I'm interested in ${form.interest.replace('-', ' ')}. ${form.message}`;
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] pt-20">
-      <div className="relative bg-gradient-to-br from-stone-900/40 via-stone-900/20 to-transparent border-b border-white/10 py-16">
+    <div className="min-h-screen bg-[var(--bg)] text-[var(--text-primary)] pt-20 transition-colors duration-200">
+      <div className="border-b border-[var(--border)] bg-[var(--surface)] py-14 sm:py-16">
         <div className="max-w-7xl mx-auto px-6 text-center">
-          <MessageCircle size={40} className="text-green-400 mx-auto mb-4" />
-          <h1 className="gym-font text-6xl text-white mb-3">GET IN <span className="gradient-text">TOUCH</span></h1>
-          <p className="text-gray-400 text-lg">Ready to transform? Let's talk!</p>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-sm bg-[var(--surface-raised)] border border-[var(--border)] text-[var(--primary)] text-xs font-bold uppercase tracking-[0.16em] mb-3">
+            <MessageCircle size={13} /> Direct Communication
+          </div>
+          <h1 className="gym-font text-5xl sm:text-6xl text-[var(--text-primary)] mb-3 tracking-wide">
+            GET IN TOUCH
+          </h1>
+          <p className="text-[var(--text-secondary)] text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
+            Ready to commit to your training? Send an enquiry or message Head Coach Ajeet directly on WhatsApp.
+          </p>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-6 py-16">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Form */}
-          <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }}>
-            <h2 className="text-white font-bold text-2xl mb-6">Send an Enquiry</h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="text-gray-400 text-sm block mb-1">Name *</label>
-                <input className="input-dark" name="name" value={form.name} onChange={handleChange} placeholder="Your full name" />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
+      <div className="max-w-6xl mx-auto px-6 py-14">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+          {/* Form — 7 cols */}
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="lg:col-span-7">
+            <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-6 sm:p-8">
+              <h2 className="gym-font text-2xl text-[var(--text-primary)] mb-6">SEND AN ENQUIRY</h2>
+              <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="text-gray-400 text-sm block mb-1">Phone *</label>
-                  <input className="input-dark" name="phone" value={form.phone} onChange={handleChange} placeholder="+91 XXXXX XXXXX" />
+                  <label className="text-[var(--text-secondary)] text-xs font-semibold uppercase tracking-wider block mb-1">Full Name *</label>
+                  <input className="input-dark w-full" name="name" value={form.name} onChange={handleChange} placeholder="Your name" required />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-[var(--text-secondary)] text-xs font-semibold uppercase tracking-wider block mb-1">Phone Number *</label>
+                    <input className="input-dark w-full" name="phone" value={form.phone} onChange={handleChange} placeholder="+91 XXXXX XXXXX" required />
+                  </div>
+                  <div>
+                    <label className="text-[var(--text-secondary)] text-xs font-semibold uppercase tracking-wider block mb-1">Email Address</label>
+                    <input className="input-dark w-full" name="email" type="email" value={form.email} onChange={handleChange} placeholder="your@email.com" />
+                  </div>
                 </div>
                 <div>
-                  <label className="text-gray-400 text-sm block mb-1">Email</label>
-                  <input className="input-dark" name="email" type="email" value={form.email} onChange={handleChange} placeholder="your@email.com" />
+                  <label className="text-[var(--text-secondary)] text-xs font-semibold uppercase tracking-wider block mb-1">Program of Interest</label>
+                  <select className="input-dark w-full" name="interest" value={form.interest} onChange={handleChange}>
+                    {INTERESTS.map(i => <option key={i} value={i}>{i.replace('-', ' ').replace(/\b\w/g, c => c.toUpperCase())}</option>)}
+                  </select>
                 </div>
-              </div>
-              <div>
-                <label className="text-gray-400 text-sm block mb-1">I'm interested in</label>
-                <select className="input-dark" name="interest" value={form.interest} onChange={handleChange}>
-                  {INTERESTS.map(i => <option key={i} value={i}>{i.replace('-', ' ').replace(/\b\w/g, c => c.toUpperCase())}</option>)}
-                </select>
-              </div>
-              <div>
-                <label className="text-gray-400 text-sm block mb-1">Message *</label>
-                <textarea className="input-dark min-h-[120px] resize-y" name="message" value={form.message} onChange={handleChange} placeholder="Tell us more about your goals..." />
-              </div>
-              <div className="flex gap-4">
-                <button type="submit" disabled={loading} className="btn-fire flex items-center gap-2 flex-1 justify-center py-3">
-                  {loading ? <span className="animate-spin border-2 border-white border-t-transparent rounded-full w-4 h-4" /> : <><Send size={17} /> Submit Enquiry</>}
-                </button>
-                <a
-                  href={`https://wa.me/${whatsappPhone}?text=${encodeURIComponent(whatsappMessage)}`}
-                  target="_blank" rel="noreferrer"
-                  className="flex items-center gap-2 bg-green-600 hover:bg-green-500 text-white px-5 py-3 rounded-lg font-semibold transition-all"
-                >
-                  <MessageCircle size={18} /> WhatsApp
-                </a>
-              </div>
-            </form>
+                <div>
+                  <label className="text-[var(--text-secondary)] text-xs font-semibold uppercase tracking-wider block mb-1">Your Message / Fitness Goals *</label>
+                  <textarea className="input-dark w-full min-h-[110px] resize-y" name="message" value={form.message} onChange={handleChange} placeholder="Tell us your current fitness level, goals, or preferred training time..." required />
+                </div>
+                <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                  <button type="submit" disabled={loading} className="btn-fire flex items-center gap-2 flex-1 justify-center py-3 text-xs font-bold uppercase tracking-wider rounded-md">
+                    {loading ? <span className="animate-spin border-2 border-white border-t-transparent rounded-full w-4 h-4" /> : <><Send size={15} /> Submit Enquiry</>}
+                  </button>
+                  <a
+                    href={`https://wa.me/${whatsappPhone}?text=${encodeURIComponent(whatsappMessage)}`}
+                    target="_blank" rel="noreferrer"
+                    className="flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1ebd5a] text-white px-5 py-3 rounded-md text-xs font-bold uppercase tracking-wider transition-colors"
+                  >
+                    <MessageCircle size={16} /> WhatsApp Directly
+                  </a>
+                </div>
+              </form>
+            </div>
           </motion.div>
 
-          {/* Info */}
-          <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
-            <h2 className="text-white font-bold text-2xl mb-6">Visit Us</h2>
-            <div className="glass rounded-xl p-5 flex items-start gap-4">
-              <MapPin className="text-orange-500 flex-shrink-0 mt-1" size={24} />
-              <div>
-                <h3 className="text-white font-semibold mb-1">Address</h3>
-                <p className="text-gray-400 text-sm whitespace-pre-line">{site.address || `${site.gymName || 'FitNation'}, Main Fitness Center`}</p>
+          {/* Info — 5 cols */}
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="lg:col-span-5 space-y-4">
+            <h2 className="gym-font text-2xl text-[var(--text-primary)] mb-6">VISIT OUR GYM</h2>
+
+            <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-5 flex items-start gap-4">
+              <div className="w-9 h-9 rounded-md bg-[var(--surface-raised)] border border-[var(--border)] flex items-center justify-center text-[var(--primary)] flex-shrink-0">
+                <MapPin size={18} />
               </div>
-            </div>
-            <div className="glass rounded-xl p-5 flex items-start gap-4">
-              <Phone className="text-orange-500 flex-shrink-0 mt-1" size={24} />
               <div>
-                <h3 className="text-white font-semibold mb-1">Phone / WhatsApp</h3>
-                <a href={site.waHref} className="text-green-400 hover:underline text-sm" target="_blank" rel="noreferrer">
-                  {site.phone ? `+91 ${site.phone}` : 'Contact us'}
-                </a>
-              </div>
-            </div>
-            <div className="glass rounded-xl p-5 flex items-start gap-4">
-              <Clock className="text-orange-500 flex-shrink-0 mt-1" size={24} />
-              <div>
-                <h3 className="text-white font-semibold mb-1">Gym Hours</h3>
-                <div className="text-gray-400 text-sm space-y-0.5">
-                  {(site.hours || []).map((h, i) => <div key={i}>{h}</div>)}
-                </div>
+                <h3 className="text-[var(--text-primary)] font-bold text-sm mb-1">Gym Location</h3>
+                <p className="text-[var(--text-secondary)] text-xs sm:text-sm whitespace-pre-line leading-relaxed">{site.address || `${site.gymName || 'FitNation'}, Main Training Center`}</p>
               </div>
             </div>
 
-            {/* WhatsApp CTA */}
-            <div className="glass rounded-xl p-6 bg-green-500/5 border-green-500/20">
-              <h3 className="text-white font-bold text-lg mb-2">Quick Connect</h3>
-              <p className="text-gray-400 text-sm mb-4">Get instant response on WhatsApp! Tap below to start a conversation directly with us.</p>
-              <a
-                href={`https://wa.me/${whatsappPhone}?text=${encodeURIComponent(`Hi ${site.gymName || 'FitNation'}! I want to know more about your gym.`)}`}
-                target="_blank" rel="noreferrer"
-                className="flex items-center gap-2 bg-green-600 hover:bg-green-500 text-white px-6 py-3 rounded-lg font-semibold transition-all w-full justify-center"
-              >
-                <MessageCircle size={20} /> Start WhatsApp Chat
-              </a>
+            <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-5 flex items-start gap-4">
+              <div className="w-9 h-9 rounded-md bg-[var(--surface-raised)] border border-[var(--border)] flex items-center justify-center text-[var(--primary)] flex-shrink-0">
+                <Phone size={18} />
+              </div>
+              <div>
+                <h3 className="text-[var(--text-primary)] font-bold text-sm mb-1">Direct Calling</h3>
+                <a href={site.telHref} className="text-[var(--primary)] font-bold text-sm hover:underline">{site.phone}</a>
+                <p className="text-[var(--text-muted)] text-xs mt-0.5">Mon–Sat: 5:00 AM – 10:00 PM</p>
+              </div>
+            </div>
+
+            <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-5 flex items-start gap-4">
+              <div className="w-9 h-9 rounded-md bg-[var(--surface-raised)] border border-[var(--border)] flex items-center justify-center text-[var(--primary)] flex-shrink-0">
+                <Clock size={18} />
+              </div>
+              <div>
+                <h3 className="text-[var(--text-primary)] font-bold text-sm mb-1">Session Hours</h3>
+                <div className="space-y-1 text-xs text-[var(--text-secondary)] mt-1">
+                  <div>Morning: 5:00 AM – 11:00 AM</div>
+                  <div>Evening: 4:00 PM – 10:00 PM</div>
+                  <div className="text-rose-500 font-semibold pt-1">Sunday: Closed for Recovery</div>
+                </div>
+              </div>
             </div>
           </motion.div>
         </div>

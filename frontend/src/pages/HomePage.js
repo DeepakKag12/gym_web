@@ -4,6 +4,7 @@ import { motion, useInView, useScroll, useTransform, animate, AnimatePresence } 
 import {
   ArrowRight, Dumbbell, Salad, ShoppingBag, MessageCircle, ChevronRight,
   Phone, Instagram, Sun, Moon, Footprints, Sparkles, Activity, Flame, CheckCircle2, Zap,
+  Users, Calendar, Award, TrendingUp, ShieldCheck
 } from 'lucide-react';
 import Hero08 from '../components/ui/hero-08';
 import FlashlightBackground from '../components/ui/FlashlightBackground';
@@ -11,8 +12,7 @@ import FlashlightTextReveal from '../components/ui/flashlight-text-reveal';
 import { useSettings } from '../context/SettingsContext';
 import { useTheme } from '../context/ThemeContext';
 
-
-/* ── Counter ──────────────────────────────── */
+/* ── Counter Animation Hook ──────────────────────────────── */
 function useCounter(target, duration = 1.8, inView) {
   const [val, setVal] = useState(0);
   const done = useRef(false);
@@ -25,30 +25,57 @@ function useCounter(target, duration = 1.8, inView) {
   return val;
 }
 
-function StatCard({ value, label, suffix = '+', delay = 0 }) {
+/* ── Athletic Stat Capsule ──────────────────────────────── */
+function StatCard({ icon: Icon, value, label, suffix = '+', delay = 0, isDark }) {
   const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: '-60px' });
-  const num = useCounter(parseInt(value), 1.8, inView);
+  const inView = useInView(ref, { once: true, margin: '-40px' });
+  const num = useCounter(parseInt(value, 10), 1.8, inView);
   return (
-    <motion.div ref={ref} initial={{ opacity: 0, y: 30 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, delay }}
-      className="text-center">
-      <div className="gym-font text-5xl md:text-6xl gradient-text mb-1">{num}{suffix}</div>
-      <div className="text-gray-500 text-sm tracking-wide">{label}</div>
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 24 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.5, delay }}
+      className={`group relative rounded-2xl p-6 border transition-all duration-300 text-center ${
+        isDark
+          ? 'bg-[#121620]/75 border-white/8 hover:border-emerald-500/30 hover:bg-[#161c28]/90 shadow-lg shadow-black/20'
+          : 'bg-white/85 border-slate-200/90 hover:border-emerald-600/30 hover:bg-white shadow-sm hover:shadow-md'
+      }`}
+    >
+      <div
+        className="inline-flex items-center justify-center w-10 h-10 rounded-xl mb-3 transition-transform duration-300 group-hover:scale-110"
+        style={{
+          background: isDark ? 'rgba(16, 185, 129, 0.12)' : 'rgba(22, 163, 74, 0.10)',
+          color: isDark ? '#34d399' : '#15803d',
+        }}
+      >
+        <Icon size={20} />
+      </div>
+      <div className={`gym-font text-4xl sm:text-5xl font-bold tracking-tight mb-1 ${
+        isDark ? 'text-white' : 'text-slate-900'
+      }`}>
+        <span className="text-emerald-500">{num}</span>{suffix}
+      </div>
+      <div className={`text-xs font-semibold uppercase tracking-wider ${
+        isDark ? 'text-slate-400' : 'text-slate-600'
+      }`}>
+        {label}
+      </div>
     </motion.div>
   );
 }
 
-/* ── Muscle categories with real photos ────────── */
+/* ── Muscle categories with high-res photography ────────── */
 const MUSCLES = [
   {
     key: 'chest', label: 'Chest',
     img: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=600&q=80',
-    accent: '#ef4444',
+    accent: '#10b981',
   },
   {
     key: 'back', label: 'Back',
     img: 'https://images.unsplash.com/photo-1434682881908-b43d0467b798?w=600&q=80',
-    accent: '#3b82f6',
+    accent: '#06b6d4',
   },
   {
     key: 'shoulders', label: 'Shoulders',
@@ -58,7 +85,7 @@ const MUSCLES = [
   {
     key: 'arms', label: 'Arms',
     img: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=600&q=80',
-    accent: '#a855f7',
+    accent: '#8b5cf6',
   },
   {
     key: 'legs', label: 'Legs',
@@ -82,13 +109,13 @@ const MUSCLES = [
   },
 ];
 
-/* ── Auto-rotating muscle showcase ──────────── */
+/* ── Auto-rotating interactive muscle showcase ──────────── */
 function MuscleShowcase() {
   const [active, setActive] = useState(0);
   const { isDark } = useTheme();
 
   useEffect(() => {
-    const id = setInterval(() => setActive(p => (p + 1) % MUSCLES.length), 2000);
+    const id = setInterval(() => setActive(p => (p + 1) % MUSCLES.length), 2200);
     return () => clearInterval(id);
   }, []);
 
@@ -96,9 +123,10 @@ function MuscleShowcase() {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-
-      {/* Big featured card - auto switches */}
-      <div className="relative rounded-3xl overflow-hidden aspect-[4/5] max-w-md mx-auto w-full shadow-2xl">
+      {/* Big featured card - auto switches with crossfade */}
+      <div className={`relative rounded-3xl overflow-hidden aspect-[4/5] max-w-md mx-auto w-full shadow-2xl ring-1 ${
+        isDark ? 'ring-white/12 shadow-black/60' : 'ring-slate-300/80 shadow-slate-300/50'
+      }`}>
         <AnimatePresence mode="wait">
           <motion.img
             key={active}
@@ -111,81 +139,124 @@ function MuscleShowcase() {
             className="w-full h-full object-cover absolute inset-0"
           />
         </AnimatePresence>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent" />
 
-        {/* Label */}
+        {/* Label & Details */}
         <AnimatePresence mode="wait">
           <motion.div
             key={`label-${active}`}
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.4 }}
-            className="absolute bottom-6 left-6"
+            transition={{ duration: 0.35 }}
+            className="absolute bottom-6 left-6 right-6"
           >
-            <div className="text-xs font-bold tracking-widest uppercase mb-1" style={{ color: m.accent }}>
-              Muscle Group
+            <span
+              className="text-[11px] font-bold tracking-widest uppercase px-3 py-1 rounded-full text-white inline-flex items-center gap-1.5 mb-2 backdrop-blur-md"
+              style={{ background: `${m.accent}33`, border: `1px solid ${m.accent}66` }}
+            >
+              <span className="w-1.5 h-1.5 rounded-full" style={{ background: m.accent }} />
+              Muscle Focus
+            </span>
+            <div className="gym-font text-4xl sm:text-5xl text-white font-bold tracking-wide leading-tight">
+              {m.label}
             </div>
-            <div className="gym-font text-4xl text-on-photo">{m.label}</div>
           </motion.div>
         </AnimatePresence>
 
         {/* Link overlay */}
-        <Link to={`/exercises?muscle=${m.key}`}
-          className="absolute top-5 right-5 bg-black/50 border border-white/20 backdrop-blur-sm rounded-full px-3 py-1.5 text-xs text-on-photo flex items-center gap-1.5 hover:bg-white/20 transition-all">
-          View exercises <ArrowRight size={11} />
+        <Link
+          to={`/exercises?muscle=${m.key}`}
+          className="absolute top-5 right-5 bg-black/60 hover:bg-black/80 border border-white/20 backdrop-blur-md rounded-full px-3.5 py-1.5 text-xs font-semibold text-white flex items-center gap-1.5 transition-all shadow-md hover:scale-105"
+        >
+          View exercises <ArrowRight size={12} className="text-emerald-400" />
         </Link>
 
-        {/* Dot nav */}
-        <div className="absolute bottom-6 right-6 flex gap-1.5">
-          {MUSCLES.map((_, i) => (
-            <button key={i} onClick={() => setActive(i)}
-              className="w-1.5 h-1.5 rounded-full transition-all duration-300"
-              style={{ background: i === active ? m.accent : 'rgba(255,255,255,0.3)', transform: i === active ? 'scale(1.5)' : 'scale(1)' }}
+        {/* Interactive indicator dots */}
+        <div className="absolute top-5 left-5 flex gap-1.5 bg-black/40 backdrop-blur-md px-2.5 py-1.5 rounded-full border border-white/10">
+          {MUSCLES.map((muscle, i) => (
+            <button
+              key={i}
+              onClick={() => setActive(i)}
+              aria-label={`Show ${muscle.label}`}
+              className="h-1.5 rounded-full transition-all duration-300"
+              style={{
+                width: i === active ? '18px' : '6px',
+                background: i === active ? m.accent : 'rgba(255,255,255,0.3)',
+              }}
             />
           ))}
         </div>
       </div>
 
-      {/* Grid of 8 clickable pills */}
-      <div className="grid grid-cols-2 gap-3">
-        {MUSCLES.map((muscle, i) => (
-          <Link
-            key={muscle.key}
-            to={`/exercises?muscle=${muscle.key}`}
-            onClick={() => setActive(i)}
-            className={`group relative overflow-hidden rounded-2xl border transition-all duration-300 ${active === i
-                ? (isDark ? 'border-white/30 scale-[1.02]' : 'border-slate-400 scale-[1.02]')
-                : (isDark ? 'border-white/8 hover:border-white/20' : 'border-slate-200/80 hover:border-slate-300')
+      {/* Grid of 8 clickable muscle tiles */}
+      <div className="grid grid-cols-2 gap-3 sm:gap-4">
+        {MUSCLES.map((muscle, i) => {
+          const isSel = active === i;
+          return (
+            <Link
+              key={muscle.key}
+              to={`/exercises?muscle=${muscle.key}`}
+              onClick={() => setActive(i)}
+              className={`group relative overflow-hidden rounded-2xl border transition-all duration-300 ${
+                isSel
+                  ? (isDark
+                      ? 'border-emerald-500/70 shadow-lg shadow-emerald-950/30 scale-[1.02]'
+                      : 'border-emerald-600 shadow-md shadow-emerald-500/15 scale-[1.02]')
+                  : (isDark
+                      ? 'border-white/8 hover:border-white/25 hover:bg-white/[0.02]'
+                      : 'border-slate-200/90 hover:border-slate-300 hover:bg-slate-50/80')
               }`}
-          >
-            {/* Thumbnail */}
-            <div className="h-20 relative overflow-hidden">
-              <img src={muscle.img} alt={muscle.label} loading="lazy" decoding="async"
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-              <div className="absolute inset-0 bg-black/50" />
-              {active === i && (
-                <motion.div className="absolute inset-0" style={{ background: `${muscle.accent}22` }}
-                  layoutId="activeOverlay" transition={{ duration: 0.3 }} />
-              )}
-            </div>
-            <div className={`px-3 py-2 transition-colors ${isDark ? 'bg-[#111318]/90 text-white' : 'bg-white/90 text-slate-900'} backdrop-blur-sm`}>
-              <div className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-slate-900'}`}>{muscle.label}</div>
-              <div className={`text-xs flex items-center gap-1 mt-0.5 ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>
-                View exercises <ChevronRight size={10} className="group-hover:translate-x-0.5 transition-transform" />
+            >
+              {/* Thumbnail */}
+              <div className="h-20 sm:h-22 relative overflow-hidden">
+                <img
+                  src={muscle.img}
+                  alt={muscle.label}
+                  loading="lazy"
+                  decoding="async"
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-transparent" />
+                {isSel && (
+                  <div
+                    className="absolute inset-0"
+                    style={{ background: `${muscle.accent}20` }}
+                  />
+                )}
+                {isSel && (
+                  <span
+                    className="absolute top-2 right-2 w-2 h-2 rounded-full"
+                    style={{ background: muscle.accent }}
+                  />
+                )}
               </div>
-            </div>
-            {active === i && (
-              <div className="absolute top-0 left-0 w-full h-0.5" style={{ background: muscle.accent }} />
-            )}
-          </Link>
-        ))}
+              <div className={`px-3.5 py-2.5 transition-colors ${
+                isDark ? 'bg-[#121620]/95 text-white' : 'bg-white/95 text-slate-900'
+              } backdrop-blur-sm`}>
+                <div className={`text-sm font-bold tracking-tight ${
+                  isDark ? 'text-white' : 'text-slate-900'
+                }`}>
+                  {muscle.label}
+                </div>
+                <div className={`text-xs flex items-center gap-1 mt-0.5 font-medium ${
+                  isDark ? 'text-slate-400 group-hover:text-emerald-400' : 'text-slate-500 group-hover:text-emerald-700'
+                } transition-colors`}>
+                  View guides <ChevronRight size={11} className="group-hover:translate-x-0.5 transition-transform" />
+                </div>
+              </div>
+              {isSel && (
+                <div className="absolute top-0 left-0 w-full h-0.5" style={{ background: muscle.accent }} />
+              )}
+            </Link>
+          );
+        })}
       </div>
     </div>
   );
 }
 
-/* ── Modern 21st-Century Kinetic Performance Engine ──────────────────── */
+/* ── Modern Kinetic Performance Cadence Engine ──────────────────── */
 function KineticPerformanceEngine({ progress, isDark }) {
   const clampedProg = Math.min(Math.max(progress, 0), 1);
   const percent = Math.round(clampedProg * 100);
@@ -207,27 +278,28 @@ function KineticPerformanceEngine({ progress, isDark }) {
         className="absolute w-56 h-56 rounded-full blur-3xl pointer-events-none transition-opacity duration-500"
         style={{
           background: isDark
-            ? 'radial-gradient(circle, rgba(23,107,69,0.28) 0%, rgba(16,185,129,0.08) 70%, transparent 100%)'
-            : 'radial-gradient(circle, rgba(23,107,69,0.18) 0%, rgba(16,185,129,0.05) 70%, transparent 100%)',
+            ? 'radial-gradient(circle, rgba(16,185,129,0.22) 0%, rgba(22,163,74,0.06) 70%, transparent 100%)'
+            : 'radial-gradient(circle, rgba(22,163,74,0.16) 0%, rgba(16,185,129,0.05) 70%, transparent 100%)',
           opacity: 0.7 + clampedProg * 0.3,
         }}
       />
 
       {/* Main Kinetic Interactive Dial Frame */}
       <div
-        className={`relative w-64 h-64 rounded-3xl p-4 backdrop-blur-xl border transition-all duration-300 shadow-xl flex items-center justify-center ${isDark
-            ? 'bg-[#15191c]/80 border-white/10 shadow-black/40'
-            : 'bg-[#fcf8f2]/95 border-[#e2dacf] shadow-[#ded6ca]/40'
-          }`}
+        className={`relative w-64 h-64 rounded-3xl p-4 backdrop-blur-xl border transition-all duration-300 shadow-xl flex items-center justify-center ${
+          isDark
+            ? 'bg-[#121620]/85 border-white/10 shadow-black/50'
+            : 'bg-white/95 border-slate-200/90 shadow-slate-200/50'
+        }`}
       >
         {/* Animated Concentric SVG HUD */}
         <svg className="w-52 h-52 -rotate-90" viewBox="0 0 160 160">
           <defs>
             <linearGradient id="kineticGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="var(--color-primary, #176b45)" />
-              <stop offset="100%" stopColor="var(--color-highlight, #10b981)" />
+              <stop offset="0%" stopColor="#10b981" />
+              <stop offset="100%" stopColor="#34d399" />
             </linearGradient>
-            <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+            <filter id="dialGlow" x="-20%" y="-20%" width="140%" height="140%">
               <feGaussianBlur stdDeviation="3" result="blur" />
               <feComposite in="SourceGraphic" in2="blur" operator="over" />
             </filter>
@@ -239,7 +311,7 @@ function KineticPerformanceEngine({ progress, isDark }) {
             cy="80"
             r={radius}
             fill="none"
-            stroke={isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'}
+            stroke={isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.07)'}
             strokeWidth="8"
             strokeDasharray="4 3"
           />
@@ -256,7 +328,7 @@ function KineticPerformanceEngine({ progress, isDark }) {
             strokeDashoffset={strokeDashoffset}
             strokeLinecap="round"
             className="transition-all duration-200 ease-out"
-            filter="url(#glow)"
+            filter="url(#dialGlow)"
           />
 
           {/* Inner Accent Orbital Ring */}
@@ -265,7 +337,7 @@ function KineticPerformanceEngine({ progress, isDark }) {
             cy="80"
             r="44"
             fill="none"
-            stroke={isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)'}
+            stroke={isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'}
             strokeWidth="2"
             strokeDasharray="2 4"
           />
@@ -276,17 +348,19 @@ function KineticPerformanceEngine({ progress, isDark }) {
           <span
             className="text-[10px] font-bold tracking-widest uppercase px-2.5 py-0.5 rounded-full mb-1 transition-all"
             style={{
-              background: 'var(--color-primary-soft, rgba(23,107,69,0.12))',
-              color: 'var(--color-primary, #176b45)',
-              border: '1px solid var(--color-primary-border, rgba(23,107,69,0.25))',
+              background: isDark ? 'rgba(16,185,129,0.15)' : 'rgba(22,163,74,0.12)',
+              color: isDark ? '#34d399' : '#15803d',
+              border: isDark ? '1px solid rgba(16,185,129,0.30)' : '1px solid rgba(22,163,74,0.25)',
             }}
           >
             {zoneText}
           </span>
-          <div className={`gym-font text-5xl leading-none tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
+          <div className={`gym-font text-5xl leading-none tracking-tight font-bold ${
+            isDark ? 'text-white' : 'text-slate-900'
+          }`}>
             {percent}%
           </div>
-          <div className="text-[11px] font-semibold tracking-wider text-muted mt-0.5 flex items-center gap-1">
+          <div className="text-[11px] font-semibold tracking-wider text-muted mt-1 flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             CADENCE
           </div>
@@ -296,8 +370,9 @@ function KineticPerformanceEngine({ progress, isDark }) {
         <motion.div
           animate={{ y: [0, -3, 0] }}
           transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-          className={`absolute -top-3 -right-3 rounded-xl px-2.5 py-1.5 text-[11px] font-semibold border backdrop-blur-md shadow-md flex items-center gap-1.5 ${isDark ? 'bg-[#181d21]/90 border-white/12 text-white' : 'bg-[#fcf8f2]/95 border-[#e2dacf] text-slate-800'
-            }`}
+          className={`absolute -top-3 -right-3 rounded-xl px-2.5 py-1.5 text-[11px] font-semibold border backdrop-blur-md shadow-md flex items-center gap-1.5 ${
+            isDark ? 'bg-[#181d28]/95 border-white/12 text-white' : 'bg-white/95 border-slate-200 text-slate-800'
+          }`}
         >
           <Zap size={12} className="text-emerald-400" />
           <span>{bpm} BPM</span>
@@ -307,8 +382,9 @@ function KineticPerformanceEngine({ progress, isDark }) {
         <motion.div
           animate={{ y: [0, 3, 0] }}
           transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
-          className={`absolute -bottom-3 -left-3 rounded-xl px-2.5 py-1.5 text-[11px] font-semibold border backdrop-blur-md shadow-md flex items-center gap-1.5 ${isDark ? 'bg-[#181d21]/90 border-white/12 text-white' : 'bg-[#fcf8f2]/95 border-[#e2dacf] text-slate-800'
-            }`}
+          className={`absolute -bottom-3 -left-3 rounded-xl px-2.5 py-1.5 text-[11px] font-semibold border backdrop-blur-md shadow-md flex items-center gap-1.5 ${
+            isDark ? 'bg-[#181d28]/95 border-white/12 text-white' : 'bg-white/95 border-slate-200 text-slate-800'
+          }`}
         >
           <Flame size={12} className="text-amber-500" />
           <span>{calories} kcal</span>
@@ -316,16 +392,15 @@ function KineticPerformanceEngine({ progress, isDark }) {
       </div>
 
       <div className="text-xs text-center text-muted mt-4 font-medium flex items-center gap-2">
-        <Activity size={13} style={{ color: 'var(--color-primary, #176b45)' }} />
-        <span>Kinetic cadence tracker • Active output</span>
+        <Activity size={14} className="text-emerald-500" />
+        <span>Kinetic Cadence Engine • Active Rep Momentum</span>
       </div>
     </div>
   );
 }
 
 /* ── Hero content defaults ─────────────────────────────────────────────
-   The two cards carry the page's primary actions: the workout
-   library and the join-the-gym enquiry. */
+   Carries the page's primary actions: the workout library and join enquiry. */
 const HERO_DEFAULTS = {
   title: 'Train harder. Live better.',
   description:
@@ -357,7 +432,7 @@ const HERO_DEFAULTS = {
   animation: 'subtle',
 };
 
-const marqueeItems = ['STRENGTH', 'ENDURANCE', 'TRANSFORM', 'NUTRITION', 'CARDIO', 'MUSCLE', 'RESULTS', 'POWER'];
+const marqueeItems = ['STRENGTH', 'ENDURANCE', 'TRANSFORM', 'NUTRITION', 'CARDIO', 'MUSCLE', 'RESULTS', 'DISCIPLINE'];
 
 export default function HomePage() {
   const site = useSettings();
@@ -389,7 +464,7 @@ export default function HomePage() {
   return (
     <div
       className={`min-h-screen relative overflow-x-hidden transition-colors duration-300 ${
-        isDark ? 'text-white' : 'text-slate-900 bg-[#f5f1eb]'
+        isDark ? 'text-white' : 'text-slate-900 bg-slate-50'
       }`}
       style={{ isolation: 'isolate' }}
     >
@@ -404,44 +479,51 @@ export default function HomePage() {
           titleClassName="gym-font text-5xl sm:text-6xl md:text-7xl leading-none"
         />
 
-        {/* Contact details */}
-        <div className="relative z-20 max-w-6xl mx-auto px-6 pb-14 -mt-6 sm:-mt-10">
-          <div className={`flex flex-wrap gap-5 text-sm items-center ${isDark ? 'text-gray-400' : 'text-slate-600'}`}>
-            <a href={site.telHref} className={`flex items-center gap-2 transition-colors ${isDark ? 'hover:text-white' : 'hover:text-slate-900'}`}>
-              <Phone size={13} className="opacity-70" /> {site.phone}
+        {/* Contact details pill bar */}
+        <div className="relative z-20 max-w-6xl mx-auto px-6 pb-12 -mt-6 sm:-mt-10">
+          <div className={`inline-flex flex-wrap gap-5 text-sm items-center px-5 py-2.5 rounded-full backdrop-blur-md border ${
+            isDark ? 'bg-[#121620]/80 border-white/10 text-slate-300' : 'bg-white/85 border-slate-200/90 text-slate-700 shadow-sm'
+          }`}>
+            <a href={site.telHref} className={`flex items-center gap-2 font-medium transition-colors ${isDark ? 'hover:text-emerald-400' : 'hover:text-emerald-600'}`}>
+              <Phone size={13} className="text-emerald-500" /> {site.phone}
             </a>
+            <span className="opacity-30">•</span>
             <a href={site.instagramHref} target="_blank" rel="noreferrer"
-              className={`flex items-center gap-2 transition-colors ${isDark ? 'hover:text-white' : 'hover:text-slate-900'}`}>
-              <Instagram size={13} className="opacity-70" /> @{site.instagram}
+              className={`flex items-center gap-2 font-medium transition-colors ${isDark ? 'hover:text-emerald-400' : 'hover:text-emerald-600'}`}>
+              <Instagram size={13} className="text-emerald-500" /> @{site.instagram}
             </a>
-            <span className="flex items-center gap-2">
-              <span className="glow-dot" /> {site.hours[0] || ''}
+            <span className="opacity-30">•</span>
+            <span className="flex items-center gap-2 font-medium">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              {site.hours[0] || 'Mon–Sat: 5:00 AM – 11:00 AM, 4:00 PM – 10:00 PM'}
             </span>
           </div>
         </div>
 
         {/* ── MARQUEE ───────────────────────────────── */}
-        <div className={`py-4 border-y overflow-hidden backdrop-blur-[3px] transition-colors ${
-          isDark ? 'border-white/10 bg-black/30' : 'border-[#e0d8cb]/80 bg-[#ede5d8]/40'
+        <div className={`py-4 border-y overflow-hidden backdrop-blur-sm transition-colors ${
+          isDark ? 'border-white/10 bg-[#0d1017]/60' : 'border-slate-200/80 bg-white/70'
         }`}>
           <div className="flex animate-marquee gap-12 w-max">
             {[...marqueeItems, ...marqueeItems].map((item, i) => (
-              <span key={i} className={`gym-font text-2xl tracking-widest flex items-center gap-4 ${isDark ? 'text-white/30' : 'text-slate-700/40'
-                }`}>
+              <span key={i} className={`gym-font text-2xl tracking-widest flex items-center gap-4 ${
+                isDark ? 'text-white/30' : 'text-slate-600/40'
+              }`}>
                 {item}
+                <span className="text-xs text-emerald-500/60">◆</span>
               </span>
             ))}
           </div>
         </div>
 
-        {/* ── STATS ─────────────────────────────────── */}
+        {/* ── STATS SECTION ─────────────────────────── */}
         <section className="py-20 px-6">
-          <div className="max-w-4xl mx-auto">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-              <StatCard value="500" label="Active Members" delay={0} />
-              <StatCard value="10" label="Years Experience" suffix="+" delay={0.1} />
-              <StatCard value="8" label="Expert Trainers" suffix="+" delay={0.2} />
-              <StatCard value="1000" label="Transformations" suffix="+" delay={0.3} />
+          <div className="max-w-5xl mx-auto">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+              <StatCard icon={Users} value="500" label="Active Athletes" delay={0} isDark={isDark} />
+              <StatCard icon={Calendar} value="10" label="Years Dedicated" suffix="+" delay={0.1} isDark={isDark} />
+              <StatCard icon={Award} value="8" label="Certified Coaches" suffix="+" delay={0.2} isDark={isDark} />
+              <StatCard icon={TrendingUp} value="1000" label="Verified Results" suffix="+" delay={0.3} isDark={isDark} />
             </div>
           </div>
         </section>
@@ -451,83 +533,120 @@ export default function HomePage() {
           <div className="max-w-7xl mx-auto">
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-12 text-center">
               <span className="section-pill">Exercise Library</span>
-              <h2 className={`gym-font text-5xl ${isDark ? 'text-white' : 'text-slate-900'}`}>
+              <h2 className={`gym-font text-4xl sm:text-5xl mt-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                 TRAIN EVERY <span className="gradient-text">MUSCLE</span>
               </h2>
-              <p className={`mt-3 ${isDark ? 'text-gray-400' : 'text-slate-600'}`}>
-                Every muscle group. Curated exercises. Video guides. Auto-browsing every 2 seconds.
+              <p className={`mt-3 max-w-xl mx-auto text-sm sm:text-base ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                Biomechanically structured movements, curated form guides, and smart splits for every athlete.
               </p>
             </motion.div>
             <MuscleShowcase />
-            <div className="text-center mt-10">
-              <Link to="/exercises" className="btn-outline px-8 py-3">Browse All Exercises <ArrowRight size={16} /></Link>
+            <div className="text-center mt-12">
+              <Link to="/exercises" className="btn-outline px-8 py-3.5 inline-flex items-center gap-2 font-semibold">
+                Browse All Exercises <ArrowRight size={16} />
+              </Link>
             </div>
           </div>
         </section>
 
-        {/* ── GYM TIMING SECTION ────────────────────── */}
-        <section className={`py-20 px-6 border-y backdrop-blur-[3px] transition-colors ${
-          isDark ? 'border-white/10 bg-black/35' : 'border-[#e0d8cb]/80 bg-[#ede5d8]/40'
+        {/* ── GYM TIMING & SCHEDULE SECTION ─────────── */}
+        <section className={`py-20 px-6 border-y backdrop-blur-sm transition-colors ${
+          isDark ? 'border-white/10 bg-[#0c1017]/50' : 'border-slate-200/80 bg-slate-100/60'
         }`}>
           <div className="max-w-5xl mx-auto">
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
-              <span className="section-pill">Gym Timing</span>
-              <h2 className={`gym-font text-5xl ${isDark ? 'text-white' : 'text-slate-900'}`}>
+              <span className="section-pill">Training Windows</span>
+              <h2 className={`gym-font text-4xl sm:text-5xl mt-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                 DISCIPLINE TODAY, <span className="gradient-text">STRENGTH TOMORROW</span>
               </h2>
+              <p className={`mt-3 text-sm sm:text-base ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                Structured training sessions designed to keep the floor focused and productive.
+              </p>
             </motion.div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-10">
-              {/* Morning */}
-              <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+              {/* Morning Session */}
+              <motion.div initial={{ opacity: 0, x: -24 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
                 className={`rounded-2xl p-7 border backdrop-blur-md transition-all ${
-                  isDark ? 'bg-white/5 border-white/10 hover:border-primary/40' : 'bg-[#fcf8f2]/95 border-[#e2dacf] hover:border-primary/40 shadow-sm'
+                  isDark
+                    ? 'bg-[#121620]/80 border-white/10 hover:border-emerald-500/40 shadow-lg shadow-black/20'
+                    : 'bg-white/95 border-slate-200/90 hover:border-emerald-600/40 shadow-sm'
                 }`}>
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-xl bg-amber-400/10 text-amber-400 flex items-center justify-center"><Sun size={18} /></div>
-                  <div>
-                    <div className={`font-bold text-lg ${isDark ? 'text-white' : 'text-slate-900'}`}>Morning Session</div>
-                    <div className={`text-xs ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>Early risers welcome</div>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center font-bold">
+                      <Sun size={20} />
+                    </div>
+                    <div>
+                      <div className={`font-bold text-lg ${isDark ? 'text-white' : 'text-slate-900'}`}>Morning Session</div>
+                      <div className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Early risers & fasted training</div>
+                    </div>
                   </div>
+                  <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                    SLOT 1
+                  </span>
                 </div>
-                <div className={`gym-font text-4xl mb-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>5:00 AM – 11:00 AM</div>
-                <div className={`text-sm ${isDark ? 'text-gray-400' : 'text-slate-600'}`}>Monday to Saturday &nbsp;·&nbsp; <span className="text-red-500 font-semibold">Sunday Closed</span></div>
+                <div className={`gym-font text-4xl mb-3 tracking-wide ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                  5:00 AM – 11:00 AM
+                </div>
+                <div className={`text-sm flex items-center gap-2 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                  <span>Monday to Saturday</span>
+                  <span>•</span>
+                  <span className="text-rose-500 font-semibold">Sunday Rest</span>
+                </div>
               </motion.div>
 
-              {/* Evening */}
-              <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
+              {/* Evening Session */}
+              <motion.div initial={{ opacity: 0, x: 24 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
                 className={`rounded-2xl p-7 border backdrop-blur-md transition-all ${
-                  isDark ? 'bg-white/5 border-white/10 hover:border-primary/40' : 'bg-[#fcf8f2]/95 border-[#e2dacf] hover:border-primary/40 shadow-sm'
+                  isDark
+                    ? 'bg-[#121620]/80 border-white/10 hover:border-emerald-500/40 shadow-lg shadow-black/20'
+                    : 'bg-white/95 border-slate-200/90 hover:border-emerald-600/40 shadow-sm'
                 }`}>
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-xl bg-indigo-400/10 text-indigo-400 flex items-center justify-center"><Moon size={18} /></div>
-                  <div>
-                    <div className={`font-bold text-lg ${isDark ? 'text-white' : 'text-slate-900'}`}>Evening Session</div>
-                    <div className={`text-xs ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>After-work warriors</div>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-bold">
+                      <Moon size={20} />
+                    </div>
+                    <div>
+                      <div className={`font-bold text-lg ${isDark ? 'text-white' : 'text-slate-900'}`}>Evening Session</div>
+                      <div className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>After-work intensity & power</div>
+                    </div>
                   </div>
+                  <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                    SLOT 2
+                  </span>
                 </div>
-                <div className={`gym-font text-4xl mb-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>4:00 PM – 10:00 PM</div>
-                <div className={`text-sm ${isDark ? 'text-gray-400' : 'text-slate-600'}`}>Monday to Saturday &nbsp;·&nbsp; <span className="text-red-500 font-semibold">Sunday Closed</span></div>
+                <div className={`gym-font text-4xl mb-3 tracking-wide ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                  4:00 PM – 10:00 PM
+                </div>
+                <div className={`text-sm flex items-center gap-2 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                  <span>Monday to Saturday</span>
+                  <span>•</span>
+                  <span className="text-rose-500 font-semibold">Sunday Rest</span>
+                </div>
               </motion.div>
             </div>
 
-            {/* Important notes */}
+            {/* Gym Etiquette & Standards */}
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
               className={`rounded-2xl p-6 border backdrop-blur-md ${
-                isDark ? 'bg-white/5 border-yellow-500/20' : 'bg-[#fcf8f2]/95 border-yellow-500/30 shadow-sm'
+                isDark ? 'bg-[#121620]/60 border-white/10' : 'bg-white/90 border-slate-200/90 shadow-sm'
               }`}>
-              <div className="text-yellow-500 text-xs font-bold uppercase tracking-widest mb-4">Important Notes</div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+              <div className="text-emerald-500 text-xs font-bold uppercase tracking-widest mb-4 flex items-center gap-2">
+                <ShieldCheck size={15} /> Gym Etiquette & Discipline Standards
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 text-sm">
                 {[
-                  { icon: Footprints, title: 'Proper Gym Shoes', sub: 'Compulsory for all members' },
-                  { icon: Dumbbell, title: 'Rerack Your Weights', sub: 'After every set, every time' },
-                  { icon: Sparkles, title: 'Keep Gym Clean', sub: 'Maintain hygiene & discipline' },
+                  { icon: Footprints, title: 'Clean Gym Shoes Only', sub: 'Mandatory footwear to preserve hygiene on all lifting platforms.' },
+                  { icon: Dumbbell, title: 'Rerack Every Plate & Dumbbell', sub: 'Respect your training house and athletes sharing the equipment.' },
+                  { icon: Sparkles, title: 'Maintain Floor Discipline', sub: 'Bring your personal gym towel and keep bags in designated lockers.' },
                 ].map((n, i) => (
                   <div key={i} className="flex items-start gap-3">
-                    <n.icon size={18} className="flex-shrink-0 mt-0.5 text-yellow-500/90" />
+                    <n.icon size={18} className="flex-shrink-0 mt-0.5 text-emerald-500" />
                     <div>
                       <div className={`font-semibold ${isDark ? 'text-white' : 'text-slate-900'}`}>{n.title}</div>
-                      <div className={`text-xs mt-0.5 ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>{n.sub}</div>
+                      <div className={`text-xs mt-1 leading-relaxed ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{n.sub}</div>
                     </div>
                   </div>
                 ))}
@@ -537,25 +656,25 @@ export default function HomePage() {
         </section>
 
         {/* ── MOTIVATION SPOTLIGHT REVEAL ───────────── */}
-        <section className="py-16 px-6">
+        <section className="py-20 px-6">
           <div className={`max-w-6xl mx-auto rounded-3xl overflow-hidden border relative shadow-2xl transition-all duration-300 ${
-            isDark ? 'border-white/15 bg-black shadow-primary/10' : 'border-[#dfd6c8] bg-[#ede5d8] shadow-slate-300/20'
+            isDark ? 'border-white/15 bg-[#080a0f] shadow-emerald-950/20' : 'border-slate-300/80 bg-[#0c1017] shadow-slate-300/30'
           }`}>
             <FlashlightTextReveal
               text={"UNLEASH YOUR\nINNER BEAST\nFITNATION"}
               height="58vh"
               fontSize="clamp(2.5rem, 7.5vw, 6.5rem)"
-              textColor={isDark ? "#f8fafc" : "#0f172a"}
-              ghost={isDark ? 0.06 : 0.12}
-              colors={isDark ? ["#0b0c0e", "#1e293b", "#0f172a"] : ["#e2e8f0", "#cbd5e1", "#94a3b8", "#38bdf8"]}
-              radius={isDark ? 0.38 : 0.44}
-              strength={isDark ? 1.25 : 1.5}
-              contrast={isDark ? 0.91 : 1.15}
-              brightness={isDark ? -0.08 : -0.10}
+              textColor="#ffffff"
+              ghost={0.07}
+              colors={["#080a0f", "#121824", "#064e3b", "#10b981"]}
+              radius={0.42}
+              strength={1.3}
+              contrast={1.1}
+              brightness={-0.08}
             >
-              <div className="absolute bottom-7 left-0 right-0 flex justify-center items-center pointer-events-auto">
-                <Link to="/enquiry" className="btn-light px-7 py-3 text-sm flex items-center gap-2 shadow-xl hover:scale-105 transition-all">
-                  Start Training Today <ArrowRight size={16} />
+              <div className="absolute bottom-8 left-0 right-0 flex justify-center items-center pointer-events-auto">
+                <Link to="/enquiry" className="btn-primary px-8 py-3.5 text-sm font-semibold rounded-full flex items-center gap-2 shadow-xl hover:scale-105 transition-all">
+                  Claim Consultation & Free Tour <ArrowRight size={16} />
                 </Link>
               </div>
             </FlashlightTextReveal>
@@ -567,11 +686,11 @@ export default function HomePage() {
           <div className="max-w-5xl mx-auto">
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-14">
               <span className="section-pill">The Discipline System</span>
-              <h2 className={`gym-font text-5xl ${isDark ? 'text-white' : 'text-slate-900'}`}>
+              <h2 className={`gym-font text-4xl sm:text-5xl mt-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                 THE PATH TO <span className="gradient-text">PEAK PERFORMANCE</span>
               </h2>
-              <p className={`mt-3 ${isDark ? 'text-gray-400' : 'text-slate-600'}`}>
-                Scroll to power the cadence — every rep builds momentum
+              <p className={`mt-3 text-sm sm:text-base ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                Scroll to power the cadence engine — every rep builds momentum and unlocks progression.
               </p>
             </motion.div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
@@ -590,14 +709,14 @@ export default function HomePage() {
                   className="absolute left-5 top-5 w-0.5 pointer-events-none transition-all duration-300"
                   style={{
                     height: `${Math.min(100, Math.max(0, (prog - 0.1) / 0.6 * 100))}%`,
-                    background: 'linear-gradient(to bottom, var(--color-primary, #176b45), var(--color-highlight, #10b981))',
+                    background: 'linear-gradient(to bottom, #10b981, #34d399)',
                   }}
                 />
 
                 {[
-                  { p: 0.1, title: 'Set your goal', desc: 'Define what you want. Write it down. Commit to ownership.' },
-                  { p: 0.4, title: 'Build the habit', desc: 'Show up without excuses. Consistency beats intensity every time.' },
-                  { p: 0.7, title: 'Earn the result', desc: 'Transformation belongs to those who persist day after day.' },
+                  { p: 0.1, title: 'Set your goal', desc: 'Define what you want. Write it down. Commit to unwavering ownership.' },
+                  { p: 0.4, title: 'Build the habit', desc: 'Show up without excuses. Consistency beats random intensity every single time.' },
+                  { p: 0.7, title: 'Earn the result', desc: 'Transformation belongs to those who persist day after day with progressive overload.' },
                 ].map((tp, i) => {
                   const active = prog >= tp.p;
                   return (
@@ -606,17 +725,17 @@ export default function HomePage() {
                       animate={{ opacity: active ? 1 : 0.4, x: active ? 0 : 12 }}
                       transition={{ duration: 0.35 }}
                       className={`relative flex items-start gap-4 p-4 rounded-2xl border transition-all duration-300 ${active
-                          ? (isDark ? 'bg-white/5 border-white/15 shadow-sm' : 'bg-[#fcf8f2] border-[#e2dacf] shadow-sm')
+                          ? (isDark ? 'bg-[#121620]/80 border-emerald-500/40 shadow-lg shadow-emerald-950/20' : 'bg-white border-emerald-600/40 shadow-sm')
                           : (isDark ? 'border-transparent' : 'border-transparent')
                         }`}
                     >
                       <div
                         className="w-10 h-10 rounded-full border-2 flex-shrink-0 flex items-center justify-center font-bold text-sm transition-all duration-300 z-10"
                         style={{
-                          borderColor: active ? 'var(--color-primary, #176b45)' : (isDark ? '#2c2523' : '#d5cdbf'),
-                          background: active ? 'var(--color-primary, #176b45)' : (isDark ? '#141211' : '#ede5d8'),
-                          color: active ? '#ffffff' : (isDark ? '#756b65' : '#887d72'),
-                          boxShadow: active ? '0 0 16px rgba(23,107,69,0.30)' : 'none',
+                          borderColor: active ? '#10b981' : (isDark ? '#262f40' : '#cbd5e1'),
+                          background: active ? '#10b981' : (isDark ? '#121620' : '#f1f5f9'),
+                          color: active ? '#ffffff' : (isDark ? '#64748b' : '#94a3b8'),
+                          boxShadow: active ? '0 0 16px rgba(16,185,129,0.35)' : 'none',
                         }}
                       >
                         {active ? <CheckCircle2 size={18} /> : (i + 1)}
@@ -628,7 +747,7 @@ export default function HomePage() {
                             <span className="text-[11px] font-semibold text-emerald-400 tracking-wider uppercase">Unlocked</span>
                           )}
                         </div>
-                        <div className={`text-sm mt-1 leading-relaxed ${isDark ? 'text-gray-400' : 'text-slate-600'}`}>{tp.desc}</div>
+                        <div className={`text-sm mt-1 leading-relaxed ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>{tp.desc}</div>
                       </div>
                     </motion.div>
                   );
@@ -638,29 +757,36 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* ── QUICK LINKS ───────────────────────────── */}
+        {/* ── FITNESS HUB (QUICK LINKS) ─────────────── */}
         <section className="py-20 px-6">
           <div className="max-w-7xl mx-auto">
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-12 text-center">
               <span className="section-pill">Everything you need</span>
-              <h2 className={`gym-font text-5xl ${isDark ? 'text-white' : 'text-slate-900'}`}>
+              <h2 className={`gym-font text-4xl sm:text-5xl mt-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                 YOUR FITNESS <span className="gradient-text">HUB</span>
               </h2>
+              <p className={`mt-3 text-sm sm:text-base ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                Complete ecosystem for performance, nutrition, supplements, and community proof.
+              </p>
             </motion.div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
               {[
-                { icon: <Salad size={28} />, title: 'Diet Plans', desc: 'Goal-based nutrition plans crafted by our experts for your body type.', path: '/diet', color: 'from-green-500/15 to-transparent', border: 'hover:border-green-500/30', accent: 'text-green-400' },
-                { icon: <ShoppingBag size={28} />, title: 'Supplement Store', desc: '100% authentic proteins, creatine, pre-workout and more. Fast delivery.', path: '/store', color: 'from-purple-500/15 to-transparent', border: 'hover:border-purple-500/30', accent: 'text-purple-400' },
-                { icon: <Dumbbell size={28} />, title: 'Transformations', desc: 'Real results from real people. Before & after gallery of our members.', path: '/transformations', color: 'from-amber-500/15 to-transparent', border: 'hover:border-amber-500/30', accent: 'text-amber-400' },
+                { icon: <Salad size={26} />, title: 'Diet Plans', desc: 'Goal-based nutrition plans crafted by our coaches for your body composition and metabolic rate.', path: '/diet', accent: 'text-emerald-500' },
+                { icon: <ShoppingBag size={26} />, title: 'Supplement Store', desc: '100% authentic proteins, creatine, pre-workout, and recovery essentials. Verified stock.', path: '/store', accent: 'text-teal-500' },
+                { icon: <Dumbbell size={26} />, title: 'Transformations', desc: 'Real results from real members. Verified before-and-after journeys with measurable strength gains.', path: '/transformations', accent: 'text-emerald-400' },
               ].map((item, i) => (
-                <motion.div key={i} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
+                <motion.div key={i} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
                   <Link to={item.path}
-                    className={`group block bg-gradient-to-br ${item.color} backdrop-blur-md rounded-2xl p-7 transition-all duration-300 h-full ${
-                      isDark ? 'border border-white/8 hover:border-white/20' : 'border border-[#e2dacf] hover:border-primary/40 shadow-sm'
-                    } ${item.border}`}>
-                    <div className={`${item.accent} mb-4 group-hover:scale-110 transition-transform inline-block`}>{item.icon}</div>
+                    className={`group block backdrop-blur-md rounded-2xl p-7 transition-all duration-300 h-full border ${
+                      isDark
+                        ? 'bg-[#121620]/80 border-white/8 hover:border-emerald-500/40 hover:bg-[#161d2b]/90 shadow-lg shadow-black/20'
+                        : 'bg-white/95 border-slate-200/90 hover:border-emerald-600/40 hover:bg-white shadow-sm hover:shadow-md'
+                    }`}>
+                    <div className={`${item.accent} mb-4 group-hover:scale-110 transition-transform inline-block`}>
+                      {item.icon}
+                    </div>
                     <h3 className={`font-bold text-xl mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>{item.title}</h3>
-                    <p className={`text-sm leading-relaxed mb-4 ${isDark ? 'text-gray-400' : 'text-slate-600'}`}>{item.desc}</p>
+                    <p className={`text-sm leading-relaxed mb-5 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>{item.desc}</p>
                     <span className={`${item.accent} text-sm font-semibold flex items-center gap-1 group-hover:gap-2 transition-all`}>
                       Explore <ArrowRight size={14} />
                     </span>
@@ -674,23 +800,30 @@ export default function HomePage() {
         {/* ── CTA BANNER ────────────────────────────── */}
         <section className="py-24 px-6">
           <div className="max-w-4xl mx-auto">
-            <motion.div initial={{ opacity: 0, scale: 0.96 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}
-              className="relative rounded-3xl overflow-hidden shadow-2xl">
+            <motion.div initial={{ opacity: 0, scale: 0.97 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}
+              className="relative rounded-3xl overflow-hidden shadow-2xl ring-1 ring-white/10">
               <img
                 src={site.ctaBannerImage || 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=1200&q=80'}
                 alt="Start Your Transformation"
-                className="w-full h-72 object-cover object-center opacity-70 transition-opacity duration-300"
+                className="w-full h-80 object-cover object-center opacity-70 transition-opacity duration-300"
               />
-              <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/75 to-transparent flex items-center px-10">
+              <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/80 to-transparent flex items-center px-8 sm:px-12">
                 <div>
-                  <h2 className="gym-font text-5xl text-white mb-3">START YOUR<br /><span className="gradient-text">TRANSFORMATION</span></h2>
-                  <p className="text-gray-200 mb-6 max-w-sm">Talk to us on WhatsApp and get a free consultation with our head trainer.</p>
+                  <span className="text-xs font-bold uppercase tracking-widest text-emerald-400 mb-2 inline-block">
+                    Take the First Step
+                  </span>
+                  <h2 className="gym-font text-4xl sm:text-5xl text-white mb-3">
+                    START YOUR<br /><span className="gradient-text">TRANSFORMATION</span>
+                  </h2>
+                  <p className="text-slate-200 mb-6 max-w-md text-sm sm:text-base leading-relaxed">
+                    Connect directly with our head trainers on WhatsApp. Get a personalized fitness assessment and structured roadmap today.
+                  </p>
                   <div className="flex flex-wrap gap-3">
-                    <a href={site.waHref} target="_blank" rel="noreferrer" className="btn-light text-base px-7 py-3.5">
-                      <MessageCircle size={18} /> Chat on WhatsApp
+                    <a href={site.waHref} target="_blank" rel="noreferrer" className="btn-light text-sm sm:text-base px-6 py-3 font-semibold flex items-center gap-2">
+                      <MessageCircle size={18} className="text-emerald-600" /> Chat on WhatsApp
                     </a>
-                    <a href={site.telHref} className="btn-outline-light text-base px-7 py-3.5">
-                      <Phone size={16} /> {site.phone}
+                    <a href={site.telHref} className="btn-outline-light text-sm sm:text-base px-6 py-3 font-semibold flex items-center gap-2">
+                      <Phone size={16} /> Call {site.phone}
                     </a>
                   </div>
                 </div>

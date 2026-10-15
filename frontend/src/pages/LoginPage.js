@@ -1,32 +1,21 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Eye, EyeOff, ArrowRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import { apiError } from '../utils/api';
 
-function Logo({ size = 44 }) {
+function Logo({ size = 42 }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 100 100" fill="none">
-      <circle cx="50" cy="50" r="44" stroke="url(#lring2)" strokeWidth="5" fill="none"/>
-      <rect x="4"  y="46" width="18" height="8" rx="3" fill="url(#lbarb2)"/>
-      <rect x="2"  y="42" width="6"  height="16" rx="2" fill="#10b981"/>
-      <rect x="78" y="46" width="18" height="8" rx="3" fill="url(#lbarb2)"/>
-      <rect x="92" y="42" width="6"  height="16" rx="2" fill="#176b45"/>
-      <polygon points="50,18 28,75 72,75" fill="url(#ltri2)"/>
-      <polygon points="50,40 40,65 60,65" fill="#0b0c0e"/>
-      <defs>
-        <linearGradient id="ltri2" x1="28" y1="18" x2="72" y2="75" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#176b45"/><stop offset="100%" stopColor="#10b981"/>
-        </linearGradient>
-        <linearGradient id="lring2" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#176b45"/><stop offset="100%" stopColor="#141211"/>
-        </linearGradient>
-        <linearGradient id="lbarb2" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#10b981"/><stop offset="100%" stopColor="#141211"/>
-        </linearGradient>
-      </defs>
+    <svg width={size} height={size} viewBox="0 0 100 100" fill="none" aria-hidden="true">
+      <circle cx="50" cy="50" r="44" stroke="var(--primary, #16a34a)" strokeWidth="5" fill="none"/>
+      <rect x="4"  y="46" width="18" height="8" rx="2" fill="var(--primary, #16a34a)"/>
+      <rect x="2"  y="42" width="6"  height="16" rx="2" fill="var(--primary, #16a34a)"/>
+      <rect x="78" y="46" width="18" height="8" rx="2" fill="var(--primary, #16a34a)"/>
+      <rect x="92" y="42" width="6"  height="16" rx="2" fill="var(--primary, #16a34a)"/>
+      <polygon points="50,18 28,75 72,75" fill="var(--primary, #16a34a)"/>
+      <polygon points="50,42 42,65 58,65" fill="var(--bg, #0a0c10)"/>
     </svg>
   );
 }
@@ -55,48 +44,47 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0b0c0e] flex overflow-hidden">
+    <div className="min-h-screen bg-[var(--bg)] text-[var(--text-primary)] flex overflow-hidden transition-colors duration-200">
       {/* Left — full gym photo */}
       <div className="hidden lg:block relative flex-1">
         <img
           src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=900&q=80"
-          alt="gym"
-          className="w-full h-full object-cover"
+          alt="FitNation Training Floor"
+          className="w-full h-full object-cover filter brightness-[0.5]"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#0b0c0e]" />
-        <div className="absolute inset-0 bg-[#0b0c0e]/40" />
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[var(--bg)]" />
         {/* Quote overlay */}
-        <div className="absolute bottom-16 left-10 right-10">
-          <p className="gym-font text-5xl text-white leading-tight">
-            YOUR ONLY LIMIT<br/>IS <span className="gradient-text">YOUR MIND.</span>
+        <div className="absolute bottom-16 left-12 right-12 text-white">
+          <p className="gym-font text-5xl leading-tight">
+            DISCIPLINE TODAY.<br/>STRENGTH TOMORROW.
           </p>
-          <p className="text-gray-400 mt-3 text-sm">— FITNATION BY AJEET</p>
+          <p className="text-slate-300 mt-3 text-xs uppercase tracking-[0.2em] font-bold">— FITNATION BY AJEET</p>
         </div>
       </div>
 
       {/* Right — login form */}
       <div className="flex-1 flex items-center justify-center px-6 py-16">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.35 }}
           className="w-full max-w-md"
         >
           {/* Logo */}
-          <div className="flex items-center gap-3 mb-10">
-            <Logo size={42} />
+          <Link to="/" className="inline-flex items-center gap-3 mb-8 group" aria-label="FitNation by Ajeet Home">
+            <Logo size={38} />
             <div>
-              <div className="gym-font text-2xl text-white tracking-widest">FITNATION</div>
-              <div className="text-[10px] tracking-[3px] font-bold text-gray-400">BY AJEET</div>
+              <div className="gym-font text-2xl text-[var(--text-primary)] tracking-widest group-hover:text-[var(--primary)] transition-colors">FITNATION</div>
+              <div className="text-[10px] tracking-[3px] font-bold text-[var(--primary)]">BY AJEET</div>
             </div>
-          </div>
+          </Link>
 
-          <h1 className="text-white font-bold text-3xl mb-1">Sign in</h1>
-          <p className="text-gray-400 text-sm mb-8">Welcome back! Enter your credentials to continue.</p>
+          <h1 className="gym-font text-3xl sm:text-4xl text-[var(--text-primary)] mb-1">MEMBER PORTAL SIGN IN</h1>
+          <p className="text-[var(--text-secondary)] text-xs sm:text-sm mb-8">Enter your credentials to access your workouts, diets, and attendance.</p>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label htmlFor="login-email" className="text-gray-300 text-xs font-semibold uppercase tracking-wider block mb-2">Email</label>
+              <label htmlFor="login-email" className="text-[var(--text-secondary)] text-xs font-semibold uppercase tracking-wider block mb-2">Email Address</label>
               <input
                 id="login-email"
                 className="input-dark w-full"
@@ -111,8 +99,8 @@ export default function LoginPage() {
 
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label htmlFor="login-password" className="text-gray-300 text-xs font-semibold uppercase tracking-wider">Password</label>
-                <a href="/enquiry" className="text-gray-400 hover:text-white text-xs hover:underline">Forgot password?</a>
+                <label htmlFor="login-password" className="text-[var(--text-secondary)] text-xs font-semibold uppercase tracking-wider">Password</label>
+                <Link to="/enquiry" className="text-[var(--text-muted)] hover:text-[var(--primary)] text-xs transition-colors">Forgot password?</Link>
               </div>
               <div className="relative">
                 <input
@@ -128,33 +116,31 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => setShowPass(!showPass)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
                   aria-label={showPass ? "Hide password" : "Show password"}
                 >
-                  {showPass ? <EyeOff size={17} /> : <Eye size={17} />}
+                  {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
             </div>
 
-            <motion.button
+            <button
               type="submit"
               disabled={loading}
-              whileHover={{ scale: loading ? 1 : 1.01 }}
-              whileTap={{ scale: loading ? 1 : 0.99 }}
-              className="btn-fire w-full py-3.5 text-base mt-2 flex items-center justify-center gap-2"
+              className="btn-fire w-full py-3.5 text-xs font-bold uppercase tracking-wider rounded-md mt-2 flex items-center justify-center gap-2"
               aria-busy={loading}
             >
               {loading
-                ? <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" aria-label="Signing in..." />
-                : <><span>Sign In</span><ArrowRight size={17}/></>
+                ? <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" aria-label="Signing in..." />
+                : <><span>Sign In to Account</span><ArrowRight size={15}/></>
               }
-            </motion.button>
+            </button>
           </form>
 
-          <div className="mt-8 pt-8 border-t border-white/8 text-center">
-            <p className="text-gray-500 text-sm">
-              Not a member yet?{' '}
-              <a href="/enquiry" className="text-white font-semibold hover:underline">Enquire to join →</a>
+          <div className="mt-8 pt-6 border-t border-[var(--border)] text-center">
+            <p className="text-[var(--text-muted)] text-xs">
+              Not an enrolled member yet?{' '}
+              <Link to="/enquiry" className="text-[var(--primary)] font-bold hover:underline">Enquire for membership →</Link>
             </p>
           </div>
         </motion.div>

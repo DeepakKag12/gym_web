@@ -325,23 +325,23 @@ export default function ExercisesPage() {
   const filtering = search || activeMuscle !== 'all' || difficulty !== 'all';
 
   return (
-    <div className="min-h-screen bg-[#0b0c0e] pt-16">
+    <div className="min-h-screen bg-[var(--bg)] text-[var(--text-primary)] pt-16 transition-colors duration-200">
       {/* Compact header — it used to fill more than half the first screen
           before a single exercise appeared. */}
-      <div className="relative overflow-hidden py-10 sm:py-14">
+      <div className="relative overflow-hidden py-10 sm:py-14 border-b border-[var(--border)] bg-[var(--surface)]">
         <img
           src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1200&q=60"
           alt="" loading="lazy"
-          className="absolute inset-0 w-full h-full object-cover opacity-20"
+          className="absolute inset-0 w-full h-full object-cover opacity-15"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0b0c0e]/60 to-[#0b0c0e]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-[var(--surface)]" />
         <div className="relative z-10 max-w-7xl mx-auto px-6 text-center">
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
             <span className="section-pill">Exercise Library</span>
-            <h1 className="gym-font text-4xl sm:text-5xl md:text-6xl text-on-photo mt-2">
-              WORKOUT <span className="gradient-text">LIBRARY</span>
+            <h1 className="gym-font text-4xl sm:text-5xl md:text-6xl text-[var(--text-primary)] mt-2">
+              WORKOUT LIBRARY
             </h1>
-            <p className="text-gray-400 mt-2 text-base">Video-guided exercises for every muscle group</p>
+            <p className="text-[var(--text-secondary)] mt-2 text-base">Video-guided exercises for every muscle group</p>
           </motion.div>
         </div>
       </div>

@@ -25,22 +25,22 @@ export default function ExerciseDetailPage() {
   }, [id]);
 
   if (loading) return (
-    <div className="flex items-center justify-center min-h-screen bg-[#0a0a0f]">
-      <div className="w-10 h-10 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+    <div className="flex items-center justify-center min-h-screen bg-[var(--bg)]">
+      <div className="w-8 h-8 border-2 border-[var(--primary)] border-t-transparent rounded-full animate-spin" />
     </div>
   );
 
   if (!ex) return (
-    <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center text-gray-400">
-      Exercise not found. <Link to="/exercises" className="text-primary ml-2 hover:underline">← Back</Link>
+    <div className="min-h-screen bg-[var(--bg)] flex items-center justify-center text-[var(--text-muted)] text-sm">
+      Exercise not found. <Link to="/exercises" className="text-[var(--primary)] ml-2 hover:underline">← Back to exercises</Link>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] pt-20">
+    <div className="min-h-screen bg-[var(--bg)] text-[var(--text-primary)] pt-20 transition-colors duration-200">
       <div className="max-w-5xl mx-auto px-6 py-10">
-        <Link to="/exercises" className="flex items-center gap-2 text-gray-400 hover:text-primary mb-8 transition-colors">
-          <ArrowLeft size={18} /> Back to Exercises
+        <Link to="/exercises" className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] hover:text-[var(--primary)] mb-8 transition-colors">
+          <ArrowLeft size={16} /> Back to Exercises
         </Link>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
@@ -49,11 +49,11 @@ export default function ExerciseDetailPage() {
             {(ex.video || ex.videoUrl) ? (() => {
               const src = ex.video || ex.videoUrl;
               if (isYouTube(src)) {
-                const id = ytId(src);
-                return id ? (
-                  <div className="rounded-xl overflow-hidden border border-white/10 relative" style={{ paddingBottom: '56.25%' }}>
+                const ytid = ytId(src);
+                return ytid ? (
+                  <div className="rounded-lg overflow-hidden border border-[var(--border)] relative bg-black" style={{ paddingBottom: '56.25%' }}>
                     <iframe
-                      src={`https://www.youtube.com/embed/${id}?loop=1&playlist=${id}&controls=1&modestbranding=1&rel=0`}
+                      src={`https://www.youtube.com/embed/${ytid}?loop=1&playlist=${ytid}&controls=1&modestbranding=1&rel=0`}
                       className="absolute inset-0 w-full h-full border-0"
                       allowFullScreen
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -69,61 +69,61 @@ export default function ExerciseDetailPage() {
                   controls
                   loop
                   playsInline
-                  className="w-full rounded-xl border border-white/10 max-h-80 object-cover bg-black"
+                  className="w-full rounded-lg border border-[var(--border)] max-h-80 object-cover bg-black"
                 />
               );
             })() : ex.image ? (
-              <img src={img(ex.image, 900)} alt={ex.title} decoding="async" className="w-full rounded-xl border border-white/10 object-cover max-h-80" />
+              <img src={img(ex.image, 900)} alt={ex.title} decoding="async" className="w-full rounded-lg border border-[var(--border)] object-cover max-h-80" />
             ) : (
-              <div className="w-full h-64 bg-white/5 rounded-xl flex items-center justify-center">
-                <Dumbbell size={64} className="text-gray-700" />
+              <div className="w-full h-64 bg-[var(--surface)] border border-[var(--border)] rounded-lg flex items-center justify-center">
+                <Dumbbell size={52} className="text-[var(--text-muted)] opacity-50" />
               </div>
             )}
           </div>
 
           {/* Details */}
           <div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-xs bg-primary/15 text-primary border border-primary/25 px-2.5 py-0.5 rounded-full capitalize font-medium">{ex.muscleGroup}</span>
-              <span className={`text-xs px-2.5 py-0.5 rounded-full capitalize font-medium ${
-                ex.difficulty === 'beginner' ? 'bg-green-500/15 text-green-400 border border-green-500/25' :
-                ex.difficulty === 'intermediate' ? 'bg-yellow-500/15 text-yellow-400 border border-yellow-500/25' :
-                'bg-red-500/15 text-red-400 border border-red-500/25'
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-xs bg-[var(--surface-raised)] text-[var(--primary)] border border-[var(--border)] px-2.5 py-0.5 rounded-sm capitalize font-bold tracking-wider">{ex.muscleGroup}</span>
+              <span className={`text-xs px-2.5 py-0.5 rounded-sm capitalize font-bold tracking-wider ${
+                ex.difficulty === 'beginner' ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' :
+                ex.difficulty === 'intermediate' ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20' :
+                'bg-rose-500/10 text-rose-500 border border-rose-500/20'
               }`}>{ex.difficulty}</span>
             </div>
 
-            <h1 className="gym-font text-4xl text-white mb-4">{ex.title}</h1>
-            <p className="text-gray-400 leading-relaxed mb-6">{ex.description}</p>
+            <h1 className="gym-font text-4xl sm:text-5xl text-[var(--text-primary)] mb-4">{ex.title}</h1>
+            <p className="text-[var(--text-secondary)] text-sm sm:text-base leading-relaxed mb-6">{ex.description}</p>
 
             {/* Stats */}
-            <div className="grid grid-cols-3 gap-4 mb-6">
+            <div className="grid grid-cols-3 gap-3 mb-6">
               {ex.sets && (
-                <div className="glass rounded-lg p-3 text-center">
-                  <Target size={18} className="text-primary mx-auto mb-1" />
-                  <div className="text-white font-bold">{ex.sets}</div>
-                  <div className="text-gray-500 text-xs">Sets</div>
+                <div className="rounded-lg p-3.5 border border-[var(--border)] bg-[var(--surface)] text-center">
+                  <Target size={18} className="text-[var(--primary)] mx-auto mb-1" />
+                  <div className="text-[var(--text-primary)] font-bold text-base">{ex.sets}</div>
+                  <div className="text-[var(--text-muted)] text-[11px] uppercase tracking-wider">Sets</div>
                 </div>
               )}
               {ex.reps && (
-                <div className="glass rounded-lg p-3 text-center">
-                  <BarChart3 size={18} className="text-primary mx-auto mb-1" />
-                  <div className="text-white font-bold">{ex.reps}</div>
-                  <div className="text-gray-500 text-xs">Reps</div>
+                <div className="rounded-lg p-3.5 border border-[var(--border)] bg-[var(--surface)] text-center">
+                  <BarChart3 size={18} className="text-[var(--primary)] mx-auto mb-1" />
+                  <div className="text-[var(--text-primary)] font-bold text-base">{ex.reps}</div>
+                  <div className="text-[var(--text-muted)] text-[11px] uppercase tracking-wider">Reps</div>
                 </div>
               )}
               {ex.duration && (
-                <div className="glass rounded-lg p-3 text-center">
-                  <Clock size={18} className="text-primary mx-auto mb-1" />
-                  <div className="text-white font-bold">{ex.duration}</div>
-                  <div className="text-gray-500 text-xs">Duration</div>
+                <div className="rounded-lg p-3.5 border border-[var(--border)] bg-[var(--surface)] text-center">
+                  <Clock size={18} className="text-[var(--primary)] mx-auto mb-1" />
+                  <div className="text-[var(--text-primary)] font-bold text-base">{ex.duration}</div>
+                  <div className="text-[var(--text-muted)] text-[11px] uppercase tracking-wider">Duration</div>
                 </div>
               )}
             </div>
 
             {ex.equipmentNeeded && (
-              <div className="mb-6 p-4 glass rounded-xl">
-                <h3 className="text-primary font-semibold mb-1 text-sm">Equipment Needed</h3>
-                <p className="text-gray-300 text-sm">{ex.equipmentNeeded}</p>
+              <div className="mb-6 p-4 rounded-lg border border-[var(--border)] bg-[var(--surface)]">
+                <h3 className="text-[var(--primary)] font-bold text-xs uppercase tracking-wider mb-1">Equipment Needed</h3>
+                <p className="text-[var(--text-secondary)] text-sm">{ex.equipmentNeeded}</p>
               </div>
             )}
           </div>
@@ -132,13 +132,13 @@ export default function ExerciseDetailPage() {
         {/* Instructions */}
         {ex.instructions && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="mt-10 glass rounded-xl p-8"
+            transition={{ delay: 0.2 }}
+            className="mt-10 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-6 sm:p-8"
           >
-            <h2 className="text-white font-bold text-xl mb-4">Step-by-Step Instructions</h2>
-            <div className="text-gray-300 leading-relaxed whitespace-pre-line">{ex.instructions}</div>
+            <h2 className="gym-font text-2xl text-[var(--text-primary)] mb-4">STEP-BY-STEP INSTRUCTIONS</h2>
+            <div className="text-[var(--text-secondary)] text-sm sm:text-base leading-relaxed whitespace-pre-line">{ex.instructions}</div>
           </motion.div>
         )}
       </div>

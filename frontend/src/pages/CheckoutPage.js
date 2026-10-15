@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CheckCircle, ShoppingBag, MapPin } from 'lucide-react';
+import { CheckCircle, ShoppingBag, MapPin, ArrowRight } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import API from '../utils/api';
@@ -67,96 +67,100 @@ export default function CheckoutPage() {
   };
 
   if (success) return (
-    <div className="min-h-screen bg-[#0a0a0f] pt-20 flex flex-col items-center justify-center gap-6 px-4">
-      <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center">
-        <CheckCircle size={48} className="text-green-400" />
+    <div className="min-h-screen bg-[var(--bg)] text-[var(--text-primary)] pt-20 flex flex-col items-center justify-center gap-5 px-4 text-center transition-colors duration-200">
+      <div className="w-16 h-16 bg-emerald-500/10 border border-emerald-500/20 rounded-full flex items-center justify-center text-[var(--primary)]">
+        <CheckCircle size={36} />
       </div>
-      <h2 className="text-white font-bold text-3xl">Order Placed!</h2>
-      <p className="text-gray-400 text-center max-w-sm">
-        Thank you! Your order is confirmed. Please collect your items from the gym and pay cash on pickup.
+      <h2 className="gym-font text-3xl sm:text-4xl text-[var(--text-primary)]">Order Placed!</h2>
+      <p className="text-[var(--text-secondary)] text-sm max-w-sm leading-relaxed">
+        Thank you. Your order is confirmed. Please collect your items from the gym and pay cash on pickup.
       </p>
       {placedTotal !== null && (
-        <p className="text-white font-semibold text-lg">Amount due on pickup: ₹{Number(placedTotal).toFixed(0)}</p>
+        <p className="text-[var(--text-primary)] font-semibold text-base">
+          Amount due on pickup: ₹{Number(placedTotal).toFixed(0)}
+        </p>
       )}
-      <button onClick={() => navigate('/store')} className="btn-secondary px-10 py-3">Continue Shopping</button>
+      <button onClick={() => navigate('/store')} className="btn-fire px-8 py-3 text-xs font-bold uppercase tracking-wider rounded-md mt-2">
+        Continue Shopping
+      </button>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] pt-20">
+    <div className="min-h-screen bg-[var(--bg)] text-[var(--text-primary)] pt-20 transition-colors duration-200">
       <div className="max-w-3xl mx-auto px-6 py-10">
-        <h1 className="text-white font-bold text-3xl flex items-center gap-3 mb-8">
-          <ShoppingBag className="text-primary" size={28} /> Checkout
+        <h1 className="gym-font text-3xl sm:text-4xl flex items-center gap-3 mb-8 text-[var(--text-primary)]">
+          <ShoppingBag className="text-[var(--primary)]" size={28} /> CHECKOUT
         </h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Left — form */}
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Contact */}
-            <div className="glass rounded-xl p-5 space-y-4">
-              <h2 className="text-white font-semibold text-base mb-1">Your Details</h2>
+            <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-5 space-y-4">
+              <h2 className="text-[var(--text-primary)] font-bold text-sm uppercase tracking-wider pb-2 border-b border-[var(--border-subtle)]">Your Details</h2>
               <div>
-                <label className="text-gray-400 text-sm block mb-1">Full Name</label>
-                <input className="input-dark" value={name} onChange={e => setName(e.target.value)} placeholder="Your name" required />
+                <label className="text-[var(--text-secondary)] text-xs font-semibold uppercase tracking-wider block mb-1">Full Name</label>
+                <input className="input-dark w-full" value={name} onChange={e => setName(e.target.value)} placeholder="Your name" required />
               </div>
               <div>
-                <label className="text-gray-400 text-sm block mb-1">Phone Number</label>
-                <input className="input-dark" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+91 XXXXX XXXXX" required />
+                <label className="text-[var(--text-secondary)] text-xs font-semibold uppercase tracking-wider block mb-1">Phone Number</label>
+                <input className="input-dark w-full" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+91 XXXXX XXXXX" required />
               </div>
             </div>
 
             {/* Pickup + Payment info */}
-            <div className="glass rounded-xl p-5 space-y-3">
-              <div className="flex items-center gap-2.5 text-green-400">
-                <MapPin size={18} />
-                <span className="font-semibold text-sm">Collect from Gym</span>
+            <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-5 space-y-3">
+              <div className="flex items-center gap-2 text-[var(--primary)] font-bold text-xs uppercase tracking-wider">
+                <MapPin size={16} />
+                <span>Pickup Method</span>
               </div>
-              <p className="text-gray-400 text-sm">Pick up your order directly at the gym. Pay cash when you collect.</p>
-              <div className="flex items-center gap-2.5 mt-2 px-3 py-2.5 rounded-lg bg-primary/10 border border-primary/20">
-                <span className="text-primary font-semibold text-sm">Cash on Delivery</span>
+              <p className="text-[var(--text-secondary)] text-xs leading-relaxed">Collect directly from the FitNation front desk. Pay cash or UPI on handover.</p>
+              <div className="flex items-center gap-2.5 mt-2 px-3 py-2 rounded-md bg-[var(--surface-raised)] border border-[var(--border)]">
+                <span className="text-[var(--primary)] font-semibold text-xs">Payment: Cash / UPI on Collection</span>
               </div>
             </div>
 
-            <button type="submit" disabled={loading} className="btn-fire w-full py-4 text-base">
+            <button type="submit" disabled={loading} className="btn-fire w-full py-3.5 text-xs font-bold uppercase tracking-wider rounded-md flex items-center justify-center gap-2">
               {loading
-                ? <span className="animate-spin border-2 border-white border-t-transparent rounded-full w-5 h-5 inline-block" />
-                : `Place Order — ₹${total.toFixed(0)}`}
+                ? <span className="animate-spin border-2 border-white border-t-transparent rounded-full w-4 h-4 inline-block" />
+                : <><span>Place Order — ₹{total.toFixed(0)}</span><ArrowRight size={14} /></>}
             </button>
           </form>
 
           {/* Right — order summary */}
-          <div className="glass rounded-xl p-6">
-            <h2 className="text-white font-bold text-lg mb-4">Order Summary</h2>
+          <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-6">
+            <h2 className="text-[var(--text-primary)] font-bold text-sm uppercase tracking-wider mb-4 pb-2 border-b border-[var(--border-subtle)]">Order Items</h2>
             <div className="space-y-3 max-h-80 overflow-y-auto pr-1">
               {cart.map((item, i) => (
                 <div key={i} className="flex items-center gap-3">
-                  {item.images?.[0] && <img src={thumb(item.images[0], 96)} loading="lazy" decoding="async" alt={item.name} className="w-12 h-12 object-cover rounded-lg flex-shrink-0" />}
+                  {item.images?.[0] && <img src={thumb(item.images[0], 96)} loading="lazy" decoding="async" alt={item.name} className="w-11 h-11 object-cover rounded-md border border-[var(--border)] flex-shrink-0" />}
                   <div className="flex-1 min-w-0">
-                    <div className="text-white text-sm font-medium line-clamp-1">{item.name}</div>
+                    <div className="text-[var(--text-primary)] text-xs font-medium line-clamp-1">{item.name}</div>
                     {(item.flavor || item.weight) && (
-                      <div className="text-gray-500 text-xs">{[item.flavor, item.weight].filter(Boolean).join(' · ')}</div>
+                      <div className="text-[var(--text-muted)] text-[11px]">{[item.flavor, item.weight].filter(Boolean).join(' · ')}</div>
                     )}
-                    <div className="text-primary text-xs">₹{item.discountPrice || item.price} × {item.qty}</div>
+                    <div className="text-[var(--primary)] text-xs font-semibold">₹{item.discountPrice || item.price} × {item.qty}</div>
                   </div>
-                  <div className="text-white font-bold text-sm flex-shrink-0">
+                  <div className="text-[var(--text-primary)] font-bold text-xs flex-shrink-0">
                     ₹{((item.discountPrice || item.price) * item.qty).toFixed(0)}
                   </div>
                 </div>
               ))}
             </div>
-            <div className="border-t border-white/10 mt-4 pt-4 space-y-2">
-              <div className="flex justify-between text-sm text-gray-400">
-                <span>Subtotal</span><span className="text-white">₹{total.toFixed(0)}</span>
+            <div className="border-t border-[var(--border)] mt-4 pt-4 space-y-2 text-xs">
+              <div className="flex justify-between text-[var(--text-secondary)]">
+                <span>Subtotal</span><span className="text-[var(--text-primary)] font-medium">₹{total.toFixed(0)}</span>
               </div>
-              <div className="flex justify-between text-sm text-gray-400">
-                <span>Delivery</span><span className="text-green-400">Collect from Gym</span>
+              <div className="flex justify-between text-[var(--text-secondary)]">
+                <span>Pickup</span><span className="text-[var(--primary)] font-medium">Free at Gym</span>
               </div>
-              <div className="flex justify-between text-sm text-gray-400">
-                <span>Payment</span><span className="text-primary">Cash on Delivery</span>
+              <div className="flex justify-between text-[var(--text-secondary)]">
+                <span>Payment</span><span className="text-[var(--text-primary)] font-medium">Pay on Handover</span>
               </div>
-              <div className="flex justify-between font-bold text-lg border-t border-white/10 pt-2 mt-2">
-                <span className="text-gray-300">Total</span>
-                <span className="gradient-text">₹{total.toFixed(0)}</span>
+              <div className="flex justify-between font-bold text-base border-t border-[var(--border-subtle)] pt-3 mt-3 text-[var(--text-primary)]">
+                <span>Total Due</span>
+                <span className="text-[var(--primary)] font-black text-xl">₹{total.toFixed(0)}</span>
               </div>
             </div>
           </div>

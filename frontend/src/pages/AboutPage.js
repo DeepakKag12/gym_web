@@ -20,7 +20,7 @@ function HeroGallery() {
   const [idx, setIdx] = useState(0);
 
   useEffect(() => {
-    const id = setInterval(() => setIdx(p => (p + 1) % HERO_IMGS.length), 3000);
+    const id = setInterval(() => setIdx(p => (p + 1) % HERO_IMGS.length), 4000);
     return () => clearInterval(id);
   }, []);
 
@@ -30,15 +30,15 @@ function HeroGallery() {
         <motion.img
           key={idx}
           src={HERO_IMGS[idx]}
-          alt="gym"
-          initial={{ opacity: 0, scale: 1.05 }}
+          alt="FitNation Training Facility"
+          initial={{ opacity: 0, scale: 1.03 }}
           animate={{ opacity: 1,  scale: 1 }}
           exit={{ opacity: 0, scale: 0.98 }}
-          transition={{ duration: 1, ease: 'easeInOut' }}
-          className="absolute inset-0 w-full h-full object-cover object-center"
+          transition={{ duration: 0.8, ease: 'easeInOut' }}
+          className="absolute inset-0 w-full h-full object-cover object-center filter brightness-[0.4]"
         />
       </AnimatePresence>
-      <div className="absolute inset-0 bg-gradient-to-b from-[#0b0c0e]/75 via-[#0b0c0e]/60 to-[#0b0c0e]" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-[var(--bg)]" />
     </div>
   );
 }
@@ -50,25 +50,23 @@ const otherTrainers = [
 ];
 
 const values = [
-  { icon: Award,   title: 'Results-Driven',   desc: 'Every program is designed to deliver measurable, visible progress you can be proud of.' },
-  { icon: Dumbbell,title: 'Expert Training',  desc: 'Certified trainers with real-world experience across all fitness disciplines.' },
-  { icon: Target,  title: 'Holistic Approach',desc: 'Training + nutrition + lifestyle = lasting transformation. We cover it all.' },
-  { icon: Heart,   title: 'Community',        desc: 'A supportive family that pushes each other to be their best every single day.' },
+  { icon: Award,   title: 'Measurable Outcomes', desc: 'Every program is grounded in progressive overload and logged metrics, not wishful thinking.' },
+  { icon: Dumbbell,title: 'Technical Coaching',  desc: 'Certified coaches on the floor who correct lifting form before adding plate weight.' },
+  { icon: Target,  title: 'Holistic Discipline', desc: 'Strength training, recovery, and macro-counted Indian nutrition executed in harmony.' },
+  { icon: Heart,   title: 'Accountability Culture', desc: 'A lifting community where veterans encourage beginners and discipline is mutual.' },
 ];
 
 const achievements = [
   { num: '500+', label: 'Active Members' },
-  { num: '10+',  label: 'Years of Experience' },
+  { num: '10+',  label: 'Years Coaching' },
   { num: '1000+',label: 'Transformations' },
-  { num: '8+',   label: 'Expert Trainers' },
+  { num: '8+',   label: 'Certified Coaches' },
 ];
 
 export default function AboutPage() {
   const site = useSettings();
   const founderName = site.ownerName || 'Ajeet Jamadari';
-  const founderFirstName = founderName.split(' ')[0] || founderName;
   const gymName = site.gymName || 'FITNATION';
-  const gymBrandUpper = (site.gymName || 'FITNATION').toUpperCase();
   const founderImg = site.heroJoinImage || 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=700&q=80';
 
   const team = [
@@ -83,204 +81,248 @@ export default function AboutPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0b0c0e] text-white pt-16">
+    <div className="min-h-screen bg-[var(--bg)] text-[var(--text-primary)] pt-16 transition-colors duration-200">
 
-      {/* ══ HERO — auto-sliding gym photos ════════════════ */}
-      <section className="relative min-h-[70vh] flex items-end overflow-hidden">
+      {/* ══ HERO SECTION ══════════════════════════════════ */}
+      <section className="relative min-h-[60vh] sm:min-h-[65vh] flex items-end overflow-hidden pb-12 sm:pb-16">
         <HeroGallery />
 
-        <div className="relative z-10 max-w-6xl mx-auto px-6 pb-16 w-full">
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
-            <span className="section-pill mb-4 inline-block">Est. 2026</span>
-            <h1 className="gym-font text-6xl md:text-8xl text-white leading-none">
-              ABOUT <span className="gradient-text">{gymName.split(' ')[0]?.toUpperCase() || 'FITNATION'}</span>
+        <div className="relative z-10 max-w-6xl mx-auto px-6 w-full">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-sm bg-[var(--surface-raised)] border border-white/20 text-[var(--primary)] text-xs font-bold uppercase tracking-[0.16em] mb-4">
+              Est. 2026 · Premium Athletic Facility
+            </div>
+            <h1 className="gym-font text-5xl sm:text-7xl md:text-8xl text-white leading-none">
+              ABOUT {gymName.toUpperCase()}
             </h1>
-            <p className="text-gray-300 text-lg mt-4 max-w-xl leading-relaxed">
-              Born from passion. Built with dedication. {gymBrandUpper} is more than a gym — it's your transformation partner.
+            <p className="text-slate-300 text-sm sm:text-base mt-4 max-w-2xl leading-relaxed">
+              Built on discipline and authentic athletic principles. We provide professional coaching, structured Indian nutrition, and uncompromised gym floor standards.
             </p>
           </motion.div>
 
           {/* Quick contact bar */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
-            className="flex flex-wrap gap-4 mt-8">
-            <a href={site.telHref}
-              className="flex items-center gap-2 bg-white/10 border border-white/20 backdrop-blur-sm rounded-full px-4 py-2 text-sm text-white hover:bg-white/20 transition-all">
-              <Phone size={14} className="text-gray-300" /> {site.phone}
+          <div className="flex flex-wrap gap-3 mt-8">
+            <a
+              href={site.telHref}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-md border border-white/20 bg-white/[0.08] hover:bg-white/[0.15] text-xs font-semibold text-white transition-colors"
+            >
+              <Phone size={13} className="text-slate-300" /> {site.phone}
             </a>
-            <a href={site.instagramHref} target="_blank" rel="noreferrer"
-              className="flex items-center gap-2 bg-white/10 border border-white/20 backdrop-blur-sm rounded-full px-4 py-2 text-sm text-white hover:bg-white/20 transition-all">
-              <Instagram size={14} className="text-pink-400" /> @{site.instagram}
+            <a
+              href={site.instagramHref}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-md border border-white/20 bg-white/[0.08] hover:bg-white/[0.15] text-xs font-semibold text-white transition-colors"
+            >
+              <Instagram size={13} className="text-pink-400" /> @{site.instagram}
             </a>
-            <a href={site.waHref} target="_blank" rel="noreferrer"
-              className="flex items-center gap-2 bg-green-500/20 border border-green-500/40 backdrop-blur-sm rounded-full px-4 py-2 text-sm text-green-300 hover:bg-green-500/30 transition-all">
-              <MessageCircle size={14} /> WhatsApp Us
+            <a
+              href={site.waHref}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-xs font-semibold text-white transition-colors shadow-xs"
+            >
+              <MessageCircle size={13} /> Chat on WhatsApp
             </a>
-          </motion.div>
+          </div>
         </div>
       </section>
 
       {/* ══ ACHIEVEMENTS STRIP ════════════════════════════ */}
-      <section className="border-y border-white/5 bg-[#0d0e11]">
+      <section className="border-y border-[var(--border)] bg-[var(--surface)]">
         <div className="max-w-5xl mx-auto px-6 py-10">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {achievements.map((a, i) => (
-              <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="text-center">
-                <div className="gym-font text-4xl gradient-text">{a.num}</div>
-                <div className="text-gray-500 text-sm mt-1">{a.label}</div>
-              </motion.div>
+              <div key={i} className="text-center">
+                <div className="gym-font text-4xl sm:text-5xl text-[var(--primary)] font-black">
+                  {a.num}
+                </div>
+                <div className="text-[var(--text-muted)] text-xs uppercase tracking-wider font-semibold mt-1">
+                  {a.label}
+                </div>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ══ STORY ═════════════════════════════════════════ */}
-      <section className="py-24 px-6">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-14 items-center">
+      {/* ══ STORY SECTION ═════════════════════════════════ */}
+      <section className="py-20 sm:py-24 px-6">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
 
-          {/* Photo — spans 2 cols */}
-          <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
-            className="lg:col-span-2">
-            <div className="relative rounded-3xl overflow-hidden">
-              <img src={founderImg}
-                alt={founderName} className="w-full object-cover aspect-[3/4]" />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0b0c0e]/80 via-transparent to-transparent"/>
-              {/* Floating badge */}
-              <div className="absolute bottom-6 left-6 right-6">
-                <div className="glass rounded-2xl p-4 border border-primary/20">
-                  <div className="text-secondary text-xs font-bold uppercase tracking-widest mb-1">Founder & Head Trainer</div>
-                  <div className="text-white font-bold text-xl">{founderName}</div>
-                  <div className="text-gray-400 text-sm mt-0.5">10+ years · Certified Coach</div>
+          {/* Photo — 5 cols */}
+          <div className="lg:col-span-5">
+            <div className="relative rounded-xl overflow-hidden border border-[var(--border)] bg-[var(--surface-raised)]">
+              <img
+                src={founderImg}
+                alt={founderName}
+                className="w-full object-cover aspect-[3/4]"
+                loading="lazy"
+                decoding="async"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent pointer-events-none" />
+              {/* Founder badge */}
+              <div className="absolute bottom-5 left-5 right-5 p-4 rounded-lg bg-[var(--surface-raised)] border border-[var(--border)]">
+                <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-[var(--primary)] mb-1">
+                  Founder & Head Coach
                 </div>
+                <div className="text-[var(--text-primary)] font-bold text-lg">{founderName}</div>
+                <div className="text-[var(--text-muted)] text-xs mt-0.5">10+ Years · Certified Strength Specialist</div>
               </div>
             </div>
-          </motion.div>
+          </div>
 
-          {/* Text — spans 3 cols */}
-          <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
-            className="lg:col-span-3">
-            <span className="section-pill">Our Story</span>
-            <h2 className="gym-font text-5xl text-white mt-3 mb-6">HOW IT <span className="gradient-text">STARTED</span></h2>
-            <div className="space-y-4 text-gray-400 text-sm leading-relaxed">
-              <p>{gymName} was founded by {founderName} — a certified personal trainer who believed that professional-grade fitness coaching should be accessible to everyone, regardless of background.</p>
-              <p>Starting from a small setup with big dreams, {founderFirstName} built this gym from the ground up. Today, we're home to 500+ active members, an expert team of trainers, and a fully equipped facility.</p>
-              <p>Our approach goes beyond lifting weights. We combine strength training, nutrition science, flexibility work, and mental wellness to deliver transformations that actually last.</p>
+          {/* Text — 7 cols */}
+          <div className="lg:col-span-7">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-sm bg-[var(--surface-raised)] border border-[var(--border)] text-[var(--primary)] text-xs font-bold uppercase tracking-[0.15em] mb-3">
+              Our Journey
             </div>
-            <ul className="mt-6 space-y-2">
-              {['500+ Active Members', 'Expert Certified Trainers', '10+ Years of Experience', 'Personalised Programs', 'Modern Equipment', 'Hygienic Facility'].map((f, i) => (
-                <li key={i} className="flex items-center gap-2 text-sm text-gray-300">
-                  <CheckCircle size={15} className="text-primary flex-shrink-0"/> {f}
-                </li>
+            <h2 className="gym-font text-4xl sm:text-5xl text-[var(--text-primary)] mb-6">
+              HOW FITNATION WAS BUILT
+            </h2>
+            <div className="space-y-4 text-[var(--text-secondary)] text-sm sm:text-base leading-relaxed">
+              <p>
+                {gymName} was established by {founderName} with a singular focus: stripping away the gimmicks from fitness and providing athletes and everyday individuals with real coaching, real discipline, and real accountability.
+              </p>
+              <p>
+                What started as an uncompromising lifting room has grown into a premier fitness destination for 500+ active members. Every rack, barbell, and cable station is maintained to professional standards.
+              </p>
+              <p>
+                We do not sell quick fixes or fad diets. We educate our members on biomechanics, compound lifts, and sustainable Indian nutrition so their transformations last for life.
+              </p>
+            </div>
+            <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {[
+                'Floor coaches who correct form',
+                'Calibrated weights and platforms',
+                'Structured Indian diet plans',
+                'Strict cleanliness & hygiene rules',
+                'Beginner to competitive athlete training',
+                'Direct trainer accessibility on WhatsApp'
+              ].map((f, i) => (
+                <div key={i} className="flex items-center gap-2 text-xs sm:text-sm text-[var(--text-primary)] font-medium">
+                  <CheckCircle size={15} className="text-[var(--primary)] flex-shrink-0" />
+                  <span>{f}</span>
+                </div>
               ))}
-            </ul>
-          </motion.div>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* ══ GYM TIMING ════════════════════════════════════ */}
-      <section className="py-20 px-6 bg-[#0d0e11] border-y border-white/5">
+      {/* ══ GYM TIMING & SCHEDULE ═════════════════════════ */}
+      <section className="py-16 sm:py-20 px-6 bg-[var(--surface)] border-y border-[var(--border)]">
         <div className="max-w-5xl mx-auto">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
-            <span className="section-pill">When to Visit</span>
-            <h2 className="gym-font text-5xl text-white">GYM <span className="gradient-text">TIMING</span></h2>
-            <p className="text-gray-500 mt-3 text-sm">Discipline today, strength tomorrow</p>
-          </motion.div>
+          <div className="text-center mb-12 max-w-2xl mx-auto">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-sm bg-[var(--surface-raised)] border border-[var(--border)] text-[var(--primary)] text-xs font-bold uppercase tracking-[0.15em] mb-3">
+              Training Schedule
+            </div>
+            <h2 className="gym-font text-4xl sm:text-5xl text-[var(--text-primary)]">
+              OPERATING HOURS
+            </h2>
+            <p className="text-[var(--text-muted)] mt-2 text-xs sm:text-sm">
+              Discipline today, strength tomorrow. Two focused sessions daily.
+            </p>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8">
-
             {/* Morning */}
-            <motion.div initial={{ opacity: 0, x: -24 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
-              whileHover={{ y: -4 }} className="relative overflow-hidden glass rounded-2xl p-8 border border-white/8 hover:border-amber-400/30 transition-all group">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-amber-400/5 rounded-full blur-2xl pointer-events-none" />
-              <div className="flex items-center gap-3 mb-5">
-                <div className="w-12 h-12 rounded-2xl bg-amber-400/10 flex items-center justify-center">
-                  <Sun size={22} className="text-amber-400" />
+            <div className="rounded-lg p-6 sm:p-7 border border-[var(--border)] bg-[var(--surface-raised)]">
+              <div className="flex items-center gap-3.5 mb-5">
+                <div className="w-10 h-10 rounded-md bg-amber-500/10 border border-amber-500/20 text-amber-500 flex items-center justify-center flex-shrink-0">
+                  <Sun size={18} />
                 </div>
                 <div>
-                  <div className="text-white font-bold text-lg">Morning Session</div>
-                  <div className="text-amber-400/70 text-xs font-semibold uppercase tracking-widest">Early Bird</div>
+                  <div className="font-bold text-base text-[var(--text-primary)]">Morning Session</div>
+                  <div className="text-xs text-[var(--text-muted)]">Early risers & strength focus</div>
                 </div>
               </div>
-              <div className="gym-font text-5xl text-white mb-2">5:00 – 11:00</div>
-              <div className="text-amber-400 text-xs font-bold mb-4">AM</div>
-              <div className="flex items-center gap-2 text-gray-400 text-sm">
-                <Clock size={13} className="text-gray-600" />
-                Mon to Sat &nbsp;·&nbsp;
-                <span className="text-red-400 font-medium">Sunday Closed</span>
+              <div className="gym-font text-4xl sm:text-5xl text-[var(--text-primary)] mb-2">
+                5:00 AM – 11:00 AM
               </div>
-            </motion.div>
+              <div className="flex items-center gap-2 text-[var(--text-secondary)] text-xs">
+                <Clock size={13} className="text-[var(--text-muted)]" />
+                <span>Monday to Saturday</span>
+                <span className="text-[var(--border)]">·</span>
+                <span className="text-rose-500 font-semibold">Sunday Closed</span>
+              </div>
+            </div>
 
             {/* Evening */}
-            <motion.div initial={{ opacity: 0, x: 24 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
-              whileHover={{ y: -4 }} className="relative overflow-hidden glass rounded-2xl p-8 border border-white/8 hover:border-indigo-400/30 transition-all group">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-400/5 rounded-full blur-2xl pointer-events-none" />
-              <div className="flex items-center gap-3 mb-5">
-                <div className="w-12 h-12 rounded-2xl bg-indigo-400/10 flex items-center justify-center">
-                  <Moon size={22} className="text-indigo-400" />
+            <div className="rounded-lg p-6 sm:p-7 border border-[var(--border)] bg-[var(--surface-raised)]">
+              <div className="flex items-center gap-3.5 mb-5">
+                <div className="w-10 h-10 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-[var(--primary)] flex items-center justify-center flex-shrink-0">
+                  <Moon size={18} />
                 </div>
                 <div>
-                  <div className="text-white font-bold text-lg">Evening Session</div>
-                  <div className="text-indigo-400/70 text-xs font-semibold uppercase tracking-widest">After Work</div>
+                  <div className="font-bold text-base text-[var(--text-primary)]">Evening Session</div>
+                  <div className="text-xs text-[var(--text-muted)]">After-work hypertrophy training</div>
                 </div>
               </div>
-              <div className="gym-font text-5xl text-white mb-2">4:00 – 10:00</div>
-              <div className="text-indigo-400 text-xs font-bold mb-4">PM</div>
-              <div className="flex items-center gap-2 text-gray-400 text-sm">
-                <Clock size={13} className="text-gray-600" />
-                Mon to Sat &nbsp;·&nbsp;
-                <span className="text-red-400 font-medium">Sunday Closed</span>
+              <div className="gym-font text-4xl sm:text-5xl text-[var(--text-primary)] mb-2">
+                4:00 PM – 10:00 PM
               </div>
-            </motion.div>
+              <div className="flex items-center gap-2 text-[var(--text-secondary)] text-xs">
+                <Clock size={13} className="text-[var(--text-muted)]" />
+                <span>Monday to Saturday</span>
+                <span className="text-[var(--border)]">·</span>
+                <span className="text-rose-500 font-semibold">Sunday Closed</span>
+              </div>
+            </div>
           </div>
 
           {/* Rules strip */}
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-            className="glass rounded-2xl border border-yellow-500/20 overflow-hidden">
-            <div className="px-6 py-3 bg-yellow-500/10 border-b border-yellow-500/20 flex items-center gap-2">
-              <AlertCircle size={15} className="text-yellow-400" />
-              <span className="text-yellow-400 text-xs font-bold uppercase tracking-widest">Important Notes</span>
+          <div className="rounded-lg border border-[var(--border)] bg-[var(--surface-raised)] overflow-hidden">
+            <div className="px-6 py-3 border-b border-[var(--border)] bg-[var(--surface)] flex items-center gap-2">
+              <AlertCircle size={15} className="text-[var(--primary)]" />
+              <span className="text-[var(--text-muted)] text-xs font-bold uppercase tracking-widest">Gym Rules & Etiquette</span>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-white/5">
+            <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-[var(--border)]">
               {[
-                { icon: Footprints, title: 'Proper Gym Shoes', sub: 'Compulsory for all members' },
-                { icon: Dumbbell,   title: 'Rerack Your Weights', sub: 'After every set, every time' },
-                { icon: Sparkles,   title: 'Keep Gym Clean', sub: 'Maintain hygiene & discipline' },
+                { icon: Footprints, title: 'Clean Lifting Shoes', sub: 'Mandatory on the gym floor' },
+                { icon: Dumbbell,   title: 'Rerack Every Weight', sub: 'After every set, every time' },
+                { icon: Sparkles,   title: 'Maintain Floor Hygiene', sub: 'Wipe benches after use' },
               ].map((n, i) => (
-                <div key={i} className="flex items-center gap-4 px-6 py-5">
-                  <n.icon size={20} className="flex-shrink-0 mt-0.5 text-primary" />
+                <div key={i} className="flex items-center gap-4 px-6 py-4">
+                  <n.icon size={18} className="flex-shrink-0 text-[var(--primary)]" />
                   <div>
-                    <div className="text-white font-semibold text-sm">{n.title}</div>
-                    <div className="text-gray-500 text-xs mt-0.5">{n.sub}</div>
+                    <div className="text-[var(--text-primary)] font-semibold text-xs sm:text-sm">{n.title}</div>
+                    <div className="text-[var(--text-muted)] text-[11px] mt-0.5">{n.sub}</div>
                   </div>
                 </div>
               ))}
             </div>
-          </motion.div>
+          </div>
         </div>
       </section>
 
       {/* ══ VALUES ════════════════════════════════════════ */}
       <section className="py-20 px-6">
         <div className="max-w-6xl mx-auto">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
-            <span className="section-pill">Our Values</span>
-            <h2 className="gym-font text-5xl text-white">WHAT WE <span className="gradient-text">STAND FOR</span></h2>
-          </motion.div>
+          <div className="text-center mb-12 max-w-2xl mx-auto">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-sm bg-[var(--surface-raised)] border border-[var(--border)] text-[var(--primary)] text-xs font-bold uppercase tracking-[0.15em] mb-3">
+              Our Principles
+            </div>
+            <h2 className="gym-font text-4xl sm:text-5xl text-[var(--text-primary)]">
+              WHAT WE STAND FOR
+            </h2>
+          </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {values.map((v, i) => {
               const Icon = v.icon;
               return (
-                <motion.div key={i}
-                  initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }} transition={{ delay: i * 0.1 }}
-                  whileHover={{ y: -4 }}
-                  className="glass rounded-2xl p-6 border border-white/5 hover:border-primary/30 transition-all">
-                  <div className="w-11 h-11 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary mb-4">
-                    <Icon size={20} />
+                <div
+                  key={i}
+                  className="rounded-lg p-6 border border-[var(--border)] bg-[var(--surface)] hover:border-[var(--primary)] transition-all flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="w-10 h-10 rounded-md bg-[var(--surface-raised)] border border-[var(--border)] flex items-center justify-center text-[var(--primary)] mb-4">
+                      <Icon size={18} />
+                    </div>
+                    <h3 className="text-[var(--text-primary)] font-bold text-base mb-2">{v.title}</h3>
+                    <p className="text-[var(--text-secondary)] text-xs sm:text-sm leading-relaxed">{v.desc}</p>
                   </div>
-                  <h3 className="text-white font-semibold mb-2">{v.title}</h3>
-                  <p className="text-gray-500 text-sm leading-relaxed">{v.desc}</p>
-                </motion.div>
+                </div>
               );
             })}
           </div>
@@ -288,130 +330,150 @@ export default function AboutPage() {
       </section>
 
       {/* ══ TEAM ══════════════════════════════════════════ */}
-      <section className="py-20 px-6 bg-[#0d0e11] border-y border-white/5">
+      <section className="py-20 px-6 bg-[var(--surface)] border-y border-[var(--border)]">
         <div className="max-w-6xl mx-auto">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
-            <span className="section-pill">Expert Team</span>
-            <h2 className="gym-font text-5xl text-white">MEET YOUR <span className="gradient-text">TRAINERS</span></h2>
-            <p className="text-gray-500 mt-3">Certified professionals dedicated to your transformation</p>
-          </motion.div>
+          <div className="text-center mb-12 max-w-2xl mx-auto">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-sm bg-[var(--surface-raised)] border border-[var(--border)] text-[var(--primary)] text-xs font-bold uppercase tracking-[0.15em] mb-3">
+              Certified Faculty
+            </div>
+            <h2 className="gym-font text-4xl sm:text-5xl text-[var(--text-primary)]">
+              MEET YOUR COACHES
+            </h2>
+            <p className="text-[var(--text-secondary)] text-xs sm:text-sm mt-2">
+              Qualified trainers dedicated to your physical development and injury prevention
+            </p>
+          </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {team.map((t, i) => (
-              <motion.div key={i}
-                initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }} transition={{ delay: i * 0.1 }}
-                whileHover={{ y: -5 }}
-                className="glass rounded-2xl overflow-hidden group border border-white/5 hover:border-primary/30 transition-all">
-                <div className="relative h-52 overflow-hidden">
-                  <img src={t.img} alt={t.name} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"/>
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0b0c0e] via-transparent to-transparent"/>
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"/>
+              <div
+                key={i}
+                className="rounded-lg overflow-hidden border border-[var(--border)] bg-[var(--surface-raised)] group transition-all"
+              >
+                <div className="relative h-56 overflow-hidden">
+                  <img
+                    src={t.img}
+                    alt={t.name}
+                    loading="lazy"
+                    decoding="async"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
                 </div>
                 <div className="p-4">
-                  <div className="text-white font-bold text-base">{t.name}</div>
-                  <div className="text-secondary text-xs font-semibold mt-0.5">{t.role}</div>
-                  <div className="text-gray-600 text-xs mt-2">{t.spec}</div>
-                  <div className="text-gray-700 text-xs mt-0.5">{t.exp} experience</div>
+                  <div className="text-[var(--text-primary)] font-bold text-base">{t.name}</div>
+                  <div className="text-[var(--primary)] text-xs font-semibold mt-0.5">{t.role}</div>
+                  <div className="text-[var(--text-secondary)] text-xs mt-2">{t.spec}</div>
+                  <div className="text-[var(--text-muted)] text-xs mt-0.5">{t.exp} experience</div>
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ══ CONTACT & SOCIAL ══════════════════════════════ */}
+      {/* ══ CONTACT & REACH OUT ═══════════════════════════ */}
       <section className="py-20 px-6">
         <div className="max-w-5xl mx-auto">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
-            <span className="section-pill">Get in Touch</span>
-            <h2 className="gym-font text-5xl text-white">FIND <span className="gradient-text">US</span></h2>
-          </motion.div>
+          <div className="text-center mb-12 max-w-2xl mx-auto">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-sm bg-[var(--surface-raised)] border border-[var(--border)] text-[var(--primary)] text-xs font-bold uppercase tracking-[0.15em] mb-3">
+              Direct Contact
+            </div>
+            <h2 className="gym-font text-4xl sm:text-5xl text-[var(--text-primary)]">
+              FIND US
+            </h2>
+          </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-
             {/* Phone */}
-            <motion.a href={site.telHref}
-              initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0 }}
-              whileHover={{ y: -4, borderColor: 'var(--color-primary-border, rgba(148,62,58,0.4))' }}
-              className="glass rounded-2xl p-6 border border-white/8 flex items-start gap-4 transition-all group">
-              <div className="w-12 h-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary flex-shrink-0 group-hover:bg-primary/20 transition-all">
-                <Phone size={20} />
+            <a
+              href={site.telHref}
+              className="rounded-lg p-6 border border-[var(--border)] bg-[var(--surface)] hover:border-[var(--primary)] transition-all flex items-start gap-4 group"
+            >
+              <div className="w-10 h-10 rounded-md bg-[var(--surface-raised)] border border-[var(--border)] flex items-center justify-center text-[var(--primary)] flex-shrink-0">
+                <Phone size={18} />
               </div>
               <div>
-                <div className="text-gray-400 text-xs uppercase tracking-wider mb-1">Call / WhatsApp</div>
-                <div className="text-white font-bold text-lg">{site.phone || 'Contact us'}</div>
-                <div className="text-gray-500 text-xs mt-1">Available Mon–Sat</div>
+                <div className="text-[var(--text-muted)] text-[11px] font-bold uppercase tracking-wider mb-1">Direct Call</div>
+                <div className="text-[var(--text-primary)] font-bold text-base">{site.phone || 'Contact us'}</div>
+                <div className="text-[var(--text-muted)] text-xs mt-1">Available Mon–Sat 5am–10pm</div>
               </div>
-              <ChevronRight size={16} className="text-gray-600 group-hover:text-primary ml-auto mt-1 transition-colors" />
-            </motion.a>
+              <ChevronRight size={16} className="text-[var(--text-muted)] group-hover:text-[var(--primary)] ml-auto mt-1 transition-colors" />
+            </a>
 
             {/* Instagram */}
-            <motion.a href={site.instagramHref} target="_blank" rel="noreferrer"
-              initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}
-              whileHover={{ y: -4 }}
-              className="glass rounded-2xl p-6 border border-white/8 flex items-start gap-4 transition-all group">
-              <div className="w-12 h-12 rounded-2xl bg-pink-500/10 border border-pink-500/20 flex items-center justify-center text-pink-400 flex-shrink-0 group-hover:bg-pink-500/20 transition-all">
-                <Instagram size={20} />
+            <a
+              href={site.instagramHref}
+              target="_blank"
+              rel="noreferrer"
+              className="rounded-lg p-6 border border-[var(--border)] bg-[var(--surface)] hover:border-pink-500/40 transition-all flex items-start gap-4 group"
+            >
+              <div className="w-10 h-10 rounded-md bg-[var(--surface-raised)] border border-[var(--border)] flex items-center justify-center text-pink-500 flex-shrink-0">
+                <Instagram size={18} />
               </div>
               <div>
-                <div className="text-gray-400 text-xs uppercase tracking-wider mb-1">Follow Us</div>
-                <div className="text-white font-bold text-lg">@{site.instagram || 'fitnation'}</div>
-                <div className="text-gray-500 text-xs mt-1">Daily motivation & updates</div>
+                <div className="text-[var(--text-muted)] text-[11px] font-bold uppercase tracking-wider mb-1">Instagram</div>
+                <div className="text-[var(--text-primary)] font-bold text-base">@{site.instagram || 'fitnation'}</div>
+                <div className="text-[var(--text-muted)] text-xs mt-1">Daily athlete lifts & updates</div>
               </div>
-              <ChevronRight size={16} className="text-gray-600 group-hover:text-pink-400 ml-auto mt-1 transition-colors" />
-            </motion.a>
+              <ChevronRight size={16} className="text-[var(--text-muted)] group-hover:text-pink-500 ml-auto mt-1 transition-colors" />
+            </a>
 
             {/* Address */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }}
-              whileHover={{ y: -4 }}
-              className="glass rounded-2xl p-6 border border-white/8 flex items-start gap-4 transition-all">
-              <div className="w-12 h-12 rounded-2xl bg-green-400/10 border border-green-400/20 flex items-center justify-center text-green-400 flex-shrink-0">
-                <MapPin size={20} />
+            <div className="rounded-lg p-6 border border-[var(--border)] bg-[var(--surface)] flex items-start gap-4">
+              <div className="w-10 h-10 rounded-md bg-[var(--surface-raised)] border border-[var(--border)] flex items-center justify-center text-[var(--primary)] flex-shrink-0">
+                <MapPin size={18} />
               </div>
               <div>
-                <div className="text-gray-400 text-xs uppercase tracking-wider mb-1">Location</div>
-                <div className="text-white font-bold">{site.gymName || 'FITNATION'}</div>
-                <div className="text-gray-400 text-sm mt-1">{site.address || site.tagline || 'Your Fitness, Our Mission'}</div>
-                <div className="text-gray-500 text-xs mt-1 space-y-0.5">
-                  {(site.hours || []).map((h, i) => <div key={i}>{h}</div>)}
-                </div>
+                <div className="text-[var(--text-muted)] text-[11px] font-bold uppercase tracking-wider mb-1">Location</div>
+                <div className="text-[var(--text-primary)] font-bold text-base">{site.gymName || 'FITNATION'}</div>
+                <div className="text-[var(--text-secondary)] text-xs mt-1">{site.address || site.tagline || 'Your Fitness, Our Mission'}</div>
               </div>
-            </motion.div>
+            </div>
           </div>
 
           {/* WhatsApp CTA banner */}
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-            className="mt-5 glass-cyan rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="mt-6 rounded-lg p-6 border border-[var(--border)] bg-[var(--surface-raised)] flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
-              <div className="text-white font-bold text-lg">Let's build a stronger community together</div>
-              <div className="text-emerald-300/80 text-sm mt-0.5">Message us on WhatsApp for any query or to join {site.gymName || 'FITNATION'}</div>
+              <div className="text-[var(--text-primary)] font-bold text-base">Book a Free Floor Walkthrough</div>
+              <div className="text-[var(--text-secondary)] text-xs mt-1">Talk to Head Coach Ajeet on WhatsApp to schedule your trial session.</div>
             </div>
-            <a href={site.waHref} target="_blank" rel="noreferrer"
-              className="btn-fire px-6 py-3 flex-shrink-0 flex items-center gap-2">
-              <MessageCircle size={16} /> Chat on WhatsApp
+            <a
+              href={site.waHref}
+              target="_blank"
+              rel="noreferrer"
+              className="px-5 py-2.5 rounded-md bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white text-xs font-bold uppercase tracking-wider transition-colors shadow-xs flex items-center gap-2 flex-shrink-0"
+            >
+              <MessageCircle size={15} /> Chat on WhatsApp
             </a>
-          </motion.div>
+          </div>
         </div>
       </section>
 
-      {/* ══ CTA ══════════════════════════════════════════ */}
-      <section className="py-20 px-6">
-        <div className="max-w-2xl mx-auto text-center">
-          <motion.div initial={{ opacity: 0, scale: 0.96 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}
-            className="glass rounded-3xl p-10 border border-white/8">
-            <h2 className="gym-font text-5xl text-white mb-4">READY TO <span className="gradient-text">START?</span></h2>
-            <p className="text-gray-400 mb-7">Join hundreds of members who have transformed with {site.gymName || 'FITNATION'}.</p>
-            <div className="flex flex-wrap gap-3 justify-center">
-              <Link to="/enquiry" className="btn-fire px-8 py-3.5 flex items-center gap-2">
-                Enquire to Join <ArrowRight size={16} />
-              </Link>
-              <a href={site.waHref} target="_blank" rel="noreferrer"
-                className="btn-outline px-8 py-3.5 flex items-center gap-2">
-                <MessageCircle size={16}/> WhatsApp Us
-              </a>
-            </div>
-          </motion.div>
+      {/* ══ BOTTOM CTA ════════════════════════════════════ */}
+      <section className="py-16 sm:py-20 px-6 border-t border-[var(--border)] bg-[var(--surface)]">
+        <div className="max-w-xl mx-auto text-center">
+          <h2 className="gym-font text-4xl sm:text-5xl text-[var(--text-primary)] mb-3">
+            READY TO COMMIT?
+          </h2>
+          <p className="text-[var(--text-secondary)] text-xs sm:text-sm mb-7 leading-relaxed">
+            Join 500+ local members building strength, conditioning, and discipline at {gymName}.
+          </p>
+          <div className="flex flex-wrap gap-3 justify-center">
+            <Link
+              to="/enquiry"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-md bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white text-xs font-bold uppercase tracking-wider transition-colors shadow-xs"
+            >
+              Enquire For Membership <ArrowRight size={14} />
+            </Link>
+            <a
+              href={site.waHref}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-md border border-[var(--border)] bg-[var(--surface-raised)] hover:bg-[var(--surface)] text-[var(--text-primary)] text-xs font-bold uppercase tracking-wider transition-colors"
+            >
+              <MessageCircle size={14} /> WhatsApp Us
+            </a>
+          </div>
         </div>
       </section>
     </div>
