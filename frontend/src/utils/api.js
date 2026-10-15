@@ -24,7 +24,10 @@ function determineBaseUrl() {
     window.location.hostname.endsWith('.local')
   );
 
-  const rawEnv = process.env.REACT_APP_API_URL;
+  let rawEnv = process.env.REACT_APP_API_URL;
+  if (rawEnv) {
+    rawEnv = rawEnv.trim().replace(/\/+$/, '');
+  }
 
   // If running in a deployed/production browser environment but rawEnv was set to localhost,
   // automatically guard against broken production builds by using PRODUCTION_API.
@@ -33,7 +36,14 @@ function determineBaseUrl() {
     return PRODUCTION_API;
   }
 
-  if (rawEnv) return rawEnv;
+  if (rawEnv) {
+    // If the configured API URL omitted '/api' (e.g. 'https://g-ym-backend.vercel.app'),
+    // automatically append '/api' so all requests route correctly to backend endpoints.
+    if (!rawEnv.endsWith('/api')) {
+      return `${rawEnv}/api`;
+    }
+    return rawEnv;
+  }
   if (process.env.NODE_ENV === 'production' || (isBrowser && !isLocalHost)) return PRODUCTION_API;
   return 'http://localhost:5000/api';
 }
