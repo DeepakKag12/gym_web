@@ -9,7 +9,7 @@ import { thumb } from '../utils/img';
 
 export default function CheckoutPage() {
   const { cart, total, clearCart } = useCart();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [name, setName]   = useState(user?.name || '');
   const [phone, setPhone] = useState(user?.phone || '');
@@ -18,20 +18,27 @@ export default function CheckoutPage() {
   const [placedTotal, setPlacedTotal] = useState(null);
   const idempotencyKeyRef = useRef(`ord_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`);
 
-  // Redirect unauthenticated users to login
+  // Sync user details once loaded
   useEffect(() => {
-    if (!user) navigate('/login', { replace: true });
-  }, [user, navigate]);
+    if (user?.name) setName(prev => prev || user.name);
+    if (user?.phone) setPhone(prev => prev || user.phone);
+  }, [user]);
+
+  // Redirect unauthenticated users to login once auth resolution is complete
+  useEffect(() => {
+    if (!authLoading && !user) navigate('/login', { replace: true });
+  }, [authLoading, user, navigate]);
 
   // Redirect if cart is empty
   useEffect(() => {
-    if (cart.length === 0 && !success) navigate('/cart', { replace: true });
-  }, [cart.length, success, navigate]);
+    if (!authLoading && cart.length === 0 && !success) navigate('/cart', { replace: true });
+  }, [authLoading, cart.length, success, navigate]);
 
-  if (!user || (cart.length === 0 && !success)) return null;
+  if (authLoading || !user || (cart.length === 0 && !success)) return null;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (loading) return;
     if (!name || !phone) { toast.error('Please enter your name and phone'); return; }
     setLoading(true);
     try {

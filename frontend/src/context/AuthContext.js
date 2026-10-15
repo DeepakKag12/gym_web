@@ -4,6 +4,17 @@ import { bustCache, clearClientCache } from '../utils/api';
 
 const AuthContext = createContext(null);
 
+function decodeJwtPayload(token) {
+  try {
+    const base64Url = token.split('.')[1];
+    if (!base64Url) return null;
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    return JSON.parse(atob(base64));
+  } catch {
+    return null;
+  }
+}
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -15,28 +26,49 @@ export const AuthProvider = ({ children }) => {
       return;
     }
 
+    const payload = decodeJwtPayload(token);
+    // If token has an exp claim and is already expired, clear immediately
+    if (payload?.exp && Date.now() >= payload.exp * 1000) {
+      localStorage.removeItem('token');
+      clearClientCache();
+      sessionStorage.removeItem('auth_user');
+      setUser(null);
+      setLoading(false);
+      return;
+    }
+
     // ── Step 1: Restore instantly from sessionStorage (survives refresh, cleared on tab close)
     const cached = sessionStorage.getItem('auth_user');
     if (cached) {
       try {
         const parsed = JSON.parse(cached);
-        setUser(parsed);
-        setLoading(false); // ← UI renders immediately, no black screen
+        // Only restore if the cached user matches the token identity
+        const tokenUserId = payload?.id || payload?._id;
+        if (!tokenUserId || !parsed?._id || tokenUserId === parsed._id) {
+          setUser(parsed);
+          setLoading(false); // ← UI renders immediately, no black screen
 
-        // ── Step 2: Silently re-validate token in background
-        API.get('/auth/me')
-          .then(res => {
-            setUser(res.data);
-            sessionStorage.setItem('auth_user', JSON.stringify(res.data));
-          })
-          .catch(() => {
-            // Token expired or revoked — log out cleanly
-            localStorage.removeItem('token');
-            clearClientCache();
-            sessionStorage.removeItem('auth_user');
-            setUser(null);
-          });
-        return;
+          // ── Step 2: Silently re-validate token in background
+          API.get('/auth/me')
+            .then(res => {
+              setUser(res.data);
+              sessionStorage.setItem('auth_user', JSON.stringify(res.data));
+            })
+            .catch(err => {
+              // Token expired or revoked — log out cleanly only on 401/403
+              if (err.response?.status === 401 || err.response?.status === 403) {
+                localStorage.removeItem('token');
+                clearClientCache();
+                sessionStorage.removeItem('auth_user');
+                setUser(null);
+              }
+              // Transient network errors or 5xx preserve existing cached session
+            });
+          return;
+        } else {
+          // Stale cache from different user — discard it
+          sessionStorage.removeItem('auth_user');
+        }
       } catch {
         sessionStorage.removeItem('auth_user');
       }
@@ -50,10 +82,12 @@ export const AuthProvider = ({ children }) => {
         setUser(res.data);
         sessionStorage.setItem('auth_user', JSON.stringify(res.data));
       })
-      .catch(() => {
-        localStorage.removeItem('token');
-        clearClientCache();
-        sessionStorage.removeItem('auth_user');
+      .catch(err => {
+        if (err.response?.status === 401 || err.response?.status === 403) {
+          localStorage.removeItem('token');
+          clearClientCache();
+          sessionStorage.removeItem('auth_user');
+        }
       })
       .finally(() => {
         clearTimeout(timeout);

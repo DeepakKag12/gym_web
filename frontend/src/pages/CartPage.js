@@ -34,7 +34,7 @@ export default function CartPage() {
           <div className="lg:col-span-2 space-y-3">
             {cart.map((item, i) => (
               <div key={i} className="glass rounded-2xl p-4 flex items-center gap-4">
-                <Link to={`/product/${item._id}`} className="flex-shrink-0 group block">
+                <Link to={`/store/${item._id}`} className="flex-shrink-0 group block">
                   {item.images?.[0] ? (
                     <img src={thumb(item.images[0], 144)} loading="lazy" decoding="async" alt={item.name} className="w-[72px] h-[72px] object-cover rounded-xl border border-white/10 group-hover:border-orange-500/50 transition-colors" />
                   ) : (
@@ -44,7 +44,7 @@ export default function CartPage() {
                   )}
                 </Link>
                 <div className="flex-1 min-w-0">
-                  <Link to={`/product/${item._id}`} className="hover:text-orange-400 transition-colors block">
+                  <Link to={`/store/${item._id}`} className="hover:text-orange-400 transition-colors block">
                     <h3 className="text-white font-semibold text-sm line-clamp-1">{item.name}</h3>
                   </Link>
                   {(item.flavor || item.weight) && (

@@ -175,6 +175,7 @@ function AppRoutes() {
           <Route path="/diet"               element={<DietPage />} />
           <Route path="/store"              element={<StorePage />} />
           <Route path="/store/:id"          element={<ProductDetailPage />} />
+          <Route path="/product/:id"        element={<ProductDetailPage />} />
           <Route path="/cart"               element={<CartPage />} />
           <Route path="/checkout"           element={<CheckoutPage />} />
           <Route path="/transformations"    element={<TransformationsPage />} />

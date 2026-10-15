@@ -1,50 +1,74 @@
 import * as React from 'react';
-import * as AvatarPrimitive from '@radix-ui/react-avatar';
-
 import { cn } from '../../lib/utils';
 
 /**
- * shadcn/ui Avatar, ported to JS for this CRA project.
- *
- * Radix handles the part that is easy to get wrong: the fallback shows only
- * after the image genuinely fails or is still loading, so there is no flash of
- * initials on a fast connection.
- *
- * NOTE: this is a different component from the `Avatar` in components/ui/index.js,
- * which is the initials-only badge used by the admin panel. This one takes an
- * image. Import them by path, not from the barrel.
+ * Avatar component with smooth image loading and fallback support.
+ * Pure React implementation without fragile ESM subpath dependency issues.
  */
-const Avatar = React.forwardRef(({ className, ...props }, ref) => (
-  <AvatarPrimitive.Root
-    ref={ref}
-    className={cn(
-      'relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full',
-      className,
-    )}
-    {...props}
-  />
-));
-Avatar.displayName = AvatarPrimitive.Root.displayName;
+const AvatarContext = React.createContext({ status: 'idle', setStatus: () => {} });
 
-const AvatarImage = React.forwardRef(({ className, ...props }, ref) => (
-  <AvatarPrimitive.Image
-    ref={ref}
-    className={cn('aspect-square h-full w-full object-cover', className)}
-    {...props}
-  />
-));
-AvatarImage.displayName = AvatarPrimitive.Image.displayName;
+const Avatar = React.forwardRef(({ className, children, ...props }, ref) => {
+  const [status, setStatus] = React.useState('idle');
+  return (
+    <AvatarContext.Provider value={{ status, setStatus }}>
+      <div
+        ref={ref}
+        className={cn(
+          'relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full',
+          className,
+        )}
+        {...props}
+      >
+        {children}
+      </div>
+    </AvatarContext.Provider>
+  );
+});
+Avatar.displayName = 'Avatar';
 
-const AvatarFallback = React.forwardRef(({ className, ...props }, ref) => (
-  <AvatarPrimitive.Fallback
-    ref={ref}
-    className={cn(
-      'flex h-full w-full items-center justify-center rounded-full bg-white/10 text-white',
-      className,
-    )}
-    {...props}
-  />
-));
-AvatarFallback.displayName = AvatarPrimitive.Fallback.displayName;
+const AvatarImage = React.forwardRef(({ className, src, alt = '', ...props }, ref) => {
+  const { status, setStatus } = React.useContext(AvatarContext);
+
+  React.useEffect(() => {
+    if (!src) {
+      setStatus('error');
+      return;
+    }
+    const img = new Image();
+    img.src = src;
+    img.onload = () => setStatus('loaded');
+    img.onerror = () => setStatus('error');
+  }, [src, setStatus]);
+
+  if (status !== 'loaded') return null;
+
+  return (
+    <img
+      ref={ref}
+      src={src}
+      alt={alt}
+      className={cn('aspect-square h-full w-full object-cover', className)}
+      {...props}
+    />
+  );
+});
+AvatarImage.displayName = 'AvatarImage';
+
+const AvatarFallback = React.forwardRef(({ className, ...props }, ref) => {
+  const { status } = React.useContext(AvatarContext);
+  if (status === 'loaded') return null;
+
+  return (
+    <div
+      ref={ref}
+      className={cn(
+        'flex h-full w-full items-center justify-center rounded-full bg-white/10 text-white',
+        className,
+      )}
+      {...props}
+    />
+  );
+});
+AvatarFallback.displayName = 'AvatarFallback';
 
 export { Avatar, AvatarImage, AvatarFallback };
