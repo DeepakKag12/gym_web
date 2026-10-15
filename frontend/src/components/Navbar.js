@@ -14,25 +14,14 @@ import ThemeSwitch from './ThemeSwitch';
 
 function Logo({ size = 32 }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 100 100" fill="none">
-      <circle cx="50" cy="50" r="44" stroke="url(#nr2)" strokeWidth="5" fill="none"/>
-      <rect x="4"  y="46" width="18" height="8" rx="3" fill="url(#nb2)"/>
-      <rect x="2"  y="42" width="6"  height="16" rx="2" fill="#176b45"/>
-      <rect x="78" y="46" width="18" height="8" rx="3" fill="url(#nb2)"/>
-      <rect x="92" y="42" width="6"  height="16" rx="2" fill="#176b45"/>
-      <polygon points="50,18 28,75 72,75" fill="url(#nt2)"/>
-      <polygon points="50,40 40,65 60,65" fill="#141211"/>
-      <defs>
-        <linearGradient id="nt2" x1="28" y1="18" x2="72" y2="75" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#10b981"/><stop offset="100%" stopColor="#176b45"/>
-        </linearGradient>
-        <linearGradient id="nr2" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#176b45"/><stop offset="100%" stopColor="#141211"/>
-        </linearGradient>
-        <linearGradient id="nb2" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#10b981"/><stop offset="100%" stopColor="#141211"/>
-        </linearGradient>
-      </defs>
+    <svg width={size} height={size} viewBox="0 0 100 100" fill="none" aria-hidden="true">
+      <circle cx="50" cy="50" r="44" stroke="var(--primary, #16a34a)" strokeWidth="5" fill="none"/>
+      <rect x="4"  y="46" width="18" height="8" rx="2" fill="var(--primary, #16a34a)"/>
+      <rect x="2"  y="42" width="6"  height="16" rx="2" fill="var(--primary, #16a34a)"/>
+      <rect x="78" y="46" width="18" height="8" rx="2" fill="var(--primary, #16a34a)"/>
+      <rect x="92" y="42" width="6"  height="16" rx="2" fill="var(--primary, #16a34a)"/>
+      <polygon points="50,18 28,75 72,75" fill="var(--primary, #16a34a)"/>
+      <polygon points="50,42 42,65 58,65" fill="var(--bg, #0a0c10)"/>
     </svg>
   );
 }
@@ -97,10 +86,10 @@ export default function Navbar() {
           <div className="flex items-center justify-between h-14 sm:h-16">
 
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-2 flex-shrink-0 group min-h-0">
-              <motion.div whileHover={{ rotate: 10 }} transition={{ type: 'spring', stiffness: 300 }}>
+            <Link to="/" className="flex items-center gap-2 flex-shrink-0 group min-h-0" aria-label="FitNation by Ajeet Home">
+              <div className="group-hover:opacity-90 transition-opacity">
                 <Logo size={30} />
-              </motion.div>
+              </div>
               <div className="leading-none">
                 <div className={`font-black gym-font text-base sm:text-lg tracking-widest ${isDark ? 'text-white' : 'text-slate-900'}`}>FITNATION</div>
                 <div className="text-primary font-bold text-[8px] sm:text-[9px] tracking-[3px]">BY AJEET</div>
@@ -128,7 +117,7 @@ export default function Navbar() {
             {/* Desktop Right Actions */}
             <div className="hidden lg:flex items-center gap-2">
               <ThemeSwitch />
-              <Link to="/cart" className={`relative p-2 rounded-xl transition-all min-h-0 ${
+              <Link to="/cart" aria-label="Shopping Cart" className={`relative p-2 rounded-xl transition-all min-h-0 ${
                 isDark ? 'text-gray-400 hover:text-white hover:bg-white/8' : 'text-slate-600 hover:text-slate-950 hover:bg-slate-200/60'
               }`}>
                 <ShoppingCart size={19} />
@@ -142,17 +131,17 @@ export default function Navbar() {
 
               {user ? (
                 <>
-                  <Link to={messagesPath} className={`relative p-2 rounded-xl transition-all min-h-0 ${
+                  <Link to={messagesPath} aria-label="Live Messages & Chat" className={`relative p-2 rounded-xl transition-all min-h-0 ${
                     isDark ? 'text-gray-400 hover:text-white hover:bg-white/8' : 'text-slate-600 hover:text-slate-950 hover:bg-slate-200/60'
                   }`} title="Live Messages & Chat">
                     <MessageSquare size={19} />
                     {unreadMessages > 0 && (
-                      <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 bg-emerald-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center px-0.5 animate-pulse">
+                      <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 bg-emerald-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center px-0.5">
                         {unreadMessages}
                       </span>
                     )}
                   </Link>
-                  <Link to="/notifications" className={`relative p-2 rounded-xl transition-all min-h-0 ${
+                  <Link to="/notifications" aria-label="Notifications" className={`relative p-2 rounded-xl transition-all min-h-0 ${
                     isDark ? 'text-gray-400 hover:text-white hover:bg-white/8' : 'text-slate-600 hover:text-slate-950 hover:bg-slate-200/60'
                   }`}>
                     <Bell size={19} />
@@ -176,37 +165,37 @@ export default function Navbar() {
                   }`}>
                     <LayoutDashboard size={13} /> Panel
                   </Link>
-                  <Link to="/settings" className={`p-2 rounded-xl transition-all min-h-0 ${
+                  <Link to="/settings" aria-label="Account Settings" className={`p-2 rounded-xl transition-all min-h-0 ${
                     isDark ? 'text-gray-400 hover:text-white hover:bg-white/8' : 'text-slate-600 hover:text-slate-950 hover:bg-slate-200/60'
                   }`}>
                     <Settings size={17} />
                   </Link>
-                  <button onClick={handleLogout} className="p-2 rounded-xl text-gray-500 hover:text-red-400 hover:bg-red-500/8 transition-all min-h-0">
+                  <button onClick={handleLogout} aria-label="Sign Out" className="p-2 rounded-xl text-gray-500 hover:text-red-400 hover:bg-red-500/8 transition-all min-h-0">
                     <LogOut size={17} />
                   </button>
                 </>
               ) : (
-                <Link to="/login" className="btn-fire text-sm px-5 py-2 min-h-0">Sign In</Link>
+                <Link to="/login" className="btn-primary text-sm px-5 py-2 min-h-0">Sign In</Link>
               )}
             </div>
 
             {/* Mobile — cart + messages + bell + hamburger */}
             <div className="flex items-center gap-1 lg:hidden">
               {user && (
-                <Link to={messagesPath} className={`relative p-2 min-h-0 ${isDark ? 'text-gray-400' : 'text-slate-600'}`} title="Chat">
+                <Link to={messagesPath} aria-label="Chat" className={`relative p-2 min-h-0 ${isDark ? 'text-gray-400' : 'text-slate-600'}`} title="Chat">
                   <MessageSquare size={20} />
                   {unreadMessages > 0 && (
-                    <span className="absolute top-1 right-1 w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+                    <span className="absolute top-1 right-1 w-2 h-2 bg-emerald-500 rounded-full" />
                   )}
                 </Link>
               )}
               {user && unread > 0 && (
-                <Link to="/notifications" className={`relative p-2 min-h-0 ${isDark ? 'text-gray-400' : 'text-slate-600'}`}>
+                <Link to="/notifications" aria-label="Notifications" className={`relative p-2 min-h-0 ${isDark ? 'text-gray-400' : 'text-slate-600'}`}>
                   <Bell size={20} />
                   <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
                 </Link>
               )}
-              <Link to="/cart" className={`relative p-2 min-h-0 ${isDark ? 'text-gray-400' : 'text-slate-600'}`}>
+              <Link to="/cart" aria-label="Cart" className={`relative p-2 min-h-0 ${isDark ? 'text-gray-400' : 'text-slate-600'}`}>
                 <ShoppingCart size={20} />
                 {count > 0 && (
                   <span className="absolute top-1 right-0.5 w-4 h-4 bg-primary text-white text-[9px] font-bold rounded-full flex items-center justify-center">{count}</span>
@@ -214,6 +203,8 @@ export default function Navbar() {
               </Link>
               <ThemeSwitch size={20} />
               <button onClick={() => setMobileOpen(!mobileOpen)}
+                aria-label={mobileOpen ? "Close menu" : "Open menu"}
+                aria-expanded={mobileOpen}
                 className={`p-2 rounded-xl transition-all min-h-0 ${
                   isDark ? 'text-gray-400 hover:text-white hover:bg-white/8' : 'text-slate-600 hover:text-slate-950 hover:bg-slate-200/60'
                 }`}>
@@ -231,7 +222,7 @@ export default function Navbar() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.2 }}
-              className="lg:hidden border-t border-[var(--color-border)] bg-[var(--color-bg)]/98 backdrop-blur-2xl max-h-[calc(100vh-56px)] overflow-y-auto"
+              className="lg:hidden border-t border-[var(--border)] bg-[var(--bg)] shadow-xl max-h-[calc(100vh-56px)] overflow-y-auto"
             >
               <div className="px-4 py-3 space-y-1">
                 {/* Nav links */}

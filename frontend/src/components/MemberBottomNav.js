@@ -30,26 +30,29 @@ export default function MemberBottomNav() {
 
   return (
     <nav
+      aria-label="Member navigation"
       className="lg:hidden fixed bottom-0 inset-x-0 z-40 flex panel-bar"
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
       {TABS.map(tab => {
         const Icon = tab.icon;
         const active = location.pathname === tab.path;
+        const hasUnread = tab.path === '/notifications' && unread > 0;
         return (
           <Link
             key={tab.path}
             to={tab.path}
             aria-current={active ? 'page' : undefined}
+            aria-label={hasUnread ? `${tab.label}, ${unread} unread notifications` : tab.label}
             className={`panel-tab ${active ? 'panel-tab-on' : ''}`}
           >
             <span className="relative">
-              <Icon size={20} strokeWidth={active ? 2.4 : 1.8} />
-              {tab.path === '/notifications' && unread > 0 && (
-                <span className="panel-dot">{unread > 9 ? '9+' : unread}</span>
+              <Icon size={20} strokeWidth={active ? 2.4 : 1.8} aria-hidden="true" />
+              {hasUnread && (
+                <span className="panel-dot" aria-hidden="true">{unread > 9 ? '9+' : unread}</span>
               )}
             </span>
-            {tab.label}
+            <span>{tab.label}</span>
           </Link>
         );
       })}
