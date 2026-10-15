@@ -11,25 +11,48 @@ module.exports = {
       },
       colors: {
         primary: {
-          DEFAULT: 'var(--primary, #176b45)',
-          hover: 'var(--primary-hover, #125638)',
-          active: 'var(--primary-active, #0e442c)',
-          light: 'var(--primary-soft, rgba(23, 107, 69, 0.12))',
-          dark: '#0e442c',
+          DEFAULT: 'var(--primary, #16a34a)',
+          hover: 'var(--primary-hover, #15803d)',
+          active: 'var(--primary-active, #166534)',
+          light: 'var(--primary-soft, rgba(22, 163, 74, 0.12))',
+          dark: '#14532d',
         },
-        secondary: 'var(--secondary, #2c2523)',
-        accent:  'var(--accent, #10b981)',
+        secondary: {
+          DEFAULT: 'var(--secondary, #1f242e)',
+          hover: 'var(--secondary-hover, #28303d)',
+          soft: 'var(--secondary-soft, #171b24)',
+        },
+        accent: {
+          DEFAULT: 'var(--accent, #16a34a)',
+          hover: 'var(--accent-hover, #15803d)',
+          soft: 'var(--accent-soft, rgba(22, 163, 74, 0.14))',
+        },
+        surface: {
+          DEFAULT: 'var(--surface, #12151c)',
+          card: 'var(--surface-card, #171b24)',
+          hover: 'var(--surface-hover, #1d222e)',
+        },
 
-        // ── shadcn-style semantic tokens ──────────────────────────────────
-        // Pointed at the CSS variables this project already defines in
-        // index.css and theme.css. src/styles/panel.css re-points those same
-        // variables for the admin panel.
+        // ── semantic tokens ──────────────────────────────────────────────
         background: 'var(--bg)',
         foreground: 'var(--text)',
         'muted-foreground': 'var(--muted2)',
         input: 'var(--border)',
         ring: 'var(--primary, #16a34a)',
-        destructive: '#dc2626',
+        destructive: '#ef4444',
+        success: '#22c55e',
+        warning: '#f59e0b',
+      },
+      borderRadius: {
+        sm: '4px',
+        md: '8px',
+        lg: '12px',
+        xl: '16px',
+      },
+      boxShadow: {
+        sm: '0 1px 2px rgba(0, 0, 0, 0.25)',
+        md: '0 4px 12px rgba(0, 0, 0, 0.35)',
+        flat: '0 0 0 1px var(--border)',
       },
       backgroundOpacity: {
         '4':  '0.04',
@@ -37,9 +60,6 @@ module.exports = {
         '8':  '0.08',
       },
       aspectRatio: {
-        // Tailwind v4 writes these as `aspect-16/10`; on v3 they have to be
-        // declared. Named here so the ported component reads the same as the
-        // original instead of being littered with arbitrary values.
         '16/10': '16 / 10',
         '16/11': '16 / 11',
       },

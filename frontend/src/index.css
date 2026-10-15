@@ -77,17 +77,13 @@ button, a, [role="button"] { min-height: 44px; }
 }
 
 .gradient-text {
-  background: linear-gradient(135deg, var(--color-primary, #176b45), var(--color-highlight, #10b981));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--primary, #16a34a);
+  font-weight: inherit;
 }
 
 .gradient-text-warm {
-  background: linear-gradient(135deg, var(--color-primary, #176b45), #059669);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--highlight, #22c55e);
+  font-weight: inherit;
 }
 
 /* ── Text on Dark Photos / Overlays (Guaranteed high-contrast in all themes) ── */
@@ -98,14 +94,20 @@ button, a, [role="button"] { min-height: 44px; }
   color: rgba(255, 255, 255, 0.88) !important;
 }
 
+/* ── Tabular Numerals (Financial, Dates, Reps, Weights) ────────────────────── */
+.tabular-nums,
+.font-mono-num {
+  font-variant-numeric: tabular-nums;
+}
+
 /* ─────────────────────────────────────────────────────
-   BUTTONS (Unified Design System)
+   BUTTONS (Unified Design System — Solid & Focused)
 ───────────────────────────────────────────────────── */
 .btn-fire,
 .btn-primary {
-  background: var(--primary, #176b45);
-  color: var(--color-primary-contrast, #ffffff);
-  padding: 0.65rem 1.4rem;
+  background: var(--primary, #16a34a);
+  color: var(--primary-contrast, #ffffff);
+  padding: 0.625rem 1.25rem;
   border-radius: var(--radius-md, 8px);
   font-weight: 600;
   font-size: 0.875rem;
@@ -118,26 +120,17 @@ button, a, [role="button"] { min-height: 44px; }
   gap: 8px;
   white-space: nowrap;
   position: relative;
-  overflow: hidden;
-  box-shadow: var(--shadow-sm, 0 1px 2px rgba(0, 0, 0, 0.05));
-  transition: background 0.15s ease, transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.15s ease, border-color 0.15s ease;
+  box-shadow: var(--shadow-sm, 0 1px 2px rgba(0, 0, 0, 0.25));
+  transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
-.btn-fire::after,
-.btn-primary::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 60%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.20), transparent);
-  transform: skewX(-20deg);
-  pointer-events: none;
+.btn-fire:hover:not(:disabled),
+.btn-primary:hover:not(:disabled) {
+  background: var(--primary-hover, #15803d);
 }
-.btn-fire:hover:not(:disabled)::after,
-.btn-primary:hover:not(:disabled)::after {
-  left: 140%;
-  transition: left 0.75s ease-in-out;
+.btn-fire:focus-visible,
+.btn-primary:focus-visible {
+  outline: 2px solid var(--primary, #16a34a);
+  outline-offset: 2px;
 }
 .btn-fire:hover:not(:disabled),
 .btn-primary:hover:not(:disabled) {
