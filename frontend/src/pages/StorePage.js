@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Star, ShoppingCart, ShoppingBag, X, Zap, Shield, Truck, RotateCcw } from 'lucide-react';
@@ -52,7 +52,7 @@ function StarRating({ rating, count }) {
   );
 }
 
-function ProductCard({ product, onAdd }) {
+const ProductCard = React.memo(function ProductCard({ product, onAdd }) {
   const discount = product.discountPrice
     ? Math.round(((product.price - product.discountPrice) / product.price) * 100)
     : 0;
@@ -158,7 +158,7 @@ function ProductCard({ product, onAdd }) {
       </div>
     </div>
   );
-}
+});
 
 /* ── Skeleton loader card ── */
 function SkeletonCard() {
@@ -194,12 +194,12 @@ export default function StorePage() {
       .finally(() => setLoading(false));
   }, [category]);
 
-  const handleAdd = (product) => {
+  const handleAdd = useCallback((product) => {
     addToCart(product, 1);
     toast.success(`${product.name} added!`, {
       iconTheme: { primary: 'var(--color-primary, #176b45)', secondary: '#fff' },
     });
-  };
+  }, [addToCart]);
 
   const filtered = useMemo(() => {
     let result = products.filter(p =>

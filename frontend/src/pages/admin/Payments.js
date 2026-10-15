@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState, useDeferredValue } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { AnimatePresence } from 'framer-motion';
@@ -353,8 +353,9 @@ export default function AdminPayments() {
     toast.success('Payments exported to CSV.');
   };
 
+  const deferredSearch = useDeferredValue(search);
   const shown = useMemo(() => {
-    const q = search.trim().toLowerCase();
+    const q = deferredSearch.trim().toLowerCase();
     const now = new Date();
     const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
     const weekStart = now.getTime() - 7 * 86400000;
@@ -375,7 +376,7 @@ export default function AdminPayments() {
         || (r.note && r.note.toLowerCase().includes(q))
         || (r.kind && r.kind.toLowerCase().includes(q));
     });
-  }, [rows, source, search, dateRange]);
+  }, [rows, source, deferredSearch, dateRange]);
 
   const shownTotal = useMemo(() => shown.reduce((n, r) => n + (r.amount || 0), 0), [shown]);
 

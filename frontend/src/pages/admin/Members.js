@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState, useDeferredValue } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import {
@@ -597,9 +597,10 @@ export default function AdminMembers() {
     return c;
   }, [users]);
 
+  const deferredSearch = useDeferredValue(search);
   const shown = useMemo(() => {
     const active = EXPIRY_FILTERS.find(f => f.value === filter) || EXPIRY_FILTERS[0];
-    const q = search.trim().toLowerCase();
+    const q = deferredSearch.trim().toLowerCase();
     return users.filter(u => {
       if (!active.test(u)) return false;
       if (!q) return true;
@@ -607,7 +608,7 @@ export default function AdminMembers() {
         || u.email?.toLowerCase().includes(q)
         || u.phone?.includes(q);
     });
-  }, [users, filter, search]);
+  }, [users, filter, deferredSearch]);
 
   const columns = [
     { key: 'name',   label: 'Member',            width: 220 },
