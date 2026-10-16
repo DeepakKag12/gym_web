@@ -39,9 +39,9 @@ const MUSCLE_GROUPS = [
 const DIFFICULTIES = ['all', 'beginner', 'intermediate', 'advanced'];
 
 const DIFF_MAP = {
-  beginner:     { label: 'Beginner',     color: 'text-emerald-400 bg-emerald-500/10' },
-  intermediate: { label: 'Intermediate', color: 'text-amber-400 bg-amber-500/10' },
-  advanced:     { label: 'Advanced',     color: 'text-red-400 bg-red-500/10' },
+  beginner:     { label: 'Beginner',     color: 'text-emerald-700 dark:text-emerald-300 bg-emerald-500/15 border border-emerald-500/30' },
+  intermediate: { label: 'Intermediate', color: 'text-amber-700 dark:text-amber-300 bg-amber-500/15 border border-amber-500/30' },
+  advanced:     { label: 'Advanced',     color: 'text-rose-700 dark:text-rose-300 bg-rose-500/15 border border-rose-500/30' },
 };
 
 const videoOf = ex => ex?.video || ex?.videoUrl || '';
@@ -89,43 +89,7 @@ function useOnScreen(ref) {
   return visible;
 }
 
-/**
- * A YouTube clip, looping silently.
- *
- * A <video> tag cannot play a YouTube link, so this is the embed player.
- * Looping there needs playlist=<the same id>, which is YouTube's own quirk.
- *
- * It fades in rather than appearing straight away: the embed paints solid black
- * for the second or so it spends buffering, which on a slow phone turned the
- * card into a black rectangle and hid the still underneath. Staying transparent
- * until it has actually loaded means the member sees the photo, then the clip.
- * If the video is gone the fade never runs and the still simply stays.
- */
-function LoopEmbed({ id, title }) {
-  const [ready, setReady] = useState(false);
 
-  return (
-    <span className="absolute inset-0 overflow-hidden pointer-events-none">
-      <iframe
-        title={title}
-        src={`https://www.youtube-nocookie.com/embed/${id}?autoplay=1&mute=1&loop=1&playlist=${id}&controls=0&playsinline=1&modestbranding=1&rel=0&disablekb=1&fs=0`}
-        allow="autoplay; encrypted-media"
-        frameBorder="0"
-        // onLoad fires when the player page is up, a moment before the first
-        // frame; the short wait covers that gap so it never flashes black.
-        onLoad={() => setTimeout(() => setReady(true), 700)}
-        className="absolute top-1/2 left-1/2 border-0 transition-opacity duration-500"
-        style={{
-          width: '178%', height: '178%',
-          // Scaled past the frame to crop the letterboxing and title overlay,
-          // so the card reads as a clip rather than as an embed.
-          transform: 'translate(-50%, -50%) scale(1.35)',
-          opacity: ready ? 1 : 0,
-        }}
-      />
-    </span>
-  );
-}
 
 /**
  * An uploaded clip, looping silently.
@@ -187,33 +151,35 @@ function Thumb({ ex }) {
   const file = url && !isYouTube(url) ? url : '';
   const poster = yt
     ? `https://img.youtube.com/vi/${yt}/hqdefault.jpg`
-    : (ex.image ? img(ex.image, 500) : '');
+    : (ex.image ? img(ex.image, 600) : '');
 
   const [failed, setFailed] = useState(false);
   const ref = useRef(null);
   const onScreen = useOnScreen(ref);
   const reduced = usePrefersReducedMotion();
-  const play = onScreen && !reduced && (yt || file);
+  const play = onScreen && !reduced && Boolean(file);
 
   return (
-    <span ref={ref} className="absolute inset-0 block">
+    <span ref={ref} className="absolute inset-0 block overflow-hidden bg-slate-950">
       {poster && !failed ? (
         <img
           src={poster}
-          alt=""
+          alt={ex.title}
           loading="lazy"
           decoding="async"
           onError={() => setFailed(true)}
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
       ) : (
-        <span className="absolute inset-0 grid place-items-center">
-          <Dumbbell size={30} className="text-gray-700" />
+        <span className="absolute inset-0 grid place-items-center bg-slate-900">
+          <Dumbbell size={36} className="text-slate-600" />
         </span>
       )}
 
-      {play && yt && <LoopEmbed id={yt} title={ex.title} />}
+      {/* Dark gradient overlay for text & badges readability */}
+      <span className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
 
+      {/* Direct uploaded clip looping */}
       {play && file && <LoopVideo src={file} poster={poster} />}
     </span>
   );
@@ -227,47 +193,57 @@ function ExCard({ ex, index }) {
     <motion.div
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      // Capped so the last card in a long list is not held back by its index.
       transition={{ delay: Math.min(index, 8) * 0.035, duration: 0.35 }}
+      className="h-full"
     >
-      <Link to={`/exercises/${ex._id}`} className="ex-card group block h-full flex flex-col">
-        <div className="relative overflow-hidden bg-[#0f1218]" style={{ aspectRatio: '4 / 3' }}>
+      <Link
+        to={`/exercises/${ex._id}`}
+        className="ex-card group block h-full flex flex-col bg-white rounded-2xl overflow-hidden border border-slate-200/90 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_16px_36px_rgba(51,101,226,0.14)] hover:border-[#3365e2]/50 hover:-translate-y-1.5 transition-all duration-300"
+      >
+        <div className="relative overflow-hidden bg-slate-950 aspect-[16/10]">
           <Thumb ex={ex} />
 
-          <span className="absolute top-2.5 left-2.5 z-10 text-[11px] bg-black/60 backdrop-blur-sm text-on-photo px-2 py-0.5 rounded-full capitalize font-medium">
+          <span className="absolute top-2.5 left-2.5 z-10 text-[10px] bg-black/85 backdrop-blur-md text-white px-2.5 py-1 rounded-full capitalize font-bold tracking-wider border border-white/20 shadow-xs">
             {ex.muscleGroup}
           </span>
 
-          <div className="absolute top-2.5 right-2.5 flex flex-col items-end gap-1 z-10 pointer-events-none">
+          <div className="absolute top-2.5 right-2.5 flex flex-col items-end gap-1.5 z-10 pointer-events-none">
             {hasVideo && (
-              <span className="grid place-items-center bg-white/95 rounded-full shadow-md" style={{ width: 20, height: 20 }}>
-                <Play size={10} className="text-stone-900" style={{ marginLeft: 1 }} />
+              <span className="inline-flex items-center gap-1 bg-[#3365e2] text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-md">
+                <Play size={10} className="text-white fill-white" /> Video
               </span>
             )}
             {!ex.isPublic && (
-              <span className="flex items-center gap-1 bg-black/60 rounded-full px-2 py-0.5 text-[11px] text-amber-400">
+              <span className="flex items-center gap-1 bg-black/85 backdrop-blur-md rounded-full px-2.5 py-1 text-[10px] text-amber-400 font-bold border border-amber-400/25">
                 <Lock size={10} /> Members
               </span>
             )}
           </div>
         </div>
 
-        {/* flex-1 + mt-auto keeps the meta row on the baseline whether or not
-            the description runs to two lines, so a row of cards lines up. */}
-        <div className="p-3.5 flex flex-col flex-1">
-          <h3 className="text-white font-semibold text-sm mb-1 line-clamp-1 group-hover:text-primary transition-colors">
-            {ex.title}
-          </h3>
-          {ex.description && (
-            <p className="text-gray-500 text-xs line-clamp-2 leading-relaxed">{ex.description}</p>
-          )}
-          <div className="flex items-center justify-between mt-auto pt-3">
-            <span className={`text-[11px] px-2 py-0.5 rounded-full font-semibold capitalize ${diff.color}`}>
+        <div className="p-4 sm:p-5 flex flex-col flex-1 justify-between">
+          <div>
+            <h3 className="text-slate-900 font-black text-base mb-1.5 line-clamp-1 group-hover:text-[#3365e2] transition-colors leading-snug">
+              {ex.title}
+            </h3>
+            {ex.description && (
+              <p className="text-slate-600 text-xs sm:text-sm line-clamp-2 leading-relaxed font-normal mb-3">
+                {ex.description}
+              </p>
+            )}
+          </div>
+
+          <div className="flex items-center justify-between mt-auto pt-3 border-t border-slate-100">
+            <span className={`text-[10.5px] font-bold px-2.5 py-0.5 rounded-full capitalize ${diff.color}`}>
               {diff.label}
             </span>
             {ex.sets ? (
-              <span className="text-gray-500 text-[11px] flex items-center gap-1">
-                <Zap size={10} className="text-amber-400" />{ex.sets}×{ex.reps}
+              <span className="text-slate-800 bg-[#eff4fe] px-2.5 py-1 rounded-lg border border-[#3365e2]/20 text-[11px] font-black flex items-center gap-1 tabular-nums">
+                <Zap size={11} className="text-[#3365e2]" />{ex.sets}×{ex.reps}
+              </span>
+            ) : ex.equipmentNeeded ? (
+              <span className="text-slate-500 text-[11px] font-medium truncate max-w-[120px]">
+                {ex.equipmentNeeded}
               </span>
             ) : null}
           </div>
@@ -325,40 +301,39 @@ export default function ExercisesPage() {
   const filtering = search || activeMuscle !== 'all' || difficulty !== 'all';
 
   return (
-    <div className="min-h-screen bg-[var(--bg)] text-[var(--text-primary)] pt-16 transition-colors duration-200">
-      {/* Compact header — it used to fill more than half the first screen
-          before a single exercise appeared. */}
-      <div className="relative overflow-hidden py-10 sm:py-14 border-b border-[var(--border)] bg-[var(--surface)]">
-        <img
-          src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1200&q=60"
-          alt="" loading="lazy"
-          className="absolute inset-0 w-full h-full object-cover opacity-15"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-[var(--surface)]" />
+    <div className="min-h-screen bg-white text-oris-secondary relative font-sans selection:bg-[#3365e2] selection:text-white">
+      {/* ── Landing Page White & Blue Hero Header ── */}
+      <div className="relative overflow-hidden pt-28 sm:pt-36 pb-16 sm:pb-20 bg-[linear-gradient(to_bottom,#ffffff_0%,#eff6ff_20%,#bfdbfe_45%,#60a5fa_70%,#3365e2_100%)] text-slate-900 border-b border-[#3365e2]/20">
+        <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#15324d_1.2px,transparent_1.2px)] [background-size:24px_24px] pointer-events-none" />
         <div className="relative z-10 max-w-7xl mx-auto px-6 text-center">
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
-            <span className="section-pill">Exercise Library</span>
-            <h1 className="gym-font text-4xl sm:text-5xl md:text-6xl text-[var(--text-primary)] mt-2">
-              WORKOUT LIBRARY
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/90 backdrop-blur-md border border-[#3365e2]/30 text-[#3365e2] text-xs font-bold uppercase tracking-wider mb-4 shadow-xs">
+              <span className="w-2 h-2 rounded-full bg-[#3365e2] animate-pulse" />
+              <span>Certified Movement &amp; Periodization Atlas</span>
+            </div>
+            <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-slate-900 tracking-tight leading-tight mb-3 uppercase">
+              ATHLETIC WORKOUT &amp; <span className="text-[#3365e2]">EXERCISE ATLAS</span>
             </h1>
-            <p className="text-[var(--text-secondary)] mt-2 text-base">Video-guided exercises for every muscle group</p>
+            <p className="text-sm sm:text-base text-slate-700 max-w-2xl mx-auto leading-relaxed font-medium">
+              Periodized movement library with biomechanical execution cues, target muscle breakdowns, and HD video coaching.
+            </p>
           </motion.div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 pb-16">
-        {/* One toolbar: search, difficulty and the count on a single line,
-            rather than a narrow box adrift on an empty row. */}
+      <div className="bg-[#f8fafc] text-slate-800 min-h-[60vh]">
+        <div className="max-w-7xl mx-auto px-6 py-10 pb-20">
+        {/* One toolbar: search, difficulty and the count on a single line */}
         <div className="flex flex-wrap items-center gap-3 mb-4">
           <div className="relative flex-1" style={{ minWidth: 240 }}>
             <Search
               size={16}
-              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
             />
             <input
-              className="input-dark py-2.5 text-sm w-full"
+              className="bg-white border border-slate-300 text-slate-900 placeholder:text-slate-400 focus:border-[#3365e2] focus:ring-2 focus:ring-[#3365e2]/20 rounded-xl py-2.5 text-sm w-full outline-none transition-all shadow-xs"
               style={{ paddingLeft: 38 }}
-              placeholder="Search exercises"
+              placeholder="Search exercises by name or muscle..."
               aria-label="Search exercises"
               value={search}
               onChange={e => setSearch(e.target.value)}
@@ -366,7 +341,7 @@ export default function ExercisesPage() {
           </div>
 
           <select
-            className="input-dark py-2.5 text-sm capitalize"
+            className="bg-white border border-slate-300 text-slate-800 focus:border-[#3365e2] focus:ring-2 focus:ring-[#3365e2]/20 rounded-xl py-2.5 px-3 text-sm capitalize outline-none transition-all shadow-xs cursor-pointer"
             style={{ width: 170 }}
             aria-label="Filter by difficulty"
             value={difficulty}
@@ -378,7 +353,7 @@ export default function ExercisesPage() {
           </select>
 
           {filtering && (
-            <button onClick={clearAll} className="btn-ghost text-sm px-3 py-2 flex items-center gap-1.5">
+            <button onClick={clearAll} className="text-slate-500 hover:text-[#3365e2] text-sm px-3 py-2 flex items-center gap-1.5 font-semibold transition-colors cursor-pointer">
               <X size={14} /> Clear
             </button>
           )}
@@ -404,37 +379,38 @@ export default function ExercisesPage() {
         </p>
 
         {loading ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-            {Array.from({ length: 10 }, (_, i) => (
-              <div key={i} className="ex-card animate-pulse">
-                <div style={{ aspectRatio: '4 / 3' }} className="bg-gray-800/50" />
-                <div className="p-3.5 space-y-2">
-                  <div className="h-3 bg-gray-800/70 rounded w-3/4" />
-                  <div className="h-2 bg-gray-800/50 rounded w-full" />
-                  <div className="h-2 bg-gray-800/50 rounded w-2/3" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 sm:gap-6">
+            {Array.from({ length: 8 }, (_, i) => (
+              <div key={i} className="ex-card animate-pulse rounded-[22px] overflow-hidden border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0e1526]">
+                <div style={{ aspectRatio: '4 / 3' }} className="bg-slate-200 dark:bg-gray-800/50" />
+                <div className="p-4 space-y-2.5">
+                  <div className="h-4 bg-slate-200 dark:bg-gray-800/70 rounded w-3/4" />
+                  <div className="h-3 bg-slate-200 dark:bg-gray-800/50 rounded w-full" />
+                  <div className="h-3 bg-slate-200 dark:bg-gray-800/50 rounded w-2/3" />
                 </div>
               </div>
             ))}
           </div>
         ) : filtered.length === 0 ? (
           <div className="text-center py-20">
-            <Dumbbell size={44} className="text-gray-700 mx-auto mb-3" />
-            <p className="text-gray-400 font-medium">No exercises match</p>
-            <p className="text-gray-600 text-sm mt-1">
+            <Dumbbell size={44} className="text-gray-400 dark:text-gray-600 mx-auto mb-3" />
+            <p className="text-slate-800 dark:text-gray-200 font-bold text-lg">No exercises match</p>
+            <p className="text-slate-500 dark:text-gray-400 text-sm mt-1">
               {filtering ? 'Try a different search or filter.' : 'Nothing has been added yet.'}
             </p>
             {filtering && (
-              <button onClick={clearAll} className="btn-outline text-sm px-5 py-2.5 mt-5">
+              <button onClick={clearAll} className="btn-outline text-xs uppercase font-bold tracking-wider px-6 py-2.5 mt-5 rounded-full">
                 Clear filters
               </button>
             )}
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 sm:gap-6">
             {filtered.map((ex, i) => <ExCard key={ex._id} ex={ex} index={i} />)}
           </div>
         )}
       </div>
     </div>
+  </div>
   );
 }

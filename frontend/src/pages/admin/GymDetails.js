@@ -113,7 +113,7 @@ export default function GymDetails() {
                 </Field>
                 <Field label="Owner / trainer name"
                   hint="The person members are dealing with — displayed on the About page as Founder & Head Trainer">
-                  <Input {...bind('ownerName')} placeholder="Ajeet Jamadari" />
+                  <Input {...bind('ownerName')} placeholder="Ajeet Kag" />
                 </Field>
                 <Field label="Tagline">
                   <Input {...bind('tagline')} placeholder="Uniting a healthier world" />

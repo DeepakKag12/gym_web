@@ -7,29 +7,29 @@
 
 :root {
   /* ── 1. Color Palette (Semantic Tokens) ─────────────────────────────────── */
-  /* Primary Brand & CTA (Athletic Deep Forest Green - WCAG AAA Compliant) */
-  --color-primary:             #176b45;
-  --color-primary-hover:       #125638;
-  --color-primary-active:      #0e442c;
-  --color-primary-soft:        rgba(23, 107, 69, 0.09);
-  --color-primary-border:      rgba(23, 107, 69, 0.25);
-  --color-primary-glow:        rgba(23, 107, 69, 0.20);
+  /* Primary Brand & CTA (Oris Electric Blue - WCAG Compliant) */
+  --color-primary:             #3365e2;
+  --color-primary-hover:       #2552ca;
+  --color-primary-active:      #1d42a8;
+  --color-primary-soft:        rgba(51, 101, 226, 0.12);
+  --color-primary-border:      rgba(51, 101, 226, 0.32);
+  --color-primary-glow:        rgba(51, 101, 226, 0.28);
   --color-primary-contrast:    #ffffff;
 
-  /* Secondary Brand & Neutral Anchors (Warm Espresso Charcoal) */
-  --color-secondary:           #2c2523;
-  --color-secondary-hover:     #1f1a18;
-  --color-secondary-soft:      #ede8e1;
+  /* Secondary Brand & Neutral Anchors (Oris Navy & Deep Charcoal) */
+  --color-secondary:           #15324d;
+  --color-secondary-hover:     #112b7a;
+  --color-secondary-soft:      #eff4fe;
 
-  /* Brand Highlight & Accent (Performance Emerald) */
-  --color-accent:              #10b981;
-  --color-highlight:           #10b981;
-  --color-highlight-soft:      rgba(16, 185, 129, 0.12);
+  /* Brand Highlight & Accent (Oris Electric Blue) */
+  --color-accent:              #3365e2;
+  --color-highlight:           #3365e2;
+  --color-highlight-soft:      rgba(51, 101, 226, 0.12);
 
   /* Dark Brand Ground */
-  --color-dark:                #141211;
-  --color-dark-hover:          #1f1b19;
-  --color-dark-brand:          #141211;
+  --color-dark:                #070b14;
+  --color-dark-hover:          #0e1526;
+  --color-dark-brand:          #070b14;
 
   /* Surfaces & Backgrounds */
   --color-bg:                  #f5f1eb;

@@ -23,29 +23,29 @@
   --p-text-2:    var(--muted-foreground, #6b7280); /* body copy */
   --p-muted:     var(--muted-foreground, #6b7280); /* labels, meta, placeholders */
 
-  /* One accent: sophisticated athletic indigo */
-  --p-accent:      var(--primary, #6366f1);
-  --p-accent-hov:  var(--chart-2, #4f46e5);
-  --p-accent-soft: var(--accent, #e0e7ff);
-  --p-accent-line: var(--ring, #6366f1);
+  /* One accent: sophisticated athletic Oris Blue */
+  --p-accent:      var(--primary, #3365e2);
+  --p-accent-hov:  var(--primary-hover, #2552ca);
+  --p-accent-soft: rgba(51, 101, 226, 0.12);
+  --p-accent-line: var(--ring, #3365e2);
 
   /* Status */
   --p-ok:     #16a34a;  --p-ok-soft:     rgba(22, 163, 74, 0.10);  --p-ok-line:     #bbf7d0;
   --p-warn:   #d97706;  --p-warn-soft:   rgba(217, 119, 6, 0.10);  --p-warn-line:   #fde68a;
   --p-danger: #ef4444;  --p-danger-soft: rgba(239, 68, 68, 0.10);  --p-danger-line: #fecaca;
-  --p-info:   #6366f1;  --p-info-soft:   rgba(99, 102, 241, 0.10); --p-info-line:   #c7d2fe;
+  --p-info:   #3365e2;  --p-info-soft:   rgba(51, 101, 226, 0.10); --p-info-line:   #b5c9f7;
 
   /* Values the components used to hardcode — tokenised so the dark palette
      can override them in one place. */
   --p-overlay:   rgba(15, 23, 42, 0.65);
   --p-skeleton:  #e2e8f0;
-  --p-focus:     rgba(99, 102, 241, 0.25);
+  --p-focus:     rgba(51, 101, 226, 0.25);
   --p-scroll:    #cbd5e1;
   --p-scheme:    light;
   --p-option-bg: #ffffff;
 
-  --p-radius:   var(--radius, 0.5rem);
-  --p-radius-sm: calc(var(--radius, 0.5rem) - 2px);
+  --p-radius:   var(--radius, 20px);
+  --p-radius-sm: calc(var(--radius, 20px) - 8px);
   --p-shadow:   var(--shadow-1);
   --p-shadow-md:var(--shadow-2);
   --p-shadow-lg:var(--shadow-2);
@@ -63,31 +63,31 @@ body.theme-panel.theme-dark,
 html.theme-panel.theme-dark,
 body.theme-panel.dark,
 html.theme-panel.dark {
-  --p-bg:        var(--background, #0f172a);
-  --p-surface:   var(--card, #1e293b);
-  --p-surface-2: var(--muted, #152032);
-  --p-border:    var(--border, #4b5563);
-  --p-border-2:  var(--input, #4b5563);
+  --p-bg:        var(--background, #070b14);
+  --p-surface:   var(--card, #0e1526);
+  --p-surface-2: var(--muted, #152038);
+  --p-border:    var(--border, rgba(255, 255, 255, 0.12));
+  --p-border-2:  var(--input, #1e2b45);
 
-  --p-text:      var(--foreground, #e2e8f0);
-  --p-text-2:    var(--muted-foreground, #9ca3af);
-  --p-muted:     var(--muted-foreground, #9ca3af);
+  --p-text:      var(--foreground, #f8fafc);
+  --p-text-2:    var(--muted-foreground, #94a3b8);
+  --p-muted:     var(--muted-foreground, #94a3b8);
 
-  /* On dark ground: vibrant indigo accent */
-  --p-accent:      var(--primary, #818cf8);
-  --p-accent-hov:  var(--chart-2, #6366f1);
-  --p-accent-soft: rgba(129, 140, 248, 0.15);
-  --p-accent-line: var(--ring, #818cf8);
+  /* On dark ground: vibrant Oris Electric Blue accent */
+  --p-accent:      var(--primary, #3365e2);
+  --p-accent-hov:  var(--primary-hover, #4e7df0);
+  --p-accent-soft: rgba(51, 101, 226, 0.18);
+  --p-accent-line: var(--ring, #3365e2);
 
   --p-ok:     #22c55e;  --p-ok-soft:     rgba(34, 197, 94, 0.12);  --p-ok-line:     rgba(34, 197, 94, 0.30);
   --p-warn:   #f59e0b;  --p-warn-soft:   rgba(245, 158, 11, 0.12); --p-warn-line:   rgba(245, 158, 11, 0.30);
   --p-danger: #ef4444;  --p-danger-soft: rgba(239, 68, 68, 0.12);  --p-danger-line: rgba(239, 68, 68, 0.32);
-  --p-info:   #818cf8;  --p-info-soft:   rgba(129, 140, 248, 0.12);--p-info-line:   rgba(129, 140, 248, 0.30);
+  --p-info:   #3365e2;  --p-info-soft:   rgba(51, 101, 226, 0.18); --p-info-line:   rgba(51, 101, 226, 0.36);
 
   --p-overlay:   rgba(0, 0, 0, 0.75);
-  --p-skeleton:  #1e293b;
-  --p-focus:     rgba(129, 140, 248, 0.28);
-  --p-scroll:    #334155;
+  --p-skeleton:  #152038;
+  --p-focus:     rgba(51, 101, 226, 0.32);
+  --p-scroll:    #1e2b45;
   --p-shadow:    var(--shadow-1);
   --p-shadow-md: var(--shadow-2);
   --p-shadow-lg: var(--shadow-2);
@@ -570,7 +570,7 @@ body.theme-panel .panel-bar {
   min-height: 54px;
 }
 .panel-tab:hover { color: #cbd5e1; }
-.panel-tab-on    { color: var(--color-primary, #176b45); font-weight: 600; }
+.panel-tab-on    { color: var(--color-primary, #3365e2); font-weight: 600; }
 body.theme-panel .panel-tab      { color: var(--p-muted); }
 body.theme-panel .panel-tab:hover{ color: var(--p-text-2); }
 body.theme-panel .panel-tab-on   { color: var(--p-accent); }

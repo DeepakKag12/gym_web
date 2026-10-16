@@ -369,7 +369,7 @@ export default function AdminOrders() {
               const meta = STATUS_META[o.orderStatus] || STATUS_META.placed;
               const pmeta = PAYMENT_META[o.paymentStatus] || PAYMENT_META.pending;
               return (
-                <div key={o._id} className="glass rounded-2xl p-4 transition-all hover:border-white/20">
+                <div key={o._id} className="glass rounded-[22px] p-5 transition-all card-hover">
                   {/* Top Bar: Order number, date, amount, and invoice buttons */}
                   <div className="flex items-start justify-between gap-3 mb-3 pb-3 border-b border-white/5">
                     <div>

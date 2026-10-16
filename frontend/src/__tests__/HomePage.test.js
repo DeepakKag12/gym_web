@@ -33,7 +33,7 @@ describe('HomePage', () => {
 
     expect(screen.getAllByText(/FitNation/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/Explore Workouts/i)).toBeInTheDocument();
-    expect(screen.getByText(/Join FitNation/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Join FitNation/i).length).toBeGreaterThan(0);
   });
 
   test('renders muscle category highlights', () => {

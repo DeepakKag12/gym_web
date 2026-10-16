@@ -8,9 +8,9 @@ import { CartProvider } from './context/CartContext';
 import { isPanelRoute as isPanelPath } from './utils/routes';
 
 // Layout
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
-import MemberBottomNav from './components/MemberBottomNav';
+import Navbar from './components/layout/Navbar';
+import Footer from './components/layout/Footer';
+import MemberBottomNav from './components/layout/MemberBottomNav';
 import ChatWidget from './components/ChatWidget';
 
 // ── Lazy-loaded pages (code-splitting for faster initial load) ─────────────────
@@ -20,6 +20,7 @@ const AboutPage           = lazy(() => import('./pages/AboutPage'));
 const ExercisesPage       = lazy(() => import('./pages/ExercisesPage'));
 const ExerciseDetailPage  = lazy(() => import('./pages/ExerciseDetailPage'));
 const DietPage            = lazy(() => import('./pages/DietPage'));
+const DietDetailPage      = lazy(() => import('./pages/DietDetailPage'));
 const StorePage           = lazy(() => import('./pages/StorePage'));
 const ProductDetailPage   = lazy(() => import('./pages/ProductDetailPage'));
 const CartPage            = lazy(() => import('./pages/CartPage'));
@@ -28,7 +29,6 @@ const TransformationsPage = lazy(() => import('./pages/TransformationsPage'));
 const EnquiryPage         = lazy(() => import('./pages/EnquiryPage'));
 const LoginPage           = lazy(() => import('./pages/LoginPage'));
 const SettingsPage        = lazy(() => import('./pages/SettingsPage'));
-const FlashlightDemo      = lazy(() => import('./components/ui/demo'));
 
 // Member
 const MemberDashboard  = lazy(() => import('./pages/member/Dashboard'));
@@ -156,23 +156,27 @@ function AppRoutes() {
   const isAdminRoute  = location.pathname.startsWith(ADMIN_PREFIX) || location.pathname.startsWith(TRAINER_PREFIX);
   const isMemberRoute = !isAdminRoute && user?.role === 'member';
   const isPanelRoute  = isPanelPath(location.pathname);
+  const isOrisRoute   = location.pathname === '/' || location.pathname === '/oris' || location.pathname === '/apex';
   usePanelTheme(isPanelRoute);
 
   return (
     <>
       <ScrollToTop />
 
-      {/* Global navbar — hidden on admin / trainer panel */}
-      {!isAdminRoute && <Navbar />}
+      {/* Global navbar — hidden on admin / trainer panel / oris showcase */}
+      {!isAdminRoute && !isOrisRoute && <Navbar brandName="FITNATION" ctaText="Join FitNation" />}
 
       <Suspense fallback={<PageSpinner />}>
         <Routes>
           {/* ── Public ── */}
           <Route path="/"                   element={<HomePage />} />
+          <Route path="/oris"               element={<Navigate to="/" replace />} />
+          <Route path="/apex"               element={<Navigate to="/" replace />} />
           <Route path="/about"              element={<AboutPage />} />
           <Route path="/exercises"          element={<ExercisesPage />} />
           <Route path="/exercises/:id"      element={<ExerciseDetailPage />} />
           <Route path="/diet"               element={<DietPage />} />
+          <Route path="/diet/:id"           element={<DietDetailPage />} />
           <Route path="/store"              element={<StorePage />} />
           <Route path="/store/:id"          element={<ProductDetailPage />} />
           <Route path="/product/:id"        element={<ProductDetailPage />} />
@@ -181,8 +185,6 @@ function AppRoutes() {
           <Route path="/transformations"    element={<TransformationsPage />} />
           <Route path="/enquiry"            element={<EnquiryPage />} />
           <Route path="/plans"              element={<Navigate to="/enquiry" replace />} />
-          <Route path="/demo"               element={<FlashlightDemo />} />
-          <Route path="/demo/flashlight"    element={<FlashlightDemo />} />
 
           {/* ── Guest-only ── */}
           <Route path="/login"              element={<GuestRoute><LoginPage /></GuestRoute>} />
@@ -231,7 +233,7 @@ function AppRoutes() {
       </Suspense>
 
       {/* Global footer — marketing only; the panel keeps its own chrome */}
-      {!isPanelRoute && <Footer />}
+      {!isPanelRoute && !isOrisRoute && <Footer />}
 
       {/* Member bottom navigation (mobile only) */}
       {isMemberRoute && <MemberBottomNav />}

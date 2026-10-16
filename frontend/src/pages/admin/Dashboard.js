@@ -436,7 +436,7 @@ export default function AdminDashboard() {
             type="button"
             onClick={() => setActiveTab('orders')}
             className={`flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-xl border transition-all text-center group cursor-pointer shadow-sm min-h-[64px] ${
-              activeTab === 'orders' ? 'ring-2 ring-blue-500' : 'hover:border-[var(--p-info)] hover:bg-[var(--p-surface-2)]'
+              activeTab === 'orders' ? 'ring-2 ring-[#3365e2]' : 'hover:border-[var(--p-info)] hover:bg-[var(--p-surface-2)]'
             }`}
             style={{ background: 'var(--p-surface)', borderColor: 'var(--p-border)' }}
           >
@@ -446,7 +446,7 @@ export default function AdminDashboard() {
                 <ShoppingBag size={16} />
               </span>
               {stats.pendingOrdersCount > 0 && (
-                <span className="absolute -top-1.5 -right-2 px-1.5 py-0.2 rounded-full text-[10px] font-extrabold bg-blue-500 text-white">
+                <span className="absolute -top-1.5 -right-2 px-1.5 py-0.2 rounded-full text-[10px] font-extrabold bg-[#3365e2] text-white">
                   {stats.pendingOrdersCount}
                 </span>
               )}

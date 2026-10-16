@@ -284,7 +284,7 @@ function ExerciseModal({ editData, members, onClose, onSaved }) {
               <div className="flex items-center gap-1.5 mb-1">
                 <a href={editData.video} target="_blank" rel="noreferrer"
                   className="text-xs flex items-center gap-1 flex-1 truncate font-medium"
-                  style={{ color: 'var(--color-primary, #176b45)' }}>
+                  style={{ color: 'var(--color-primary, #3365e2)' }}>
                   <Video size={10} /> Saved video
                 </a>
                 <button type="button"
@@ -304,7 +304,7 @@ function ExerciseModal({ editData, members, onClose, onSaved }) {
             )}
             {videoFile && (
               <div className="flex items-center gap-1.5 mb-1">
-                <span className="text-xs truncate flex-1 font-medium" style={{ color: 'var(--color-primary, #176b45)' }}>{videoFile.name.slice(0,16)}</span>
+                <span className="text-xs truncate flex-1 font-medium" style={{ color: 'var(--color-primary, #3365e2)' }}>{videoFile.name.slice(0,16)}</span>
                 <button type="button" onClick={() => { setVideoFile(null); setVideoPreview(editData?.video || ''); }}
                   className="text-xs" style={{ color: 'var(--muted)' }} aria-label="Remove video"><X size={13} /></button>
               </div>
@@ -324,7 +324,7 @@ function ExerciseModal({ editData, members, onClose, onSaved }) {
 
         {/* Upload progress bar */}
         {uploadProgress && (
-          <div className="mt-2 text-xs rounded-lg px-3 py-2 flex items-center gap-2" style={{ background: 'var(--color-primary-soft, rgba(23,107,69,0.12))', color: 'var(--color-primary, #176b45)', border: '1px solid var(--color-primary-border, rgba(23,107,69,0.25))' }}>
+          <div className="mt-2 text-xs rounded-lg px-3 py-2 flex items-center gap-2" style={{ background: 'var(--color-primary-soft, rgba(51,101,226,0.12))', color: 'var(--color-primary, #3365e2)', border: '1px solid var(--color-primary-border, rgba(51,101,226,0.25))' }}>
             <span className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin flex-shrink-0" />
             {uploadProgress}
           </div>
@@ -404,18 +404,18 @@ export default function AdminExercises() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {exercises.map((ex, i) => (
             <motion.div key={ex._id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
-              className="glass rounded-2xl overflow-hidden group">
-              <div className="relative h-40 bg-[#0d0e11] overflow-hidden">
+              className="glass rounded-[22px] overflow-hidden group card-hover">
+              <div className="relative h-44 bg-[#0d0e11] overflow-hidden">
                 <VideoThumb video={ex.video} videoUrl={ex.videoUrl} image={ex.image} title={ex.title} />
                 {(ex.video || ex.videoUrl) && (
-                  <div className="absolute top-2 right-2 bg-primary rounded-full p-1 pointer-events-none z-10 shadow-sm">
-                    <Video size={11} className="text-white" />
+                  <div className="absolute top-2.5 right-2.5 bg-[#3365e2] rounded-full p-1.5 pointer-events-none z-10 shadow-md">
+                    <Video size={12} className="text-white" />
                   </div>
                 )}
-                <div className="absolute top-2 left-2 z-10">
-                  <span className="text-[10px] bg-black/70 text-gray-200 px-1.5 py-0.5 rounded-full capitalize">{ex.muscleGroup}</span>
+                <div className="absolute top-2.5 left-2.5 z-10">
+                  <span className="text-[10.5px] font-semibold bg-black/75 backdrop-blur-sm text-gray-200 px-2.5 py-0.5 rounded-full capitalize">{ex.muscleGroup}</span>
                 </div>
-                <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-[#111318] to-transparent pointer-events-none z-10" />
+                <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-[#111318] to-transparent pointer-events-none z-10" />
               </div>
               <div className="p-3.5">
                 <div className="flex items-start justify-between mb-1">

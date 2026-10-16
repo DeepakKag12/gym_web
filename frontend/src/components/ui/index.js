@@ -518,6 +518,8 @@ export function FadeIn({ children, delay = 0, className = '', ...rest }) {
 
 export { default as WhatsAppButton } from './WhatsAppButton';
 export { default as PdfViewerModal } from './PdfViewerModal';
-export { default as FlashlightTextReveal } from './flashlight-text-reveal';
-export { default as FlashlightBackground } from './FlashlightBackground';
+export { default as DotMatrixCanvas } from './DotMatrixCanvas';
+export { default as PillButton } from './PillButton';
+export { default as SlotOdometer } from './SlotOdometer';
+export { default as SmoothScroller } from './SmoothScroller';
 

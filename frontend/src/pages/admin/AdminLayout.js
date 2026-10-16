@@ -87,12 +87,12 @@ function SideMenu({ onNavigate }) {
   return (
     <div className="flex flex-col h-full">
       <div className="px-5 py-4 flex-shrink-0" style={{ borderBottom: '1px solid var(--p-border)' }}>
-        <Link to="/" onClick={onNavigate} className="flex items-center gap-2.5">
-          <span className="w-9 h-9 rounded-lg flex items-center justify-center font-bold text-[15px]"
-            style={{ background: 'var(--p-accent)', color: '#fff' }}>F</span>
+        <Link to="/" onClick={onNavigate} className="flex items-center gap-2.5 no-underline">
+          <span className="w-9 h-9 rounded-xl flex items-center justify-center font-extrabold text-[15px] shadow-sm"
+            style={{ background: '#3365e2', color: '#fff' }}>F</span>
           <span className="min-w-0">
-            <span className="block text-[15px] font-bold" style={{ color: 'var(--p-text)' }}>FitNation</span>
-            <span className="block text-[13px]" style={{ color: 'var(--p-muted)' }}>Gym admin</span>
+            <span className="block text-[15px] font-extrabold tracking-tight" style={{ color: 'var(--p-text)' }}>FITNATION</span>
+            <span className="block text-[10.5px] font-bold tracking-wider uppercase" style={{ color: '#3365e2' }}>By Ajeet · Admin</span>
           </span>
         </Link>
       </div>
@@ -117,12 +117,12 @@ function SideMenu({ onNavigate }) {
                   onClick={onNavigate}
                   aria-current={active ? 'page' : undefined}
                   className={`panel-link ${active ? 'panel-link-on' : ''}`}
-                  style={{ fontSize: 13.5, padding: '7px 11px' }}
+                  style={{ fontSize: 13.5, padding: '7px 11px', borderRadius: 10 }}
                 >
                   <Icon size={16} />
                   <span className="flex-1 truncate">{link.label}</span>
                   {isMessages && unreadCount > 0 && (
-                    <span className="px-1.5 py-0.2 rounded-full bg-emerald-500 text-white font-bold text-[10px] animate-pulse">
+                    <span className="px-1.5 py-0.2 rounded-full bg-[#3365e2] text-white font-bold text-[10px] animate-pulse">
                       {unreadCount}
                     </span>
                   )}

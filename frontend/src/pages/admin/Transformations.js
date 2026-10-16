@@ -79,16 +79,16 @@ export default function AdminTransformations() {
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-20"><div className="w-10 h-10 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" /></div>
+        <div className="flex justify-center py-20"><div className="w-10 h-10 border-2 border-[#3365e2] border-t-transparent rounded-full animate-spin" /></div>
       ) : transformations.length === 0 ? (
         <div className="text-center py-20 text-gray-500">No transformations yet.</div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {transformations.map(t => (
-            <div key={t._id} className="glass rounded-xl overflow-hidden">
+            <div key={t._id} className="glass rounded-[22px] overflow-hidden card-hover">
               <div className="grid grid-cols-2 gap-0.5">
-                <div className="relative"><img src={img(t.beforeImage, 400)} alt="Before" loading="lazy" decoding="async" className="w-full h-44 object-cover" /><div className="absolute bottom-1 left-1 text-xs bg-red-500/80 text-white px-2 py-0.5 rounded-full">BEFORE</div></div>
-                <div className="relative"><img src={img(t.afterImage, 400)} alt="After" loading="lazy" decoding="async" className="w-full h-44 object-cover" /><div className="absolute bottom-1 right-1 text-xs bg-green-500/80 text-white px-2 py-0.5 rounded-full">AFTER</div></div>
+                <div className="relative"><img src={img(t.beforeImage, 400)} alt="Before" loading="lazy" decoding="async" className="w-full h-44 object-cover" /><div className="absolute bottom-2 left-2 text-[10px] font-bold bg-[#15324d]/90 backdrop-blur-sm text-white px-2.5 py-0.5 rounded-full">BEFORE</div></div>
+                <div className="relative"><img src={img(t.afterImage, 400)} alt="After" loading="lazy" decoding="async" className="w-full h-44 object-cover" /><div className="absolute bottom-2 right-2 text-[10px] font-bold bg-[#3365e2]/90 backdrop-blur-sm text-white px-2.5 py-0.5 rounded-full">AFTER</div></div>
               </div>
               <div className="p-4">
                 <div className="flex items-start justify-between mb-2">

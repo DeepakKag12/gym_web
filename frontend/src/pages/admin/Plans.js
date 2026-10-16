@@ -119,10 +119,10 @@ export default function AdminPlans() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {plans.map((plan, i) => (
             <motion.div key={plan._id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}
-              className={`glass rounded-2xl p-5 relative ${plan.isPopular ? 'border-primary/50 ring-1 ring-primary/40' : ''}`}>
+              className={`glass rounded-[22px] p-6 relative card-hover ${plan.isPopular ? 'border-[#3365e2]/60 ring-1 ring-[#3365e2]/40 shadow-lg shadow-[#3365e2]/10' : ''}`}>
               {plan.isPopular && (
-                <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-primary text-white text-xs font-semibold px-3 py-0.5 rounded-full flex items-center gap-1 shadow-md">
-                  <Star size={11} /> Popular
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#3365e2] text-white text-xs font-semibold px-3.5 py-0.5 rounded-full flex items-center gap-1 shadow-md">
+                  <Star size={11} fill="#fff" /> Popular
                 </div>
               )}
               <div className="flex items-start justify-between mb-3 mt-1">

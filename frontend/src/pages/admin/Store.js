@@ -258,29 +258,29 @@ export default function AdminStore() {
             const disc = p.discountPrice ? Math.round(((p.price - p.discountPrice) / p.price) * 100) : 0;
             return (
               <motion.div key={p._id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
-                className={`glass rounded-2xl overflow-hidden transition-all ${!p.isActive ? 'opacity-50' : ''}`}>
+                className={`glass rounded-[22px] overflow-hidden transition-all card-hover ${!p.isActive ? 'opacity-50' : ''}`}>
                 {/* Image */}
-                <div className="relative h-44 bg-[#0d0e11] overflow-hidden">
+                <div className="relative h-48 bg-[#0d0e11] overflow-hidden">
                   {p.images?.[0] ? (
-                    <img src={img(p.images[0], 300)} alt={p.name} loading="lazy" decoding="async" className="w-full h-full object-cover" />
+                    <img src={img(p.images[0], 300)} alt={p.name} loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-500 hover:scale-105" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
                        <Package size={40} className="text-gray-700" />
                     </div>
                   )}
                   {disc > 0 && (
-                    <div className="absolute top-2 left-2 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                    <div className="absolute top-2.5 left-2.5 bg-[#3365e2] text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full shadow-sm">
                       -{disc}%
                     </div>
                   )}
                   {p.isFeatured && (
-                    <div className="absolute top-2 right-2 bg-amber-500 text-black text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-0.5">
-                      <Star size={9} /> Featured
+                    <div className="absolute top-2.5 right-2.5 bg-[#15324d] text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-sm">
+                      <Star size={9} fill="#fff" /> Featured
                     </div>
                   )}
                   {/* Image count */}
                   {p.images?.length > 1 && (
-                    <div className="absolute bottom-2 right-2 bg-black/70 text-gray-300 text-[9px] px-1.5 py-0.5 rounded-full">
+                    <div className="absolute bottom-2.5 right-2.5 bg-black/70 backdrop-blur-sm text-gray-200 text-[10px] font-medium px-2 py-0.5 rounded-full">
                       +{p.images.length - 1} more
                     </div>
                   )}

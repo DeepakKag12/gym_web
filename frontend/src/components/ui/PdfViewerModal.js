@@ -188,8 +188,8 @@ export default function PdfViewerModal({
             <span
               className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm"
               style={{
-                background: 'var(--p-accent-soft, rgba(23,107,69,0.15))',
-                color: 'var(--p-accent, #176b45)',
+                background: 'var(--p-accent-soft, rgba(51,101,226,0.15))',
+                color: 'var(--p-accent, #3365e2)',
               }}
             >
               <FileText size={18} />
@@ -202,9 +202,9 @@ export default function PdfViewerModal({
                 <span
                   className="hidden md:inline-flex px-2 py-0.5 rounded-full text-[10.5px] font-semibold tracking-wide uppercase"
                   style={{
-                    background: 'var(--p-accent-soft, rgba(23,107,69,0.15))',
-                    color: 'var(--p-accent, #176b45)',
-                    border: '1px solid var(--p-accent-line, rgba(23,107,69,0.3))',
+                    background: 'var(--p-accent-soft, rgba(51,101,226,0.15))',
+                    color: 'var(--p-accent, #3365e2)',
+                    border: '1px solid var(--p-accent-line, rgba(51,101,226,0.3))',
                   }}
                 >
                   PDF Document
@@ -306,7 +306,7 @@ export default function PdfViewerModal({
                 className="w-10 h-10 border-3 rounded-full animate-spin"
                 style={{
                   borderColor: 'var(--p-border, rgba(255,255,255,0.15))',
-                  borderTopColor: 'var(--p-accent, #176b45)',
+                  borderTopColor: 'var(--p-accent, #3365e2)',
                 }}
               />
               <p className="text-sm font-medium" style={{ color: 'var(--p-text)' }}>
@@ -383,7 +383,7 @@ export default function PdfViewerModal({
               type="button"
               onClick={handleDownload}
               className="font-semibold underline cursor-pointer"
-              style={{ color: 'var(--p-accent, #176b45)' }}
+              style={{ color: 'var(--p-accent, #3365e2)' }}
             >
               Download PDF
             </button>

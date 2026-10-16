@@ -113,12 +113,12 @@ export default function ChatWidget() {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="relative w-13 h-13 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white shadow-xl flex items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95 group"
+          className="relative w-13 h-13 rounded-2xl bg-[#3365e2] hover:bg-[#2552ca] text-white shadow-xl shadow-[#3365e2]/30 flex items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95 group cursor-pointer"
           aria-label="Open live gym chat"
         >
           <MessageSquare size={24} />
           {unreadCount > 0 && (
-            <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-5 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center px-1 border-2 border-white dark:border-stone-900 shadow-sm animate-pulse">
+            <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-5 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center px-1 border-2 border-white dark:border-stone-900 shadow-sm animate-pulse">
               {unreadCount > 9 ? '9+' : unreadCount}
             </span>
           )}
@@ -141,7 +141,7 @@ export default function ChatWidget() {
           >
             <div className="flex items-center gap-2.5 min-w-0">
               <div className="relative flex-shrink-0">
-                <div className="w-8 h-8 rounded-full bg-emerald-700 text-white font-bold text-xs flex items-center justify-center">
+                <div className="w-8 h-8 rounded-full bg-[#13314a] text-white font-bold text-xs flex items-center justify-center">
                   {selectedContact?.name?.[0]?.toUpperCase() || 'C'}
                 </div>
                 {isOnline && (
@@ -155,7 +155,7 @@ export default function ChatWidget() {
                     {selectedContact?.name || 'Live Gym Chat'}
                   </span>
                   {selectedContact && (
-                    <span className="text-[9px] px-1 py-0.2 rounded font-bold uppercase bg-emerald-500/10 text-emerald-500">
+                    <span className="text-[9px] px-1 py-0.2 rounded font-bold uppercase bg-[#3365e2]/10 text-[#3365e2]">
                       {selectedContact.role}
                     </span>
                   )}
@@ -170,14 +170,14 @@ export default function ChatWidget() {
               <Link
                 to={fullChatUrl}
                 onClick={() => setIsOpen(false)}
-                className="text-[11px] font-semibold text-emerald-500 hover:underline px-1.5 py-1"
+                className="text-[11px] font-semibold text-[#3365e2] hover:underline px-1.5 py-1"
                 title="Open full page chat"
               >
                 Expand
               </Link>
               <button
                 onClick={() => setIsOpen(false)}
-                className="p-1 rounded-lg text-[var(--p-muted)] hover:text-[var(--p-text)]"
+                className="p-1 rounded-lg text-[var(--p-muted)] hover:text-[var(--p-text)] cursor-pointer"
                 aria-label="Close chat"
               >
                 <X size={16} />
@@ -196,10 +196,10 @@ export default function ChatWidget() {
                 <button
                   key={c._id}
                   onClick={() => setSelectedContact(c)}
-                  className={`text-[10px] px-2 py-0.5 rounded-full whitespace-nowrap transition-all ${
+                  className={`text-[10px] px-2 py-0.5 rounded-full whitespace-nowrap transition-all cursor-pointer ${
                     selectedContact?._id === c._id
-                      ? 'bg-emerald-600 text-white font-semibold'
-                      : 'bg-[var(--p-bg)] text-[var(--p-text-2)] hover:border-emerald-500 border border-[var(--p-border)]'
+                      ? 'bg-[#3365e2] text-white font-semibold'
+                      : 'bg-[var(--p-bg)] text-[var(--p-text-2)] hover:border-[#3365e2] border border-[var(--p-border)]'
                   }`}
                 >
                   {c.name.split(' ')[0]}
@@ -212,7 +212,7 @@ export default function ChatWidget() {
           <div className="flex-1 overflow-y-auto p-3 space-y-2 bg-[var(--p-bg)] text-xs">
             {messages.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-center text-xs text-[var(--p-muted)] p-4 space-y-1">
-                <Sparkles size={20} className="text-emerald-500 mb-1" />
+                <Sparkles size={20} className="text-[#3365e2] mb-1" />
                 <p className="font-semibold text-[var(--p-text)]">Live Communication</p>
                 <p className="text-[11px]">Send a message to start chatting instantly.</p>
               </div>
@@ -224,7 +224,7 @@ export default function ChatWidget() {
                     <div
                       className={`max-w-[85%] px-3 py-2 rounded-xl text-xs leading-relaxed ${
                         isMine
-                          ? 'bg-emerald-600 text-white rounded-br-xs'
+                          ? 'bg-[#3365e2] text-white rounded-br-xs'
                           : 'bg-[var(--p-surface)] text-[var(--p-text)] border border-[var(--p-border)] rounded-bl-xs'
                       }`}
                     >
@@ -235,7 +235,7 @@ export default function ChatWidget() {
               })
             )}
             {isTyping && (
-              <p className="text-[10px] text-emerald-500 italic pl-1">Coach is typing...</p>
+              <p className="text-[10px] text-[#3365e2] italic pl-1">Coach is typing...</p>
             )}
             <div ref={messagesEndRef} />
           </div>
@@ -254,12 +254,12 @@ export default function ChatWidget() {
                 setInputText(e.target.value);
                 if (selectedContact) startTyping(selectedContact._id);
               }}
-              className="flex-1 px-3 py-2 text-xs rounded-xl border bg-[var(--p-bg)] border-[var(--p-border)] text-[var(--p-text)] outline-none focus:border-emerald-500"
+              className="flex-1 px-3 py-2 text-xs rounded-xl border bg-[var(--p-bg)] border-[var(--p-border)] text-[var(--p-text)] outline-none focus:border-[#3365e2]"
             />
             <button
               type="submit"
               disabled={!inputText.trim() || sending}
-              className="p-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white disabled:opacity-50 transition-colors"
+              className="p-2 rounded-xl bg-[#3365e2] hover:bg-[#2552ca] text-white disabled:opacity-50 transition-colors cursor-pointer"
             >
               <Send size={14} />
             </button>

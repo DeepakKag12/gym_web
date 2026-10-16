@@ -17,13 +17,13 @@ import { cachedGet } from '../utils/api';
 
 const FALLBACK = {
   gymName: 'FitNation by Ajeet',
-  ownerName: 'Ajeet Jamadari',
+  ownerName: 'Ajeet Kag',
   tagline: 'Uniting a healthier world',
   phone: '9630906906',
   whatsapp: '9630906906',
   email: '',
   instagram: 'fitnation.by.ajeet',
-  address: '',
+  address: 'Fourlane Square, Tridalam Arcade, First Floor, Rajgarh (Dhar), MP',
   hours: ['Mon–Sat: 5 AM – 11 AM', 'Mon–Sat: 4 PM – 10 PM', 'Sunday: Closed'],
   heroWorkoutImage: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=1200&auto=format&fit=crop',
   heroJoinImage: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1200&auto=format&fit=crop',

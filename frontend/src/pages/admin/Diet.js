@@ -208,8 +208,8 @@ export default function AdminDiet() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {plans.map((p, i) => (
             <motion.div key={p._id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
-              className="glass rounded-2xl overflow-hidden">
-              {p.image && <img src={img(p.image, 400)} alt={p.title} loading="lazy" decoding="async" className="w-full h-36 object-cover" />}
+              className="glass rounded-[22px] overflow-hidden card-hover">
+              {p.image && <img src={img(p.image, 400)} alt={p.title} loading="lazy" decoding="async" className="w-full h-40 object-cover transition-transform duration-500 hover:scale-105" />}
               <div className="p-4">
                 <div className="flex items-start justify-between mb-1">
                   <div className="flex-1 min-w-0">
