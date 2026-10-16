@@ -173,7 +173,11 @@ function ComposeModal({ members, onClose, onSent }) {
         ...(form.target === 'single' ? { memberId: form.memberId } : { target: form.target }),
       };
       const { data } = await API.post('/notifications/admin/send', payload);
-      toast.success(data.message || 'Notification dispatched.');
+      if (data.delivered && data.delivered.length === 0 && data.failed && data.failed.length > 0) {
+        toast.error(`Saved in-app, but external channels failed (${data.failed.join(', ')}).`);
+      } else {
+        toast.success(data.dispatchMessage || data.message || 'Notification dispatched.');
+      }
       onSent();
     } catch (err) {
       toast.error(err.response?.data?.message || 'Could not send notification.');
@@ -412,9 +416,12 @@ export default function AdminNotifications() {
     try {
       const { data } = await API.post('/notifications/admin/test', {});
       const ok = data.delivered || [];
-      ok.length
-        ? toast.success(`Test sent via ${ok.join(' and ')} (Meta WhatsApp & Email)`)
-        : toast.error('Test could not be delivered');
+      if (ok.length) {
+        toast.success(`Test sent via ${ok.join(' & ')} (Meta WhatsApp & Email)`);
+      } else {
+        const errDetail = data.results?.whatsapp?.error || data.results?.whatsapp?.reason || data.results?.email?.error || 'Test could not be delivered';
+        toast.error(errDetail);
+      }
     } catch (err) {
       toast.error(err.response?.data?.message || 'Test failed');
     } finally {
