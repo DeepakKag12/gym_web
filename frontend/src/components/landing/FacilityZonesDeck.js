@@ -143,6 +143,12 @@ export default function FacilityZonesDeck({
                     <img
                       src={card.image}
                       alt={card.title}
+                      loading="lazy"
+                      decoding="async"
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = DEFAULT_STACKING_PROGRAMS[idx % DEFAULT_STACKING_PROGRAMS.length].image;
+                      }}
                       className="w-full h-full object-cover hover:scale-105 transition-transform duration-700 ease-out"
                     />
                   </div>

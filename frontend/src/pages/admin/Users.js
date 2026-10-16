@@ -699,11 +699,11 @@ export default function AdminUsers() {
       actions={<Button variant="primary" icon={UserPlus} onClick={() => setFormFor('new')}>Add user</Button>}
     >
       {/* Quick Status Section Cards — Active, Expiring in 5 Days, Expired, All Accounts */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-5">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 mb-5">
         <button
           type="button"
           onClick={() => setStatusSection('all')}
-          className={`p-4 rounded-xl border text-left transition cursor-pointer relative overflow-hidden ${
+          className={`p-2.5 min-[380px]:p-3.5 sm:p-4 rounded-xl border text-left transition cursor-pointer relative overflow-hidden ${
             statusSection === 'all'
               ? 'ring-2 ring-[var(--p-accent)] shadow-md'
               : 'hover:border-[var(--p-border-2)]'
@@ -711,17 +711,17 @@ export default function AdminUsers() {
           style={{ background: 'var(--p-surface)', borderColor: 'var(--p-border)' }}
         >
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--p-text-2)' }}>
+            <span className="text-[11px] min-[360px]:text-xs font-semibold uppercase tracking-wider truncate" style={{ color: 'var(--p-text-2)' }}>
               All Accounts
             </span>
-            <span className="p-1.5 rounded-lg" style={{ background: 'var(--p-accent-soft)', color: 'var(--p-accent)' }}>
-              <UsersIcon size={16} />
+            <span className="p-1 sm:p-1.5 rounded-lg flex-shrink-0" style={{ background: 'var(--p-accent-soft)', color: 'var(--p-accent)' }}>
+              <UsersIcon size={15} />
             </span>
           </div>
-          <div className="text-2xl font-bold leading-tight" style={{ color: 'var(--p-text)' }}>
+          <div className="text-lg min-[360px]:text-xl sm:text-2xl font-bold leading-tight" style={{ color: 'var(--p-text)' }}>
             {counts.all}
           </div>
-          <span className="text-[11.5px] mt-0.5 block" style={{ color: 'var(--p-muted)' }}>
+          <span className="text-[10.5px] min-[360px]:text-[11.5px] mt-0.5 block truncate" style={{ color: 'var(--p-muted)' }}>
             Athletes + staff on record
           </span>
         </button>
@@ -729,7 +729,7 @@ export default function AdminUsers() {
         <button
           type="button"
           onClick={() => setStatusSection('active')}
-          className={`p-4 rounded-xl border text-left transition cursor-pointer relative overflow-hidden ${
+          className={`p-2.5 min-[380px]:p-3.5 sm:p-4 rounded-xl border text-left transition cursor-pointer relative overflow-hidden ${
             statusSection === 'active'
               ? 'ring-2 ring-[var(--p-ok)] shadow-md'
               : 'hover:border-[var(--p-border-2)]'
@@ -737,17 +737,17 @@ export default function AdminUsers() {
           style={{ background: 'var(--p-surface)', borderColor: 'var(--p-border)' }}
         >
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--p-ok)' }}>
+            <span className="text-[11px] min-[360px]:text-xs font-semibold uppercase tracking-wider truncate" style={{ color: 'var(--p-ok)' }}>
               Active Members
             </span>
-            <span className="p-1.5 rounded-lg" style={{ background: 'var(--p-ok-soft)', color: 'var(--p-ok)' }}>
-              <CheckCircle2 size={16} />
+            <span className="p-1 sm:p-1.5 rounded-lg flex-shrink-0" style={{ background: 'var(--p-ok-soft)', color: 'var(--p-ok)' }}>
+              <CheckCircle2 size={15} />
             </span>
           </div>
-          <div className="text-2xl font-bold leading-tight" style={{ color: 'var(--p-ok)' }}>
+          <div className="text-lg min-[360px]:text-xl sm:text-2xl font-bold leading-tight" style={{ color: 'var(--p-ok)' }}>
             {counts.active}
           </div>
-          <span className="text-[11.5px] mt-0.5 block" style={{ color: 'var(--p-muted)' }}>
+          <span className="text-[10.5px] min-[360px]:text-[11.5px] mt-0.5 block truncate" style={{ color: 'var(--p-muted)' }}>
             Floor training athletes
           </span>
         </button>
@@ -755,7 +755,7 @@ export default function AdminUsers() {
         <button
           type="button"
           onClick={() => setStatusSection('expiring5')}
-          className={`p-4 rounded-xl border text-left transition cursor-pointer relative overflow-hidden ${
+          className={`p-2.5 min-[380px]:p-3.5 sm:p-4 rounded-xl border text-left transition cursor-pointer relative overflow-hidden ${
             statusSection === 'expiring5'
               ? 'ring-2 ring-[var(--p-warn)] shadow-md'
               : 'hover:border-[var(--p-border-2)]'
@@ -763,17 +763,17 @@ export default function AdminUsers() {
           style={{ background: 'var(--p-surface)', borderColor: 'var(--p-border)' }}
         >
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--p-warn)' }}>
+            <span className="text-[11px] min-[360px]:text-xs font-semibold uppercase tracking-wider truncate" style={{ color: 'var(--p-warn)' }}>
               Expiring in ≤ 5 Days
             </span>
-            <span className="p-1.5 rounded-lg" style={{ background: 'var(--p-warn-soft)', color: 'var(--p-warn)' }}>
-              <CalendarClock size={16} />
+            <span className="p-1 sm:p-1.5 rounded-lg flex-shrink-0" style={{ background: 'var(--p-warn-soft)', color: 'var(--p-warn)' }}>
+              <CalendarClock size={15} />
             </span>
           </div>
-          <div className="text-2xl font-bold leading-tight" style={{ color: 'var(--p-warn)' }}>
+          <div className="text-lg min-[360px]:text-xl sm:text-2xl font-bold leading-tight" style={{ color: 'var(--p-warn)' }}>
             {counts.expiring5}
           </div>
-          <span className="text-[11.5px] mt-0.5 block" style={{ color: 'var(--p-muted)' }}>
+          <span className="text-[10.5px] min-[360px]:text-[11.5px] mt-0.5 block truncate" style={{ color: 'var(--p-muted)' }}>
             Urgent renewal reminder
           </span>
         </button>
@@ -781,7 +781,7 @@ export default function AdminUsers() {
         <button
           type="button"
           onClick={() => setStatusSection('expired')}
-          className={`p-4 rounded-xl border text-left transition cursor-pointer relative overflow-hidden ${
+          className={`p-2.5 min-[380px]:p-3.5 sm:p-4 rounded-xl border text-left transition cursor-pointer relative overflow-hidden ${
             statusSection === 'expired'
               ? 'ring-2 ring-[var(--p-danger)] shadow-md'
               : 'hover:border-[var(--p-border-2)]'
@@ -789,17 +789,17 @@ export default function AdminUsers() {
           style={{ background: 'var(--p-surface)', borderColor: 'var(--p-border)' }}
         >
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--p-danger)' }}>
+            <span className="text-[11px] min-[360px]:text-xs font-semibold uppercase tracking-wider truncate" style={{ color: 'var(--p-danger)' }}>
               Expired Members
             </span>
-            <span className="p-1.5 rounded-lg" style={{ background: 'var(--p-danger-soft)', color: 'var(--p-danger)' }}>
-              <Clock size={16} />
+            <span className="p-1 sm:p-1.5 rounded-lg flex-shrink-0" style={{ background: 'var(--p-danger-soft)', color: 'var(--p-danger)' }}>
+              <Clock size={15} />
             </span>
           </div>
-          <div className="text-2xl font-bold leading-tight" style={{ color: 'var(--p-danger)' }}>
+          <div className="text-lg min-[360px]:text-xl sm:text-2xl font-bold leading-tight" style={{ color: 'var(--p-danger)' }}>
             {counts.expired}
           </div>
-          <span className="text-[11.5px] mt-0.5 block" style={{ color: 'var(--p-muted)' }}>
+          <span className="text-[10.5px] min-[360px]:text-[11.5px] mt-0.5 block truncate" style={{ color: 'var(--p-muted)' }}>
             Membership plan ended
           </span>
         </button>
@@ -851,7 +851,7 @@ export default function AdminUsers() {
             onChange={e => setSearch(e.target.value)} aria-label="Search users" />
         </div>
         <Select value={roleFilter} onChange={e => setRoleFilter(e.target.value)}
-          aria-label="Filter by role" style={{ width: 150, height: 42 }}>
+          aria-label="Filter by role" className="w-full sm:w-[150px]" style={{ height: 42 }}>
           <option value="all">All roles</option>
           <option value="member">Members</option>
           <option value="trainer">Trainers</option>
@@ -959,23 +959,23 @@ export default function AdminUsers() {
               {shown.map((u, i) => {
                 const role = ROLES[u.role] || ROLES.member;
                 return (
-                  <li key={u._id} className="px-4 py-3.5" style={{ borderTop: i ? '1px solid var(--p-border)' : 'none' }}>
-                    <div className="flex items-center gap-3">
-                      <Avatar name={u.name} size={40} />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-[15px] font-semibold truncate" style={{ color: 'var(--p-text)' }}>{u.name}</p>
-                        <p className="text-[13px] truncate" style={{ color: 'var(--p-text-2)' }}>{u.email}</p>
-                        <p className="text-[12px] mt-0.5" style={{ color: 'var(--p-muted)' }}>
+                  <li key={u._id} className="px-3.5 sm:px-4 py-3 sm:py-3.5" style={{ borderTop: i ? '1px solid var(--p-border)' : 'none' }}>
+                    <div className="flex items-start sm:items-center gap-2.5 sm:gap-3 flex-wrap sm:flex-nowrap">
+                      <Avatar name={u.name} size={36} />
+                      <div className="flex-1 min-w-[140px]">
+                        <p className="text-[14.5px] sm:text-[15px] font-semibold truncate" style={{ color: 'var(--p-text)' }}>{u.name}</p>
+                        <p className="text-[12.5px] sm:text-[13px] truncate" style={{ color: 'var(--p-text-2)' }}>{u.email}</p>
+                        <p className="text-[11.5px] sm:text-[12px] mt-0.5" style={{ color: 'var(--p-muted)' }}>
                           {u.phone || 'No phone'} · Joined {fmtDate(u.createdAt)}
                           {u.role === 'member' && u.membershipEnd ? ` · Ends ${fmtDate(u.membershipEnd)}` : ''}
                         </p>
                       </div>
-                      <div className="flex flex-col items-end gap-1.5">
+                      <div className="flex flex-row sm:flex-col items-center sm:items-end gap-1.5 w-full sm:w-auto justify-between sm:justify-start pt-1 sm:pt-0">
                         <Badge tone={role.tone}>{role.label}</Badge>
                         {renderStatusBadge(u)}
                       </div>
                     </div>
-                    <div className="mt-2.5"><RowActions user={u} isSelf={isSelf(u)} on={on} /></div>
+                    <div className="mt-2.5 overflow-x-auto"><RowActions user={u} isSelf={isSelf(u)} on={on} /></div>
                   </li>
                 );
               })}

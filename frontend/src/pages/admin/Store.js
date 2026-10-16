@@ -64,7 +64,7 @@ function ProductModal({ editData, onClose, onSaved }) {
   return (
     <div className="admin-modal-overlay">
       <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-        className="admin-modal-box">
+        className="admin-modal-box max-h-[90dvh] overflow-y-auto">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-white font-bold text-xl">{editData ? 'Edit Product' : 'Add Product'}</h2>
           <button onClick={onClose} className="text-gray-500 hover:text-white"><X size={20} /></button>
@@ -150,9 +150,9 @@ function ProductModal({ editData, onClose, onSaved }) {
           </div>
         </div>
 
-        <div className="flex justify-end gap-3 mt-6">
-          <button onClick={onClose} className="btn-ghost px-5 py-2.5 text-sm">Cancel</button>
-          <button onClick={save} disabled={saving} className="btn-fire px-6 py-2.5 text-sm">
+        <div className="flex flex-wrap justify-end gap-3 mt-6">
+          <button onClick={onClose} className="btn-ghost px-5 py-2.5 text-sm flex-1 sm:flex-none">Cancel</button>
+          <button onClick={save} disabled={saving} className="btn-fire px-6 py-2.5 text-sm flex-1 sm:flex-none">
             {saving ? <span className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" /> : (editData ? 'Update Product' : 'Add Product')}
           </button>
         </div>
@@ -214,8 +214,8 @@ export default function AdminStore() {
     >
       {/* Toolbar */}
       <div className="ui-toolbar flex-wrap gap-2.5 mb-6 items-center justify-between">
-        <div className="flex items-center gap-2.5 flex-1 min-w-[280px]">
-          <div className="ui-search flex-1 max-w-sm">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 flex-1 w-full min-w-0">
+          <div className="ui-search flex-1 w-full sm:max-w-sm">
             <Search size={18} />
             <Input
               placeholder="Search products by name or brand…"
@@ -227,7 +227,8 @@ export default function AdminStore() {
           <Select
             value={catFilter}
             onChange={e => setCatFilter(e.target.value)}
-            style={{ width: 190, height: 42 }}
+            className="w-full sm:w-[190px]"
+            style={{ height: 42 }}
             aria-label="Filter by category"
           >
             <option value="all">All Categories</option>
@@ -238,7 +239,7 @@ export default function AdminStore() {
             ))}
           </Select>
         </div>
-        <Button variant="primary" icon={Plus} onClick={() => setModal('new')}>
+        <Button variant="primary" icon={Plus} onClick={() => setModal('new')} className="w-full sm:w-auto">
           Add Product
         </Button>
       </div>

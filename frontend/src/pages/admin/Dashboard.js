@@ -345,46 +345,46 @@ export default function AdminDashboard() {
     >
       <div className="space-y-6 max-w-7xl">
         {/* Simple & Helpful Quick Desk Actions — Clear, touch-friendly 1-click tiles */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 min-[380px]:gap-2.5 sm:gap-3">
           <button
             type="button"
             onClick={() => openQuickPay()}
-            className="flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-xl border transition-all text-center group cursor-pointer shadow-sm hover:border-[var(--p-ok)] hover:bg-[var(--p-surface-2)] min-h-[64px]"
+            className="flex flex-col items-center justify-center p-2.5 min-[380px]:p-3.5 rounded-xl border transition-all text-center group cursor-pointer shadow-sm hover:border-[var(--p-ok)] hover:bg-[var(--p-surface-2)] min-h-[64px]"
             style={{ background: 'var(--p-surface)', borderColor: 'var(--p-border)' }}
           >
-            <span className="w-8 h-8 rounded-lg flex items-center justify-center mb-1.5 transition-transform group-hover:scale-105"
+            <span className="w-7 h-7 min-[380px]:w-8 min-[380px]:h-8 rounded-lg flex items-center justify-center mb-1 min-[380px]:mb-1.5 transition-transform group-hover:scale-105"
               style={{ background: 'var(--p-ok-soft)', color: 'var(--p-ok)' }}>
-              <IndianRupee size={16} />
+              <IndianRupee size={15} />
             </span>
-            <span className="text-[12.5px] font-bold block" style={{ color: 'var(--p-text)' }}>Collect Payment</span>
-            <span className="text-[11px] block mt-0.5" style={{ color: 'var(--p-muted)' }}>Quick cash / UPI</span>
+            <span className="text-[11.5px] min-[360px]:text-[12.5px] font-bold block leading-tight break-words" style={{ color: 'var(--p-text)' }}>Collect Payment</span>
+            <span className="text-[10px] min-[360px]:text-[11px] block mt-0.5 truncate max-w-full" style={{ color: 'var(--p-muted)' }}>Quick cash / UPI</span>
           </button>
 
           <Link
             to="/admin/users?add=1"
-            className="flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-xl border transition-all text-center group cursor-pointer shadow-sm hover:border-[var(--p-accent)] hover:bg-[var(--p-surface-2)] min-h-[64px]"
+            className="flex flex-col items-center justify-center p-2.5 min-[380px]:p-3.5 rounded-xl border transition-all text-center group cursor-pointer shadow-sm hover:border-[var(--p-accent)] hover:bg-[var(--p-surface-2)] min-h-[64px]"
             style={{ background: 'var(--p-surface)', borderColor: 'var(--p-border)' }}
           >
-            <span className="w-8 h-8 rounded-lg flex items-center justify-center mb-1.5 transition-transform group-hover:scale-105"
+            <span className="w-7 h-7 min-[380px]:w-8 min-[380px]:h-8 rounded-lg flex items-center justify-center mb-1 min-[380px]:mb-1.5 transition-transform group-hover:scale-105"
               style={{ background: 'var(--p-accent-soft)', color: 'var(--p-accent)' }}>
-              <UserPlus size={16} />
+              <UserPlus size={15} />
             </span>
-            <span className="text-[12.5px] font-bold block" style={{ color: 'var(--p-text)' }}>Add Member</span>
-            <span className="text-[11px] block mt-0.5" style={{ color: 'var(--p-muted)' }}>New registration</span>
+            <span className="text-[11.5px] min-[360px]:text-[12.5px] font-bold block leading-tight break-words" style={{ color: 'var(--p-text)' }}>Add Member</span>
+            <span className="text-[10px] min-[360px]:text-[11px] block mt-0.5 truncate max-w-full" style={{ color: 'var(--p-muted)' }}>New registration</span>
           </Link>
 
           <button
             type="button"
             onClick={() => setActiveTab('expiring')}
-            className={`flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-xl border transition-all text-center group cursor-pointer shadow-sm min-h-[64px] ${
+            className={`flex flex-col items-center justify-center p-2.5 min-[380px]:p-3.5 rounded-xl border transition-all text-center group cursor-pointer shadow-sm min-h-[64px] ${
               activeTab === 'expiring' ? 'ring-2 ring-amber-500' : 'hover:border-[var(--p-warn)] hover:bg-[var(--p-surface-2)]'
             }`}
             style={{ background: 'var(--p-surface)', borderColor: 'var(--p-border)' }}
           >
-            <div className="relative mb-1.5">
-              <span className="w-8 h-8 rounded-lg flex items-center justify-center transition-transform group-hover:scale-105"
+            <div className="relative mb-1 min-[380px]:mb-1.5">
+              <span className="w-7 h-7 min-[380px]:w-8 min-[380px]:h-8 rounded-lg flex items-center justify-center transition-transform group-hover:scale-105"
                 style={{ background: 'var(--p-warn-soft)', color: 'var(--p-warn)' }}>
-                <CalendarClock size={16} />
+                <CalendarClock size={15} />
               </span>
               {stats.upcoming.length > 0 && (
                 <span className="absolute -top-1.5 -right-2 px-1.5 py-0.2 rounded-full text-[10px] font-extrabold bg-amber-500 text-white">
@@ -392,22 +392,22 @@ export default function AdminDashboard() {
                 </span>
               )}
             </div>
-            <span className="text-[12.5px] font-bold block" style={{ color: 'var(--p-text)' }}>Expiring Soon</span>
-            <span className="text-[11px] block mt-0.5" style={{ color: 'var(--p-muted)' }}>Next 7 days</span>
+            <span className="text-[11.5px] min-[360px]:text-[12.5px] font-bold block leading-tight break-words" style={{ color: 'var(--p-text)' }}>Expiring Soon</span>
+            <span className="text-[10px] min-[360px]:text-[11px] block mt-0.5 truncate max-w-full" style={{ color: 'var(--p-muted)' }}>Next 7 days</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveTab('dues')}
-            className={`flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-xl border transition-all text-center group cursor-pointer shadow-sm min-h-[64px] ${
+            className={`flex flex-col items-center justify-center p-2.5 min-[380px]:p-3.5 rounded-xl border transition-all text-center group cursor-pointer shadow-sm min-h-[64px] ${
               activeTab === 'dues' ? 'ring-2 ring-red-500' : 'hover:border-[var(--p-danger)] hover:bg-[var(--p-surface-2)]'
             }`}
             style={{ background: 'var(--p-surface)', borderColor: 'var(--p-border)' }}
           >
-            <div className="relative mb-1.5">
-              <span className="w-8 h-8 rounded-lg flex items-center justify-center transition-transform group-hover:scale-105"
+            <div className="relative mb-1 min-[380px]:mb-1.5">
+              <span className="w-7 h-7 min-[380px]:w-8 min-[380px]:h-8 rounded-lg flex items-center justify-center transition-transform group-hover:scale-105"
                 style={{ background: 'var(--p-danger-soft)', color: 'var(--p-danger)' }}>
-                <CreditCard size={16} />
+                <CreditCard size={15} />
               </span>
               {stats.dueCount > 0 && (
                 <span className="absolute -top-1.5 -right-2 px-1.5 py-0.2 rounded-full text-[10px] font-extrabold bg-red-500 text-white">
@@ -415,35 +415,35 @@ export default function AdminDashboard() {
                 </span>
               )}
             </div>
-            <span className="text-[12.5px] font-bold block" style={{ color: 'var(--p-text)' }}>Unpaid Dues</span>
-            <span className="text-[11px] block mt-0.5" style={{ color: 'var(--p-muted)' }}>Pending fees</span>
+            <span className="text-[11.5px] min-[360px]:text-[12.5px] font-bold block leading-tight break-words" style={{ color: 'var(--p-text)' }}>Unpaid Dues</span>
+            <span className="text-[10px] min-[360px]:text-[11px] block mt-0.5 truncate max-w-full" style={{ color: 'var(--p-muted)' }}>Pending fees</span>
           </button>
 
           <Link
             to="/admin/notifications"
-            className="flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-xl border transition-all text-center group cursor-pointer shadow-sm hover:border-[var(--p-accent)] hover:bg-[var(--p-surface-2)] min-h-[64px]"
+            className="flex flex-col items-center justify-center p-2.5 min-[380px]:p-3.5 rounded-xl border transition-all text-center group cursor-pointer shadow-sm hover:border-[var(--p-accent)] hover:bg-[var(--p-surface-2)] min-h-[64px]"
             style={{ background: 'var(--p-surface)', borderColor: 'var(--p-border)' }}
           >
-            <span className="w-8 h-8 rounded-lg flex items-center justify-center mb-1.5 transition-transform group-hover:scale-105"
+            <span className="w-7 h-7 min-[380px]:w-8 min-[380px]:h-8 rounded-lg flex items-center justify-center mb-1 min-[380px]:mb-1.5 transition-transform group-hover:scale-105"
               style={{ background: 'rgba(168, 85, 247, 0.15)', color: '#a855f7' }}>
-              <Bell size={16} />
+              <Bell size={15} />
             </span>
-            <span className="text-[12.5px] font-bold block" style={{ color: 'var(--p-text)' }}>Notifications</span>
-            <span className="text-[11px] block mt-0.5" style={{ color: 'var(--p-muted)' }}>Send WhatsApp / Email</span>
+            <span className="text-[11.5px] min-[360px]:text-[12.5px] font-bold block leading-tight break-words" style={{ color: 'var(--p-text)' }}>Notifications</span>
+            <span className="text-[10px] min-[360px]:text-[11px] block mt-0.5 truncate max-w-full" style={{ color: 'var(--p-muted)' }}>WhatsApp / Email</span>
           </Link>
 
           <button
             type="button"
             onClick={() => setActiveTab('orders')}
-            className={`flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-xl border transition-all text-center group cursor-pointer shadow-sm min-h-[64px] ${
+            className={`flex flex-col items-center justify-center p-2.5 min-[380px]:p-3.5 rounded-xl border transition-all text-center group cursor-pointer shadow-sm min-h-[64px] ${
               activeTab === 'orders' ? 'ring-2 ring-[#3365e2]' : 'hover:border-[var(--p-info)] hover:bg-[var(--p-surface-2)]'
             }`}
             style={{ background: 'var(--p-surface)', borderColor: 'var(--p-border)' }}
           >
-            <div className="relative mb-1.5">
-              <span className="w-8 h-8 rounded-lg flex items-center justify-center transition-transform group-hover:scale-105"
+            <div className="relative mb-1 min-[380px]:mb-1.5">
+              <span className="w-7 h-7 min-[380px]:w-8 min-[380px]:h-8 rounded-lg flex items-center justify-center transition-transform group-hover:scale-105"
                 style={{ background: 'var(--p-info-soft)', color: 'var(--p-info)' }}>
-                <ShoppingBag size={16} />
+                <ShoppingBag size={15} />
               </span>
               {stats.pendingOrdersCount > 0 && (
                 <span className="absolute -top-1.5 -right-2 px-1.5 py-0.2 rounded-full text-[10px] font-extrabold bg-[#3365e2] text-white">
@@ -451,8 +451,8 @@ export default function AdminDashboard() {
                 </span>
               )}
             </div>
-            <span className="text-[12.5px] font-bold block" style={{ color: 'var(--p-text)' }}>Store Orders</span>
-            <span className="text-[11px] block mt-0.5" style={{ color: 'var(--p-muted)' }}>Counter pickups</span>
+            <span className="text-[11.5px] min-[360px]:text-[12.5px] font-bold block leading-tight break-words" style={{ color: 'var(--p-text)' }}>Store Orders</span>
+            <span className="text-[10px] min-[360px]:text-[11px] block mt-0.5 truncate max-w-full" style={{ color: 'var(--p-muted)' }}>Pickup ready</span>
           </button>
         </div>
 

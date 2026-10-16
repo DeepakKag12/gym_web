@@ -4,6 +4,7 @@ import { X, Play, Clock, TrendingDown, TrendingUp, User, ShieldCheck } from 'luc
 import { cachedGet } from '../utils/api';
 import { img } from '../utils/img';
 import PillButton from '../components/ui/PillButton';
+import { SpiralLoader } from '../components/ui';
 
 function isYouTube(url) {
   return url && (url.includes('youtube.com') || url.includes('youtu.be'));
@@ -49,7 +50,7 @@ export default function TransformationsPage() {
           <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/90 backdrop-blur-md border border-[#3365e2]/30 text-[#3365e2] text-xs font-bold uppercase tracking-wider mb-4 shadow-xs">
             <ShieldCheck size={13} /> Verified Member Results
           </div>
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 mb-4 tracking-tight uppercase">
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-slate-900 mb-4 tracking-tight uppercase">
             REAL MEMBER <span className="text-[#3365e2]">TRANSFORMATIONS</span>
           </h1>
           <p className="text-slate-700 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed font-medium">
@@ -59,11 +60,9 @@ export default function TransformationsPage() {
       </div>
 
       <div className="bg-[#f8fafc] text-slate-800 min-h-[60vh]">
-        <div className="max-w-7xl mx-auto px-6 py-12 pb-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12 pb-20">
         {loading ? (
-          <div className="flex justify-center py-20">
-            <div className="w-8 h-8 border-2 border-[#3365e2] border-t-transparent rounded-full animate-spin" />
-          </div>
+          <SpiralLoader size="lg" />
         ) : transformations.length === 0 ? (
           <div className="text-center py-20 text-slate-500 text-sm">No transformations posted yet</div>
         ) : (
@@ -182,34 +181,34 @@ export default function TransformationsPage() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 16 }}
               transition={{ duration: 0.2, ease: 'easeOut' }}
-              className="bg-white border border-slate-200/90 rounded-2xl max-w-5xl w-full max-h-[92vh] flex flex-col shadow-2xl relative custom-scrollbar overflow-hidden"
+              className="bg-white border border-slate-200/90 rounded-2xl max-w-5xl w-full max-h-[92vh] max-h-[92dvh] flex flex-col shadow-2xl relative custom-scrollbar overflow-hidden"
             >
               {/* Sticky Top Header */}
-              <div className="sticky top-0 z-20 px-6 py-4 bg-white/95 backdrop-blur-md border-b border-slate-200 flex items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-[#3365e2]/10 text-[#3365e2] flex items-center justify-center flex-shrink-0">
-                    <ShieldCheck size={20} />
+              <div className="sticky top-0 z-20 px-4 sm:px-6 py-3.5 sm:py-4 bg-white/95 backdrop-blur-md border-b border-slate-200 flex items-center justify-between gap-3 sm:gap-4">
+                <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#3365e2]/10 text-[#3365e2] flex items-center justify-center flex-shrink-0">
+                    <ShieldCheck size={18} className="sm:w-5 sm:h-5" />
                   </div>
-                  <div>
-                    <span className="text-[11px] font-bold tracking-wider uppercase text-[#3365e2] block">
+                  <div className="min-w-0">
+                    <span className="text-[10px] sm:text-[11px] font-bold tracking-wider uppercase text-[#3365e2] block truncate">
                       FitNation Verified Result
                     </span>
-                    <h2 className="gym-font text-2xl sm:text-3xl text-slate-900 leading-tight">
+                    <h2 className="gym-font text-xl sm:text-3xl text-slate-900 leading-tight truncate">
                       {selected.title}
                     </h2>
                   </div>
                 </div>
                 <button
                   onClick={() => setSelected(null)}
-                  className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-colors cursor-pointer flex-shrink-0"
+                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-colors cursor-pointer flex-shrink-0"
                   aria-label="Close modal"
                 >
-                  <X size={18} />
+                  <X size={16} className="sm:w-[18px] sm:h-[18px]" />
                 </button>
               </div>
 
               {/* Scrollable Modal Content */}
-              <div className="overflow-y-auto p-6 sm:p-8 space-y-6 flex-1 bg-white">
+              <div className="overflow-y-auto p-4 sm:p-8 space-y-5 sm:space-y-6 flex-1 bg-white">
                 {/* Athlete & Metrics Bar */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
                   <div className="flex items-center gap-2.5">

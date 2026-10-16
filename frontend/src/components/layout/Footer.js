@@ -224,7 +224,10 @@ export default function Footer({
       </nav>
 
       {/* Bottom Bar: Copyright & Credits — Elevated Z-Index, Absolute Zero Overlap */}
-      <div className="relative z-20 w-full pt-4 pb-2 border-t border-white/15 flex flex-col sm:flex-row items-center justify-between gap-3 text-white/80 text-xs">
+      <div
+        className="relative z-20 w-full pt-4 pb-2 border-t border-white/15 flex flex-col sm:flex-row items-center justify-between gap-3 text-white/80 text-xs"
+        style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}
+      >
         <p className="font-medium text-center sm:text-left">
           &copy; {new Date().getFullYear()} FitNation by Ajeet. All Rights Reserved. Location: Rajgarh (Dhar), MP.
         </p>

@@ -69,11 +69,17 @@ export default function FreeTrialForm({
 
   return (
     <section id="oris-form" className="w-full bg-white pt-[6vw] max-[1025px]:pt-12 text-slate-800">
-      <div className="relative w-full rounded-t-[2.2vw] max-[1025px]:rounded-t-3xl overflow-hidden min-h-[80vh] max-[1025px]:min-h-0 flex items-start justify-between oris-paddx py-[5.6vw] max-[1025px]:p-8 max-md:p-6 max-[1025px]:py-20 max-[1025px]:flex-col max-[1025px]:gap-10">
+      <div className="relative w-full rounded-t-[2.2vw] max-[1025px]:rounded-t-3xl overflow-hidden min-h-[80vh] max-[1025px]:min-h-0 flex items-start justify-between oris-paddx py-[5.6vw] max-[1025px]:p-8 max-md:p-4 max-[1025px]:py-16 max-[1025px]:flex-col max-[1025px]:gap-8">
         {/* Full Cover Facility Photo */}
         <img
           src={bgImage}
           alt="FitNation Facility Floor"
+          loading="lazy"
+          decoding="async"
+          onError={(e) => {
+            e.currentTarget.onerror = null;
+            e.currentTarget.src = 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1600&auto=format&fit=crop';
+          }}
           className="absolute inset-0 w-full h-full object-cover pointer-events-none z-0 brightness-[0.35]"
         />
 
@@ -95,8 +101,8 @@ export default function FreeTrialForm({
           </div>
         </div>
 
-        {/* Right Column: Form Card (Screenshot 11) */}
-        <div className="relative z-10 bg-white rounded-[32px] p-8 lg:p-10 w-full max-w-[520px] shadow-2xl border border-slate-100">
+        {/* Right Column: Form Card */}
+        <div className="relative z-10 bg-white rounded-[24px] sm:rounded-[32px] p-5 sm:p-8 lg:p-10 w-full max-w-[520px] shadow-2xl border border-slate-100">
           <h3 className="text-2xl sm:text-3xl font-medium text-oris-secondary mb-6 tracking-tight">
             Get in touch
           </h3>
@@ -108,7 +114,7 @@ export default function FreeTrialForm({
                 htmlFor="oris-name"
                 className={`absolute left-3 transition-all duration-200 pointer-events-none px-1 bg-white text-xs ${
                   form.name
-                    ? 'top-[-0.3vw] text-slate-500 font-semibold'
+                    ? '-top-2 text-slate-600 font-semibold'
                     : 'top-1/2 -translate-y-1/2 text-sm text-slate-400'
                 }`}
               >
@@ -130,7 +136,7 @@ export default function FreeTrialForm({
                 htmlFor="oris-email"
                 className={`absolute left-3 transition-all duration-200 pointer-events-none px-1 bg-white text-xs ${
                   form.email
-                    ? 'top-[-0.3vw] text-slate-500 font-semibold'
+                    ? '-top-2 text-slate-600 font-semibold'
                     : 'top-1/2 -translate-y-1/2 text-sm text-slate-400'
                 }`}
               >
@@ -191,7 +197,7 @@ export default function FreeTrialForm({
                   htmlFor="oris-phone"
                   className={`absolute left-3 transition-all duration-200 pointer-events-none px-1 bg-white text-xs ${
                     form.phone
-                      ? 'top-[-0.3vw] text-slate-500 font-semibold'
+                      ? '-top-2 text-slate-600 font-semibold'
                       : 'top-1/2 -translate-y-1/2 text-sm text-slate-400'
                   }`}
                 >
@@ -210,7 +216,7 @@ export default function FreeTrialForm({
 
             {/* Topic Dropdown */}
             <div className="relative w-full">
-              <span className="absolute left-3 top-[-0.3vw] text-xs font-semibold text-slate-500 px-1 bg-white z-10 pointer-events-none">
+              <span className="absolute left-3 -top-2 text-xs font-semibold text-slate-600 px-1 bg-white z-10 pointer-events-none">
                 Primary Goal / Discipline*
               </span>
               <button

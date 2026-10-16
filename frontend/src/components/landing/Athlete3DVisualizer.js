@@ -360,7 +360,7 @@ export default function Athlete3DVisualizer({ className = '' }) {
   return (
     <div
       ref={containerRef}
-      className={`relative w-[38vw] max-w-[540px] min-w-[300px] aspect-square flex flex-col items-center justify-center select-none bg-transparent pointer-events-auto ${className}`}
+      className={`relative w-[27vw] max-w-[380px] min-w-[240px] aspect-square flex flex-col items-center justify-center select-none bg-transparent pointer-events-auto ${className}`}
       aria-label="FitNation 3D Olympic Dumbbell"
       role="img"
     >

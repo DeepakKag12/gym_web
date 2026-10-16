@@ -100,17 +100,17 @@ function DonutChart({ segments, size = 90, label }) {
 function KpiCard({ icon: Icon, label, value, sub, color, trend }) {
   return (
     <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }}
-      className="glass rounded-xl p-5">
-      <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${color}`}>
-        <Icon size={18} />
+      className="glass rounded-xl p-3 min-[380px]:p-5">
+      <div className={`w-8 h-8 min-[380px]:w-10 min-[380px]:h-10 rounded-xl flex items-center justify-center mb-2 min-[380px]:mb-3 ${color}`}>
+        <Icon size={16} className="min-[380px]:w-[18px] min-[380px]:h-[18px]" />
       </div>
-      <div className="text-white font-bold text-2xl leading-tight mb-0.5">{value}</div>
-      <div className="text-gray-400 text-xs mb-1">{label}</div>
+      <div className="text-white font-bold text-lg min-[360px]:text-xl sm:text-2xl leading-tight mb-0.5 truncate">{value}</div>
+      <div className="text-gray-400 text-xs mb-1 truncate">{label}</div>
       {sub && (
-        <div className={`text-xs flex items-center gap-1 ${trend === 'up' ? 'text-green-400' : trend === 'down' ? 'text-red-400' : 'text-gray-500'}`}>
-          {trend === 'up' && <TrendingUp size={11} />}
-          {trend === 'down' && <TrendingDown size={11} />}
-          {sub}
+        <div className={`text-xs flex items-center gap-1 truncate ${trend === 'up' ? 'text-green-400' : trend === 'down' ? 'text-red-400' : 'text-gray-500'}`}>
+          {trend === 'up' && <TrendingUp size={11} className="flex-shrink-0" />}
+          {trend === 'down' && <TrendingDown size={11} className="flex-shrink-0" />}
+          <span className="truncate">{sub}</span>
         </div>
       )}
     </motion.div>
@@ -437,7 +437,7 @@ export default function AdminRevenue() {
       {tab === 'overview' && (
         <>
           {/* KPI row */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 mb-6">
             <KpiCard icon={IndianRupee}  label={filterMonth ? `${MONTHS[filterMonth-1]} Revenue` : 'Total Revenue'}
               value={fmt(displayTotals.totalRevenue)}
               color="bg-green-500/10 text-green-400"

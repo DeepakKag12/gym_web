@@ -305,7 +305,7 @@ export default function ExercisesPage() {
       {/* ── Landing Page White & Blue Hero Header ── */}
       <div className="relative overflow-hidden pt-28 sm:pt-36 pb-16 sm:pb-20 bg-[linear-gradient(to_bottom,#ffffff_0%,#eff6ff_20%,#bfdbfe_45%,#60a5fa_70%,#3365e2_100%)] text-slate-900 border-b border-[#3365e2]/20">
         <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#15324d_1.2px,transparent_1.2px)] [background-size:24px_24px] pointer-events-none" />
-        <div className="relative z-10 max-w-7xl mx-auto px-6 text-center">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 text-center">
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/90 backdrop-blur-md border border-[#3365e2]/30 text-[#3365e2] text-xs font-bold uppercase tracking-wider mb-4 shadow-xs">
               <span className="w-2 h-2 rounded-full bg-[#3365e2] animate-pulse" />
@@ -322,10 +322,10 @@ export default function ExercisesPage() {
       </div>
 
       <div className="bg-[#f8fafc] text-slate-800 min-h-[60vh]">
-        <div className="max-w-7xl mx-auto px-6 py-10 pb-20">
-        {/* One toolbar: search, difficulty and the count on a single line */}
-        <div className="flex flex-wrap items-center gap-3 mb-4">
-          <div className="relative flex-1" style={{ minWidth: 240 }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-10 pb-20">
+        {/* Responsive toolbar: search, difficulty and clear button */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-4">
+          <div className="relative flex-1 min-w-0">
             <Search
               size={16}
               className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
@@ -340,23 +340,24 @@ export default function ExercisesPage() {
             />
           </div>
 
-          <select
-            className="bg-white border border-slate-300 text-slate-800 focus:border-[#3365e2] focus:ring-2 focus:ring-[#3365e2]/20 rounded-xl py-2.5 px-3 text-sm capitalize outline-none transition-all shadow-xs cursor-pointer"
-            style={{ width: 170 }}
-            aria-label="Filter by difficulty"
-            value={difficulty}
-            onChange={e => setDifficulty(e.target.value)}
-          >
-            {DIFFICULTIES.map(d => (
-              <option key={d} value={d}>{d === 'all' ? 'Any difficulty' : d}</option>
-            ))}
-          </select>
+          <div className="flex items-center gap-2.5">
+            <select
+              className="bg-white border border-slate-300 text-slate-800 focus:border-[#3365e2] focus:ring-2 focus:ring-[#3365e2]/20 rounded-xl py-2.5 px-3 text-sm capitalize outline-none transition-all shadow-xs cursor-pointer flex-1 sm:w-[170px]"
+              aria-label="Filter by difficulty"
+              value={difficulty}
+              onChange={e => setDifficulty(e.target.value)}
+            >
+              {DIFFICULTIES.map(d => (
+                <option key={d} value={d}>{d === 'all' ? 'Any difficulty' : d}</option>
+              ))}
+            </select>
 
-          {filtering && (
-            <button onClick={clearAll} className="text-slate-500 hover:text-[#3365e2] text-sm px-3 py-2 flex items-center gap-1.5 font-semibold transition-colors cursor-pointer">
-              <X size={14} /> Clear
-            </button>
-          )}
+            {filtering && (
+              <button onClick={clearAll} className="text-slate-500 hover:text-[#3365e2] text-sm px-3 py-2 flex items-center gap-1.5 font-semibold transition-colors cursor-pointer whitespace-nowrap">
+                <X size={14} /> Clear
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="flex gap-2 overflow-x-auto pb-3 scrollbar-hide">

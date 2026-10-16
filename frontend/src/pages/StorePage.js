@@ -6,7 +6,6 @@ import { cachedGet } from '../utils/api';
 import { useCart } from '../context/CartContext';
 import toast from 'react-hot-toast';
 import { img } from '../utils/img';
-import PillButton from '../components/ui/PillButton';
 
 function useDebounce(value, delay) {
   const [debounced, setDebounced] = useState(value);
@@ -37,6 +36,21 @@ const TRUST_BADGES = [
   { icon: <Zap size={16} />,       label: 'Same-day dispatch' },
 ];
 
+function StarRating({ rating, count }) {
+  return (
+    <div className="flex items-center gap-1">
+      <div className="flex gap-0.5">
+        {[1,2,3,4,5].map(s => (
+          <Star key={s} size={12}
+            className={s <= Math.round(rating) ? 'star-filled' : 'star-empty'}
+            fill={s <= Math.round(rating) ? '#f59e0b' : 'none'}
+          />
+        ))}
+      </div>
+      {count !== undefined && <span className="text-xs" style={{ color: 'var(--muted)' }}>({count})</span>}
+    </div>
+  );
+}
 
 const ProductCard = React.memo(function ProductCard({ product, onAdd }) {
   const discount = product.discountPrice
@@ -44,148 +58,103 @@ const ProductCard = React.memo(function ProductCard({ product, onAdd }) {
     : 0;
 
   return (
-    <div className="product-card group flex flex-col h-full bg-white rounded-2xl overflow-hidden border border-slate-200/90 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_16px_36px_rgba(51,101,226,0.14)] hover:border-[#3365e2]/50 hover:-translate-y-1 transition-all duration-300">
-      {/* ── Compact image area with fixed proportion ── */}
-      <Link to={`/store/${product._id}`} className="block relative overflow-hidden flex-shrink-0 h-44 sm:h-48 bg-slate-50 border-b border-slate-100">
-        <div className="absolute inset-0 p-3 flex items-center justify-center">
+    <div className="product-card flex flex-col h-full">
+      {/* ── Square image area ── */}
+      <Link to={`/store/${product._id}`} className="block relative overflow-hidden flex-shrink-0" style={{ paddingBottom: '100%' }}>
+        <div className="absolute inset-0">
           {product.images?.[0] ? (
-            <img
-              src={img(product.images[0], 400)}
-              alt={product.name}
-              className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
-              loading="lazy"
-              decoding="async"
-            />
+            <img src={img(product.images[0], 400)} alt={product.name} className="product-img w-full h-full object-cover" loading="lazy" decoding="async" />
           ) : (
-            <div className="w-full h-full flex flex-col items-center justify-center gap-1.5 text-slate-400">
-              <ShoppingBag size={32} />
-              <span className="text-[11px]">No image</span>
+            <div className="w-full h-full flex flex-col items-center justify-center gap-2" style={{ background: 'var(--bg3)' }}>
+              <ShoppingBag size={36} style={{ color: 'var(--border)' }} />
+              <span className="text-xs" style={{ color: 'var(--muted)' }}>No image</span>
             </div>
           )}
         </div>
-
-        {/* Floating Badges */}
-        <div className="absolute top-2.5 left-2.5 z-10 flex flex-col gap-1 pointer-events-none">
-          {discount > 0 && (
-            <span className="text-[10px] font-extrabold bg-[#3365e2] text-white px-2 py-0.5 rounded-full shadow-sm tracking-wide">
-              {discount}% OFF
-            </span>
-          )}
-          {product.isFeatured && (
-            <span className="text-[9px] font-extrabold bg-[#15324d] text-white px-2 py-0.5 rounded-full uppercase tracking-wider shadow-sm">
-              Featured
-            </span>
-          )}
-        </div>
-
+        {/* Overlay gradient at bottom */}
+        <div className="absolute inset-x-0 bottom-0 h-12 pointer-events-none"
+          style={{ background: 'linear-gradient(to top, rgba(17,19,24,0.6), transparent)' }} />
+        {/* Badges */}
+        {discount > 0 && <span className="badge-discount">{discount}% OFF</span>}
+        {product.isFeatured && <span className="badge-new">Featured</span>}
         {product.stock === 0 && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-xs z-20">
-            <span className="text-xs font-bold px-3 py-1 rounded-full text-white bg-slate-900/90 border border-white/20 shadow-md">
+          <div className="absolute inset-0 flex items-center justify-center"
+            style={{ background: 'rgba(11,12,14,0.7)' }}>
+            <span className="text-sm font-semibold px-3 py-1 rounded-full"
+              style={{ color: 'var(--muted2)', border: '1px solid var(--border)', background: 'var(--bg2)' }}>
               Out of Stock
             </span>
           </div>
         )}
       </Link>
 
-      {/* ── Balanced, high-density info container ── */}
-      <div className="p-3.5 sm:p-4 flex flex-col flex-1 justify-between">
-        <div>
-          {/* Top category & rating row */}
-          <div className="flex items-center justify-between gap-1 mb-1.5">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#3365e2] bg-[#eff4fe] px-2 py-0.5 rounded-md truncate max-w-[130px]">
-              {product.brand || product.category || 'FitNation'}
-            </span>
-            {product.rating > 0 ? (
-              <div className="flex items-center gap-1 text-[11px] font-bold text-amber-500">
-                <Star size={11} fill="#f59e0b" />
-                <span>{product.rating.toFixed(1)}</span>
-                {product.reviewCount ? (
-                  <span className="text-[10px] text-slate-400 font-normal">({product.reviewCount})</span>
-                ) : null}
-              </div>
-            ) : (
-              <span className="text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">
-                Authentic
-              </span>
-            )}
+      {/* ── Info ── */}
+      <div className="p-4 flex flex-col flex-1">
+        {product.brand && (
+          <div className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--muted)' }}>
+            {product.brand}
           </div>
+        )}
 
-          {/* Title */}
-          <Link to={`/store/${product._id}`}>
-            <h3 className="font-bold text-sm leading-snug line-clamp-2 text-slate-900 group-hover:text-[#3365e2] transition-colors mb-2 min-h-[2.5rem]">
-              {product.name}
-            </h3>
-          </Link>
+        <Link to={`/store/${product._id}`}>
+          <h3 className="font-semibold text-sm leading-snug mb-2 line-clamp-2 transition-colors hover:text-primary"
+            style={{ color: 'var(--text)' }}>
+            {product.name}
+          </h3>
+        </Link>
 
-          {/* Feature / Flavors Pill row (ensures zero empty space) */}
+        {product.rating > 0 && (
           <div className="mb-2">
-            {product.flavors?.length > 0 ? (
-              <div className="flex gap-1 flex-wrap">
-                {product.flavors.slice(0, 2).map(f => (
-                  <span
-                    key={f}
-                    className="text-[10px] px-2 py-0.5 rounded-md font-medium bg-slate-100 text-slate-700 border border-slate-200/80 truncate max-w-[100px]"
-                  >
-                    {f}
-                  </span>
-                ))}
-                {product.flavors.length > 2 && (
-                  <span className="text-[10px] font-medium text-slate-400 self-center">
-                    +{product.flavors.length - 2}
-                  </span>
-                )}
-              </div>
-            ) : (
-              <div className="flex items-center gap-1 text-[11px] text-slate-500">
-                <Shield size={11} className="text-[#3365e2] shrink-0" />
-                <span className="truncate">100% Genuine · Fast Dispatch</span>
-              </div>
+            <StarRating rating={product.rating} count={product.reviewCount} />
+          </div>
+        )}
+
+        {/* Flavors */}
+        {product.flavors?.length > 0 && (
+          <div className="flex gap-1 flex-wrap mb-3">
+            {product.flavors.slice(0, 3).map(f => (
+              <span key={f} className="text-[10px] px-2 py-0.5 rounded-full font-medium"
+                style={{ background: 'var(--surface)', color: 'var(--muted2)', border: '1px solid var(--border)' }}>
+                {f}
+              </span>
+            ))}
+            {product.flavors.length > 3 && (
+              <span className="text-[10px]" style={{ color: 'var(--muted)' }}>+{product.flavors.length - 3} more</span>
             )}
           </div>
-        </div>
+        )}
 
-        {/* ── Price and Quick Action Bar ── */}
-        <div className="pt-2.5 mt-auto border-t border-slate-100 flex items-center justify-between gap-2">
-          <div>
-            <div className="flex items-baseline gap-1.5">
-              <span className="font-extrabold text-base sm:text-lg text-slate-900 tabular-nums">
-                ₹{product.discountPrice || product.price}
-              </span>
-              {product.discountPrice && (
-                <span className="line-through text-[11px] text-slate-400 font-medium tabular-nums">
-                  ₹{product.price}
-                </span>
-              )}
-            </div>
-            {discount > 0 ? (
-              <span className="text-[10px] font-bold text-emerald-600 block">
+        {/* Price — pushed to bottom */}
+        <div className="flex items-baseline gap-2 mt-auto mb-3">
+          <span className="font-bold text-lg" style={{ color: 'var(--text)' }}>
+            ₹{product.discountPrice || product.price}
+          </span>
+          {product.discountPrice && (
+            <>
+              <span className="line-through text-sm" style={{ color: 'var(--muted)' }}>₹{product.price}</span>
+              <span className="text-xs font-semibold px-1.5 py-0.5 rounded"
+                style={{ background: 'var(--color-status-success-bg, rgba(46,125,50,0.12))', color: 'var(--color-status-success, #2e7d32)' }}>
                 Save ₹{product.price - product.discountPrice}
               </span>
-            ) : (
-              <span className="text-[10px] text-slate-400 block font-normal">
-                Tax inclusive
-              </span>
-            )}
-          </div>
-
-          {product.stock > 0 ? (
-            <PillButton
-              size="sm"
-              onClick={() => onAdd(product)}
-              btnText="Add to Cart"
-              icon={<ShoppingCart size={13} />}
-              showDot={false}
-              className="shrink-0"
-            />
-          ) : (
-            <button
-              disabled
-              className="text-[11px] font-bold text-slate-400 py-1.5 px-3 rounded-full bg-slate-100 border border-slate-200/60 cursor-not-allowed shrink-0"
-            >
-              Out of Stock
-            </button>
+            </>
           )}
         </div>
+
+        {/* CTA */}
+        {product.stock > 0 ? (
+          <button
+            onClick={() => onAdd(product)}
+            className="btn-fire w-full text-sm py-2.5 rounded-xl gap-2"
+          >
+            <ShoppingCart size={14} /> Add to Cart
+          </button>
+        ) : (
+          <button disabled
+            className="w-full text-center text-sm font-medium py-2.5 rounded-xl cursor-not-allowed"
+            style={{ border: '1px solid var(--border)', color: 'var(--muted)', background: 'var(--surface)' }}>
+            Out of Stock
+          </button>
+        )}
       </div>
     </div>
   );
@@ -228,7 +197,7 @@ export default function StorePage() {
   const handleAdd = useCallback((product) => {
     addToCart(product, 1);
     toast.success(`${product.name} added!`, {
-      iconTheme: { primary: 'var(--color-primary, #3365e2)', secondary: '#fff' },
+      iconTheme: { primary: 'var(--color-primary, #176b45)', secondary: '#fff' },
     });
   }, [addToCart]);
 
@@ -251,35 +220,30 @@ export default function StorePage() {
   const activeLabel = CATEGORIES.find(c => c.key === category)?.label || 'All';
 
   return (
-    <div className="min-h-screen bg-white text-oris-secondary relative font-sans selection:bg-[#3365e2] selection:text-white">
+    <div className="min-h-screen pt-16 transition-colors duration-200" style={{ background: 'var(--bg)' }}>
 
-      {/* ── Landing Page White & Blue Hero Header ── */}
-      <div className="relative overflow-hidden pt-28 sm:pt-36 pb-16 sm:pb-20 bg-[linear-gradient(to_bottom,#ffffff_0%,#eff6ff_20%,#bfdbfe_45%,#60a5fa_70%,#3365e2_100%)] text-slate-900 border-b border-[#3365e2]/20">
-        <div className="absolute inset-0 pointer-events-none opacity-20 bg-[radial-gradient(#15324d_1.2px,transparent_1.2px)] [background-size:24px_24px]" />
-        <div className="max-w-7xl mx-auto px-6 relative z-10">
-          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
-            <div className="max-w-2xl">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/90 backdrop-blur-md border border-[#3365e2]/30 text-[#3365e2] text-xs font-bold uppercase tracking-wider mb-4 shadow-xs">
-                <Zap size={13} className="text-[#3365e2]" />
-                <span>100% Authentic Gym Grade Supplements</span>
+      {/* ── Hero ── */}
+      <div className="relative overflow-hidden border-b border-[var(--border)] bg-[var(--surface)]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-14 relative">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 sm:gap-8">
+            <div>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-sm bg-[var(--surface-raised)] border border-[var(--border)] text-[var(--primary)] text-xs font-bold uppercase tracking-[0.16em] mb-3">
+                <Zap size={11} /> 100% Authentic Supplements
               </div>
-              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-slate-900 tracking-tight leading-tight mb-3 uppercase">
-                ATHLETIC SUPPLEMENT <span className="text-[#3365e2]">STORE</span>
+              <h1 className="gym-font text-4xl sm:text-5xl md:text-7xl mb-2 text-[var(--text-primary)]">
+                SUPPLEMENT STORE
               </h1>
-              <p className="text-sm sm:text-base text-slate-700 leading-relaxed font-medium">
-                Lab-tested proteins, creatine monohydrate, and pre-workouts · Fast direct gym dispatch at Rajgarh athletic center.
+              <p className="text-sm sm:text-base text-[var(--text-secondary)]">
+                Lab-tested proteins, creatine, and pre-workouts · Fast direct gym dispatch
               </p>
             </div>
 
             {/* Trust badges */}
-            <div className="grid grid-cols-2 gap-3 w-full sm:w-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 w-full md:w-auto">
               {TRUST_BADGES.map((b, i) => (
-                <div
-                  key={i}
-                  className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl border border-white/80 bg-white/90 text-slate-800 backdrop-blur-md shadow-xs"
-                >
-                  <span className="text-[#3365e2] shrink-0">{b.icon}</span>
-                  <span className="text-xs font-bold whitespace-nowrap">{b.label}</span>
+                <div key={i} className="flex items-center gap-2.5 px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-md border border-[var(--border)] bg-[var(--surface-raised)] text-[var(--text-secondary)]">
+                  <span className="text-[var(--primary)] flex-shrink-0">{b.icon}</span>
+                  <span className="text-xs font-medium whitespace-nowrap text-[var(--text-primary)]">{b.label}</span>
                 </div>
               ))}
             </div>
@@ -287,57 +251,59 @@ export default function StorePage() {
         </div>
       </div>
 
-      <div className="bg-[#f8fafc] text-slate-800 min-h-[60vh]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 pb-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
 
         {/* ── Search + Sort + Cart ── */}
         <div className="flex flex-col sm:flex-row gap-3 mb-6">
           {/* Search */}
           <div className="relative flex-1">
-            <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+            <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: 'var(--muted)' }} />
             <input
-              className="bg-white border border-slate-300 text-slate-900 placeholder:text-slate-400 focus:border-[#3365e2] focus:ring-2 focus:ring-[#3365e2]/20 rounded-xl pl-10 pr-10 h-11 text-sm w-full outline-none transition-all shadow-xs"
+              className="input-dark pl-10 h-11 w-full"
               placeholder="Search products or brands…"
               value={search}
               onChange={e => setSearch(e.target.value)}
             />
             {search && (
               <button onClick={() => setSearch('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
-                aria-label="Clear search">
+                className="absolute right-3 top-1/2 -translate-y-1/2 icon-btn"
+                style={{ color: 'var(--muted)' }}>
                 <X size={14} />
               </button>
             )}
           </div>
 
-          {/* Sort */}
-          <select
-            value={sort}
-            onChange={e => setSort(e.target.value)}
-            className="bg-white border border-slate-300 text-slate-800 focus:border-[#3365e2] focus:ring-2 focus:ring-[#3365e2]/20 rounded-xl h-11 px-4 text-sm outline-none transition-all shadow-xs cursor-pointer"
-            style={{ width: 'auto' }}
-          >
-            <option value="default">Sort: Default</option>
-            <option value="price-asc">Price: Low → High</option>
-            <option value="price-desc">Price: High → Low</option>
-            <option value="rating">Top Rated</option>
-            <option value="discount">Best Discount</option>
-          </select>
+          <div className="flex items-center gap-2.5">
+            {/* Sort */}
+            <select
+              value={sort}
+              onChange={e => setSort(e.target.value)}
+              className="input-dark h-11 px-3 sm:px-4 text-xs sm:text-sm flex-1 sm:flex-initial"
+              style={{ width: 'auto' }}
+            >
+              <option value="default"    style={{ background: '#111318', color: '#f1f5f9' }}>Sort: Default</option>
+              <option value="price-asc"  style={{ background: '#111318', color: '#f1f5f9' }}>Price: Low → High</option>
+              <option value="price-desc" style={{ background: '#111318', color: '#f1f5f9' }}>Price: High → Low</option>
+              <option value="rating"     style={{ background: '#111318', color: '#f1f5f9' }}>Top Rated</option>
+              <option value="discount"   style={{ background: '#111318', color: '#f1f5f9' }}>Best Discount</option>
+            </select>
 
-          {/* Cart */}
-          <Link
-            to="/cart"
-            className="h-11 flex items-center gap-2 px-5 rounded-full text-sm font-semibold transition-all btn-outline bg-white shadow-xs"
-            style={{ minWidth: 'fit-content' }}
-          >
-            <ShoppingCart size={16} />
-            <span>Cart</span>
-            {count > 0 && (
-              <span className="w-5 h-5 text-[10px] font-bold rounded-full flex items-center justify-center text-white bg-[#3365e2]">
-                {count}
-              </span>
-            )}
-          </Link>
+            {/* Cart */}
+            <Link
+              to="/cart"
+              className="h-11 flex items-center justify-center gap-2 px-4 sm:px-5 rounded-xl text-xs sm:text-sm font-semibold transition-all btn-outline whitespace-nowrap"
+              style={{ minWidth: 'fit-content' }}
+            >
+              <ShoppingCart size={16} />
+              <span>Cart</span>
+              {count > 0 && (
+                <span className="w-5 h-5 text-[10px] font-bold rounded-full flex items-center justify-center text-white"
+                  style={{ background: 'var(--color-primary, #176b45)' }}>
+                  {count}
+                </span>
+              )}
+            </Link>
+          </div>
         </div>
 
         {/* ── Category pills ── */}
@@ -361,7 +327,7 @@ export default function StorePage() {
             )}
           </p>
           {search && (
-            <span className="text-sm font-medium" style={{ color: 'var(--color-primary, #3365e2)' }}>
+            <span className="text-sm font-medium" style={{ color: 'var(--color-primary, #176b45)' }}>
               Results for "<strong>{search}</strong>"
             </span>
           )}
@@ -369,7 +335,7 @@ export default function StorePage() {
 
         {/* ── Grid ── */}
         {loading ? (
-          <div className="grid grid-cols-1 min-[480px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 min-[420px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
             {[...Array(8)].map((_, i) => <SkeletonCard key={i} />)}
           </div>
         ) : filtered.length === 0 ? (
@@ -389,7 +355,7 @@ export default function StorePage() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.25 }}
-              className="grid grid-cols-1 min-[480px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6"
+              className="grid grid-cols-1 min-[420px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5"
             >
               {filtered.map((p, i) => (
                 <motion.div
@@ -410,6 +376,5 @@ export default function StorePage() {
         )}
       </div>
     </div>
-  </div>
   );
 }

@@ -76,32 +76,37 @@ export default function CartPage() {
           {/* Items */}
           <div className="lg:col-span-2 space-y-3">
             {cart.map((item, i) => (
-              <div key={i} className="rounded-[20px] border border-slate-200/90 bg-white p-4 flex items-center gap-4 shadow-xs hover:border-[#3365e2]/30 transition-all">
-                <Link to={`/store/${item._id}`} className="flex-shrink-0 group block">
-                  {item.images?.[0] ? (
-                    <img src={thumb(item.images[0], 144)} loading="lazy" decoding="async" alt={item.name} className="w-16 h-16 object-cover rounded-xl border border-slate-200 group-hover:border-[#3365e2] transition-colors" />
-                  ) : (
-                    <div className="w-16 h-16 bg-slate-100 rounded-xl flex items-center justify-center border border-slate-200 text-slate-400">
-                      <ShoppingBag size={20} />
-                    </div>
-                  )}
-                </Link>
-                <div className="flex-1 min-w-0">
-                  <Link to={`/store/${item._id}`} className="hover:text-[#3365e2] transition-colors block">
-                    <h3 className="text-slate-900 font-bold text-sm line-clamp-1">{item.name}</h3>
+              <div key={i} className="rounded-[20px] border border-slate-200/90 bg-white p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 shadow-xs hover:border-[#3365e2]/30 transition-all">
+                <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                  <Link to={`/store/${item._id}`} className="flex-shrink-0 group block">
+                    {item.images?.[0] ? (
+                      <img src={thumb(item.images[0], 144)} loading="lazy" decoding="async" alt={item.name} className="w-14 h-14 sm:w-16 sm:h-16 object-cover rounded-xl border border-slate-200 group-hover:border-[#3365e2] transition-colors" />
+                    ) : (
+                      <div className="w-14 h-14 sm:w-16 sm:h-16 bg-slate-100 rounded-xl flex items-center justify-center border border-slate-200 text-slate-400">
+                        <ShoppingBag size={20} />
+                      </div>
+                    )}
                   </Link>
-                  {(item.flavor || item.weight) && (
-                    <p className="text-slate-500 text-xs mt-0.5">{[item.flavor, item.weight].filter(Boolean).join(' · ')}</p>
-                  )}
-                  <p className="text-[#3365e2] font-black mt-1 text-sm">₹{item.discountPrice || item.price}</p>
+                  <div className="flex-1 min-w-0">
+                    <Link to={`/store/${item._id}`} className="hover:text-[#3365e2] transition-colors block">
+                      <h3 className="text-slate-900 font-bold text-sm line-clamp-1">{item.name}</h3>
+                    </Link>
+                    {(item.flavor || item.weight) && (
+                      <p className="text-slate-500 text-xs mt-0.5">{[item.flavor, item.weight].filter(Boolean).join(' · ')}</p>
+                    )}
+                    <p className="text-[#3365e2] font-black mt-1 text-sm">₹{item.discountPrice || item.price}</p>
+                  </div>
                 </div>
-                <div className="flex items-center border border-slate-200 rounded-xl overflow-hidden bg-slate-50">
-                  <button onClick={() => updateQty(item._id, item.flavor, item.weight, item.qty - 1)} className="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-slate-200/60 transition-colors" aria-label="Decrease quantity"><Minus size={12} /></button>
-                  <span className="text-slate-900 font-extrabold px-2 text-xs min-w-[24px] text-center">{item.qty}</span>
-                  <button onClick={() => updateQty(item._id, item.flavor, item.weight, item.qty + 1)} className="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-slate-200/60 transition-colors" aria-label="Increase quantity"><Plus size={12} /></button>
+
+                <div className="flex items-center justify-between sm:justify-end gap-3 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
+                  <div className="flex items-center border border-slate-200 rounded-xl overflow-hidden bg-slate-50">
+                    <button onClick={() => updateQty(item._id, item.flavor, item.weight, item.qty - 1)} className="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-slate-200/60 transition-colors" aria-label="Decrease quantity"><Minus size={12} /></button>
+                    <span className="text-slate-900 font-extrabold px-2 text-xs min-w-[24px] text-center">{item.qty}</span>
+                    <button onClick={() => updateQty(item._id, item.flavor, item.weight, item.qty + 1)} className="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-slate-200/60 transition-colors" aria-label="Increase quantity"><Plus size={12} /></button>
+                  </div>
+                  <div className="text-slate-900 font-black text-sm min-w-[60px] text-right">₹{((item.discountPrice || item.price) * item.qty).toFixed(0)}</div>
+                  <button onClick={() => removeFromCart(item._id, item.flavor, item.weight)} className="text-slate-400 hover:text-rose-600 transition-colors ml-1 p-1.5" aria-label="Remove item"><Trash2 size={16} /></button>
                 </div>
-                <div className="text-slate-900 font-black text-sm min-w-[60px] text-right">₹{((item.discountPrice || item.price) * item.qty).toFixed(0)}</div>
-                <button onClick={() => removeFromCart(item._id, item.flavor, item.weight)} className="text-slate-400 hover:text-rose-600 transition-colors ml-1 p-1" aria-label="Remove item"><Trash2 size={16} /></button>
               </div>
             ))}
           </div>

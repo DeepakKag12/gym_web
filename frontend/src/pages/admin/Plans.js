@@ -27,10 +27,10 @@ function PlanModal({ plan, onClose, onSaved }) {
   return (
     <div className="admin-modal-overlay">
       <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-        className="admin-modal-box" style={{ maxWidth: '480px' }}>
+        className="admin-modal-box max-h-[90dvh] overflow-y-auto" style={{ maxWidth: 'min(calc(100vw - 24px), 480px)' }}>
         <h2 className="text-white font-bold text-xl mb-5">{plan ? 'Edit' : 'Add'} Membership Plan</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 min-[360px]:grid-cols-2 gap-3">
             <div>
               <label className="text-gray-400 text-xs mb-1 block">Plan Name *</label>
               <input required value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} className="input-dark w-full" placeholder="Monthly" />
@@ -62,9 +62,9 @@ function PlanModal({ plan, onClose, onSaved }) {
               <span className="text-gray-300 text-sm">Active</span>
             </label>
           </div>
-          <div className="flex gap-3 pt-1">
-            <button type="submit" disabled={saving} className="btn-fire text-sm px-5 py-2">{saving ? 'Saving...' : 'Save Plan'}</button>
-            <button type="button" onClick={onClose} className="text-gray-400 hover:text-white text-sm px-4 py-2 rounded-lg border border-white/10 hover:bg-white/5 transition-all">Cancel</button>
+          <div className="flex flex-wrap gap-3 pt-1">
+            <button type="submit" disabled={saving} className="btn-fire text-sm px-5 py-2 flex-1 sm:flex-none">{saving ? 'Saving...' : 'Save Plan'}</button>
+            <button type="button" onClick={onClose} className="text-gray-400 hover:text-white text-sm px-4 py-2 rounded-lg border border-white/10 hover:bg-white/5 transition-all flex-1 sm:flex-none text-center">Cancel</button>
           </div>
         </form>
       </motion.div>
@@ -101,9 +101,9 @@ export default function AdminPlans() {
 
   return (
     <AdminLayout title="Membership Plans">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
         <p className="text-gray-400 text-sm">Define your gym's membership tiers and pricing</p>
-        <button onClick={() => setModal('new')} className="btn-fire flex items-center gap-2 text-sm px-4 py-2">
+        <button onClick={() => setModal('new')} className="btn-fire flex items-center justify-center gap-2 text-sm px-4 py-2 w-full sm:w-auto">
           <Plus size={15} /> Add Plan
         </button>
       </div>

@@ -5,6 +5,7 @@ import { Salad, Lock, Flame, Dumbbell, UtensilsCrossed, ArrowRight, Sparkles } f
 import { cachedGet } from '../utils/api';
 import { img } from '../utils/img';
 import PillButton from '../components/ui/PillButton';
+import { SpiralLoader } from '../components/ui';
 
 const GOAL_CONFIG = {
   'weight-loss': {
@@ -150,11 +151,11 @@ export default function DietPage() {
       {/* ── Landing Page White & Blue Hero Banner ── */}
       <div className="relative overflow-hidden pt-28 sm:pt-36 pb-16 sm:pb-20 bg-[linear-gradient(to_bottom,#ffffff_0%,#eff6ff_20%,#bfdbfe_45%,#60a5fa_70%,#3365e2_100%)] text-slate-900 border-b border-[#3365e2]/20">
         <div className="absolute inset-0 pointer-events-none opacity-20 bg-[radial-gradient(#15324d_1.2px,transparent_1.2px)] [background-size:24px_24px]" />
-        <div className="max-w-7xl mx-auto px-6 text-center relative z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center relative z-10">
           <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/90 backdrop-blur-md border border-[#3365e2]/30 text-[#3365e2] text-xs font-bold uppercase tracking-wider mb-4 shadow-xs">
             <Sparkles size={13} /> Certified Macronutrient &amp; Caloric Periodization
           </div>
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 mb-4 tracking-tight uppercase">
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-slate-900 mb-4 tracking-tight uppercase">
             Athletic Nutrition &amp; <span className="text-[#3365e2]">Indian Diet Protocols</span>
           </h1>
           <p className="text-slate-700 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed font-medium">
@@ -180,9 +181,7 @@ export default function DietPage() {
 
         {/* Content Grid */}
         {loading ? (
-          <div className="flex justify-center py-24">
-            <div className="w-9 h-9 border-3 border-[#3365e2] border-t-transparent rounded-full animate-spin" />
-          </div>
+          <SpiralLoader size="lg" />
         ) : filtered.length === 0 ? (
           <div className="text-center py-20 text-slate-500 text-sm">
             No diet plans found in this category.

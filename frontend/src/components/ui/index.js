@@ -238,9 +238,11 @@ export function Modal({ title, onClose, footer, width = 560, children }) {
     >
       <motion.div
         ref={boxRef}
-        tabIndex={-1}
         className="ui-modal"
-        style={{ maxWidth: width, outline: 'none' }}
+        style={{
+          maxWidth: typeof width === 'number' ? `min(calc(100vw - 24px), ${width}px)` : (width || 'min(calc(100vw - 24px), 560px)'),
+          outline: 'none'
+        }}
         role="dialog"
         aria-modal="true"
         aria-label={title}
@@ -431,8 +433,8 @@ export function StatCard({ label, value, hint, icon: Icon, tone = 'accent', tren
           </span>
         )}
         <div className="min-w-0 flex-1">
-          <div className="flex items-center justify-between gap-1">
-            <p className="text-[13px] font-medium" style={{ color: 'var(--p-text-2)' }}>{label}</p>
+          <div className="flex items-center justify-between gap-1 flex-wrap">
+            <p className="text-[12.5px] sm:text-[13px] font-medium" style={{ color: 'var(--p-text-2)' }}>{label}</p>
             {trend && (
               <span className="ui-pill-badge" style={{ background: soft, color }}>
                 {trend}
@@ -442,11 +444,11 @@ export function StatCard({ label, value, hint, icon: Icon, tone = 'accent', tren
           {loading ? (
             <Skeleton h={30} w={72} className="mt-1.5" />
           ) : (
-            <p className="text-[28px] font-bold leading-tight mt-0.5 tracking-tight" style={{ color: 'var(--p-text)' }}>
+            <p className="text-[20px] min-[380px]:text-[24px] sm:text-[28px] font-bold leading-tight mt-0.5 tracking-tight truncate" style={{ color: 'var(--p-text)' }}>
               {value}
             </p>
           )}
-          {hint && <p className="text-[12px] mt-0.5 truncate" style={{ color: 'var(--p-muted)' }}>{hint}</p>}
+          {hint && <p className="text-[11.5px] sm:text-[12px] mt-0.5 truncate" style={{ color: 'var(--p-muted)' }}>{hint}</p>}
         </div>
       </div>
     </div>
@@ -468,8 +470,8 @@ export function StatCard({ label, value, hint, icon: Icon, tone = 'accent', tren
 export function Table({ columns, children, empty }) {
   if (empty) return empty;
   return (
-    <div style={{ overflowX: 'auto' }}>
-      <table className="ui-table">
+    <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }} className="w-full table-scroll-container">
+      <table className="ui-table min-w-full">
         <thead>
           <tr>
             {columns.map(c => (
@@ -522,4 +524,8 @@ export { default as DotMatrixCanvas } from './DotMatrixCanvas';
 export { default as PillButton } from './PillButton';
 export { default as SlotOdometer } from './SlotOdometer';
 export { default as SmoothScroller } from './SmoothScroller';
+export { SpiralAnimation } from './spiral-animation';
+export { SpiralLoader } from './SpiralLoader';
+export { default as BreathBloom, BLOOM_DEFAULTS, BLOOM_PRESETS } from './breath-bloom';
+
 

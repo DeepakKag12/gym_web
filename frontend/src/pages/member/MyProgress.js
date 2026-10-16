@@ -4,6 +4,7 @@ import { TrendingUp, Plus, Scale, Camera, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import API, { bustCache } from '../../utils/api';
 import { thumb } from '../../utils/img';
+import { SpiralLoader } from '../../components/ui';
 
 
 function LineChart({ entries, field, label, color }) {
@@ -83,15 +84,15 @@ export default function MyProgress() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] pt-20 pb-20 lg:pb-8">
+    <div className="min-h-screen bg-[#0a0a0f] pt-20 pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] lg:pb-8">
       <div className="max-w-3xl mx-auto px-4 py-8">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex items-center justify-between mb-6">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col min-[380px]:flex-row items-start min-[380px]:items-center justify-between gap-3 mb-6">
           <div>
             <h1 className="gym-font text-3xl text-white">My Progress</h1>
             <p className="text-gray-400 text-sm mt-0.5">Track your transformation journey</p>
           </div>
           <button onClick={() => setShowForm(!showForm)}
-            className="btn-fire flex items-center gap-2 text-sm px-4 py-2">
+            className="btn-fire flex items-center justify-center gap-2 text-sm px-4 py-2 w-full min-[380px]:w-auto">
             <Plus size={16} /> Log Today
           </button>
         </motion.div>
@@ -99,10 +100,10 @@ export default function MyProgress() {
         {/* Log Form */}
         {showForm && (
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-            className="glass rounded-2xl p-6 mb-6 border border-primary/25">
+            className="glass rounded-2xl p-4 sm:p-6 mb-6 border border-primary/25">
             <h2 className="text-white font-semibold mb-4 flex items-center gap-2"><Scale size={18} className="text-gray-300" /> Log Progress Entry</h2>
             <form onSubmit={handleSubmit}>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+              <div className="grid grid-cols-1 min-[360px]:grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 mb-4">
                 {[['date','Date','date'],['weight','Weight (kg)','number'],['bodyFat','Body Fat (%)','number'],['chest','Chest (cm)','number'],['waist','Waist (cm)','number'],['hips','Hips (cm)','number'],['arms','Arms (cm)','number'],['thighs','Thighs (cm)','number']].map(([k, lbl, type]) => (
                   <div key={k}>
                     <label className="text-gray-400 text-xs mb-1 block">{lbl}</label>
@@ -121,11 +122,11 @@ export default function MyProgress() {
                 <label className="text-gray-400 text-xs mb-1 block flex items-center gap-1"><Camera size={13} /> Progress Photo (optional)</label>
                 <input type="file" accept="image/*" ref={fileRef} onChange={e => setPhotoFile(e.target.files[0])} className="text-gray-300 text-xs" />
               </div>
-              <div className="flex gap-3">
-                <button type="submit" disabled={submitting} className="btn-fire text-sm px-5 py-2">
+              <div className="flex flex-wrap gap-3">
+                <button type="submit" disabled={submitting} className="btn-fire text-sm px-5 py-2 flex-1 min-[380px]:flex-none">
                   {submitting ? 'Saving...' : 'Save Entry'}
                 </button>
-                <button type="button" onClick={() => setShowForm(false)} className="text-gray-400 hover:text-white text-sm px-4 py-2 rounded-lg border border-white/10 hover:bg-white/5 transition-all">Cancel</button>
+                <button type="button" onClick={() => setShowForm(false)} className="text-gray-400 hover:text-white text-sm px-4 py-2 rounded-lg border border-white/10 hover:bg-white/5 transition-all flex-1 min-[380px]:flex-none text-center">Cancel</button>
               </div>
             </form>
           </motion.div>
@@ -144,7 +145,7 @@ export default function MyProgress() {
 
         {/* Entries List */}
         {loading ? (
-          <div className="flex justify-center py-16"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>
+          <SpiralLoader size="md" />
         ) : entries.length === 0 ? (
           <div className="glass rounded-2xl p-12 text-center">
             <Scale size={40} className="text-gray-600 mx-auto mb-3" />

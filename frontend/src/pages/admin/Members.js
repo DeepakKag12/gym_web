@@ -950,17 +950,19 @@ export default function AdminMembers() {
                         ) : null}
                       </span>
                     </div>
-                    <div className="mt-2.5 flex items-center gap-2">
-                      <Button size="sm" variant="primary" icon={CalendarPlus} onClick={() => setRenewing(m)}>Renew</Button>
-                      <Button size="sm" variant="secondary" icon={Send} onClick={() => setNotifying(m)}>Notify</Button>
-                      <span className="flex gap-1.5 ml-auto">
+                    <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <Button size="sm" variant="primary" icon={CalendarPlus} onClick={() => setRenewing(m)}>Renew</Button>
+                        <Button size="sm" variant="secondary" icon={Send} onClick={() => setNotifying(m)}>Notify</Button>
+                      </div>
+                      <div className="flex items-center gap-1.5">
                         <Button size="sm" icon={FileText} onClick={() => viewStatement(m)}
                           aria-label={`Statement ${m.name}`} title="View statement" />
                         <Button size="sm" icon={Eye} onClick={() => setViewing(m)}
                           aria-label={`View ${m.name}`} title="View member" />
                         <Button size="sm" icon={Pencil} to={`/admin/users?edit=${m._id}`}
                           aria-label={`Edit ${m.name}`} title="Edit member" />
-                      </span>
+                      </div>
                     </div>
                   </li>
                 );

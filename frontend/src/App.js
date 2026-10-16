@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useEffect, useState } from 'react';
+import React, { lazy, Suspense, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { SocketProvider } from './context/SocketContext';
@@ -12,6 +12,7 @@ import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import MemberBottomNav from './components/layout/MemberBottomNav';
 import ChatWidget from './components/ChatWidget';
+import SpiralLoader from './components/ui/SpiralLoader';
 
 // ── Lazy-loaded pages (code-splitting for faster initial load) ─────────────────
 // Public
@@ -73,29 +74,9 @@ function ScrollToTop() {
   return null;
 }
 
-// ── Full-screen loading spinner (shown while lazy chunks load) ─────────────────
-// Uses a delayed fade-in so fast loads don't flash the spinner at all.
+// ── Full-screen loading animation (shown while lazy chunks or auth loads) ─────
 function PageSpinner() {
-  const [visible, setVisible] = useState(false);
-  useEffect(() => {
-    // Only show spinner if loading takes longer than 120ms — prevents flash on fast loads
-    const t = setTimeout(() => setVisible(true), 120);
-    return () => clearTimeout(t);
-  }, []);
-
-  // No background of its own — it inherits the page (dark public / light panel),
-  // so switching between the two never flashes the wrong colour.
-  return (
-    <div
-      className="flex items-center justify-center h-screen"
-      style={{ opacity: visible ? 1 : 0, transition: 'opacity 0.2s ease' }}
-    >
-      <div className="flex flex-col items-center gap-3">
-        <div className="w-7 h-7 border-2 border-current border-t-transparent rounded-full animate-spin opacity-40" />
-        <span className="text-xs opacity-50">Loading…</span>
-      </div>
-    </div>
-  );
+  return <SpiralLoader fullscreen />;
 }
 
 // ── Route guards ───────────────────────────────────────────────────────────────

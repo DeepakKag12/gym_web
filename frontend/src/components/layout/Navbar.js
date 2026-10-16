@@ -180,10 +180,10 @@ export default function Navbar({
         >
           <div className="flex flex-col leading-tight">
             <div className="flex items-baseline gap-1.5 sm:gap-2">
-              <span className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight font-sans uppercase text-[#3365e2]">
+              <span className="text-lg sm:text-2xl lg:text-3xl font-black tracking-tight font-sans uppercase text-[#3365e2]">
                 FITNATION
               </span>
-              <span className="text-[11px] sm:text-xs font-bold tracking-wider uppercase px-2 py-0.5 rounded-full border bg-[#3365e2]/10 text-[#3365e2] border-[#3365e2]/25">
+              <span className="hidden min-[380px]:inline-block text-[10px] sm:text-xs font-bold tracking-wider uppercase px-1.5 sm:px-2 py-0.5 rounded-full border bg-[#3365e2]/10 text-[#3365e2] border-[#3365e2]/25">
                 by Ajeet
               </span>
             </div>
@@ -242,22 +242,16 @@ export default function Navbar({
         </nav>
 
         {/* ── Right: User Status, Cart & Uniform Pill CTA Buttons ──────── */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-3">
           {/* Cart Icon Button with Expanding Circular Hover & Live Count Badge */}
           <Link
             to="/cart"
-            className="group relative inline-flex items-center justify-center w-[38px] h-[38px] sm:w-[40px] sm:h-[40px] rounded-full border border-slate-300 text-slate-700 hover:border-[#3365e2] hover:text-[#3365e2] transition-all duration-300 cursor-pointer shadow-xs overflow-hidden"
+            className="group relative inline-flex items-center justify-center w-[36px] h-[36px] sm:w-[40px] sm:h-[40px] rounded-full border border-slate-300 text-slate-700 hover:border-[#3365e2] hover:text-[#3365e2] transition-all duration-300 cursor-pointer shadow-xs overflow-hidden flex-shrink-0"
             aria-label={`View Cart with ${cartCount} items`}
           >
             <span
               aria-hidden="true"
-              className="absolute rounded-full pointer-events-none transition-transform duration-500 ease-out group-hover:scale-100 scale-0 w-[300%] aspect-square bg-[#3365e2]/10"
-              style={{
-                left: '50%',
-                top: '50%',
-                transform: 'translate(-50%, -50%)',
-                transitionTimingFunction: 'cubic-bezier(0.785, 0.135, 0.15, 0.86)',
-              }}
+              className="absolute rounded-full pointer-events-none transition-transform duration-500 ease-out left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 scale-0 group-hover:scale-100 w-[300%] aspect-square bg-[#3365e2]/15"
             />
             <ShoppingCart className="w-4 h-4 sm:w-[18px] sm:h-[18px] relative z-10 transition-transform duration-300 group-hover:scale-110" />
             {cartCount > 0 && (
@@ -269,11 +263,11 @@ export default function Navbar({
 
           {/* User Logged-in Controls OR Sign-in PillButton */}
           {user ? (
-            <div className="flex items-center gap-2">
-              {/* Messages shortcut */}
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              {/* Messages shortcut — visible on >= 640px, or accessed via mobile drawer */}
               <Link
                 to={messagesPath}
-                className="group relative inline-flex items-center justify-center w-[38px] h-[38px] sm:w-[40px] sm:h-[40px] rounded-full border border-slate-300 text-slate-700 hover:border-[#3365e2] hover:text-[#3365e2] transition-all duration-300 cursor-pointer shadow-xs overflow-hidden"
+                className="hidden sm:inline-flex group relative items-center justify-center w-[38px] h-[38px] sm:w-[40px] sm:h-[40px] rounded-full border border-slate-300 text-slate-700 hover:border-[#3365e2] hover:text-[#3365e2] transition-all duration-300 cursor-pointer shadow-xs overflow-hidden flex-shrink-0"
                 aria-label="Messages"
               >
                 <span
@@ -349,7 +343,7 @@ export default function Navbar({
           <button
             type="button"
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="lg:hidden inline-flex items-center justify-center w-[38px] h-[38px] sm:w-[40px] sm:h-[40px] rounded-full border border-slate-300 text-slate-800 hover:bg-black/5 transition-all duration-300 cursor-pointer"
+            className="lg:hidden inline-flex items-center justify-center w-[36px] h-[36px] sm:w-[40px] sm:h-[40px] rounded-full border border-slate-300 text-slate-800 hover:bg-black/5 transition-all duration-300 cursor-pointer flex-shrink-0"
             aria-label={mobileOpen ? 'Close Navigation Menu' : 'Open Navigation Menu'}
             aria-expanded={mobileOpen}
           >
@@ -360,11 +354,12 @@ export default function Navbar({
 
       {/* ── Mobile Navigation Drawer ─────────────────────────────────── */}
       <div
-        className={`lg:hidden fixed inset-x-0 top-0 z-40 pt-20 pb-6 px-6 bg-white/95 backdrop-blur-xl border-b border-black/10 shadow-2xl transition-all duration-300 ease-out select-none ${
+        className={`lg:hidden fixed inset-x-0 top-0 z-40 pt-20 pb-6 px-4 sm:px-6 bg-white/95 backdrop-blur-xl border-b border-black/10 shadow-2xl transition-all duration-300 ease-out select-none max-h-[100dvh] overflow-y-auto ${
           mobileOpen ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'
         }`}
+        style={{ paddingBottom: 'calc(1.5rem + env(safe-area-inset-bottom, 0px))' }}
       >
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-2 sm:gap-3">
           {navLinks.map((item) =>
             item.isHash && location.pathname === '/' ? (
               <a
@@ -387,7 +382,7 @@ export default function Navbar({
             )
           )}
 
-          <div className="border-t border-black/10 my-2 pt-3 flex flex-col gap-3">
+          <div className="border-t border-black/10 my-2 pt-3 flex flex-col gap-2.5">
             <Link
               to="/cart"
               onClick={() => setMobileOpen(false)}
@@ -403,6 +398,24 @@ export default function Navbar({
                 </span>
               )}
             </Link>
+
+            {user && (
+              <Link
+                to={messagesPath}
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center justify-between px-4 py-2.5 rounded-xl text-base font-semibold text-slate-800 hover:bg-[#3365e2]/10 hover:text-[#3365e2] no-underline"
+              >
+                <div className="flex items-center gap-2">
+                  <MessageSquare className="w-5 h-5 text-[#3365e2]" />
+                  <span>Messages</span>
+                </div>
+                {unreadMessages > 0 && (
+                  <span className="px-2 py-0.5 text-xs font-bold bg-emerald-500 text-white rounded-full">
+                    {unreadMessages} new
+                  </span>
+                )}
+              </Link>
+            )}
 
             {/* Mobile Drawer Main Action PillButtons with Exact Kinetic Roll */}
             <div className="flex flex-col gap-2.5 pt-1">

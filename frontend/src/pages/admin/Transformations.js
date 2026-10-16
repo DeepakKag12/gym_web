@@ -73,7 +73,7 @@ export default function AdminTransformations() {
   return (
     <AdminLayout title="Transformations">
       <div className="flex justify-end mb-6">
-        <button onClick={openAdd} className="btn-fire flex items-center gap-2 text-sm py-2.5 px-4">
+        <button onClick={openAdd} className="btn-fire flex items-center justify-center gap-2 text-sm py-2.5 px-4 w-full sm:w-auto">
           <Plus size={16} /> Add Transformation
         </button>
       </div>
@@ -121,7 +121,7 @@ export default function AdminTransformations() {
       {modal && (
         <div className="admin-modal-overlay">
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-            className="admin-modal-box" style={{ maxWidth: '560px' }}>
+            className="admin-modal-box max-h-[90dvh] overflow-y-auto" style={{ maxWidth: 'min(calc(100vw - 24px), 560px)' }}>
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-white font-bold text-xl">{editData ? 'Edit Transformation' : 'Add Transformation'}</h2>
               <button onClick={closeModal}><X size={20} className="text-gray-400" /></button>
@@ -138,7 +138,7 @@ export default function AdminTransformations() {
                 <label className="text-gray-400 text-xs block mb-1">Title *</label>
                 <input className="input-dark text-sm py-2" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} placeholder="e.g. John's 3-Month Transformation" />
               </div>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 min-[360px]:grid-cols-3 gap-2.5 sm:gap-3">
                 <div>
                   <label className="text-gray-400 text-xs block mb-1">Duration</label>
                   <input className="input-dark text-sm py-2" value={form.duration} onChange={e => setForm({ ...form, duration: e.target.value })} placeholder="3 months" />
@@ -156,7 +156,7 @@ export default function AdminTransformations() {
                 <label className="text-gray-400 text-xs block mb-1">Description</label>
                 <textarea className="input-dark text-sm min-h-[70px]" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="text-gray-400 text-xs block mb-1">Before Photo {editData ? '(optional: replace)' : '*'}</label>
                   {editData?.beforeImage && !beforeFile && (
@@ -196,9 +196,9 @@ export default function AdminTransformations() {
                 <span className="text-gray-300 text-sm">Make Public</span>
               </label>
             </div>
-            <div className="flex justify-end gap-3 mt-5">
-              <button onClick={closeModal} className="btn-ghost px-4 py-2 text-sm">Cancel</button>
-              <button onClick={handleSave} disabled={saving} className="btn-fire px-5 py-2 text-sm">
+            <div className="flex flex-wrap justify-end gap-3 mt-5">
+              <button onClick={closeModal} className="btn-ghost px-4 py-2 text-sm flex-1 sm:flex-none">Cancel</button>
+              <button onClick={handleSave} disabled={saving} className="btn-fire px-5 py-2 text-sm flex-1 sm:flex-none">
                 {saving ? <span className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin inline-block" /> : (editData ? 'Update' : 'Save')}
               </button>
             </div>

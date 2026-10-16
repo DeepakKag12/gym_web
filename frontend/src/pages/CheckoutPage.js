@@ -114,7 +114,7 @@ export default function CheckoutPage() {
       {/* ── Landing Page White & Blue Hero Header ── */}
       <div className="relative overflow-hidden pt-28 sm:pt-36 pb-12 sm:pb-16 bg-[linear-gradient(to_bottom,#ffffff_0%,#eff6ff_20%,#bfdbfe_45%,#60a5fa_70%,#3365e2_100%)] text-slate-900 border-b border-[#3365e2]/20">
         <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#15324d_1.2px,transparent_1.2px)] [background-size:24px_24px] pointer-events-none" />
-        <div className="relative z-10 max-w-3xl mx-auto px-6">
+        <div className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6">
           <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-white/90 backdrop-blur-md border border-[#3365e2]/30 text-[#3365e2] text-xs font-bold uppercase tracking-wider mb-3 shadow-xs">
             <ShoppingBag size={13} /> Order Finalization
           </div>
@@ -128,7 +128,7 @@ export default function CheckoutPage() {
       </div>
 
       <div className="bg-[#f8fafc] text-slate-800 min-h-[60vh]">
-        <div className="max-w-3xl mx-auto px-6 py-10 pb-20">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-10 pb-20">
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Left — form */}

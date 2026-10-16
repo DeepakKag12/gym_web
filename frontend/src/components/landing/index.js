@@ -9,3 +9,5 @@ export { default as MembershipPricing, OrisMembershipPlans } from './MembershipP
 export { default as FreeTrialForm, OrisTrialForm } from './FreeTrialForm';
 export { default as ParallaxBanner, OrisParallaxBand } from './ParallaxBanner';
 export { default as GymPreloader, OrisPreloader } from './GymPreloader';
+export { default as RecoveryBreathSection } from './RecoveryBreathSection';
+

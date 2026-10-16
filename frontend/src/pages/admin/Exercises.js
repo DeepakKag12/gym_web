@@ -168,7 +168,7 @@ function ExerciseModal({ editData, members, onClose, onSaved }) {
   return (
     <div className="admin-modal-overlay">
       <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-        className="admin-modal-box" style={{ maxWidth: '520px' }}>
+        className="admin-modal-box max-h-[90dvh] overflow-y-auto" style={{ maxWidth: 'min(calc(100vw - 24px), 520px)' }}>
 
         {/* Header */}
         <div className="flex items-center justify-between mb-3">
@@ -260,65 +260,67 @@ function ExerciseModal({ editData, members, onClose, onSaved }) {
               placeholder="https://youtube.com/watch?v=..." />
           </div>
 
-          {/* Image + Video upload side by side */}
-          <div>
-            <label className="block text-xs mb-0.5" style={{ color: 'var(--muted)' }}>Thumbnail</label>
-            {imagePreview && (
-              <img src={imagePreview} alt="preview" className="w-full h-12 rounded-lg object-cover mb-1" style={{ border: '1px solid var(--border)' }} />
-            )}
-            <button type="button" onClick={() => imgRef.current?.click()}
-              className="w-full rounded-lg py-2 text-xs transition-all flex items-center justify-center gap-1"
-              style={{ border: '1px dashed var(--border)', color: 'var(--muted)' }}>
-              <Upload size={10} /> {imageFile ? imageFile.name.slice(0,14)+'…' : 'Image'}
-              <input ref={imgRef} type="file" accept="image/*" className="hidden" onChange={handleImageFile} />
-            </button>
-          </div>
+          {/* Image + Video upload */}
+          <div className="col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div>
+              <label className="block text-xs mb-0.5" style={{ color: 'var(--muted)' }}>Thumbnail</label>
+              {imagePreview && (
+                <img src={imagePreview} alt="preview" className="w-full h-12 rounded-lg object-cover mb-1" style={{ border: '1px solid var(--border)' }} />
+              )}
+              <button type="button" onClick={() => imgRef.current?.click()}
+                className="w-full rounded-lg py-2 text-xs transition-all flex items-center justify-center gap-1"
+                style={{ border: '1px dashed var(--border)', color: 'var(--muted)' }}>
+                <Upload size={10} /> {imageFile ? imageFile.name.slice(0,14)+'…' : 'Image'}
+                <input ref={imgRef} type="file" accept="image/*" className="hidden" onChange={handleImageFile} />
+              </button>
+            </div>
 
-          <div>
-            <label className="block text-xs mb-0.5" style={{ color: 'var(--muted)' }}>
-              Video File <span style={{ opacity: 0.5 }}>(mp4, any size)</span>
-            </label>
+            <div>
+              <label className="block text-xs mb-0.5" style={{ color: 'var(--muted)' }}>
+                Video File <span style={{ opacity: 0.5 }}>(mp4, any size)</span>
+              </label>
 
-            {/* Existing video state */}
-            {editData?.video && !videoFile && !removeVideo && (
-              <div className="flex items-center gap-1.5 mb-1">
-                <a href={editData.video} target="_blank" rel="noreferrer"
-                  className="text-xs flex items-center gap-1 flex-1 truncate font-medium"
-                  style={{ color: 'var(--color-primary, #3365e2)' }}>
-                  <Video size={10} /> Saved video
-                </a>
-                <button type="button"
-                  onClick={() => { setRemoveVideo(true); setVideoPreview(''); }}
-                  className="text-xs px-1.5 py-0.5 rounded-lg transition-all"
-                  style={{ color: '#f87171', background: 'rgba(248,113,113,0.1)', border: '1px solid rgba(248,113,113,0.2)' }}>
-                  Remove
-                </button>
-              </div>
-            )}
-            {removeVideo && !videoFile && (
-              <div className="text-xs mb-1 flex items-center gap-1.5" style={{ color: '#f87171' }}>
-                <span>Video will be removed</span>
-                <button type="button" onClick={() => { setRemoveVideo(false); setVideoPreview(editData?.video || ''); }}
-                  className="underline" style={{ color: 'var(--muted)' }}>Undo</button>
-              </div>
-            )}
-            {videoFile && (
-              <div className="flex items-center gap-1.5 mb-1">
-                <span className="text-xs truncate flex-1 font-medium" style={{ color: 'var(--color-primary, #3365e2)' }}>{videoFile.name.slice(0,16)}</span>
-                <button type="button" onClick={() => { setVideoFile(null); setVideoPreview(editData?.video || ''); }}
-                  className="text-xs" style={{ color: 'var(--muted)' }} aria-label="Remove video"><X size={13} /></button>
-              </div>
-            )}
+              {/* Existing video state */}
+              {editData?.video && !videoFile && !removeVideo && (
+                <div className="flex items-center gap-1.5 mb-1">
+                  <a href={editData.video} target="_blank" rel="noreferrer"
+                    className="text-xs flex items-center gap-1 flex-1 truncate font-medium"
+                    style={{ color: 'var(--color-primary, #3365e2)' }}>
+                    <Video size={10} /> Saved video
+                  </a>
+                  <button type="button"
+                    onClick={() => { setRemoveVideo(true); setVideoPreview(''); }}
+                    className="text-xs px-1.5 py-0.5 rounded-lg transition-all"
+                    style={{ color: '#f87171', background: 'rgba(248,113,113,0.1)', border: '1px solid rgba(248,113,113,0.2)' }}>
+                    Remove
+                  </button>
+                </div>
+              )}
+              {removeVideo && !videoFile && (
+                <div className="text-xs mb-1 flex items-center gap-1.5" style={{ color: '#f87171' }}>
+                  <span>Video will be removed</span>
+                  <button type="button" onClick={() => { setRemoveVideo(false); setVideoPreview(editData?.video || ''); }}
+                    className="underline" style={{ color: 'var(--muted)' }}>Undo</button>
+                </div>
+              )}
+              {videoFile && (
+                <div className="flex items-center gap-1.5 mb-1">
+                  <span className="text-xs truncate flex-1 font-medium" style={{ color: 'var(--color-primary, #3365e2)' }}>{videoFile.name.slice(0,16)}</span>
+                  <button type="button" onClick={() => { setVideoFile(null); setVideoPreview(editData?.video || ''); }}
+                    className="text-xs" style={{ color: 'var(--muted)' }} aria-label="Remove video"><X size={13} /></button>
+                </div>
+              )}
 
-            <button type="button" onClick={() => vidRef.current?.click()}
-              className="w-full rounded-lg py-2 text-xs transition-all flex items-center justify-center gap-1"
-              style={{ border: '1px dashed var(--border)', color: 'var(--muted)' }}>
-              <Video size={10} /> {videoFile ? 'Change video' : removeVideo ? 'Upload new video' : 'Upload video'}
-              <input ref={vidRef} type="file" accept="video/*" className="hidden" onChange={e => {
-                handleVideoFile(e);
-                if (e.target.files[0]) setRemoveVideo(false);
-              }} />
-            </button>
+              <button type="button" onClick={() => vidRef.current?.click()}
+                className="w-full rounded-lg py-2 text-xs transition-all flex items-center justify-center gap-1"
+                style={{ border: '1px dashed var(--border)', color: 'var(--muted)' }}>
+                <Video size={10} /> {videoFile ? 'Change video' : removeVideo ? 'Upload new video' : 'Upload video'}
+                <input ref={vidRef} type="file" accept="video/*" className="hidden" onChange={e => {
+                  handleVideoFile(e);
+                  if (e.target.files[0]) setRemoveVideo(false);
+                }} />
+              </button>
+            </div>
           </div>
         </div>
 
@@ -331,9 +333,9 @@ function ExerciseModal({ editData, members, onClose, onSaved }) {
         )}
 
         {/* Footer */}
-        <div className="flex justify-end gap-2 mt-3">
-          <button onClick={onClose} disabled={saving} className="btn-ghost px-3 py-1.5 text-xs">Cancel</button>
-          <button onClick={save} disabled={saving} className="btn-fire px-4 py-1.5 text-xs">
+        <div className="flex flex-wrap justify-end gap-2 mt-4">
+          <button onClick={onClose} disabled={saving} className="btn-ghost px-3 py-2 text-xs flex-1 sm:flex-none">Cancel</button>
+          <button onClick={save} disabled={saving} className="btn-fire px-4 py-2 text-xs flex-1 sm:flex-none">
             {saving
               ? <span className="w-3.5 h-3.5 border-2 border-black border-t-transparent rounded-full animate-spin" />
               : editData ? 'Update' : 'Add Exercise'
@@ -374,9 +376,9 @@ export default function AdminExercises() {
 
   return (
     <AdminLayout title="Exercises">
-      <div className="flex flex-col sm:flex-row gap-3 mb-5 items-start sm:items-center justify-between">
+      <div className="flex flex-col sm:flex-row gap-3 mb-5 items-stretch sm:items-center justify-between">
         {/* Muscle filter pills */}
-        <div className="flex gap-1.5 flex-wrap">
+        <div className="flex gap-1.5 flex-wrap items-center">
           <button onClick={() => setFilterMuscle('all')}
             className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${filterMuscle === 'all' ? 'bg-primary text-white font-semibold shadow-sm' : 'bg-white/5 text-gray-400 border border-white/8 hover:border-white/20'}`}>
             All
@@ -388,7 +390,7 @@ export default function AdminExercises() {
             </button>
           ))}
         </div>
-        <button onClick={() => setModal('new')} className="btn-fire text-sm py-2 px-4 gap-1.5 flex-shrink-0">
+        <button onClick={() => setModal('new')} className="btn-fire text-sm py-2 px-4 gap-1.5 flex-shrink-0 w-full sm:w-auto justify-center">
           <Plus size={15} /> Add Exercise
         </button>
       </div>

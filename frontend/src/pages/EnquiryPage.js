@@ -35,11 +35,11 @@ export default function EnquiryPage() {
       {/* ── Landing Page White & Blue Hero Header ── */}
       <div className="relative overflow-hidden pt-28 sm:pt-36 pb-16 sm:pb-20 bg-[linear-gradient(to_bottom,#ffffff_0%,#eff6ff_20%,#bfdbfe_45%,#60a5fa_70%,#3365e2_100%)] text-slate-900 border-b border-[#3365e2]/20">
         <div className="absolute inset-0 pointer-events-none opacity-20 bg-[radial-gradient(#15324d_1.2px,transparent_1.2px)] [background-size:24px_24px]" />
-        <div className="max-w-7xl mx-auto px-6 text-center relative z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center relative z-10">
           <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/90 backdrop-blur-md border border-[#3365e2]/30 text-[#3365e2] text-xs font-bold uppercase tracking-wider mb-4 shadow-xs">
             <MessageCircle size={13} /> Direct Communication
           </div>
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 mb-4 tracking-tight uppercase">
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-slate-900 mb-4 tracking-tight uppercase">
             CONNECT WITH <span className="text-[#3365e2]">COACH AJEET</span>
           </h1>
           <p className="text-slate-700 text-sm sm:text-base max-w-xl mx-auto leading-relaxed font-medium">
@@ -49,11 +49,11 @@ export default function EnquiryPage() {
       </div>
 
       <div className="bg-[#f8fafc] text-slate-800 min-h-[60vh]">
-        <div className="max-w-6xl mx-auto px-6 py-14 pb-20">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-14 pb-20">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10">
           {/* Form — 7 cols */}
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="lg:col-span-7">
-            <div className="rounded-[22px] border border-slate-200/90 bg-white p-6 sm:p-8 shadow-sm">
+            <div className="rounded-[22px] border border-slate-200/90 bg-white p-4 sm:p-8 shadow-sm">
               <h2 className="gym-font text-2xl text-slate-900 mb-6 uppercase tracking-tight">SEND AN ENQUIRY</h2>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>

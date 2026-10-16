@@ -304,7 +304,7 @@ export default function AdminMessages() {
         </div>
       }
     >
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-[calc(100vh-210px)] min-h-[580px]">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-[calc(100dvh-210px)] min-h-[440px] sm:min-h-[580px]">
         {/* ── Left Sidebar: Conversations & Contacts ── */}
         <div
           className={`lg:col-span-5 xl:col-span-4 flex flex-col rounded-2xl border overflow-hidden ${
@@ -497,7 +497,8 @@ export default function AdminMessages() {
                 <div className="flex items-center gap-3">
                   <button
                     onClick={() => setActiveContact(null)}
-                    className="lg:hidden p-1.5 -ml-1 text-[var(--p-muted)] hover:text-[var(--p-text)]"
+                    aria-label="Back to contacts list"
+                    className="lg:hidden p-2 -ml-1 text-[var(--p-muted)] hover:text-[var(--p-text)] min-w-[44px] min-h-[44px] flex items-center justify-center font-bold text-lg"
                   >
                     ←
                   </button>

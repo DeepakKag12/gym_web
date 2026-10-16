@@ -9,8 +9,19 @@ class MockIntersectionObserver {
   disconnect() {}
 }
 
+class MockResizeObserver {
+  constructor(callback) {
+    this.callback = callback;
+  }
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+
 window.IntersectionObserver = MockIntersectionObserver;
 global.IntersectionObserver = MockIntersectionObserver;
+window.ResizeObserver = MockResizeObserver;
+global.ResizeObserver = MockResizeObserver;
 
 window.matchMedia = window.matchMedia || function (query) {
   return {

@@ -185,7 +185,7 @@ export default function MyMessages() {
       title="Coach & Support Chat"
       subtitle="Chat directly with your trainers and gym managers in real time"
     >
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-4 h-[calc(100vh-230px)] min-h-[520px]">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-4 h-[calc(100dvh-230px)] min-h-[420px] sm:min-h-[520px]">
         {/* Contact List Sidebar */}
         <div
           className={`md:col-span-4 flex flex-col rounded-2xl border overflow-hidden ${
@@ -276,7 +276,8 @@ export default function MyMessages() {
                 <div className="flex items-center gap-3">
                   <button
                     onClick={() => setActiveContact(null)}
-                    className="md:hidden p-1.5 -ml-1 text-[var(--p-muted)] hover:text-[var(--p-text)]"
+                    aria-label="Back to contacts list"
+                    className="md:hidden p-2 -ml-1 text-[var(--p-muted)] hover:text-[var(--p-text)] min-w-[44px] min-h-[44px] flex items-center justify-center font-bold text-lg"
                   >
                     ←
                   </button>

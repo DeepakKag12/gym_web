@@ -144,12 +144,12 @@ export default function AdminOrders() {
     >
       <div className="space-y-4 max-w-5xl">
         {/* Quick Status Section Division Cards — All Orders, Needs Prep, Ready for Pickup, Collected */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-2">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 mb-2">
           {/* 1. All Orders */}
           <button
             type="button"
             onClick={() => setFilterStatus('all')}
-            className={`p-3.5 sm:p-4 rounded-xl border text-left transition cursor-pointer relative overflow-hidden ${
+            className={`p-2.5 min-[380px]:p-3.5 sm:p-4 rounded-xl border text-left transition cursor-pointer relative overflow-hidden ${
               filterStatus === 'all'
                 ? 'ring-2 ring-[var(--p-accent)] shadow-md'
                 : 'hover:border-[var(--p-border-2)]'
@@ -157,17 +157,17 @@ export default function AdminOrders() {
             style={{ background: 'var(--p-surface)', borderColor: 'var(--p-border)' }}
           >
             <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--p-text-2)' }}>
+              <span className="text-[11px] min-[360px]:text-xs font-semibold uppercase tracking-wider truncate" style={{ color: 'var(--p-text-2)' }}>
                 All Orders
               </span>
               <span className="p-1 rounded-md" style={{ background: 'var(--p-surface-2)', color: 'var(--p-text-2)' }}>
                 <ShoppingBag size={14} />
               </span>
             </div>
-            <div className="text-2xl font-bold tracking-tight" style={{ color: 'var(--p-text)' }}>
+            <div className="text-lg min-[360px]:text-xl sm:text-2xl font-bold tracking-tight truncate" style={{ color: 'var(--p-text)' }}>
               {orders.length}
             </div>
-            <p className="text-[11.5px] mt-0.5 truncate" style={{ color: 'var(--p-muted)' }}>
+            <p className="text-[11px] min-[360px]:text-[11.5px] mt-0.5 truncate" style={{ color: 'var(--p-muted)' }}>
               Complete store ledger
             </p>
             {filterStatus === 'all' && (
@@ -179,7 +179,7 @@ export default function AdminOrders() {
           <button
             type="button"
             onClick={() => setFilterStatus(filterStatus === 'placed' ? 'all' : 'placed')}
-            className={`p-3.5 sm:p-4 rounded-xl border text-left transition cursor-pointer relative overflow-hidden ${
+            className={`p-2.5 min-[380px]:p-3.5 sm:p-4 rounded-xl border text-left transition cursor-pointer relative overflow-hidden ${
               ['placed', 'confirmed'].includes(filterStatus)
                 ? 'ring-2 ring-amber-500 shadow-md'
                 : 'hover:border-[var(--p-border-2)]'
@@ -187,17 +187,17 @@ export default function AdminOrders() {
             style={{ background: 'var(--p-surface)', borderColor: 'var(--p-border)' }}
           >
             <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-semibold uppercase tracking-wider text-amber-400">
+              <span className="text-[11px] min-[360px]:text-xs font-semibold uppercase tracking-wider text-amber-400 truncate">
                 Needs Prep
               </span>
               <span className="p-1 rounded-md bg-amber-500/10 text-amber-400">
                 <Clock size={14} />
               </span>
             </div>
-            <div className="text-2xl font-bold tracking-tight text-amber-400">
+            <div className="text-lg min-[360px]:text-xl sm:text-2xl font-bold tracking-tight text-amber-400 truncate">
               {metrics.pendingFulfill}
             </div>
-            <p className="text-[11.5px] mt-0.5 truncate text-amber-400/70">
+            <p className="text-[11px] min-[360px]:text-[11.5px] mt-0.5 truncate text-amber-400/70">
               Placed & confirmed
             </p>
             {['placed', 'confirmed'].includes(filterStatus) && (
@@ -209,7 +209,7 @@ export default function AdminOrders() {
           <button
             type="button"
             onClick={() => setFilterStatus(filterStatus === 'ready' ? 'all' : 'ready')}
-            className={`p-3.5 sm:p-4 rounded-xl border text-left transition cursor-pointer relative overflow-hidden ${
+            className={`p-2.5 min-[380px]:p-3.5 sm:p-4 rounded-xl border text-left transition cursor-pointer relative overflow-hidden ${
               filterStatus === 'ready'
                 ? 'ring-2 ring-purple-500 shadow-md'
                 : 'hover:border-[var(--p-border-2)]'
@@ -217,17 +217,17 @@ export default function AdminOrders() {
             style={{ background: 'var(--p-surface)', borderColor: 'var(--p-border)' }}
           >
             <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-semibold uppercase tracking-wider text-purple-400">
+              <span className="text-[11px] min-[360px]:text-xs font-semibold uppercase tracking-wider text-purple-400 truncate">
                 Ready for Pickup
               </span>
               <span className="p-1 rounded-md bg-purple-500/10 text-purple-400">
                 <CheckCircle2 size={14} />
               </span>
             </div>
-            <div className="text-2xl font-bold tracking-tight text-purple-400">
+            <div className="text-lg min-[360px]:text-xl sm:text-2xl font-bold tracking-tight text-purple-400 truncate">
               {metrics.readyCount}
             </div>
-            <p className="text-[11.5px] mt-0.5 truncate text-purple-400/70">
+            <p className="text-[11px] min-[360px]:text-[11.5px] mt-0.5 truncate text-purple-400/70">
               Awaiting member pickup
             </p>
             {filterStatus === 'ready' && (
@@ -239,7 +239,7 @@ export default function AdminOrders() {
           <button
             type="button"
             onClick={() => setFilterStatus(filterStatus === 'collected' ? 'all' : 'collected')}
-            className={`p-3.5 sm:p-4 rounded-xl border text-left transition cursor-pointer relative overflow-hidden ${
+            className={`p-2.5 min-[380px]:p-3.5 sm:p-4 rounded-xl border text-left transition cursor-pointer relative overflow-hidden ${
               filterStatus === 'collected'
                 ? 'ring-2 ring-emerald-500 shadow-md'
                 : 'hover:border-[var(--p-border-2)]'
@@ -247,17 +247,17 @@ export default function AdminOrders() {
             style={{ background: 'var(--p-surface)', borderColor: 'var(--p-border)' }}
           >
             <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-semibold uppercase tracking-wider text-emerald-400">
+              <span className="text-[11px] min-[360px]:text-xs font-semibold uppercase tracking-wider text-emerald-400 truncate">
                 Collected
               </span>
               <span className="p-1 rounded-md bg-emerald-500/10 text-emerald-400">
                 <CheckCircle2 size={14} />
               </span>
             </div>
-            <div className="text-2xl font-bold tracking-tight text-emerald-400">
+            <div className="text-lg min-[360px]:text-xl sm:text-2xl font-bold tracking-tight text-emerald-400 truncate">
               {counts.collected || 0}
             </div>
-            <p className="text-[11.5px] mt-0.5 truncate text-emerald-400/70">
+            <p className="text-[11px] min-[360px]:text-[11.5px] mt-0.5 truncate text-emerald-400/70">
               Completed pickups
             </p>
             {filterStatus === 'collected' && (
@@ -371,9 +371,9 @@ export default function AdminOrders() {
               return (
                 <div key={o._id} className="glass rounded-[22px] p-5 transition-all card-hover">
                   {/* Top Bar: Order number, date, amount, and invoice buttons */}
-                  <div className="flex items-start justify-between gap-3 mb-3 pb-3 border-b border-white/5">
-                    <div>
-                      <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-start justify-between gap-2.5 mb-3 pb-3 border-b border-white/5">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5 flex-wrap">
                         <span className="text-white font-bold text-sm tracking-wide">
                           #{o._id.slice(-6).toUpperCase()}
                         </span>
@@ -395,7 +395,7 @@ export default function AdminOrders() {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-shrink-0">
                       <div className="text-right mr-1">
                         <div className="font-bold text-base" style={{ color: 'var(--p-text)' }}>₹{o.totalAmount}</div>
                         <div className="text-[11px] font-semibold uppercase" style={{ color: 'var(--p-muted)' }}>
@@ -424,18 +424,20 @@ export default function AdminOrders() {
                   </div>
 
                   {/* Customer info */}
-                  <div className="flex items-center gap-2.5 mb-3 pb-3 border-b border-white/5">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white font-bold text-xs flex-shrink-0">
-                      {(o.shippingAddress?.name || o.user?.name || '?')[0].toUpperCase()}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-white text-sm font-medium flex items-center gap-1.5 truncate">
-                        <User size={12} className="text-gray-500" />
-                        {o.shippingAddress?.name || o.user?.name || 'Unknown Member'}
+                  <div className="flex flex-wrap items-center justify-between gap-2.5 mb-3 pb-3 border-b border-white/5">
+                    <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white font-bold text-xs flex-shrink-0">
+                        {(o.shippingAddress?.name || o.user?.name || '?')[0].toUpperCase()}
                       </div>
-                      <div className="text-gray-500 text-xs flex items-center gap-1 mt-0.5">
-                        <Phone size={11} />
-                        {o.shippingAddress?.phone || o.user?.phone || '—'}
+                      <div className="flex-1 min-w-0">
+                        <div className="text-white text-sm font-medium flex items-center gap-1.5 truncate">
+                          <User size={12} className="text-gray-500" />
+                          {o.shippingAddress?.name || o.user?.name || 'Unknown Member'}
+                        </div>
+                        <div className="text-gray-500 text-xs flex items-center gap-1 mt-0.5">
+                          <Phone size={11} />
+                          {o.shippingAddress?.phone || o.user?.phone || '—'}
+                        </div>
                       </div>
                     </div>
                     <div className="flex items-center gap-1 text-xs text-green-400 bg-green-500/10 border border-green-500/20 px-2.5 py-1 rounded-full flex-shrink-0">

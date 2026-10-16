@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Dumbbell, Clock, Target, BarChart3, CheckCircle2, MessageCircle, ShieldCheck, Sparkles, ChevronRight } from 'lucide-react';
 import { cachedGet } from '../utils/api';
 import { img } from '../utils/img';
+import { SpiralLoader } from '../components/ui';
 
 /* ── Helpers ── */
 function isYouTube(url) { return url && (url.includes('youtube.com') || url.includes('youtu.be')); }
@@ -23,11 +24,7 @@ export default function ExerciseDetailPage() {
       .finally(() => setLoading(false));
   }, [id]);
 
-  if (loading) return (
-    <div className="flex items-center justify-center min-h-screen bg-[var(--bg)]">
-      <div className="w-9 h-9 border-3 border-[#3365e2] border-t-transparent rounded-full animate-spin" />
-    </div>
-  );
+  if (loading) return <SpiralLoader fullscreen />;
 
   if (!ex) return (
     <div className="min-h-screen bg-[var(--bg)] flex flex-col items-center justify-center gap-3 text-slate-500 text-sm">

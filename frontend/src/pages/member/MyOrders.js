@@ -5,6 +5,7 @@ import { Package, Clock, CheckCircle, XCircle, MapPin, ShoppingBag, Check, FileT
 import { cachedGet } from '../../utils/api';
 import { thumb } from '../../utils/img';
 import { downloadPdf } from '../../utils/pdf';
+import { SpiralLoader } from '../../components/ui';
 
 // Gym-pickup order flow statuses
 const STATUS_MAP = {
@@ -27,7 +28,7 @@ function OrderProgress({ status }) {
   const current = STEPS.indexOf(status);
   const labels = ['Placed', 'Confirmed', 'Ready for Pickup', 'Collected'];
   return (
-    <div className="flex items-center gap-0 mt-2">
+    <div className="flex items-center gap-0 mt-2 overflow-x-auto pb-1 scrollbar-hide">
       {STEPS.map((step, i) => (
         <React.Fragment key={step}>
           <div className="flex flex-col items-center gap-1" style={{ flex: '0 0 auto' }}>
@@ -73,9 +74,7 @@ export default function MyOrders() {
         </motion.div>
 
         {loading ? (
-          <div className="flex justify-center py-16">
-            <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-          </div>
+          <SpiralLoader size="md" />
         ) : orders.length === 0 ? (
           <div className="glass rounded-2xl p-12 text-center">
             <Package size={40} className="text-gray-600 mx-auto mb-3" />
@@ -97,7 +96,7 @@ export default function MyOrders() {
                   className="glass rounded-2xl p-5"
                 >
                   {/* Header */}
-                  <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-start justify-between mb-3 flex-wrap gap-2">
                     <div>
                       <div className="text-white font-bold text-sm">
                         Order #{order._id.slice(-8).toUpperCase()}
@@ -144,7 +143,7 @@ export default function MyOrders() {
                   </div>
 
                   {/* Footer */}
-                  <div className="border-t border-white/8 pt-3 flex items-center justify-between gap-3">
+                  <div className="border-t border-white/8 pt-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div className="space-y-1">
                       {/* Pickup info */}
                       <div className="flex items-center gap-1.5 text-xs text-green-400">
@@ -158,7 +157,7 @@ export default function MyOrders() {
                         </span>
                       </div>
                     </div>
-                    <div className="text-right flex-shrink-0 flex flex-col items-end">
+                    <div className="text-left sm:text-right flex-shrink-0 flex sm:flex-col items-center sm:items-end justify-between sm:justify-start pt-2 sm:pt-0 border-t sm:border-t-0 border-white/5">
                       <div className="text-white font-bold text-lg gradient-text">₹{order.totalAmount}</div>
                       <div className="text-gray-500 text-xs mb-1.5">
                         {order.items.reduce((s, it) => s + it.quantity, 0)} item(s)

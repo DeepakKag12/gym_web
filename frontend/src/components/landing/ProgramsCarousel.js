@@ -165,13 +165,7 @@ export default function ProgramsCarousel({
           {/* Expanding circular hover layer */}
           <span
             aria-hidden="true"
-            className="absolute rounded-full pointer-events-none oris-bg-primary transition-transform duration-500"
-            style={{
-              width: '350%',
-              aspectRatio: '1 / 1',
-              transform: 'translate(-50%, -50%) scale(0)',
-              transitionTimingFunction: 'cubic-bezier(0.25, 1, 0.5, 1)',
-            }}
+            className="absolute rounded-full pointer-events-none oris-bg-primary transition-transform duration-500 ease-out left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 scale-0 group-hover:scale-100 w-[350%] aspect-square"
           />
           <ArrowLeft className="w-5 h-5 text-oris-secondary relative z-10 transition-colors group-hover:text-white" />
         </button>
@@ -184,13 +178,7 @@ export default function ProgramsCarousel({
         >
           <span
             aria-hidden="true"
-            className="absolute rounded-full pointer-events-none oris-bg-primary transition-transform duration-500"
-            style={{
-              width: '350%',
-              aspectRatio: '1 / 1',
-              transform: 'translate(-50%, -50%) scale(0)',
-              transitionTimingFunction: 'cubic-bezier(0.25, 1, 0.5, 1)',
-            }}
+            className="absolute rounded-full pointer-events-none oris-bg-primary transition-transform duration-500 ease-out left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 scale-0 group-hover:scale-100 w-[350%] aspect-square"
           />
           <ArrowRight className="w-5 h-5 text-oris-secondary relative z-10 transition-colors group-hover:text-white" />
         </button>

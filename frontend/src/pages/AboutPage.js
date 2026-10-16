@@ -57,24 +57,28 @@ const facilityZones = [
     title: 'Olympic Free-Weight Arena',
     desc: 'Calibrated Olympic barbells, competition bumper plates, multi-grip pull-up power cages, and cast-iron dumbbell racks up to 50 kg.',
     highlight: 'Powerlifting & Heavy Compound Strength',
+    image: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=900&q=80&auto=format&fit=crop',
   },
   {
     icon: Layers,
     title: 'Plate-Loaded & Hypertrophy Sector',
     desc: 'Linear hack squats, 45-degree heavy leg presses, dual adjustable cable crossovers, and chest-supported seated row platforms.',
     highlight: 'Targeted Muscle Isolation & Safety',
+    image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=900&q=80&auto=format&fit=crop',
   },
   {
     icon: Compass,
     title: 'Functional Turf & Calisthenics Deck',
     desc: 'High-density sprint turf track for sled pushes, battle ropes, plyometric boxes, Roman rings, and bodyweight suspension gear.',
     highlight: 'Metabolic Conditioning & Mobility',
+    image: 'https://images.unsplash.com/photo-1548690312-e3b507d8c110?w=900&q=80&auto=format&fit=crop',
   },
   {
     icon: Flame,
     title: 'Cardiovascular Conditioning Suite',
     desc: 'Commercial-grade motorized treadmills, high-incline trainers, and assault fan bikes calibrated for HIIT and steady-state cardio.',
     highlight: 'Endurance & Active Recovery',
+    image: 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?w=900&q=80&auto=format&fit=crop',
   },
 ];
 
@@ -126,13 +130,13 @@ export default function AboutPage() {
       <section className="relative min-h-[65vh] sm:min-h-[72vh] flex items-end overflow-hidden pt-28 sm:pt-36 pb-14 sm:pb-20 border-b border-[#3365e2]/20">
         <HeroGallery />
 
-        <div className="relative z-10 max-w-6xl mx-auto px-6 w-full">
+        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 w-full">
           <motion.div initial={{ opacity: 0, y: 22 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55 }}>
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/90 backdrop-blur-md border border-[#3365e2]/30 text-[#3365e2] text-xs font-bold uppercase tracking-wider mb-4 shadow-xs">
               <span className="w-2 h-2 rounded-full bg-[#3365e2] animate-pulse" />
               Rajgarh (Dhar), MP · Premium Athletic Hub
             </div>
-            <h1 className="text-4xl sm:text-6xl md:text-7xl font-black text-slate-900 leading-tight tracking-tight uppercase">
+            <h1 className="text-3xl sm:text-5xl md:text-7xl font-black text-slate-900 leading-tight tracking-tight uppercase">
               ABOUT FITNATION <span className="text-[#3365e2]">BY AJEET</span>
             </h1>
             <p className="text-slate-800 text-sm sm:text-base md:text-lg mt-4 max-w-2xl leading-relaxed font-medium">
@@ -141,10 +145,10 @@ export default function AboutPage() {
           </motion.div>
 
           {/* Quick contact bar */}
-          <div className="flex flex-wrap items-center gap-3 mt-8">
+          <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 mt-8">
             <a
               href={site.telHref}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-white/80 bg-white/90 hover:bg-white text-xs font-bold text-slate-800 transition-all backdrop-blur-sm shadow-xs hover:text-[#3365e2]"
+              className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl border border-white/80 bg-white/90 hover:bg-white text-xs font-bold text-slate-800 transition-all backdrop-blur-sm shadow-xs hover:text-[#3365e2]"
             >
               <Phone size={14} className="text-[#3365e2]" /> {site.phone}
             </a>
@@ -152,7 +156,7 @@ export default function AboutPage() {
               href={site.instagramHref}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-white/80 bg-white/90 hover:bg-white text-xs font-bold text-slate-800 transition-all backdrop-blur-sm shadow-xs hover:text-pink-600"
+              className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl border border-white/80 bg-white/90 hover:bg-white text-xs font-bold text-slate-800 transition-all backdrop-blur-sm shadow-xs hover:text-pink-600"
             >
               <Instagram size={14} className="text-pink-500" /> @{site.instagram || 'fitnation_by_ajeet'}
             </a>
@@ -160,7 +164,7 @@ export default function AboutPage() {
               href={site.waHref}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#25D366] hover:bg-[#20ba59] text-xs font-bold uppercase tracking-wider text-white transition-all shadow-md"
+              className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-[#25D366] hover:bg-[#20ba59] text-xs font-bold uppercase tracking-wider text-white transition-all shadow-md"
             >
               <MessageCircle size={14} /> WhatsApp Founder
             </a>
@@ -169,7 +173,7 @@ export default function AboutPage() {
       </section>
 
       {/* ══ 2. VERIFIED 4 ARCHITECTURAL METRIC CARDS ═════════════════════ */}
-      <section className="border-y border-slate-200 dark:border-white/10 bg-gradient-to-b from-slate-50/70 via-white to-slate-50/30 dark:from-[#0a0f1d] dark:to-[#080d19] py-12 sm:py-16 px-6">
+      <section className="border-y border-slate-200 dark:border-white/10 bg-gradient-to-b from-slate-50/70 via-white to-slate-50/30 dark:from-[#0a0f1d] dark:to-[#080d19] py-10 sm:py-16 px-4 sm:px-6">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {achievements.map((a, i) => {
@@ -307,23 +311,37 @@ export default function AboutPage() {
               return (
                 <div
                   key={i}
-                  className="rounded-2xl p-7 border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0e1628] hover:border-[#3365e2]/50 hover:shadow-lg transition-all duration-300 flex flex-col justify-between"
+                  className="rounded-2xl overflow-hidden border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0e1628] hover:border-[#3365e2]/50 hover:shadow-xl transition-all duration-300 flex flex-col justify-between group"
                 >
-                  <div>
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="w-12 h-12 rounded-xl bg-[#3365e2]/10 text-[#3365e2] flex items-center justify-center">
-                        <Icon size={24} />
-                      </div>
-                      <span className="text-[11px] font-bold px-3 py-1 rounded-full bg-slate-100 dark:bg-white/5 text-[#3365e2] border border-[#3365e2]/20 uppercase tracking-wider">
+                  <div className="relative aspect-[16/9] w-full overflow-hidden bg-slate-900">
+                    <img
+                      src={z.image}
+                      alt={z.title}
+                      loading="lazy"
+                      decoding="async"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-end p-4">
+                      <span className="text-[11px] font-bold px-3 py-1 rounded-full bg-[#3365e2] text-white shadow-sm uppercase tracking-wider">
                         {z.highlight}
                       </span>
                     </div>
-                    <h3 className="text-slate-900 dark:text-white font-bold text-xl mb-2.5">
-                      {z.title}
-                    </h3>
-                    <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed font-normal">
-                      {z.desc}
-                    </p>
+                  </div>
+
+                  <div className="p-6 flex-1 flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-center gap-3 mb-2.5">
+                        <div className="w-10 h-10 rounded-xl bg-[#3365e2]/10 text-[#3365e2] flex items-center justify-center flex-shrink-0">
+                          <Icon size={20} />
+                        </div>
+                        <h3 className="text-slate-900 dark:text-white font-bold text-xl leading-snug">
+                          {z.title}
+                        </h3>
+                      </div>
+                      <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed font-normal">
+                        {z.desc}
+                      </p>
+                    </div>
                   </div>
                 </div>
               );
@@ -359,10 +377,10 @@ export default function AboutPage() {
                   <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">Early risers & heavy compound lifting</div>
                 </div>
               </div>
-              <div className="text-3xl sm:text-4xl font-black text-[#13314a] dark:text-white mb-3 tabular-nums tracking-tight">
+              <div className="text-2xl min-[400px]:text-3xl sm:text-4xl font-black text-[#13314a] dark:text-white mb-3 tabular-nums tracking-tight">
                 5:00 AM – 11:00 AM
               </div>
-              <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300 text-xs font-semibold">
+              <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300 text-xs font-semibold flex-wrap">
                 <Clock size={14} className="text-[#3365e2]" />
                 <span>Monday to Saturday</span>
                 <span className="text-slate-300 dark:text-slate-600">·</span>
@@ -371,7 +389,7 @@ export default function AboutPage() {
             </div>
 
             {/* Evening Shift */}
-            <div className="rounded-2xl p-7 border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0c1220] shadow-xs">
+            <div className="rounded-2xl p-6 sm:p-7 border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0c1220] shadow-xs">
               <div className="flex items-center gap-3.5 mb-5">
                 <div className="w-11 h-11 rounded-xl bg-blue-500/10 border border-blue-500/20 text-[#3365e2] flex items-center justify-center flex-shrink-0">
                   <Moon size={20} />
@@ -381,10 +399,10 @@ export default function AboutPage() {
                   <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">Hypertrophy training & floor coaching</div>
                 </div>
               </div>
-              <div className="text-3xl sm:text-4xl font-black text-[#13314a] dark:text-white mb-3 tabular-nums tracking-tight">
+              <div className="text-2xl min-[400px]:text-3xl sm:text-4xl font-black text-[#13314a] dark:text-white mb-3 tabular-nums tracking-tight">
                 4:00 PM – 10:00 PM
               </div>
-              <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300 text-xs font-semibold">
+              <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300 text-xs font-semibold flex-wrap">
                 <Clock size={14} className="text-[#3365e2]" />
                 <span>Monday to Saturday</span>
                 <span className="text-slate-300 dark:text-slate-600">·</span>

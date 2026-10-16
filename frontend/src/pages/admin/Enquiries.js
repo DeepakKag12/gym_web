@@ -184,11 +184,11 @@ export default function AdminEnquiries() {
       actions={<Button icon={RefreshCw} onClick={refresh} disabled={loading}>Refresh</Button>}
     >
       {/* Quick Status Section Division Cards — All Enquiries, New, Contacted, Joined */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-5">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 mb-5">
         <button
           type="button"
           onClick={() => setTab('all')}
-          className={`p-3.5 sm:p-4 rounded-xl border text-left transition cursor-pointer relative overflow-hidden ${
+          className={`p-2.5 min-[380px]:p-3.5 sm:p-4 rounded-xl border text-left transition cursor-pointer relative overflow-hidden ${
             tab === 'all'
               ? 'ring-2 ring-[var(--p-accent)] shadow-md'
               : 'hover:border-[var(--p-border-2)]'
@@ -196,17 +196,17 @@ export default function AdminEnquiries() {
           style={{ background: 'var(--p-surface)', borderColor: 'var(--p-border)' }}
         >
           <div className="flex items-center justify-between mb-1">
-            <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--p-text-2)' }}>
+            <span className="text-[11px] min-[360px]:text-xs font-semibold uppercase tracking-wider truncate" style={{ color: 'var(--p-text-2)' }}>
               All Inquiries
             </span>
-            <span className="p-1 rounded-md" style={{ background: 'var(--p-surface-2)', color: 'var(--p-text-2)' }}>
-              <MessageSquare size={14} />
+            <span className="p-1 rounded-md flex-shrink-0" style={{ background: 'var(--p-surface-2)', color: 'var(--p-text-2)' }}>
+              <MessageSquare size={13} />
             </span>
           </div>
-          <div className="text-2xl font-bold tracking-tight" style={{ color: 'var(--p-text)' }}>
+          <div className="text-lg min-[360px]:text-xl sm:text-2xl font-bold tracking-tight" style={{ color: 'var(--p-text)' }}>
             {counts.all || 0}
           </div>
-          <p className="text-[11.5px] mt-0.5 truncate" style={{ color: 'var(--p-muted)' }}>
+          <p className="text-[10.5px] min-[360px]:text-[11.5px] mt-0.5 truncate" style={{ color: 'var(--p-muted)' }}>
             Total prospective leads
           </p>
           {tab === 'all' && (
@@ -217,7 +217,7 @@ export default function AdminEnquiries() {
         <button
           type="button"
           onClick={() => setTab('new')}
-          className={`p-3.5 sm:p-4 rounded-xl border text-left transition cursor-pointer relative overflow-hidden ${
+          className={`p-2.5 min-[380px]:p-3.5 sm:p-4 rounded-xl border text-left transition cursor-pointer relative overflow-hidden ${
             tab === 'new'
               ? 'ring-2 ring-amber-500 shadow-md'
               : 'hover:border-[var(--p-border-2)]'
@@ -225,17 +225,17 @@ export default function AdminEnquiries() {
           style={{ background: 'var(--p-surface)', borderColor: 'var(--p-border)' }}
         >
           <div className="flex items-center justify-between mb-1">
-            <span className="text-xs font-semibold uppercase tracking-wider text-amber-400">
+            <span className="text-[11px] min-[360px]:text-xs font-semibold uppercase tracking-wider text-amber-400 truncate">
               New Leads
             </span>
-            <span className="p-1 rounded-md bg-amber-500/10 text-amber-400">
-              <Clock size={14} />
+            <span className="p-1 rounded-md bg-amber-500/10 text-amber-400 flex-shrink-0">
+              <Clock size={13} />
             </span>
           </div>
-          <div className="text-2xl font-bold tracking-tight text-amber-400">
+          <div className="text-lg min-[360px]:text-xl sm:text-2xl font-bold tracking-tight text-amber-400">
             {counts.new || 0}
           </div>
-          <p className="text-[11.5px] mt-0.5 truncate text-amber-400/70">
+          <p className="text-[10.5px] min-[360px]:text-[11.5px] mt-0.5 truncate text-amber-400/70">
             Awaiting first response
           </p>
           {tab === 'new' && (
@@ -246,7 +246,7 @@ export default function AdminEnquiries() {
         <button
           type="button"
           onClick={() => setTab('contacted')}
-          className={`p-3.5 sm:p-4 rounded-xl border text-left transition cursor-pointer relative overflow-hidden ${
+          className={`p-2.5 min-[380px]:p-3.5 sm:p-4 rounded-xl border text-left transition cursor-pointer relative overflow-hidden ${
             tab === 'contacted'
               ? 'ring-2 ring-sky-500 shadow-md'
               : 'hover:border-[var(--p-border-2)]'
@@ -254,17 +254,17 @@ export default function AdminEnquiries() {
           style={{ background: 'var(--p-surface)', borderColor: 'var(--p-border)' }}
         >
           <div className="flex items-center justify-between mb-1">
-            <span className="text-xs font-semibold uppercase tracking-wider text-sky-400">
+            <span className="text-[11px] min-[360px]:text-xs font-semibold uppercase tracking-wider text-sky-400 truncate">
               Contacted
             </span>
-            <span className="p-1 rounded-md bg-sky-500/10 text-sky-400">
-              <Reply size={14} />
+            <span className="p-1 rounded-md bg-sky-500/10 text-sky-400 flex-shrink-0">
+              <Reply size={13} />
             </span>
           </div>
-          <div className="text-2xl font-bold tracking-tight text-sky-400">
+          <div className="text-lg min-[360px]:text-xl sm:text-2xl font-bold tracking-tight text-sky-400">
             {counts.contacted || 0}
           </div>
-          <p className="text-[11.5px] mt-0.5 truncate text-sky-400/70">
+          <p className="text-[10.5px] min-[360px]:text-[11.5px] mt-0.5 truncate text-sky-400/70">
             Discussion in progress
           </p>
           {tab === 'contacted' && (
@@ -275,7 +275,7 @@ export default function AdminEnquiries() {
         <button
           type="button"
           onClick={() => setTab('converted')}
-          className={`p-3.5 sm:p-4 rounded-xl border text-left transition cursor-pointer relative overflow-hidden ${
+          className={`p-2.5 min-[380px]:p-3.5 sm:p-4 rounded-xl border text-left transition cursor-pointer relative overflow-hidden ${
             tab === 'converted'
               ? 'ring-2 ring-emerald-500 shadow-md'
               : 'hover:border-[var(--p-border-2)]'
@@ -283,17 +283,17 @@ export default function AdminEnquiries() {
           style={{ background: 'var(--p-surface)', borderColor: 'var(--p-border)' }}
         >
           <div className="flex items-center justify-between mb-1">
-            <span className="text-xs font-semibold uppercase tracking-wider text-emerald-400">
+            <span className="text-[11px] min-[360px]:text-xs font-semibold uppercase tracking-wider text-emerald-400 truncate">
               Joined Gym
             </span>
-            <span className="p-1 rounded-md bg-emerald-500/10 text-emerald-400">
-              <CheckCircle2 size={14} />
+            <span className="p-1 rounded-md bg-emerald-500/10 text-emerald-400 flex-shrink-0">
+              <CheckCircle2 size={13} />
             </span>
           </div>
-          <div className="text-2xl font-bold tracking-tight text-emerald-400">
+          <div className="text-lg min-[360px]:text-xl sm:text-2xl font-bold tracking-tight text-emerald-400">
             {counts.converted || 0}
           </div>
-          <p className="text-[11.5px] mt-0.5 truncate text-emerald-400/70">
+          <p className="text-[10.5px] min-[360px]:text-[11.5px] mt-0.5 truncate text-emerald-400/70">
             Converted athletes
           </p>
           {tab === 'converted' && (
@@ -303,10 +303,10 @@ export default function AdminEnquiries() {
       </div>
 
       {/* Active Section Info Banner */}
-      <div className="flex items-center justify-between p-3 mb-4 rounded-xl text-xs font-medium"
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 mb-4 rounded-xl text-xs font-medium"
         style={{ background: 'var(--p-surface-2)', border: '1px solid var(--p-border)' }}>
         <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full" style={{
+          <span className="w-2 h-2 rounded-full flex-shrink-0" style={{
             background: tab === 'new' ? 'var(--p-warn)' :
                         tab === 'contacted' ? 'var(--p-info)' :
                         tab === 'converted' ? 'var(--p-ok)' :
@@ -324,7 +324,7 @@ export default function AdminEnquiries() {
           <button
             type="button"
             onClick={() => setTab('all')}
-            className="text-[11.5px] underline hover:opacity-80 cursor-pointer"
+            className="text-[11.5px] underline hover:opacity-80 cursor-pointer self-start sm:self-auto"
             style={{ color: 'var(--p-accent)' }}
           >
             Show All
@@ -405,7 +405,8 @@ export default function AdminEnquiries() {
                       value={e.status}
                       onChange={ev => setStatus(e, ev.target.value)}
                       aria-label={`Status for ${e.name}`}
-                      style={{ width: 150 }}
+                      className="w-full sm:w-[150px]"
+                      style={{ height: 38 }}
                     >
                       {Object.entries(STATUS).map(([k, v]) => (
                         <option key={k} value={k}>{v.label}</option>
@@ -435,7 +436,7 @@ export default function AdminEnquiries() {
                       style={{ color: 'var(--p-danger)' }} />
 
                     {/* Reply history, so nobody is answered twice or missed */}
-                    <span className="ml-auto text-[12.5px] flex items-center gap-1.5"
+                    <span className="w-full sm:w-auto sm:ml-auto text-[12.5px] flex items-center gap-1.5"
                       style={{ color: e.repliedAt ? 'var(--p-ok)' : 'var(--p-muted)' }}>
                       {e.repliedAt ? (
                         <>

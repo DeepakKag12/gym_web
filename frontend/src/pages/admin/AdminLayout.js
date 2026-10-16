@@ -198,7 +198,7 @@ export default function AdminLayout({ title, subtitle, actions, children }) {
         <div className="fixed inset-0 z-40 lg:hidden" style={{ background: 'var(--p-overlay)' }}
           onClick={() => setMenuOpen(false)} />
       )}
-      <aside className={`fixed top-0 left-0 h-full w-72 z-50 flex flex-col panel-side transition-transform duration-200 lg:hidden ${menuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <aside className={`fixed top-0 left-0 h-full w-72 max-w-[calc(100vw-40px)] z-50 flex flex-col panel-side transition-transform duration-200 lg:hidden ${menuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <button onClick={() => setMenuOpen(false)} aria-label="Close menu"
           className="absolute top-3.5 right-3 p-2 rounded-lg z-10" style={{ color: 'var(--p-muted)' }}>
           <X size={18} />
@@ -216,7 +216,7 @@ export default function AdminLayout({ title, subtitle, actions, children }) {
           <ThemeToggle />
         </header>
 
-        <main className="flex-1 px-4 py-5 lg:px-8 lg:py-7 pb-24 lg:pb-8">
+        <main className="flex-1 px-3 sm:px-4 py-4 sm:py-5 lg:px-8 lg:py-7 pb-24 lg:pb-8 min-w-0">
           <div className="hidden lg:flex flex-wrap items-start justify-between gap-3 mb-6">
             <div className="min-w-0">
               <h1 className="ui-page-title" style={{ fontSize: 26 }}>{title}</h1>

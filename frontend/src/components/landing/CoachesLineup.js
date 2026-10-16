@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 
 const DEFAULT_COACHES = [
   {
@@ -23,7 +23,7 @@ const DEFAULT_COACHES = [
     name: 'Rahul Verma',
     title: 'Performance Nutritionist',
     specialty: 'Macro Protocols & Body Recomp',
-    src: 'https://images.unsplash.com/photo-1584466977773-e625c37cdd50?q=80&w=900&auto=format&fit=crop',
+    src: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=900&auto=format&fit=crop',
   },
 ];
 
@@ -34,6 +34,17 @@ export default function CoachesLineup({
 }) {
   const containerRef = useRef(null);
   const [scrollProgress, setScrollProgress] = useState(0);
+
+  // Guarantee all 4 card slots are populated with high-res photography and zero broken elements
+  const displayCoaches = useMemo(() => {
+    const list = Array.isArray(coaches) && coaches.length > 0 ? coaches : DEFAULT_COACHES;
+    return [
+      list[0] || DEFAULT_COACHES[0],
+      list[1] || DEFAULT_COACHES[1],
+      list[2] || DEFAULT_COACHES[2],
+      list[3] || DEFAULT_COACHES[3],
+    ];
+  }, [coaches]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -82,85 +93,54 @@ export default function CoachesLineup({
 
           {/* Panoramic Cards Lineup */}
           <div className="flex items-center justify-center gap-[2.2vw] w-full max-w-[94vw] relative">
-            {/* Coach 1 (Outer Left - Fans out) */}
-            <div
-              className="relative w-[21.5vw] aspect-[3/4.2] rounded-[1.2vw] overflow-hidden z-10 will-change-transform shadow-xl group border border-slate-100"
-              style={{
-                transform: `translate3d(${card1X}%, ${yPercent}%, 0)`,
-                transition: 'transform 0.05s linear',
-              }}
-            >
-              <img
-                src={coaches[0]?.src}
-                alt={coaches[0]?.name}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent flex flex-col justify-end p-5 text-white">
-                <span className="font-medium text-lg leading-tight">{coaches[0]?.name}</span>
-                <span className="text-xs text-white/80 mt-0.5">{coaches[0]?.title}</span>
-                <span className="text-[11px] text-indigo-300 font-mono mt-1">{coaches[0]?.specialty}</span>
-              </div>
-            </div>
+            {displayCoaches.map((coach, idx) => {
+              // Exact fan-out transform mapping:
+              // Index 0: outer left (card1X)
+              // Index 1: center left (anchor, x: 0)
+              // Index 2: center right (anchor, x: 0)
+              // Index 3: outer right (card4X)
+              const cardX = idx === 0 ? card1X : idx === 3 ? card4X : 0;
+              const zIndex = idx === 1 || idx === 2 ? 20 : 10;
 
-            {/* Coach 2 (Center Left - Anchor) */}
-            <div
-              className="relative w-[21.5vw] aspect-[3/4.2] rounded-[1.2vw] overflow-hidden z-20 will-change-transform shadow-2xl group border border-slate-100"
-              style={{
-                transform: `translate3d(0, ${yPercent}%, 0)`,
-                transition: 'transform 0.05s linear',
-              }}
-            >
-              <img
-                src={coaches[1]?.src}
-                alt={coaches[1]?.name}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent flex flex-col justify-end p-5 text-white">
-                <span className="font-medium text-lg leading-tight">{coaches[1]?.name}</span>
-                <span className="text-xs text-white/80 mt-0.5">{coaches[1]?.title}</span>
-                <span className="text-[11px] text-indigo-300 font-mono mt-1">{coaches[1]?.specialty}</span>
-              </div>
-            </div>
-
-            {/* Coach 3 (Center Right - Anchor) */}
-            <div
-              className="relative w-[21.5vw] aspect-[3/4.2] rounded-[1.2vw] overflow-hidden z-20 will-change-transform shadow-2xl group border border-slate-100"
-              style={{
-                transform: `translate3d(0, ${yPercent}%, 0)`,
-                transition: 'transform 0.05s linear',
-              }}
-            >
-              <img
-                src={coaches[2]?.src}
-                alt={coaches[2]?.name}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent flex flex-col justify-end p-5 text-white">
-                <span className="font-medium text-lg leading-tight">{coaches[2]?.name}</span>
-                <span className="text-xs text-white/80 mt-0.5">{coaches[2]?.title}</span>
-                <span className="text-[11px] text-indigo-300 font-mono mt-1">{coaches[2]?.specialty}</span>
-              </div>
-            </div>
-
-            {/* Coach 4 (Outer Right - Fans out) */}
-            <div
-              className="relative w-[21.5vw] aspect-[3/4.2] rounded-[1.2vw] overflow-hidden z-10 will-change-transform shadow-xl group border border-slate-100"
-              style={{
-                transform: `translate3d(${card4X}%, ${yPercent}%, 0)`,
-                transition: 'transform 0.05s linear',
-              }}
-            >
-              <img
-                src={coaches[3]?.src}
-                alt={coaches[3]?.name}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent flex flex-col justify-end p-5 text-white">
-                <span className="font-medium text-lg leading-tight">{coaches[3]?.name}</span>
-                <span className="text-xs text-white/80 mt-0.5">{coaches[3]?.title}</span>
-                <span className="text-[11px] text-indigo-300 font-mono mt-1">{coaches[3]?.specialty}</span>
-              </div>
-            </div>
+              return (
+                <div
+                  key={idx}
+                  className={`relative w-[21.5vw] aspect-[3/4.2] rounded-[1.2vw] overflow-hidden will-change-transform shadow-2xl group border border-slate-200/60 bg-slate-900 ${
+                    zIndex === 20 ? 'z-20' : 'z-10'
+                  }`}
+                  style={{
+                    transform: `translate3d(${cardX}%, ${yPercent}%, 0)`,
+                    transition: 'transform 0.05s linear',
+                  }}
+                >
+                  <img
+                    src={coach.src || DEFAULT_COACHES[idx].src}
+                    alt={coach.name}
+                    loading="lazy"
+                    decoding="async"
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = DEFAULT_COACHES[idx].src;
+                    }}
+                    className="w-full h-full object-cover object-top sm:object-center group-hover:scale-105 transition-transform duration-700 ease-out will-change-transform"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent flex flex-col justify-end p-5 text-white">
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#38bdf8]" />
+                      <span className="text-[11px] text-[#93c5fd] font-mono tracking-wider uppercase drop-shadow-sm truncate">
+                        {coach.specialty}
+                      </span>
+                    </div>
+                    <span className="font-bold text-lg sm:text-xl leading-tight drop-shadow-sm truncate">
+                      {coach.name}
+                    </span>
+                    <span className="text-xs text-white/80 mt-0.5 drop-shadow-sm truncate">
+                      {coach.title}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -177,12 +157,23 @@ export default function CoachesLineup({
         </div>
 
         <div className="grid grid-cols-2 gap-4 w-full max-w-2xl">
-          {coaches.map((c, i) => (
-            <div key={i} className="w-full aspect-[3/4.2] relative rounded-xl overflow-hidden shadow-lg group">
-              <img src={c.src} alt={c.name} className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent flex flex-col justify-end p-3 text-white">
-                <span className="font-medium text-sm leading-tight">{c.name}</span>
-                <span className="text-[11px] text-white/80">{c.title}</span>
+          {displayCoaches.map((c, i) => (
+            <div key={i} className="w-full aspect-[3/4.2] relative rounded-xl overflow-hidden shadow-lg group border border-slate-200/80 bg-slate-900">
+              <img
+                src={c.src || DEFAULT_COACHES[i].src}
+                alt={c.name}
+                loading="lazy"
+                decoding="async"
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = DEFAULT_COACHES[i].src;
+                }}
+                className="w-full h-full object-cover object-top sm:object-center group-hover:scale-105 transition-transform duration-500"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/25 to-transparent flex flex-col justify-end p-3.5 text-white">
+                <span className="text-[10px] text-[#93c5fd] font-mono uppercase truncate">{c.specialty}</span>
+                <span className="font-bold text-sm sm:text-base leading-tight truncate">{c.name}</span>
+                <span className="text-[11px] text-white/80 truncate">{c.title}</span>
               </div>
             </div>
           ))}

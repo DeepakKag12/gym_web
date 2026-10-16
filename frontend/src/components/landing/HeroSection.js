@@ -89,10 +89,10 @@ export default function HeroSection({
         {/* Hero Content Grid (3 Columns: Left Text | Center 3D Clearance | Right Card) */}
         <div className="w-full oris-paddx flex items-center justify-between h-full max-[1025px]:flex-col max-[1025px]:items-start max-[1025px]:justify-start max-[1025px]:gap-6 max-[1025px]:pt-28 max-[1025px]:pb-12 z-10 pointer-events-none *:pointer-events-auto">
           {/* Left Column: Heading & Mission */}
-          <div className="w-[36%] max-[1025px]:w-full flex flex-col gap-6 justify-center items-start">
+          <div className="w-[32%] max-w-[440px] max-[1025px]:w-full max-[1025px]:max-w-xl flex flex-col gap-6 justify-center items-start">
             <div className="overflow-hidden">
               <h1
-                className={`oris-text64 font-normal tracking-tight text-white transition-transform duration-850 ease-out ${
+                className={`oris-text64 font-normal tracking-tight text-white drop-shadow-[0_2px_14px_rgba(15,35,70,0.5)] transition-transform duration-850 ease-out ${
                   loaded ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'
                 }`}
                 style={{ transitionDelay: '0.35s' }}
@@ -103,7 +103,7 @@ export default function HeroSection({
 
             <div className="overflow-hidden">
               <p
-                className={`oris-text22 text-white/90 font-light leading-relaxed max-w-[28vw] max-[1025px]:max-w-xl transition-transform duration-850 ease-out ${
+                className={`oris-text22 text-white/95 font-light leading-relaxed max-w-[27vw] max-[1025px]:max-w-xl drop-shadow-[0_1px_8px_rgba(15,35,70,0.4)] transition-transform duration-850 ease-out ${
                   loaded ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'
                 }`}
                 style={{ transitionDelay: '0.55s' }}
@@ -115,14 +115,14 @@ export default function HeroSection({
 
           {/* Center Column on Mobile: 3D Model gracefully flows between header and card */}
           <div className="min-[1026px]:hidden w-full flex items-center justify-center my-2 z-10">
-            <Athlete3DVisualizer className="w-full max-w-[340px]" />
+            <Athlete3DVisualizer className="w-full max-w-[320px]" />
           </div>
 
           {/* Right Column: Narrative & Social Proof Card (Screenshot 1 Layout) */}
-          <div className="w-[32%] max-[1025px]:w-full flex flex-col justify-between items-end max-[1025px]:items-start gap-8 self-end pb-12 max-[1025px]:pb-0">
+          <div className="w-[31%] max-w-[400px] max-[1025px]:w-full max-[1025px]:max-w-xl flex flex-col justify-between items-end max-[1025px]:items-start gap-8 self-end pb-12 max-[1025px]:pb-0">
             <div className="overflow-hidden text-right max-[1025px]:text-left">
               <p
-                className={`oris-text22 text-white/90 font-light leading-relaxed max-w-[28vw] max-[1025px]:max-w-xl transition-transform duration-850 ease-out ${
+                className={`oris-text22 text-white/95 font-light leading-relaxed max-w-[27vw] max-[1025px]:max-w-xl drop-shadow-[0_1px_8px_rgba(15,35,70,0.4)] transition-transform duration-850 ease-out ${
                   loaded ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'
                 }`}
                 style={{ transitionDelay: '0.65s' }}
@@ -158,6 +158,12 @@ export default function HeroSection({
                       <img
                         src={av.src}
                         alt={av.name}
+                        loading="lazy"
+                        decoding="async"
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = DEFAULT_AVATARS[idx % DEFAULT_AVATARS.length].src;
+                        }}
                         className="w-9 h-9 rounded-full object-cover border-2 border-white shadow-sm transition-all duration-300 ease-out group-hover/avatar:scale-115 group-hover/avatar:shadow-md cursor-pointer"
                       />
                       {/* Tooltip */}

@@ -108,6 +108,12 @@ export default function TransformationsMatrix({
                   <img
                     src={ath.src}
                     alt={ath.name}
+                    loading="lazy"
+                    decoding="async"
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = DEFAULT_ATHLETES[idx % DEFAULT_ATHLETES.length].src;
+                    }}
                     className="w-full h-full object-cover group-hover:scale-110 group-hover:brightness-75 transition-all duration-500 ease-out"
                   />
                   <div
@@ -136,6 +142,7 @@ export default function TransformationsMatrix({
             >
               {midCol.map((ath, idx) => {
                 const cardFlyY = idx === 0 ? midCard1Y : (idx === 2 ? midCard2Y : 0);
+                const cardOpacity = idx === 1 && isSplitPhase ? Math.max(1 - splitProgress * 2.2, 0) : 1;
                 return (
                   <div
                     key={idx}
@@ -143,13 +150,20 @@ export default function TransformationsMatrix({
                     onMouseLeave={() => setHoveredIdx(null)}
                     style={{
                       transform: `translate3d(0, ${cardFlyY}%, 0)`,
-                      transition: 'transform 0.05s linear',
+                      opacity: cardOpacity,
+                      transition: 'transform 0.05s linear, opacity 0.2s ease-out',
                     }}
                     className="w-[90%] h-[34vw] rounded-2xl overflow-hidden relative shadow-2xl cursor-pointer group"
                   >
                     <img
                       src={ath.src}
                       alt={ath.name}
+                      loading="lazy"
+                      decoding="async"
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = DEFAULT_ATHLETES[(idx + 3) % DEFAULT_ATHLETES.length].src;
+                      }}
                       className="w-full h-full object-cover group-hover:scale-110 group-hover:brightness-75 transition-all duration-500 ease-out"
                     />
                     <div
@@ -187,6 +201,12 @@ export default function TransformationsMatrix({
                   <img
                     src={ath.src}
                     alt={ath.name}
+                    loading="lazy"
+                    decoding="async"
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = DEFAULT_ATHLETES[(idx + 6) % DEFAULT_ATHLETES.length].src;
+                    }}
                     className="w-full h-full object-cover group-hover:scale-110 group-hover:brightness-75 transition-all duration-500 ease-out"
                   />
                   <div
@@ -239,7 +259,17 @@ export default function TransformationsMatrix({
           <div className="grid grid-cols-3 gap-3 max-md:grid-cols-2">
             {athletes.map((ath, i) => (
               <div key={i} className="overflow-hidden rounded-xl relative aspect-[3/4] shadow-md group">
-                <img src={ath.src} alt={ath.name} className="w-full h-full object-cover" />
+                <img
+                  src={ath.src}
+                  alt={ath.name}
+                  loading="lazy"
+                  decoding="async"
+                  onError={(e) => {
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.src = DEFAULT_ATHLETES[i % DEFAULT_ATHLETES.length].src;
+                  }}
+                  className="w-full h-full object-cover"
+                />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-3 text-white">
                   <span className="font-medium text-sm">{ath.name}</span>
                   <span className="text-[11px] text-white/75">{ath.role}</span>

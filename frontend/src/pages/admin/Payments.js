@@ -458,63 +458,71 @@ export default function AdminPayments() {
             {due.length > 0 && (
               <div className="divide-y" style={{ borderColor: 'var(--p-border)' }}>
                 {due.map(member => (
-                  <label key={member._id} className="flex items-center gap-3 py-3 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={selectedDue.includes(member._id)}
-                      onChange={() => toggleDue(member._id)}
-                      aria-label={`Select ${member.name}`}
-                    />
-                    <Avatar name={member.name} size={30} />
-                    <span className="flex-1 min-w-0">
-                      <span className="block text-[14px] font-semibold truncate" style={{ color: 'var(--p-text)' }}>{member.name}</span>
-                      <span className="block text-[12px] truncate" style={{ color: 'var(--p-muted)' }}>{member.phone || member.email}</span>
-                      <span className="block text-[11px] mt-1" style={{ color: 'var(--p-muted)' }}>
-                        {member.memberMonths} month(s) · Paid {money(member.paidTotal)} of {money(member.totalFee)} · {member.dueMonths} month(s) due
-                      </span>
-                    </span>
-                    <span className="text-right">
-                      <strong className="block" style={{ color: 'var(--p-danger)' }}>{money(member.dueAmount)}</strong>
-                      <span className="text-[11px]" style={{ color: 'var(--p-muted)' }}>due</span>
-                    </span>
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      icon={IndianRupee}
-                      onClick={event => { event.preventDefault(); event.stopPropagation(); openPayDue(member); }}
-                      aria-label={`Collect or edit due for ${member.name}`}
-                      title="Collect payment (partial or full) or change due money"
-                    >
-                      Pay / Edit
-                    </Button>
-
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      icon={Share2}
-                      loading={statementSharing === member._id}
-                      onClick={event => { event.preventDefault(); event.stopPropagation(); shareStatement(member); }}
-                      aria-label={`Share ${member.name}'s statement`}
-                      title="Share PDF statement"
-                    />
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      icon={Download}
-                      onClick={event => { event.preventDefault(); event.stopPropagation(); downloadStatement(member); }}
-                      aria-label={`Download ${member.name}'s statement`}
-                      title="Download PDF statement"
-                    />
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      icon={Eye}
-                      loading={statementViewing === member._id}
-                      onClick={event => { event.preventDefault(); event.stopPropagation(); viewStatement(member); }}
-                      aria-label={`View ${member.name}'s statement`}
-                      title="View PDF statement"
-                    />
-                  </label>
+                  <div key={member._id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-3 border-b last:border-b-0" style={{ borderColor: 'var(--p-border)' }}>
+                    <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
+                      <input
+                        type="checkbox"
+                        checked={selectedDue.includes(member._id)}
+                        onChange={() => toggleDue(member._id)}
+                        aria-label={`Select ${member.name}`}
+                        className="mt-1 sm:mt-0"
+                      />
+                      <Avatar name={member.name} size={32} />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-[14px] font-semibold truncate" style={{ color: 'var(--p-text)' }}>{member.name}</span>
+                          <span className="text-[12px]" style={{ color: 'var(--p-muted)' }}>{member.phone || member.email}</span>
+                        </div>
+                        <p className="text-[11px] mt-0.5" style={{ color: 'var(--p-muted)' }}>
+                          {member.memberMonths} month(s) · Paid {money(member.paidTotal)} of {money(member.totalFee)} · {member.dueMonths} month(s) due
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between sm:justify-end gap-2 flex-wrap pl-8 sm:pl-0">
+                      <div className="text-left sm:text-right">
+                        <strong className="block text-[14px]" style={{ color: 'var(--p-danger)' }}>{money(member.dueAmount)}</strong>
+                        <span className="text-[11px]" style={{ color: 'var(--p-muted)' }}>due</span>
+                      </div>
+                      <div className="flex items-center gap-1 flex-wrap">
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          icon={IndianRupee}
+                          onClick={event => { event.preventDefault(); event.stopPropagation(); openPayDue(member); }}
+                          aria-label={`Collect or edit due for ${member.name}`}
+                          title="Collect payment (partial or full) or change due money"
+                        >
+                          Pay / Edit
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          icon={Share2}
+                          loading={statementSharing === member._id}
+                          onClick={event => { event.preventDefault(); event.stopPropagation(); shareStatement(member); }}
+                          aria-label={`Share ${member.name}'s statement`}
+                          title="Share PDF statement"
+                        />
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          icon={Download}
+                          onClick={event => { event.preventDefault(); event.stopPropagation(); downloadStatement(member); }}
+                          aria-label={`Download ${member.name}'s statement`}
+                          title="Download PDF statement"
+                        />
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          icon={Eye}
+                          loading={statementViewing === member._id}
+                          onClick={event => { event.preventDefault(); event.stopPropagation(); viewStatement(member); }}
+                          aria-label={`View ${member.name}'s statement`}
+                          title="View PDF statement"
+                        />
+                      </div>
+                    </div>
+                  </div>
                 ))}
               </div>
             )}
@@ -522,11 +530,11 @@ export default function AdminPayments() {
           ) : (
             <>
           {/* Quick Revenue Section Division Cards — All Revenue, Membership, Shop, Outstanding Dues */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-2">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 mb-2">
             <button
               type="button"
               onClick={() => setSource('all')}
-              className={`p-3.5 sm:p-4 rounded-xl border text-left transition cursor-pointer relative overflow-hidden ${
+              className={`p-2.5 min-[380px]:p-3.5 sm:p-4 rounded-xl border text-left transition cursor-pointer relative overflow-hidden ${
                 source === 'all'
                   ? 'ring-2 ring-[var(--p-accent)] shadow-md'
                   : 'hover:border-[var(--p-border-2)]'
@@ -534,17 +542,17 @@ export default function AdminPayments() {
               style={{ background: 'var(--p-surface)', borderColor: 'var(--p-border)' }}
             >
               <div className="flex items-center justify-between mb-1">
-                <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--p-text-2)' }}>
+                <span className="text-[11px] min-[360px]:text-xs font-semibold uppercase tracking-wider truncate" style={{ color: 'var(--p-text-2)' }}>
                   Total Taken
                 </span>
                 <span className="p-1 rounded-md" style={{ background: 'var(--p-surface-2)', color: 'var(--p-text-2)' }}>
                   <IndianRupee size={14} />
                 </span>
               </div>
-              <div className="text-2xl font-bold tracking-tight" style={{ color: 'var(--p-text)' }}>
+              <div className="text-lg min-[360px]:text-xl sm:text-2xl font-bold tracking-tight truncate" style={{ color: 'var(--p-text)' }}>
                 {money(totals.all)}
               </div>
-              <p className="text-[11.5px] mt-0.5 truncate" style={{ color: 'var(--p-muted)' }}>
+              <p className="text-[11px] min-[360px]:text-[11.5px] mt-0.5 truncate" style={{ color: 'var(--p-muted)' }}>
                 Both sources together
               </p>
               {source === 'all' && (
@@ -555,7 +563,7 @@ export default function AdminPayments() {
             <button
               type="button"
               onClick={() => setSource('membership')}
-              className={`p-3.5 sm:p-4 rounded-xl border text-left transition cursor-pointer relative overflow-hidden ${
+              className={`p-2.5 min-[380px]:p-3.5 sm:p-4 rounded-xl border text-left transition cursor-pointer relative overflow-hidden ${
                 source === 'membership'
                   ? 'ring-2 ring-[var(--p-accent)] shadow-md'
                   : 'hover:border-[var(--p-border-2)]'
@@ -563,17 +571,17 @@ export default function AdminPayments() {
               style={{ background: 'var(--p-surface)', borderColor: 'var(--p-border)' }}
             >
               <div className="flex items-center justify-between mb-1">
-                <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--p-text-2)' }}>
-                  Membership Fees
+                <span className="text-[11px] min-[360px]:text-xs font-semibold uppercase tracking-wider truncate" style={{ color: 'var(--p-text-2)' }}>
+                  Membership
                 </span>
                 <span className="p-1 rounded-md" style={{ background: 'var(--p-surface-2)', color: 'var(--p-text-2)' }}>
                   <UserSquare2 size={14} />
                 </span>
               </div>
-              <div className="text-2xl font-bold tracking-tight" style={{ color: 'var(--p-text)' }}>
+              <div className="text-lg min-[360px]:text-xl sm:text-2xl font-bold tracking-tight truncate" style={{ color: 'var(--p-text)' }}>
                 {money(totals.membership)}
               </div>
-              <p className="text-[11.5px] mt-0.5 truncate" style={{ color: 'var(--p-muted)' }}>
+              <p className="text-[11px] min-[360px]:text-[11.5px] mt-0.5 truncate" style={{ color: 'var(--p-muted)' }}>
                 Joining fees & renewals
               </p>
               {source === 'membership' && (
@@ -584,7 +592,7 @@ export default function AdminPayments() {
             <button
               type="button"
               onClick={() => setSource('store')}
-              className={`p-3.5 sm:p-4 rounded-xl border text-left transition cursor-pointer relative overflow-hidden ${
+              className={`p-2.5 min-[380px]:p-3.5 sm:p-4 rounded-xl border text-left transition cursor-pointer relative overflow-hidden ${
                 source === 'store'
                   ? 'ring-2 ring-[var(--p-accent)] shadow-md'
                   : 'hover:border-[var(--p-border-2)]'
@@ -592,17 +600,17 @@ export default function AdminPayments() {
               style={{ background: 'var(--p-surface)', borderColor: 'var(--p-border)' }}
             >
               <div className="flex items-center justify-between mb-1">
-                <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--p-text-2)' }}>
+                <span className="text-[11px] min-[360px]:text-xs font-semibold uppercase tracking-wider truncate" style={{ color: 'var(--p-text-2)' }}>
                   Shop Orders
                 </span>
                 <span className="p-1 rounded-md" style={{ background: 'var(--p-surface-2)', color: 'var(--p-text-2)' }}>
                   <ShoppingBag size={14} />
                 </span>
               </div>
-              <div className="text-2xl font-bold tracking-tight" style={{ color: 'var(--p-text)' }}>
+              <div className="text-lg min-[360px]:text-xl sm:text-2xl font-bold tracking-tight truncate" style={{ color: 'var(--p-text)' }}>
                 {money(totals.store)}
               </div>
-              <p className="text-[11.5px] mt-0.5 truncate" style={{ color: 'var(--p-muted)' }}>
+              <p className="text-[11px] min-[360px]:text-[11.5px] mt-0.5 truncate" style={{ color: 'var(--p-muted)' }}>
                 Product sales revenue
               </p>
               {source === 'store' && (
@@ -613,22 +621,22 @@ export default function AdminPayments() {
             <button
               type="button"
               onClick={() => setTab('dues')}
-              className="p-3.5 sm:p-4 rounded-xl border text-left relative overflow-hidden transition hover:border-rose-400/50 cursor-pointer"
+              className="p-2.5 min-[380px]:p-3.5 sm:p-4 rounded-xl border text-left relative overflow-hidden transition hover:border-rose-400/50 cursor-pointer"
               style={{ background: 'var(--p-surface)', borderColor: 'var(--p-border)' }}
             >
               <div className="flex items-center justify-between mb-1">
-                <span className="text-xs font-semibold uppercase tracking-wider text-rose-400">
+                <span className="text-[11px] min-[360px]:text-xs font-semibold uppercase tracking-wider text-rose-400 truncate">
                   Pending Dues
                 </span>
                 <span className="p-1 rounded-md bg-rose-500/10 text-rose-400">
                   <AlertTriangle size={14} />
                 </span>
               </div>
-              <div className="text-2xl font-bold tracking-tight text-rose-400">
+              <div className="text-lg min-[360px]:text-xl sm:text-2xl font-bold tracking-tight text-rose-400 truncate">
                 {money(dueTotal)}
               </div>
-              <p className="text-[11.5px] mt-0.5 truncate text-rose-400/70">
-                {due.length} members with balances · Click to view
+              <p className="text-[11px] min-[360px]:text-[11.5px] mt-0.5 truncate text-rose-400/70">
+                {due.length} members with balances
               </p>
             </button>
           </div>
@@ -817,48 +825,52 @@ export default function AdminPayments() {
               <Card padded={false} className="md:hidden">
                 <ul>
                   {shown.map((r, i) => (
-                    <li key={r._id} className="flex items-center gap-3 px-4 py-3"
+                    <li key={r._id} className="p-3 sm:px-4 sm:py-3"
                       style={{ borderTop: i ? '1px solid var(--p-border)' : 'none' }}>
-                      <Avatar name={r.member?.name} size={34} />
-                      <span className="flex-1 min-w-0">
-                        <span className="block text-[14.5px] font-semibold truncate" style={{ color: 'var(--p-text)' }}>
-                          {r.member?.name || 'Unknown'}
-                        </span>
-                        <span className="block text-[12px]" style={{ color: 'var(--p-muted)' }}>
-                          {KIND[r.kind] || r.kind} · {fmtDate(r.createdAt)}
-                        </span>
-                      </span>
-                      <span className="text-right">
-                        <strong className="block" style={{ color: 'var(--p-text)' }}>{money(r.amount)}</strong>
-                        <Badge tone={r.source === 'membership' ? 'accent' : 'info'}>
-                          {r.source === 'membership' ? 'Membership' : 'Shop'}
-                        </Badge>
-                        <span className="flex justify-end gap-1 mt-1">
-                          {r.source === 'membership' ? (
-                            <>
-                              <Button size="sm" variant="ghost" icon={Eye}
-                                onClick={() => viewReceipt(r)}
-                                aria-label="View receipt"
-                                title="View payment receipt PDF" />
-                              <Button size="sm" variant="ghost" icon={Download}
-                                onClick={() => downloadReceipt(r)}
-                                aria-label="Download receipt"
-                                title="Download payment receipt PDF" />
-                            </>
-                          ) : (
-                            <>
-                              <Button size="sm" variant="ghost" icon={Eye}
-                                onClick={() => viewOrderInvoice(r)}
-                                aria-label="View invoice"
-                                title="View order invoice PDF" />
-                              <Button size="sm" variant="ghost" icon={Download}
-                                onClick={() => downloadOrderInvoice(r)}
-                                aria-label="Download invoice"
-                                title="Download order invoice PDF" />
-                            </>
-                          )}
-                        </span>
-                      </span>
+                      <div className="flex items-start sm:items-center justify-between gap-2.5">
+                        <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                          <Avatar name={r.member?.name} size={34} />
+                          <div className="min-w-0 flex-1">
+                            <span className="block text-[14px] font-semibold truncate" style={{ color: 'var(--p-text)' }}>
+                              {r.member?.name || 'Unknown'}
+                            </span>
+                            <span className="block text-[11.5px]" style={{ color: 'var(--p-muted)' }}>
+                              {KIND[r.kind] || r.kind} · {fmtDate(r.createdAt)}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="text-right flex-shrink-0">
+                          <strong className="block text-[14px]" style={{ color: 'var(--p-text)' }}>{money(r.amount)}</strong>
+                          <Badge tone={r.source === 'membership' ? 'accent' : 'info'}>
+                            {r.source === 'membership' ? 'Membership' : 'Shop'}
+                          </Badge>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-end gap-1 mt-2 pt-2 border-t border-[var(--p-border)]">
+                        {r.source === 'membership' ? (
+                          <>
+                            <Button size="sm" variant="ghost" icon={Eye}
+                              onClick={() => viewReceipt(r)}
+                              aria-label="View receipt"
+                              title="View payment receipt PDF">View</Button>
+                            <Button size="sm" variant="ghost" icon={Download}
+                              onClick={() => downloadReceipt(r)}
+                              aria-label="Download receipt"
+                              title="Download payment receipt PDF">Receipt</Button>
+                          </>
+                        ) : (
+                          <>
+                            <Button size="sm" variant="ghost" icon={Eye}
+                              onClick={() => viewOrderInvoice(r)}
+                              aria-label="View invoice"
+                              title="View order invoice PDF">View</Button>
+                            <Button size="sm" variant="ghost" icon={Download}
+                              onClick={() => downloadOrderInvoice(r)}
+                              aria-label="Download invoice"
+                              title="Download order invoice PDF">Invoice</Button>
+                          </>
+                        )}
+                      </div>
                     </li>
                   ))}
                 </ul>

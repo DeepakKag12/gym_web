@@ -58,7 +58,7 @@ function DietModal({ editData, members, onClose, onSaved }) {
   return (
     <div className="admin-modal-overlay">
       <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-        className="admin-modal-box" style={{ maxWidth: '780px' }}>
+        className="admin-modal-box max-h-[90dvh] overflow-y-auto" style={{ maxWidth: 'min(calc(100vw - 24px), 780px)' }}>
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-white font-bold text-xl">{editData ? 'Edit Diet Plan' : 'Create Diet Plan'}</h2>
           <button onClick={onClose} className="text-gray-500 hover:text-white"><X size={20} /></button>
@@ -132,18 +132,20 @@ function DietModal({ editData, members, onClose, onSaved }) {
                   <button onClick={() => removeMeal(mi)} className="text-red-400 hover:text-red-300 p-1 flex-shrink-0 transition-colors"><X size={14} /></button>
                 </div>
                 {meal.items.map((item, ii) => (
-                  <div key={ii} className="flex gap-2 mb-2 items-center">
-                    <input className="input-dark text-xs py-1.5 flex-1" placeholder="Food item (e.g. Oats)" value={item.name} onChange={e => updateItem(mi, ii, 'name', e.target.value)} />
-                    <input className="input-dark text-xs py-1.5 w-20" placeholder="Qty" value={item.quantity} onChange={e => updateItem(mi, ii, 'quantity', e.target.value)} />
-                    <input className="input-dark text-xs py-1.5 w-16" placeholder="kcal" type="number" value={item.calories} onChange={e => updateItem(mi, ii, 'calories', e.target.value)} />
-                    {meal.items.length > 1 && (
-                      <button onClick={() => removeItem(mi, ii)} className="text-gray-600 hover:text-red-400 flex-shrink-0 transition-colors"><X size={13} /></button>
-                    )}
+                  <div key={ii} className="flex flex-wrap sm:flex-nowrap gap-2 mb-2 items-center">
+                    <input className="input-dark text-xs py-1.5 flex-1 min-w-[140px]" placeholder="Food item (e.g. Oats)" value={item.name} onChange={e => updateItem(mi, ii, 'name', e.target.value)} />
+                    <div className="flex items-center gap-2 flex-1 sm:flex-none">
+                      <input className="input-dark text-xs py-1.5 w-full sm:w-20" placeholder="Qty" value={item.quantity} onChange={e => updateItem(mi, ii, 'quantity', e.target.value)} />
+                      <input className="input-dark text-xs py-1.5 w-full sm:w-16" placeholder="kcal" type="number" value={item.calories} onChange={e => updateItem(mi, ii, 'calories', e.target.value)} />
+                      {meal.items.length > 1 && (
+                        <button onClick={() => removeItem(mi, ii)} className="text-gray-600 hover:text-red-400 p-1 flex-shrink-0 transition-colors" aria-label="Remove food item"><X size={13} /></button>
+                      )}
+                    </div>
                   </div>
                 ))}
-                <div className="flex gap-3 mt-2">
-                  <button onClick={() => addItem(mi)} className="text-primary text-xs hover:underline font-medium">+ Add item</button>
-                  <input className="input-dark text-xs py-1 flex-1 ml-2" placeholder="Meal notes (optional)" value={meal.notes} onChange={e => updateMeal(mi, 'notes', e.target.value)} />
+                <div className="flex flex-wrap sm:flex-nowrap gap-2 mt-2 items-center">
+                  <button onClick={() => addItem(mi)} className="text-primary text-xs hover:underline font-medium whitespace-nowrap">+ Add item</button>
+                  <input className="input-dark text-xs py-1 flex-1 w-full sm:w-auto" placeholder="Meal notes (optional)" value={meal.notes} onChange={e => updateMeal(mi, 'notes', e.target.value)} />
                 </div>
               </div>
             ))}
@@ -153,9 +155,9 @@ function DietModal({ editData, members, onClose, onSaved }) {
           </div>
         </div>
 
-        <div className="flex justify-end gap-3 mt-6">
-          <button onClick={onClose} className="btn-ghost px-5 py-2.5 text-sm">Cancel</button>
-          <button onClick={save} disabled={saving} className="btn-fire px-6 py-2.5 text-sm">
+        <div className="flex flex-wrap justify-end gap-3 mt-6">
+          <button onClick={onClose} className="btn-ghost px-5 py-2.5 text-sm flex-1 sm:flex-none">Cancel</button>
+          <button onClick={save} disabled={saving} className="btn-fire px-6 py-2.5 text-sm flex-1 sm:flex-none">
             {saving ? <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : (editData ? 'Update Plan' : 'Create Plan')}
           </button>
         </div>
@@ -192,7 +194,7 @@ export default function AdminDiet() {
   return (
     <AdminLayout title="Diet Plans">
       <div className="flex justify-end mb-5">
-        <button onClick={() => setModal('new')} className="btn-fire text-sm py-2 px-4 gap-1.5">
+        <button onClick={() => setModal('new')} className="btn-fire text-sm py-2 px-4 gap-1.5 w-full sm:w-auto justify-center">
           <Plus size={15} /> Add Diet Plan
         </button>
       </div>

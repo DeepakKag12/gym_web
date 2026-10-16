@@ -3,10 +3,11 @@ import { MessageSquare, X, Send, Sparkles } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useSocket } from '../context/SocketContext';
 import API from '../utils/api';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 export default function ChatWidget() {
   const { user } = useAuth();
+  const location = useLocation();
   const {
     isConnected,
     unreadCount,
@@ -105,18 +106,26 @@ export default function ChatWidget() {
   const isTyping = selectedContact && typingUsers[selectedContact._id];
   const fullChatUrl = user?.role === 'admin' ? '/admin/messages' : '/my-messages';
 
-  if (!user) return null;
+  const isChatRoute = location.pathname === '/admin/messages' || location.pathname === '/my-messages';
+  const isAdminRoute = location.pathname.startsWith('/admin') || location.pathname.startsWith('/trainer');
+  const isMemberRoute = !isAdminRoute && user?.role === 'member';
+
+  if (!user || isChatRoute) return null;
+
+  const bottomPositionClass = isMemberRoute
+    ? 'bottom-[calc(5rem+env(safe-area-inset-bottom,0px))] sm:bottom-6'
+    : 'bottom-[calc(1.25rem+env(safe-area-inset-bottom,0px))] sm:bottom-6';
 
   return (
-    <div className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-50">
+    <div className={`fixed ${bottomPositionClass} right-3 sm:right-6 z-50`}>
       {/* Floating trigger button */}
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="relative w-13 h-13 rounded-2xl bg-[#3365e2] hover:bg-[#2552ca] text-white shadow-xl shadow-[#3365e2]/30 flex items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95 group cursor-pointer"
+          className="relative w-12 h-12 sm:w-13 sm:h-13 rounded-2xl bg-[#3365e2] hover:bg-[#2552ca] text-white shadow-xl shadow-[#3365e2]/30 flex items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95 group cursor-pointer"
           aria-label="Open live gym chat"
         >
-          <MessageSquare size={24} />
+          <MessageSquare size={22} className="sm:w-6 sm:h-6" />
           {unreadCount > 0 && (
             <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-5 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center px-1 border-2 border-white dark:border-stone-900 shadow-sm animate-pulse">
               {unreadCount > 9 ? '9+' : unreadCount}
@@ -131,7 +140,7 @@ export default function ChatWidget() {
       {/* Expanded quick chat popup */}
       {isOpen && (
         <div
-          className="w-[calc(100vw-32px)] sm:w-[360px] h-[480px] rounded-3xl border shadow-2xl flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-200"
+          className="w-[calc(100vw-24px)] max-w-[360px] h-[min(480px,calc(100dvh-120px))] rounded-3xl border shadow-2xl flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-200"
           style={{ background: 'var(--p-surface)', borderColor: 'var(--p-border)' }}
         >
           {/* Header */}

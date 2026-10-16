@@ -51,7 +51,13 @@ export default function ParallaxBanner({
       >
         <img
           src={imageSrc}
-          alt="Iron Forge Facility Interior"
+          alt="FitNation Facility Interior"
+          loading="lazy"
+          decoding="async"
+          onError={(e) => {
+            e.currentTarget.onerror = null;
+            e.currentTarget.src = 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=2000&auto=format&fit=crop';
+          }}
           className="w-full h-full object-cover brightness-[0.45]"
         />
       </div>

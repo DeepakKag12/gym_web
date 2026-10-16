@@ -47,16 +47,11 @@ export default function PillButton({
       {/* Expanding circular backdrop */}
       <span
         aria-hidden="true"
-        className={`absolute rounded-full pointer-events-none transition-transform duration-500 ease-out ${
+        className={`absolute rounded-full pointer-events-none transition-transform duration-500 ease-out left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[350%] aspect-square ${
           isHovered ? 'scale-100' : 'scale-0 group-hover:scale-100'
         }`}
         style={{
-          width: '350%',
-          aspectRatio: '1 / 1',
-          left: '50%',
-          top: '50%',
           backgroundColor: hoverBgColor,
-          translate: '-50% -50%',
           transitionTimingFunction: 'cubic-bezier(0.785, 0.135, 0.15, 0.86)',
         }}
       />
@@ -116,8 +111,8 @@ export default function PillButton({
   );
 
   const sizeClasses = (size === 'nav' || size === 'sm')
-    ? 'h-[38px] sm:h-[40px] min-h-[38px] sm:min-h-[40px] px-4 sm:px-5 gap-2 text-xs sm:text-sm font-semibold'
-    : 'h-[3.4vw] min-h-[46px] px-[2vw] gap-[0.8vw]';
+    ? 'h-[36px] sm:h-[40px] min-h-[36px] sm:min-h-[40px] px-3 sm:px-5 gap-1.5 sm:gap-2 text-xs sm:text-sm font-semibold'
+    : 'h-auto sm:h-[3.4vw] min-h-[44px] sm:min-h-[46px] py-2.5 sm:py-0 px-4 sm:px-[2vw] gap-2 sm:gap-[0.8vw] text-xs sm:text-sm md:text-base font-semibold';
 
   const disabledClasses = props.disabled ? 'opacity-60 cursor-not-allowed pointer-events-none shadow-none' : 'cursor-pointer hover:shadow-md';
 
